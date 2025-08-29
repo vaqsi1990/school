@@ -18,13 +18,13 @@ function StudentDashboardContent() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
-                სტუდენტის დეშბორდი
+                მოსწავლის დეშბორდი
               </h1>
               <p className="text-black md:text-[18px] text-[16px]">
                 კეთილი იყოს თქვენი მობრძანება, {user?.student?.name || user?.email} {user?.student?.lastname || ''}
               </p>
               <p className="text-black md:text-[16px] text-[14px]">
-                როლი: სტუდენტი
+                როლი: მოსწავლე
               </p>
             </div>
             <button
@@ -97,73 +97,12 @@ function StudentDashboardContent() {
                     {user?.email || 'არ არის მითითებული'}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="md:text-[16px] text-[14px] text-black">მომხმარებლის ID:</span>
-                  <span className="md:text-[16px] text-[14px] font-medium text-black">
-                    {user?.id || 'არ არის მითითებული'}
-                  </span>
-                </div>
+                
               </div>
             </div>
           </div>
 
-          {/* Debug Information Card */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">სესიის ინფორმაცია</h3>
-                </div>
-              </div>
-              <div className="mt-4 space-y-2">
-                <div className="text-xs text-gray-600">
-                  <strong>User ID:</strong> {user?.id || 'N/A'}
-                </div>
-                <div className="text-xs text-gray-600">
-                  <strong>Email:</strong> {user?.email || 'N/A'}
-                </div>
-                <div className="text-xs text-gray-600">
-                  <strong>User Type:</strong> {user?.userType || 'N/A'}
-                </div>
-                <div className="text-xs text-gray-600">
-                  <strong>Has Student Data:</strong> {user?.student ? 'Yes' : 'No'}
-                </div>
-                {user?.student && (
-                  <>
-                    <div className="text-xs text-gray-600">
-                      <strong>Student ID:</strong> {user.student.id || 'N/A'}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      <strong>Student Name:</strong> {user.student.name || 'N/A'}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      <strong>Student Lastname:</strong> {user.student.lastname || 'N/A'}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      <strong>Student Grade:</strong> {user.student.grade || 'N/A'}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      <strong>Student School:</strong> {user.student.school || 'N/A'}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      <strong>Student Phone:</strong> {user.student.phone || 'N/A'}
-                    </div>
-                    <div className="text-xs text-gray-600">
-                      <strong>Student Code:</strong> {user.student.code || 'N/A'}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
+      
 
           {/* Olympiads Card */}
           <div className="bg-white overflow-hidden shadow rounded-lg">

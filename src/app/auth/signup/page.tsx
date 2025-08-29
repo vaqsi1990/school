@@ -15,6 +15,8 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const router = useRouter()
 
   const {
@@ -140,7 +142,7 @@ export default function SignUpPage() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="თქვენი ელ-ფოსტა"
           />
         </div>
@@ -162,7 +164,7 @@ export default function SignUpPage() {
   const renderCodeStep = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-black mb-4">
           6-ციფრიანი ვერიფიკაციის კოდი გაიგზავნა <strong>{email}</strong>
         </p>
       </div>
@@ -178,7 +180,7 @@ export default function SignUpPage() {
             maxLength={6}
             value={verificationCode}
             onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
-            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-center text-2xl tracking-widest"
+            className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-center text-2xl tracking-widest"
             placeholder="000000"
           />
         </div>
@@ -188,7 +190,7 @@ export default function SignUpPage() {
         <button
           type="button"
           onClick={() => setCurrentStep('email')}
-          className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="flex-1 py-2 px-4 border border-black rounded-md shadow-sm text-sm font-medium text-black bg-white  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           უკან
         </button>
@@ -227,8 +229,8 @@ export default function SignUpPage() {
             className="block w-full px-3 py-2 border border-black md:text-[18px] text-[16px] rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           >
             <option value="">აირჩიეთ </option>
-            <option value="STUDENT">სტუდენტი</option>
-            <option value="TEACHER">მასწავლებელი</option>
+            <option value="STUDENT">მოსწავლე</option>
+           
             <option value="ADMIN">ადმინისტრატორი</option>
           </select>
         </div>
@@ -249,7 +251,7 @@ export default function SignUpPage() {
             {...register('email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-50"
+            className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="თქვენი ელ-ფოსტა"
             readOnly
           />
@@ -261,15 +263,31 @@ export default function SignUpPage() {
         <label htmlFor="password" className="block text-black md:text-[18px] text-[16px]">
           პაროლი *
         </label>
-        <div className="mt-1">
+        <div className="mt-1 relative">
           <input
             id="password"
-            type="password"
+            type={showPassword ? 'text' : 'password'}
             autoComplete="new-password"
             {...register('password')}
-            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="appearance-none block w-full px-3 py-2 pr-10 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="მინიმუმ 6 სიმბოლო"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-black  transition-colors duration-200"
+          >
+            {showPassword ? (
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            )}
+          </button>
         </div>
         {errors.password && (
           <p className="mt-2 text-sm text-red-600">{errors.password.message}</p>
@@ -280,15 +298,31 @@ export default function SignUpPage() {
         <label htmlFor="confirmPassword" className="block text-black md:text-[18px] text-[16px]">
           დაადასტურეთ პაროლი *
         </label>
-        <div className="mt-1">
+        <div className="mt-1 relative">
           <input
             id="confirmPassword"
-            type="password"
+            type={showConfirmPassword ? 'text' : 'password'}
             autoComplete="new-password"
             {...register('confirmPassword')}
-            className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="appearance-none block w-full px-3 py-2 pr-10 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="დაადასტურეთ პაროლი"
           />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-black  transition-colors duration-200"
+          >
+            {showConfirmPassword ? (
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            )}
+          </button>
         </div>
         {errors.confirmPassword && (
           <p className="mt-2 text-sm text-red-600">{errors.confirmPassword.message}</p>
@@ -308,7 +342,7 @@ export default function SignUpPage() {
                   type="text"
                   autoComplete="given-name"
                   {...register('studentName')}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="სახელი"
                 />
               </div>
@@ -327,7 +361,7 @@ export default function SignUpPage() {
                   type="text"
                   autoComplete="family-name"
                   {...register('studentLastname')}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="გვარი"
                 />
               </div>
@@ -346,7 +380,7 @@ export default function SignUpPage() {
                 <select
                   id="grade"
                   {...register('grade', { valueAsNumber: true })}
-                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none text-black focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 >
                   <option value="">აირჩიეთ კლასი</option>
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((grade) => (
@@ -363,7 +397,7 @@ export default function SignUpPage() {
 
             <div>
               <label htmlFor="studentPhone" className="block text-black md:text-[18px] text-[16px]">
-                ტელეფონის ნომერი *
+                ტელ ნომერი *
               </label>
               <div className="mt-1">
                 <input
@@ -371,7 +405,7 @@ export default function SignUpPage() {
                   type="tel"
                   autoComplete="tel"
                   {...register('studentPhone')}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="+995 555 55 55 55"
                 />
               </div>
@@ -391,7 +425,7 @@ export default function SignUpPage() {
                 type="text"
                 autoComplete="organization"
                 {...register('school')}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="სკოლა"
               />
             </div>
@@ -415,7 +449,7 @@ export default function SignUpPage() {
                   type="text"
                   autoComplete="given-name"
                   {...register('teacherName')}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="სახელი"
                 />
               </div>
@@ -434,7 +468,7 @@ export default function SignUpPage() {
                   type="text"
                   autoComplete="family-name"
                   {...register('teacherLastname')}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="გვარი"
                 />
               </div>
@@ -454,7 +488,7 @@ export default function SignUpPage() {
                   id="subject"
                   type="text"
                   {...register('subject')}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="საგანი"
                 />
               </div>
@@ -465,7 +499,7 @@ export default function SignUpPage() {
 
             <div>
               <label htmlFor="teacherPhone" className="block text-black md:text-[18px] text-[16px]">
-                ტელეფონის ნომერი *
+                ტელ ნომერი *
               </label>
               <div className="mt-1">
                 <input
@@ -473,7 +507,7 @@ export default function SignUpPage() {
                   type="tel"
                   autoComplete="tel"
                   {...register('teacherPhone')}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="+995 555 55 55 55"
                 />
               </div>
@@ -493,7 +527,7 @@ export default function SignUpPage() {
                 type="text"
                 autoComplete="organization"
                 {...register('teacherSchool')}
-                className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="სკოლა"
               />
             </div>
@@ -517,7 +551,7 @@ export default function SignUpPage() {
                   type="text"
                   autoComplete="given-name"
                   {...register('adminName')}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="სახელი"
                 />
               </div>
@@ -536,7 +570,7 @@ export default function SignUpPage() {
                   type="text"
                   autoComplete="family-name"
                   {...register('adminLastname')}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="გვარი"
                 />
               </div>
@@ -552,7 +586,7 @@ export default function SignUpPage() {
         <button
           type="button"
           onClick={() => setCurrentStep('code')}
-          className="flex-1 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="flex-1 py-2 px-4 border border-black rounded-md shadow-sm text-sm font-medium text-black bg-white  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
           უკან
         </button>
@@ -594,7 +628,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <h2 className="mt-6 font-extrabold text-black md:text-[30px] text-[20px]">
@@ -645,7 +679,7 @@ export default function SignUpPage() {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t border-black" />
               </div>
             </div>
 

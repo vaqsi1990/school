@@ -9,10 +9,29 @@ const sendVerificationSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('Send verification API called')
+    
+    // Check environment variables
+    console.log('Environment check:', {
+      EMAIL_USER: process.env.EMAIL_USER,
+      EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? 'SET' : 'NOT SET',
+      NEXTAUTH_URL: process.env.NEXTAUTH_URL
+    })
+    
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.error('Missing email configuration')
+      return NextResponse.json(
+        { error: 'ელ-ფოსტის კონფიგურაცია არ არის დაყენებული' },
+        { status: 500 }
+      );
+    }
+    
     const body = await request.json();
+    console.log('Request body:', body)
     
     // Validate the request body
     const validatedData = sendVerificationSchema.parse(body);
+    console.log('Validated data:', validatedData)
     
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -20,6 +39,7 @@ export async function POST(request: NextRequest) {
     });
     
     if (existingUser) {
+      console.log('User already exists:', validatedData.email)
       return NextResponse.json(
         { error: 'ამ ელ-ფოსტით მომხმარებელი უკვე არსებობს' },
         { status: 400 }
@@ -28,34 +48,42 @@ export async function POST(request: NextRequest) {
     
     // Generate 6-digit verification code
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log('Generated verification code:', verificationCode)
     
     // Set expiration time (10 minutes from now)
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    console.log('Expires at:', expiresAt)
     
     // Delete any existing verification tokens for this email
     await prisma.verificationToken.deleteMany({
       where: { email: validatedData.email }
     });
+    console.log('Deleted existing tokens for:', validatedData.email)
     
     // Create new verification token
-    await prisma.verificationToken.create({
+    const newToken = await prisma.verificationToken.create({
       data: {
         email: validatedData.email,
         token: verificationCode,
         expires: expiresAt,
       }
     });
+    console.log('Created new token:', newToken)
     
     // Send verification email
+    console.log('Sending verification email...')
     const emailResult = await sendVerificationEmail(validatedData.email, verificationCode);
+    console.log('Email result:', emailResult)
     
     if (!emailResult.success) {
+      console.log('Email sending failed')
       return NextResponse.json(
         { error: 'ვერიფიკაციის ელ-ფოსტის გაგზავნა ვერ მოხერხდა' },
         { status: 500 }
       );
     }
     
+    console.log('Verification email sent successfully')
     return NextResponse.json({
       message: 'ვერიფიკაციის კოდი წარმატებით გაიგზავნა',
       email: validatedData.email

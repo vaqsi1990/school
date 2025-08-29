@@ -50,7 +50,7 @@ export const registrationSchema = z.object({
   }
   return true
 }, {
-  message: "გთხოვთ შეავსოთ ყველა საჭირო ველი სტუდენტისთვის",
+  message: "გთხოვთ შეავსოთ ყველა საჭირო ველი მოსწავლესთვის",
   path: ["studentName"],
 }).refine((data) => {
   // Teacher validation

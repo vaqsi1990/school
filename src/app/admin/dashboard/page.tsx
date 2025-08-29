@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/useAuth'
 import { AdminOnly } from '@/components/auth/ProtectedRoute'
 import { useState } from 'react'
+import Link from 'next/link'
 
 function AdminDashboardContent() {
   const { user, logout } = useAuth()
@@ -281,9 +282,9 @@ function AdminDashboardContent() {
                   მართეთ სისტემაში არსებული მომხმარებლები და მათი ნებართვები.
                 </p>
                 <button className="mt-4 w-full cursor-pointer bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium text-black">
-                  <a href="/admin/users" className="block w-full h-full">
+                  <Link href="/admin/users" className="block w-full h-full">
                     მომხმარებლების ნახვა
-                  </a>
+                  </Link>
                 </button>
               </div>
             </div>

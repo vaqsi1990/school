@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/useAuth'
 import { AdminOnly } from '@/components/auth/ProtectedRoute'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 interface User {
   id: string
@@ -45,10 +46,32 @@ function UserManagementContent() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<'all' | 'students' | 'teachers' | 'admins'>('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const [resetPasswordModal, setResetPasswordModal] = useState({
+    isOpen: false,
+    userId: '',
+    userEmail: '',
+    userName: ''
+  })
+  const [deleteUserModal, setDeleteUserModal] = useState({
+    isOpen: false,
+    userId: '',
+    userEmail: '',
+    userName: '',
+    userType: '' as string
+  })
+  const [newPassword, setNewPassword] = useState('')
+  const [isResetting, setIsResetting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [resetMessage, setResetMessage] = useState('')
+  const [deleteMessage, setDeleteMessage] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
-    fetchUsers()
-  }, [])
+    console.log('Current user:', user)
+    if (user) {
+      fetchUsers()
+    }
+  }, [user])
 
   const fetchUsers = async () => {
     try {
@@ -64,6 +87,158 @@ function UserManagementContent() {
       setError('სისტემური შეცდომა მოხდა')
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!user || user.userType !== 'ADMIN') {
+      setResetMessage('მხოლოდ ადმინისტრატორებს შეუძლიათ პაროლის შეცვლა')
+      return
+    }
+    
+    if (!newPassword.trim()) {
+      setResetMessage('გთხოვთ შეიყვანოთ ახალი პაროლი')
+      return
+    }
+
+    if (newPassword.length < 6) {
+      setResetMessage('პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო')
+      return
+    }
+
+    setIsResetting(true)
+    setResetMessage('')
+
+    try {
+      console.log('Sending password reset request:', {
+        userId: resetPasswordModal.userId,
+        newPassword: newPassword
+      })
+
+      const response = await fetch('/api/admin/reset-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: resetPasswordModal.userId,
+          newPassword: newPassword
+        }),
+      })
+
+      console.log('Response status:', response.status)
+      const result = await response.json()
+      console.log('Response result:', result)
+
+      if (response.ok) {
+        setResetMessage('პაროლი წარმატებით შეიცვალა!')
+        setNewPassword('')
+        setShowPassword(false)
+        setTimeout(() => {
+          closePasswordResetModal()
+        }, 2000)
+      } else {
+        setResetMessage(`შეცდომა: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('Password reset error:', error)
+      setResetMessage('სისტემური შეცდომა მოხდა')
+    } finally {
+      setIsResetting(false)
+    }
+  }
+
+  const openPasswordResetModal = (userId: string, userEmail: string, userName: string) => {
+    if (!user || user.userType !== 'ADMIN') {
+      setError('მხოლოდ ადმინისტრატორებს შეუძლიათ პაროლის შეცვლა')
+      return
+    }
+    
+    setResetPasswordModal({
+      isOpen: true,
+      userId,
+      userEmail,
+      userName
+    })
+    setNewPassword('')
+    setResetMessage('')
+    setShowPassword(false)
+  }
+
+  const closePasswordResetModal = () => {
+    setResetPasswordModal({ isOpen: false, userId: '', userEmail: '', userName: '' })
+    setNewPassword('')
+    setResetMessage('')
+    setShowPassword(false)
+  }
+
+  const openDeleteUserModal = (userId: string, userEmail: string, userName: string, userType: string) => {
+    if (!user || user.userType !== 'ADMIN') {
+      setError('მხოლოდ ადმინისტრატორებს შეუძლიათ მომხმარებლების წაშლა')
+      return
+    }
+    
+    setDeleteUserModal({
+      isOpen: true,
+      userId,
+      userEmail,
+      userName,
+      userType
+    })
+    setDeleteMessage('')
+  }
+
+  const closeDeleteUserModal = () => {
+    setDeleteUserModal({ isOpen: false, userId: '', userEmail: '', userName: '', userType: '' })
+    setDeleteMessage('')
+  }
+
+  const handleDeleteUser = async () => {
+    if (!user || user.userType !== 'ADMIN') {
+      setDeleteMessage('მხოლოდ ადმინისტრატორებს შეუძლიათ მომხმარებლების წაშლა')
+      return
+    }
+
+    setIsDeleting(true)
+    setDeleteMessage('')
+
+    try {
+      console.log('Sending delete user request:', {
+        userId: deleteUserModal.userId,
+        userEmail: deleteUserModal.userEmail
+      })
+
+      const response = await fetch('/api/admin/delete-user', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: deleteUserModal.userId
+        }),
+      })
+
+      console.log('Delete response status:', response.status)
+      const result = await response.json()
+      console.log('Delete response result:', result)
+
+      if (response.ok) {
+        setDeleteMessage('მომხმარებელი წარმატებით წაიშალა!')
+        // Remove user from local state
+        setUsers(prevUsers => prevUsers.filter(u => u.id !== deleteUserModal.userId))
+        setTimeout(() => {
+          closeDeleteUserModal()
+        }, 2000)
+      } else {
+        setDeleteMessage(`შეცდომა: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('Delete user error:', error)
+      setDeleteMessage('სისტემური შეცდომა მოხდა')
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -115,12 +290,12 @@ function UserManagementContent() {
                 სისტემაში რეგისტრირებული ყველა მომხმარებელი
               </p>
             </div>
-            <a
+            <Link
               href="/admin/dashboard"
               className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
             >
               დაბრუნება
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -134,7 +309,7 @@ function UserManagementContent() {
                 type="text"
                 placeholder="მოძებნა სახელით, გვარით ან ელ-ფოსტით..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -211,6 +386,9 @@ function UserManagementContent() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     სტატუსი
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    მოქმედებები
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -246,7 +424,7 @@ function UserManagementContent() {
                         user.userType === 'TEACHER' ? 'bg-blue-100 text-blue-800' :
                         'bg-purple-100 text-purple-800'
                       }`}>
-                        {user.userType === 'STUDENT' ? 'სტუდენტი' :
+                        {user.userType === 'STUDENT' ? 'მოსწავლე' :
                          user.userType === 'TEACHER' ? 'მასწავლებელი' :
                          'ადმინი'}
                       </span>
@@ -291,6 +469,43 @@ function UserManagementContent() {
                         </span>
                       )}
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => openPasswordResetModal(
+                            user.id,
+                            user.email,
+                            user.student?.name && user.student?.lastname 
+                              ? `${user.student.name} ${user.student.lastname}`
+                              : user.teacher?.name && user.teacher?.lastname
+                              ? `${user.teacher.name} ${user.teacher.lastname}`
+                              : user.admin?.name && user.admin?.lastname
+                              ? `${user.admin.name} ${user.admin.lastname}`
+                              : user.email
+                          )}
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium"
+                        >
+                          პაროლის შეცვლა
+                        </button>
+                        <button
+                          onClick={() => openDeleteUserModal(
+                            user.id,
+                            user.email,
+                            user.student?.name && user.student?.lastname 
+                              ? `${user.student.name} ${user.student.lastname}`
+                              : user.teacher?.name && user.teacher?.lastname
+                              ? `${user.teacher.name} ${user.teacher.lastname}`
+                              : user.admin?.name && user.admin?.lastname
+                              ? `${user.admin.name} ${user.admin.lastname}`
+                              : user.email,
+                            user.userType
+                          )}
+                          className="bg-red-800 hover:bg-red-900 text-white px-3 py-1 rounded text-xs font-medium"
+                        >
+                          წაშლა
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -304,6 +519,141 @@ function UserManagementContent() {
           )}
         </div>
       </div>
+
+      {/* Password Reset Modal */}
+      {resetPasswordModal.isOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                პაროლის შეცვლა
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                მომხმარებელი: <strong>{resetPasswordModal.userName}</strong><br/>
+                ელ-ფოსტა: <strong>{resetPasswordModal.userEmail}</strong>
+              </p>
+              
+              <form onSubmit={handlePasswordReset}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    ახალი პაროლი
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
+                      placeholder="შეიყვანეთ ახალი პაროლი"
+                      minLength={6}
+                    />
+                    <button
+                       type="button"
+                       onClick={() => setShowPassword(!showPassword)}
+                       className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                     >
+                       {showPassword ? (
+                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                         </svg>
+                       ) : (
+                         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                         </svg>
+                       )}
+                     </button>
+                  </div>
+                </div>
+                
+                {resetMessage && (
+                  <div className={`p-3 rounded-md text-sm mb-4 ${
+                    resetMessage.includes('შეცდომა') ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                  }`}>
+                    {resetMessage}
+                  </div>
+                )}
+                
+                <div className="flex space-x-3">
+                  <button
+                    type="submit"
+                    disabled={isResetting}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-md font-medium"
+                  >
+                    {isResetting ? 'მიმდინარეობს...' : 'პაროლის შეცვლა'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closePasswordResetModal}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium"
+                  >
+                    გაუქმება
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete User Modal */}
+      {deleteUserModal.isOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              
+              <h3 className="text-lg font-medium text-gray-900 mb-4 text-center">
+                მომხმარებლის წაშლა
+              </h3>
+              
+              <div className="text-center mb-6">
+                <p className="text-sm text-gray-600 mb-2">
+                  <strong>ყურადღება!</strong> ეს მოქმედება შეუქცევადია.
+                </p>
+                <p className="text-sm text-gray-600 mb-2">
+                  მომხმარებელი: <strong>{deleteUserModal.userName}</strong>
+                </p>
+                <p className="text-sm text-gray-600 mb-2">
+                  ელ-ფოსტა: <strong>{deleteUserModal.userEmail}</strong>
+                </p>
+                <p className="text-sm text-gray-600">
+                  ტიპი: <strong>{deleteUserModal.userType === 'STUDENT' ? 'მოსწავლე' : deleteUserModal.userType === 'TEACHER' ? 'მასწავლებელი' : 'ადმინი'}</strong>
+                </p>
+              </div>
+              
+              {deleteMessage && (
+                <div className={`p-3 rounded-md text-sm mb-4 ${
+                  deleteMessage.includes('შეცდომა') ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                }`}>
+                  {deleteMessage}
+                </div>
+              )}
+              
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleDeleteUser}
+                  disabled={isDeleting}
+                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-4 py-2 rounded-md font-medium"
+                >
+                  {isDeleting ? 'მიმდინარეობს...' : 'დიახ, წავშალოთ'}
+                </button>
+                <button
+                  onClick={closeDeleteUserModal}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium"
+                >
+                  გაუქმება
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

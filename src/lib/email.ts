@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from 'nodemailer'
 
 // Email configuration
 const transporter = nodemailer.createTransport({
@@ -7,67 +7,77 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD, // Use an app password for Gmail
   },
-});
+})
 
-// Email template for verification code
-export const sendVerificationEmail = async (email: string, verificationCode: string) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER, // Use no-reply address as per user preference
-    to: email,
-    subject: 'ელ-ფოსტის ვერიფიკაცია - Scool პლატფორმა',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333; text-align: center;">ელ-ფოსტის ვერიფიკაცია</h2>
-        <p>გმადლობთ Scool პლატფორმაზე რეგისტრაციისთვის!</p>
-        <p>თქვენი ვერიფიკაციის კოდია:</p>
-        <div style="background-color: #f4f4f4; padding: 20px; text-align: center; margin: 20px 0;">
-          <h1 style="color: #007bff; font-size: 32px; margin: 0; letter-spacing: 5px;">${verificationCode}</h1>
+export async function sendVerificationEmail(email: string, token: string) {
+  try {
+    console.log('Sending verification email to:', email)
+    console.log('Verification code:', token)
+    console.log('Email config:', {
+      user: process.env.EMAIL_USER,
+      hasPassword: !!process.env.EMAIL_PASSWORD,
+      hasNexTAuthUrl: !!process.env.NEXTAUTH_URL
+    })
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'ელ-ფოსტის ვერიფიკაცია - Scool პლატფორმა',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #333; text-align: center;">ელ-ფოსტის ვერიფიკაცია</h2>
+          <p>გმადლობთ Scool პლატფორმაზე რეგისტრაციისთვის!</p>
+          <p>თქვენი ვერიფიკაციის კოდია:</p>
+          <div style="background-color: #f4f4f4; padding: 20px; text-align: center; margin: 20px 0;">
+            <h1 style="color: #007bff; font-size: 32px; margin: 0; letter-spacing: 5px;">${token}</h1>
+          </div>
+          <p>გთხოვთ შეიყვანოთ ეს კოდი რეგისტრაციის დასასრულებლად.</p>
+          <p>ეს კოდი ვადა გასდება 10 წუთში.</p>
+          <p>თუ თქვენ არ მოითხოვეთ ეს ვერიფიკაცია, გთხოვთ უგულებელყოთ ეს ელ-ფოსტა.</p>
+          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+          <p style="color: #666; font-size: 12px; text-align: center;">
+            ეს არის ავტომატური შეტყობინება Scool პლატფორმიდან. გთხოვთ არ უპასუხოთ ამ ელ-ფოსტას.
+          </p>
         </div>
-        <p>გთხოვთ შეიყვანოთ ეს კოდი რეგისტრაციის დასასრულებლად.</p>
-        <p>ეს კოდი ვადა გასდება 10 წუთში.</p>
-        <p>თუ თქვენ არ მოითხოვეთ ეს ვერიფიკაცია, გთხოვთ უგულებელყოთ ეს ელ-ფოსტა.</p>
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-        <p style="color: #666; font-size: 12px; text-align: center;">
-          ეს არის ავტომატური შეტყობინება Scool პლატფორმიდან. გთხოვთ არ უპასუხოთ ამ ელ-ფოსტას.
-        </p>
-      </div>
-    `,
-  };
+      `
+    }
 
-  try {
-    await transporter.sendMail(mailOptions);
-    return { success: true };
+    console.log('Mail options prepared, sending email...')
+    await transporter.sendMail(mailOptions)
+    console.log('Email sent successfully!')
+    return { success: true }
   } catch (error) {
-    console.error('Email sending error:', error);
-    return { success: false, error: 'ვერიფიკაციის ელ-ფოსტის გაგზავნა ვერ მოხერხდა' };
+    console.error('Error sending verification email:', error)
+    return { success: false, error }
   }
-};
+}
 
-// Email template for successful verification
-export const sendVerificationSuccessEmail = async (email: string, name: string) => {
-  const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: 'ელ-ფოსტა წარმატებით გადამოწმდა - Scool პლატფორმა',
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #28a745; text-align: center;">ელ-ფოსტა წარმატებით გადამოწმდა!</h2>
-        <p>გამარჯობა ${name},</p>
-        <p>თქვენი ელ-ფოსტა წარმატებით გადამოწმდა. ახლა შეგიძლიათ დაასრულოთ რეგისტრაცია Scool პლატფორმაზე.</p>
-        <p>კეთილი იყოს თქვენი მობრძანება ჩვენს საზოგადოებაში!</p>
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
-        <p style="color: #666; font-size: 12px; text-align: center;">
-          ეს არის ავტომატური შეტყობინება Scool პლატფორმიდან. გთხოვთ არ უპასუხოთ ამ ელ-ფოსტას.
-        </p>
-      </div>
-    `,
-  };
-
+export async function sendPasswordResetEmail(email: string, token: string) {
   try {
-    await transporter.sendMail(mailOptions);
-    return { success: true };
+    const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password/confirm?token=${token}&email=${email}`
+    
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'პაროლის აღდგენა',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #dc2626;">პაროლის აღდგენა</h2>
+          <p>გმარჯობა!</p>
+          <p>თქვენ მოითხოვეთ პაროლის აღდგენა. ახალი პაროლის დასაყენებლად დააჭირეთ ქვემოთ მოყვანილ ღილაკს:</p>
+          <a href="${resetUrl}" style="display: inline-block; background-color: #dc2626; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin: 20px 0;">პაროლის შეცვლა</a>
+          <p>ან გადადით ამ ლინკზე: <a href="${resetUrl}">${resetUrl}</a></p>
+          <p>ეს ლინკი ვალიდურია 24 საათის განმავლობაში.</p>
+          <p>თუ თქვენ არ მოითხოვეთ პაროლის აღდგენა, გთხოვთ უგულებელყოთ ეს ელ-ფოსტა.</p>
+          <p>თქვენი პაროლი არ შეიცვლება, სანამ არ დააჭირებთ ზემოთ მოყვანილ ლინკს.</p>
+        </div>
+      `
+    }
+
+    await transporter.sendMail(mailOptions)
+    return { success: true }
   } catch (error) {
-    console.error('Email sending error:', error);
-    return { success: false, error: 'წარმატების ელ-ფოსტის გაგზავნა ვერ მოხერხდა' };
+    console.error('Error sending password reset email:', error)
+    return { success: false, error }
   }
-};
+}
