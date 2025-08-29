@@ -8,11 +8,6 @@ import Link from 'next/link'
 export const dynamic = 'force-dynamic'
 export const dynamicParams = true
 
-// This function helps Next.js understand that this page should not be statically generated
-export function generateStaticParams() {
-  return []
-}
-
 export default function ResetPasswordConfirmPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
