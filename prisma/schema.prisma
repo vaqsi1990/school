@@ -1,0 +1,364 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Base User model with common fields
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  userType  UserType
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  student   Student?
+  teacher   Teacher?
+  admin     Admin?
+  accounts  Account[]
+  sessions  Session[]
+
+  @@map("users")
+}
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Student model
+model Student {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  name      String
+  lastname  String
+  grade     Int
+  school    String
+  phone     String   @unique
+  code      String   @unique @db.VarChar(6) // 6-digit unique code
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  participations StudentOlympiad[]
+  answers        StudentAnswer[]
+
+  @@map("students")
+}
+
+// Teacher model
+model Teacher {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  name      String
+  lastname  String
+  subject   String   // Subject they teach
+  school    String
+  phone     String   @unique
+  isVerified Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdOlympiads Olympiad[]     @relation("CreatedOlympiads")
+  questionSets   QuestionSet[]    // Question sets created by this teacher
+  createdQuestions Question[]      @relation("CreatedByTeacher")
+
+  @@map("teachers")
+}
+
+// Admin model
+model Admin {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  name      String
+  lastname  String
+  role      AdminRole @default(SUPER_ADMIN)
+  permissions String[] 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  managedOlympiads Olympiad[]     @relation("ManagedOlympiads") // Olympiads managed by this admin
+
+  @@map("admins")
+}
+
+// Subject model
+model Subject {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  chapters    Chapter[]
+  olympiads   Olympiad[]
+  questions   Question[]
+  questionSets QuestionSet[]
+
+  @@map("subjects")
+}
+
+// Chapter model for organizing questions
+model Chapter {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  order       Int      // For ordering chapters
+  subjectId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  subject     Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  paragraphs  Paragraph[]
+  questions   Question[]
+
+  @@map("chapters")
+}
+
+// Paragraph model for further organization
+model Paragraph {
+  id        String   @id @default(cuid())
+  name      String
+  content   String?
+  order     Int      // For ordering paragraphs
+  chapterId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  chapter   Chapter    @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  questions Question[]
+
+  @@map("paragraphs")
+}
+
+// QuestionSet model for teachers to organize questions
+model QuestionSet {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  teacherId   String
+  subjectId   String
+  grade       Int
+  isPublic    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  teacher     Teacher        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subject     Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  questions   QuestionSetQuestion[]
+
+  @@map("question_sets")
+}
+
+// Question model
+model Question {
+  id          String   @id @default(cuid())
+  text        String
+  type        QuestionType
+  options     String[] // For multiple choice questions
+  correctAnswer String
+  points      Int      @default(1)
+  subjectId   String
+  chapterId   String?
+  paragraphId String?
+  grade       Int      // Grade level for the question
+  createdBy   String?  // Teacher ID who created this question
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  subject    Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  chapter    Chapter?       @relation(fields: [chapterId], references: [id])
+  paragraph  Paragraph?     @relation(fields: [paragraphId], references: [id])
+  createdByTeacher Teacher? @relation("CreatedByTeacher", fields: [createdBy], references: [id])
+  answers    StudentAnswer[]
+  olympiadQuestions OlympiadQuestion[]
+  questionSets QuestionSetQuestion[]
+
+  @@map("questions")
+}
+
+// Junction table for question sets and questions
+model QuestionSetQuestion {
+  id           String   @id @default(cuid())
+  questionSetId String
+  questionId   String
+  order        Int      // Question order in the set
+  createdAt    DateTime @default(now())
+
+  // Relations
+  questionSet QuestionSet @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
+  question    Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionSetId, questionId])
+  @@map("question_set_questions")
+}
+
+// Olympiad model
+model Olympiad {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  subjectId   String
+  createdBy   String?  // Teacher ID who created this olympiad
+  managedBy   String?  // Admin ID who manages this olympiad
+  startDate   DateTime
+  endDate     DateTime
+  isActive    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  subject        Subject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  createdByTeacher Teacher?        @relation("CreatedOlympiads", fields: [createdBy], references: [id])
+  managedByAdmin   Admin?          @relation("ManagedOlympiads", fields: [managedBy], references: [id])
+  rounds         Round[]
+  participations StudentOlympiad[]
+  questions      OlympiadQuestion[]
+
+  @@map("olympiads")
+}
+
+// Round model for olympiad rounds
+model Round {
+  id         String   @id @default(cuid())
+  name       String   // e.g., "Round 1", "Round 2", "Round 3"
+  order      Int      // Round order
+  startTime  DateTime // Specific date and time for this round
+  endTime    DateTime // End time for this round
+  duration   Int      // Duration in minutes
+  olympiadId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  olympiad Olympiad @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
+
+  @@map("rounds")
+}
+
+// Junction table for olympiad questions
+model OlympiadQuestion {
+  id          String   @id @default(cuid())
+  olympiadId  String
+  questionId  String
+  order       Int      // Question order in the olympiad
+  createdAt   DateTime @default(now())
+
+  // Relations
+  olympiad Olympiad  @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
+  question Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([olympiadId, questionId])
+  @@map("olympiad_questions")
+}
+
+// Student participation in olympiads
+model StudentOlympiad {
+  id         String   @id @default(cuid())
+  studentId  String
+  olympiadId String
+  startTime  DateTime?
+  endTime    DateTime?
+  score      Int?
+  status     ParticipationStatus @default(REGISTERED)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  olympiad Olympiad @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, olympiadId])
+  @@map("student_olympiads")
+}
+
+// Student answers to questions
+model StudentAnswer {
+  id         String   @id @default(cuid())
+  studentId  String
+  questionId String
+  answer     String
+  isCorrect  Boolean?
+  points     Int?
+  answeredAt DateTime @default(now())
+
+  // Relations
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, questionId])
+  @@map("student_answers")
+}
+
+// Enums
+enum UserType {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  MODERATOR
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  SINGLE_ANSWER
+  TRUE_FALSE
+}
+
+enum ParticipationStatus {
+  REGISTERED
+  IN_PROGRESS
+  COMPLETED
+  DISQUALIFIED
+}
