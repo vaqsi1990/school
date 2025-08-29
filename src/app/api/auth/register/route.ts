@@ -18,7 +18,24 @@ export async function POST(request: NextRequest) {
     
     if (existingUser) {
       return NextResponse.json(
-        { error: 'User with this email already exists' },
+        { error: 'ამ ელ-ფოსტით მომხმარებელი უკვე არსებობს' },
+        { status: 400 }
+      )
+    }
+    
+    // Check if email is verified
+    const verifiedEmail = await prisma.verifiedEmail.findFirst({
+      where: {
+        email: validatedData.email,
+        expiresAt: {
+          gt: new Date() // Verification hasn't expired
+        }
+      }
+    })
+    
+    if (!verifiedEmail) {
+      return NextResponse.json(
+        { error: 'ელ-ფოსტა არ არის გადამოწმებული. გთხოვთ ჯერ გადაამოწმოთ თქვენი ელ-ფოსტა.' },
         { status: 400 }
       )
     }
@@ -100,14 +117,19 @@ export async function POST(request: NextRequest) {
     
     if (!user) {
       return NextResponse.json(
-        { error: 'Failed to create user' },
+        { error: 'მომხმარებლის შექმნა ვერ მოხერხდა' },
         { status: 500 }
       )
     }
     
+    // Clean up verified email record
+    await prisma.verifiedEmail.delete({
+      where: { email: validatedData.email }
+    })
+    
     // Return success response
     return NextResponse.json({
-      message: 'User created successfully',
+      message: 'მომხმარებელი წარმატებით შეიქმნა',
       user: {
         id: user.id,
         email: user.email,
@@ -127,7 +149,7 @@ export async function POST(request: NextRequest) {
     }
     
     return NextResponse.json(
-      { error: 'An error occurred' },
+      { error: 'დაფიქსირდა შეცდომა' },
       { status: 500 }
     )
   }

@@ -22,12 +22,35 @@ export function useAuth() {
       })
 
       if (result?.error) {
-        throw new Error(result.error)
+        // Debug log to see what error is returned
+        console.log('NextAuth error:', result.error)
+        
+        // Translate NextAuth errors to Georgian
+        let georgianError = 'შესვლა ვერ მოხერხდა'
+        
+        switch (result.error) {
+          case 'CredentialsSignin':
+            georgianError = 'ელ-ფოსტა ან პაროლი არასწორია. გთხოვთ შეამოწმოთ და სცადოთ თავიდან'
+            break
+          case 'AccessDenied':
+            georgianError = 'წვდომა უარყოფილია. თქვენ არ გაქვთ ამ გვერდზე წვდომის უფლება'
+            break
+          case 'Verification':
+            georgianError = 'ელ-ფოსტის ვერიფიკაცია საჭიროა. გთხოვთ შეამოწმოთ თქვენი ელ-ფოსტა'
+            break
+          case 'Configuration':
+            georgianError = 'სისტემური შეცდომა. გთხოვთ სცადოთ მოგვიანებით'
+            break
+          default:
+            georgianError = 'ელ-ფოსტა ან პაროლი არასწორია. გთხოვთ შეამოწმოთ და სცადოთ თავიდან'
+        }
+        
+        throw new Error(georgianError)
       }
 
       return { success: true }
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'Login failed' }
+      return { success: false, error: error instanceof Error ? error.message : 'შესვლა ვერ მოხერხდა' }
     }
   }
 

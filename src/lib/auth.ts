@@ -1,11 +1,9 @@
 import { NextAuthOptions } from "next-auth"
-import { PrismaAdapter } from "@auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "./prisma"
 import bcrypt from "bcryptjs"
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -15,7 +13,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null
+          throw new Error("ასეთი იუზერი ვერ მოიძებნა")
         }
 
         const user = await prisma.user.findUnique({
@@ -30,22 +28,19 @@ export const authOptions: NextAuthOptions = {
         })
 
         if (!user) {
-          return null
+          throw new Error("მომხმარებელი ამ ელ-ფოსტით არ არსებობს. გთხოვთ შეამოწმოთ ელ-ფოსტა ან დარეგისტრირდეთ")
         }
 
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
         if (!isPasswordValid) {
-          return null
+          throw new Error("პაროლი არასწორია. გთხოვთ სცადოთ თავიდან")
         }
 
         return {
           id: user.id,
           email: user.email,
-          userType: user.userType,
-          student: user.student,
-          teacher: user.teacher,
-          admin: user.admin
+          userType: user.userType
         }
       }
     })
@@ -83,7 +78,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/signin",
-    signUp: "/auth/signup",
     error: "/auth/error"
   }
 }

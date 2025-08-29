@@ -2,8 +2,8 @@ import { z } from "zod"
 
 // Login form validation
 export const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("გთხოვთ შეიყვანოთ სწორი ელ-ფოსტა"),
+  password: z.string().min(6, "პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს"),
 })
 
 export type LoginFormData = z.infer<typeof loginSchema>
@@ -13,27 +13,27 @@ export const registrationSchema = z.object({
   userType: z.enum(["STUDENT", "TEACHER", "ADMIN"]),
   
   // Common fields
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("გთხოვთ შეიყვანოთ სწორი ელ-ფოსტა").min(1, "ელ-ფოსტა საჭიროა"),
+  password: z.string().min(6, "პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს"),
   confirmPassword: z.string(),
   
   // Student specific fields
-  studentName: z.string().min(2, "First name must be at least 2 characters").optional(),
-  studentLastname: z.string().min(2, "Last name must be at least 2 characters").optional(),
-  grade: z.number().min(1, "Grade must be at least 1").max(12, "Grade must be at most 12").optional(),
-  school: z.string().min(2, "School name must be at least 2 characters").optional(),
-  studentPhone: z.string().min(9, "Phone number must be at least 9 digits").optional(),
+  studentName: z.string().min(2, "სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
+  studentLastname: z.string().min(2, "გვარი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
+  grade: z.number().min(1, "კლასი უნდა იყოს მინიმუმ 1").max(12, "კლასი უნდა იყოს მაქსიმუმ 12").optional(),
+  school: z.string().min(2, "სკოლის სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
+  studentPhone: z.string().min(9, "ტელეფონის ნომერი უნდა შეიცავდეს მინიმუმ 9 ციფრს").optional(),
   
   // Teacher specific fields
-  teacherName: z.string().min(2, "First name must be at least 2 characters").optional(),
-  teacherLastname: z.string().min(2, "Last name must be at least 2 characters").optional(),
-  subject: z.string().min(2, "Subject name must be at least 2 characters").optional(),
-  teacherSchool: z.string().min(2, "School name must be at least 2 characters").optional(),
-  teacherPhone: z.string().min(9, "Phone number must be at least 9 digits").optional(),
+  teacherName: z.string().min(2, "სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
+  teacherLastname: z.string().min(2, "გვარი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
+  subject: z.string().min(2, "საგნის სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
+  teacherSchool: z.string().min(2, "სკოლის სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
+  teacherPhone: z.string().min(9, "ტელეფონის ნომერი უნდა შეიცავდეს მინიმუმ 9 ციფრს").optional(),
   
   // Admin specific fields
-  adminName: z.string().min(2, "First name must be at least 2 characters").optional(),
-  adminLastname: z.string().min(2, "Last name must be at least 2 characters").optional(),
+  adminName: z.string().min(2, "სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
+  adminLastname: z.string().min(2, "გვარი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
 }).refine((data) => {
   // Password confirmation check
   if (data.password !== data.confirmPassword) {
@@ -41,7 +41,7 @@ export const registrationSchema = z.object({
   }
   return true
 }, {
-  message: "Passwords do not match",
+  message: "პაროლები არ ემთხვევა",
   path: ["confirmPassword"],
 }).refine((data) => {
   // Student validation
@@ -50,7 +50,7 @@ export const registrationSchema = z.object({
   }
   return true
 }, {
-  message: "Please fill in all required fields for student",
+  message: "გთხოვთ შეავსოთ ყველა საჭირო ველი სტუდენტისთვის",
   path: ["studentName"],
 }).refine((data) => {
   // Teacher validation
@@ -59,7 +59,7 @@ export const registrationSchema = z.object({
   }
   return true
 }, {
-  message: "Please fill in all required fields for teacher",
+  message: "გთხოვთ შეავსოთ ყველა საჭირო ველი მასწავლებლისთვის",
   path: ["teacherName"],
 }).refine((data) => {
   // Admin validation
@@ -68,7 +68,7 @@ export const registrationSchema = z.object({
   }
   return true
 }, {
-  message: "Please fill in all required fields for admin",
+  message: "გთხოვთ შეავსოთ ყველა საჭირო ველი ადმინისტრატორისთვის",
   path: ["adminName"],
 })
 

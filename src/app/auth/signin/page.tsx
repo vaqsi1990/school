@@ -33,10 +33,11 @@ export default function SignInPage() {
         // Redirect to dashboard after successful login
         router.push('/dashboard')
       } else {
-        setError(result.error || 'Login failed')
+        setError(result.error || 'შესვლა ვერ მოხერხდა')
       }
     } catch (err) {
-      setError('An error occurred')
+      console.error('Login error:', err)
+      setError('დაფიქსირდა შეცდომა')
     } finally {
       setIsLoading(false)
     }
