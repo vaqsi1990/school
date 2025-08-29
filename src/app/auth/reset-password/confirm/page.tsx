@@ -4,6 +4,15 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
+// Force dynamic rendering to prevent build-time prerendering issues
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
+
+// This function helps Next.js understand that this page should not be statically generated
+export function generateStaticParams() {
+  return []
+}
+
 export default function ResetPasswordConfirmPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
