@@ -22,6 +22,8 @@ export default function ResetPasswordPage() {
     setMessage('')
 
     try {
+      console.log('Sending password reset request for email:', email)
+      
       const response = await fetch('/api/auth/request-password-reset', {
         method: 'POST',
         headers: {
@@ -30,7 +32,9 @@ export default function ResetPasswordPage() {
         body: JSON.stringify({ email }),
       })
 
+      console.log('Response status:', response.status)
       const result = await response.json()
+      console.log('Response result:', result)
 
       if (response.ok) {
         setIsSuccess(true)
@@ -39,6 +43,7 @@ export default function ResetPasswordPage() {
         setMessage(result.error || 'შეცდომა მოხდა')
       }
     } catch (error) {
+      console.error('Password reset error:', error)
       setMessage('სისტემური შეცდომა მოხდა')
     } finally {
       setIsLoading(false)
@@ -138,6 +143,12 @@ export default function ResetPasswordPage() {
               >
                 დაბრუნება შესვლის გვერდზე
               </Link>
+            </div>
+            
+            {/* Debug info - remove in production */}
+            <div className="mt-4 text-center text-xs text-gray-400">
+              <p>Debug: Password reset page loaded successfully</p>
+              <p>API endpoint: /api/auth/request-password-reset</p>
             </div>
           </div>
         </div>
