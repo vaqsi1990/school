@@ -40,7 +40,10 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          userType: user.userType
+          userType: user.userType,
+          student: user.student || undefined,
+          teacher: user.teacher || undefined,
+          admin: user.admin || undefined
         }
       }
     })
