@@ -371,22 +371,22 @@ function UserManagementContent() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                     მომხმარებელი
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                     ტიპი
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                     დეტალები
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                     რეგისტრაციის თარიღი
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                     სტატუსი
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left md:text-[16px] text-[14px]  text-black uppercase tracking-wider">
                     მოქმედებები
                   </th>
                 </tr>
@@ -404,7 +404,7 @@ function UserManagementContent() {
                           </div>
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="md:text-[16px] text-[14px] text-black">
                             {user.student?.name && user.student?.lastname 
                               ? `${user.student.name} ${user.student.lastname}`
                               : user.teacher?.name && user.teacher?.lastname
@@ -414,7 +414,7 @@ function UserManagementContent() {
                               : 'სახელი არ არის მითითებული'
                             }
                           </div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
+                          <div className="md:text-[16px] text-[14px] text-gray-500">{user.email}</div>
                         </div>
                       </div>
                     </td>
