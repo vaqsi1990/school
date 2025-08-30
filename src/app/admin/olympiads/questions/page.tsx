@@ -256,7 +256,7 @@ function AdminQuestionsContent() {
     const isAutoScored = ['MULTIPLE_CHOICE', 'MATCHING'].includes(type)
     setFormData(prev => ({
       ...prev,
-      type: type as any,
+      type: type as 'MULTIPLE_CHOICE' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED' | 'CLOSED_ENDED',
       isAutoScored,
       maxPoints: isAutoScored ? prev.points : prev.maxPoints
     }))
