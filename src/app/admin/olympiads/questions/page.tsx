@@ -654,7 +654,7 @@ function AdminQuestionsContent() {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-[18px] text-[16px]"
                     >
-                      {[5, 6, 7, 8, 9, 10, 11, 12].map(grade => (
+                      {[ 7, 8, 9, 10, 11, 12].map(grade => (
                         <option key={grade} value={grade}>{grade} კლასი</option>
                       ))}
                     </select>
