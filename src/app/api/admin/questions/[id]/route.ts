@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check if user is authenticated and is admin
@@ -16,7 +16,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const questionId = params.id
+    const { id } = await params
     const {
       text,
       type,
@@ -41,7 +41,7 @@ export async function PUT(
 
     // Update the question
     const updatedQuestion = await prisma.question.update({
-      where: { id: questionId },
+      where: { id },
       data: {
         text,
         type,
@@ -69,7 +69,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check if user is authenticated and is admin
@@ -78,11 +78,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const questionId = params.id
+    const { id } = await params
 
     // Delete the question
     await prisma.question.delete({
-      where: { id: questionId }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Question deleted successfully' })
