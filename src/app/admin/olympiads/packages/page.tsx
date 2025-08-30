@@ -39,6 +39,7 @@ function AdminPackagesContent() {
   const [editForm, setEditForm] = useState({ name: '', description: '' })
   const [deleteModal, setDeleteModal] = useState<string | null>(null)
   const [editingQuestion, setEditingQuestion] = useState<{ packageId: string; questionId: string; question: QuestionPackage['questions'][0]['question'] } | null>(null)
+  const [expandedPackages, setExpandedPackages] = useState<Set<string>>(new Set())
   const [questionEditForm, setQuestionEditForm] = useState({
     text: '',
     options: ['', '', '', ''],
@@ -157,6 +158,16 @@ function AdminPackagesContent() {
     setQuestionEditForm({ ...questionEditForm, options: newOptions })
   }
 
+  const togglePackageExpansion = (packageId: string) => {
+    const newExpanded = new Set(expandedPackages)
+    if (newExpanded.has(packageId)) {
+      newExpanded.delete(packageId)
+    } else {
+      newExpanded.add(packageId)
+    }
+    setExpandedPackages(newExpanded)
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -254,35 +265,46 @@ function AdminPackagesContent() {
                 </div>
 
                 <div className="border-t pt-4">
-                  <h4 className="text-black md:text-[18px] text-[16px] font-medium mb-3">
-                    კითხვები ({pkg.questions.length})
-                  </h4>
-                  <div className="space-y-2">
-                                         {pkg.questions.map((q) => (
-                       <div key={q.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-md">
-                         <span className="text-black md:text-[16px] text-[14px] font-medium text-blue-600">
-                           {q.order}.
-                         </span>
-                         <div className="flex-1">
-                           <div className="text-black md:text-[16px] text-[14px] font-medium">
-                             {q.question.text.length > 100 
-                               ? `${q.question.text.substring(0, 100)}...` 
-                               : q.question.text
-                             }
-                           </div>
-                           <div className="text-black md:text-[14px] text-[12px] text-gray-500">
-                             {q.question.subject?.name || 'საგანი არ არის მითითებული'} • კლასი: {q.question.grade} • რაუნდი: {q.question.round}
-                           </div>
-                         </div>
-                         <button
-                           onClick={() => handleEditQuestion(pkg, q)}
-                           className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-                         >
-                           რედაქტირება
-                         </button>
-                       </div>
-                     ))}
-                  </div>
+                  <button
+                    onClick={() => togglePackageExpansion(pkg.id)}
+                    className="w-full flex items-center justify-between p-3 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                  >
+                    <h4 className="text-black md:text-[18px] text-[16px] font-medium">
+                      კითხვები ({pkg.questions.length})
+                    </h4>
+                    <span className="text-black md:text-[18px] text-[16px]">
+                      {expandedPackages.has(pkg.id) ? '▼' : '▶'}
+                    </span>
+                  </button>
+                  
+                  {expandedPackages.has(pkg.id) && (
+                    <div className="mt-3 space-y-2">
+                      {pkg.questions.map((q) => (
+                        <div key={q.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-md">
+                          <span className="text-black md:text-[16px] text-[14px] font-medium text-blue-600">
+                            {q.order}.
+                          </span>
+                          <div className="flex-1">
+                            <div className="text-black md:text-[16px] text-[14px] font-medium">
+                              {q.question.text.length > 100 
+                                ? `${q.question.text.substring(0, 100)}...` 
+                                : q.question.text
+                              }
+                            </div>
+                            <div className="text-black md:text-[14px] text-[12px] text-gray-500">
+                              {q.question.subject?.name || 'საგანი არ არის მითითებული'} • კლასი: {q.question.grade} • რაუნდი: {q.question.round}
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleEditQuestion(pkg, q)}
+                            className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                          >
+                            რედაქტირება
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
