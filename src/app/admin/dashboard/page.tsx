@@ -6,7 +6,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 
 function AdminDashboardContent() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const [isSettingUpProfile, setIsSettingUpProfile] = useState(false)
   const [profileData, setProfileData] = useState({
     name: '',
@@ -45,13 +45,13 @@ function AdminDashboardContent() {
       } else {
         setMessage(`შეცდომა: ${result.error}`)
       }
-    } catch (error) {
+    } catch {
       setMessage('სისტემური შეცდომა მოხდა')
     } finally {
       setIsLoading(false)
     }
   }
-
+any
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow">

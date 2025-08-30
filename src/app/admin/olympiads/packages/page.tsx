@@ -38,7 +38,7 @@ function AdminPackagesContent() {
   const [editingPackage, setEditingPackage] = useState<QuestionPackage | null>(null)
   const [editForm, setEditForm] = useState({ name: '', description: '' })
   const [deleteModal, setDeleteModal] = useState<string | null>(null)
-  const [editingQuestion, setEditingQuestion] = useState<{ packageId: string; questionId: string; question: any } | null>(null)
+  const [editingQuestion, setEditingQuestion] = useState<{ packageId: string; questionId: string; question: QuestionPackage['questions'][0]['question'] } | null>(null)
   const [questionEditForm, setQuestionEditForm] = useState({
     text: '',
     options: ['', '', '', ''],
@@ -108,7 +108,7 @@ function AdminPackagesContent() {
     }
   }
 
-  const handleEditQuestion = (pkg: QuestionPackage, q: any) => {
+  const handleEditQuestion = (pkg: QuestionPackage, q: QuestionPackage['questions'][0]) => {
     setEditingQuestion({ packageId: pkg.id, questionId: q.question.id, question: q.question })
     setQuestionEditForm({
       text: q.question.text,
