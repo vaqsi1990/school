@@ -95,6 +95,27 @@ function AdminOlympiadsContent() {
             </div>
           </div>
 
+          {/* Question Packages Card */}
+          <div className="bg-white overflow-hidden shadow rounded-lg flex flex-col h-full">
+            <div className="p-4 flex-1 flex flex-col">
+              <div className="flex items-center">
+                <div className="ml-4">
+                  <h3 className="text-black md:text-[18px] text-[16px]">პაკეტები</h3>
+                </div>
+              </div>
+              <div className="mt-3 flex-1 flex flex-col">
+                <p className="text-black md:text-[18px] text-[16px] flex-1">
+                  მართეთ კითხვების პაკეტები და ჯგუფები.
+                </p>
+                <button className="mt-3 w-full cursor-pointer bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                  <Link href="/admin/olympiads/packages" className="block w-full h-full text-white">
+                    პაკეტების მართვა
+                  </Link>
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Results Management Card */}
           <div className="bg-white overflow-hidden shadow rounded-lg flex flex-col h-full">
             <div className="p-4 flex-1 flex flex-col">

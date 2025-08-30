@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
       points,
       image,
       subjectId,
-      chapterId,
-      paragraphId,
+      chapterName,
+      paragraphName,
       grade,
       round
     } = await request.json()
@@ -86,8 +86,10 @@ export async function POST(request: NextRequest) {
         points: parseInt(points),
         image: image || null,
         subjectId,
-        chapterId: chapterId || null,
-        paragraphId: paragraphId || null,
+        chapterId: null, // Keep as null since we're using text fields now
+        paragraphId: null, // Keep as null since we're using text fields now
+        chapterName: chapterName || null,
+        paragraphName: paragraphName || null,
         grade: parseInt(grade),
         round: parseInt(round)
       }

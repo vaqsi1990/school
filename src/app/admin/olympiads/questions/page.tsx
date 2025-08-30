@@ -10,18 +10,6 @@ interface Subject {
   name: string
 }
 
-interface Chapter {
-  id: string
-  name: string
-  subjectId: string
-}
-
-interface Paragraph {
-  id: string
-  name: string
-  chapterId: string
-}
-
 interface Question {
   id: string
   text: string
@@ -33,6 +21,8 @@ interface Question {
   subjectId: string
   chapterId?: string
   paragraphId?: string
+  chapterName?: string
+  paragraphName?: string
   grade: number
   round: number
   createdAt: string
@@ -41,8 +31,6 @@ interface Question {
 function AdminQuestionsContent() {
   const { user } = useAuth()
   const [subjects, setSubjects] = useState<Subject[]>([])
-  const [chapters, setChapters] = useState<Chapter[]>([])
-  const [paragraphs, setParagraphs] = useState<Paragraph[]>([])
   const [questions, setQuestions] = useState<Question[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -54,6 +42,9 @@ function AdminQuestionsContent() {
   const [editingQuestion, setEditingQuestion] = useState<Question | null>(null)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deletingQuestionId, setDeletingQuestionId] = useState<string | null>(null)
+  const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set())
+  const [showPackageModal, setShowPackageModal] = useState(false)
+  const [packageName, setPackageName] = useState('')
 
   // Form state
   const [formData, setFormData] = useState({
@@ -64,8 +55,8 @@ function AdminQuestionsContent() {
     points: 1,
     image: '',
     subjectId: '',
-    chapterId: '',
-    paragraphId: '',
+    chapterName: '',
+    paragraphName: '',
     grade: 5,
     round: 1
   })
@@ -77,17 +68,7 @@ function AdminQuestionsContent() {
     }
   }, [user])
 
-  useEffect(() => {
-    if (selectedSubject) {
-      fetchChapters(selectedSubject)
-    }
-  }, [selectedSubject])
-
-  useEffect(() => {
-    if (selectedSubject && selectedGrade) {
-      fetchParagraphs(selectedSubject, parseInt(selectedGrade))
-    }
-  }, [selectedSubject, selectedGrade])
+  // Remove the useEffect hooks for chapters and paragraphs since we're using text inputs now
 
   const fetchSubjects = async () => {
     try {
@@ -98,30 +79,6 @@ function AdminQuestionsContent() {
       }
     } catch (error) {
       console.error('Error fetching subjects:', error)
-    }
-  }
-
-  const fetchChapters = async (subjectId: string) => {
-    try {
-      const response = await fetch(`/api/admin/chapters?subjectId=${subjectId}`)
-      if (response.ok) {
-        const data = await response.json()
-        setChapters(data.chapters)
-      }
-    } catch (error) {
-      console.error('Error fetching chapters:', error)
-    }
-  }
-
-  const fetchParagraphs = async (subjectId: string, grade: number) => {
-    try {
-      const response = await fetch(`/api/admin/paragraphs?subjectId=${subjectId}&grade=${grade}`)
-      if (response.ok) {
-        const data = await response.json()
-        setParagraphs(data.paragraphs)
-      }
-    } catch (error) {
-      console.error('Error fetching paragraphs:', error)
     }
   }
 
@@ -181,8 +138,8 @@ function AdminQuestionsContent() {
       points: question.points,
       image: question.image || '',
       subjectId: question.subjectId,
-      chapterId: question.chapterId || '',
-      paragraphId: question.paragraphId || '',
+      chapterName: question.chapterName || '',
+      paragraphName: question.paragraphName || '',
       grade: question.grade,
       round: question.round
     })
@@ -297,16 +254,78 @@ function AdminQuestionsContent() {
       points: 1,
       image: '',
       subjectId: '',
-      chapterId: '',
-      paragraphId: '',
+      chapterName: '',
+      paragraphName: '',
       grade: 5,
       round: 1
     })
     setEditingQuestion(null)
   }
 
+  const handleQuestionSelect = (questionId: string) => {
+    setSelectedQuestions(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(questionId)) {
+        newSet.delete(questionId)
+      } else {
+        newSet.add(questionId)
+      }
+      return newSet
+    })
+  }
+
+  const handleSelectAll = () => {
+    if (selectedQuestions.size === filteredQuestions.length) {
+      setSelectedQuestions(new Set())
+    } else {
+      setSelectedQuestions(new Set(filteredQuestions.map(q => q.id)))
+    }
+  }
+
+  const createPackage = async () => {
+    if (!packageName.trim() || selectedQuestions.size === 0) {
+      alert('გთხოვთ შეიყვანოთ პაკეტის სახელი და აირჩიოთ კითხვები')
+      return
+    }
+
+    try {
+      const response = await fetch('/api/admin/question-packages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: packageName,
+          questionIds: Array.from(selectedQuestions),
+          description: `პაკეტი შეიქმნა ${new Date().toLocaleDateString('ka-GE')}`
+        }),
+      })
+
+      if (response.ok) {
+        alert(`პაკეტი "${packageName}" წარმატებით შეიქმნა!`)
+        setPackageName('')
+        setSelectedQuestions(new Set())
+        setShowPackageModal(false)
+      } else {
+        const error = await response.json()
+        alert(`შეცდომა: ${error.message}`)
+      }
+    } catch (error) {
+      console.error('Error creating package:', error)
+      alert('სისტემური შეცდომა მოხდა')
+    }
+  }
+
   const filteredQuestions = questions.filter(question => {
-    const matchesSearch = question.text.toLowerCase().includes(searchTerm.toLowerCase())
+    const searchLower = searchTerm.toLowerCase()
+    const matchesSearch = 
+      question.text.toLowerCase().includes(searchLower) ||
+      (question.chapterName && question.chapterName.toLowerCase().includes(searchLower)) ||
+      (question.paragraphName && question.paragraphName.toLowerCase().includes(searchLower)) ||
+      (subjects.find(s => s.id === question.subjectId)?.name || '').toLowerCase().includes(searchLower) ||
+      question.grade.toString().includes(searchLower) ||
+      question.round.toString().includes(searchLower)
+    
     const matchesType = activeTab === 'all' || question.type.toLowerCase().includes(activeTab.replace('-', ''))
     const matchesSubject = !selectedSubject || question.subjectId === selectedSubject
     const matchesGrade = !selectedGrade || question.grade === parseInt(selectedGrade)
@@ -354,6 +373,22 @@ function AdminQuestionsContent() {
               >
                 ახალი კითხვა
               </button>
+              {selectedQuestions.size > 0 && (
+                <>
+                  <button
+                    onClick={() => setShowPackageModal(true)}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+                  >
+                     პაკეტის შექმნა ({selectedQuestions.size})
+                  </button>
+                  <button
+                    onClick={() => setSelectedQuestions(new Set())}
+                    className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+                  >
+                     გაწმენდა
+                  </button>
+                </>
+              )}
               {subjects.length === 0 && (
                 <button
                   onClick={createDefaultSubjects}
@@ -380,7 +415,7 @@ function AdminQuestionsContent() {
             <div className="lg:col-span-2">
               <input
                 type="text"
-                placeholder="მოძებნა კითხვის ტექსტით..."
+                placeholder="მოძებნა ყველა ველით (კითხვა, საგანი, თავი, პარაგრაფი, კლასი, რაუნდი)..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-[18px] text-[16px]"
@@ -438,26 +473,8 @@ function AdminQuestionsContent() {
             >
               ყველა ({questions.length})
             </button>
-            <button
-              onClick={() => setActiveTab('multiple-choice')}
-              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${
-                activeTab === 'multiple-choice' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-200 text-black hover:bg-gray-300'
-              }`}
-            >
-              მრავალი არჩევანი ({questions.filter(q => q.type === 'MULTIPLE_CHOICE').length})
-            </button>
-            <button
-              onClick={() => setActiveTab('true-false')}
-              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${
-                activeTab === 'true-false' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-200 text-black hover:bg-gray-300'
-              }`}
-            >
-              მართალი/ცრუ ({questions.filter(q => q.type === 'TRUE_FALSE').length})
-            </button>
+     
+      
           </div>
         </div>
 
@@ -468,6 +485,21 @@ function AdminQuestionsContent() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={selectedQuestions.size === filteredQuestions.length && filteredQuestions.length > 0}
+                        onChange={handleSelectAll}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                      {selectedQuestions.size > 0 && (
+                        <span className="text-xs text-blue-600 font-medium">
+                          {selectedQuestions.size} არჩეული
+                        </span>
+                      )}
+                    </div>
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     კითხვა
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -475,6 +507,12 @@ function AdminQuestionsContent() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     საგანი
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    თავი
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    პარაგრაფი
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     კლასი
@@ -493,6 +531,14 @@ function AdminQuestionsContent() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredQuestions.map((question) => (
                   <tr key={question.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <input
+                        type="checkbox"
+                        checked={selectedQuestions.has(question.id)}
+                        onChange={() => handleQuestionSelect(question.id)}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                      />
+                    </td>
                     <td className="px-6 py-4">
                       <div className="max-w-xs">
                         <div className="text-sm font-medium text-black md:text-[18px] text-[16px]">
@@ -514,6 +560,12 @@ function AdminQuestionsContent() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-black md:text-[18px] text-[16px]">
                       {subjects.find(s => s.id === question.subjectId)?.name || 'უცნობი'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black md:text-[18px] text-[16px]">
+                      {question.chapterName || '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-black md:text-[18px] text-[16px]">
+                      {question.paragraphName || '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-black md:text-[18px] text-[16px]">
                       {question.grade} კლასი
@@ -683,17 +735,14 @@ function AdminQuestionsContent() {
                     <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
                       თავი
                     </label>
-                    <select
-                      name="chapterId"
-                      value={formData.chapterId}
+                    <input
+                      type="text"
+                      name="chapterName"
+                      value={formData.chapterName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-[18px] text-[16px]"
-                    >
-                      <option value="">აირჩიეთ თავი</option>
-                      {chapters.map(chapter => (
-                        <option key={chapter.id} value={chapter.id}>{chapter.name}</option>
-                      ))}
-                    </select>
+                      placeholder="შეიყვანეთ თავის სახელი..."
+                    />
                   </div>
 
                   {/* Paragraph */}
@@ -701,17 +750,14 @@ function AdminQuestionsContent() {
                     <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
                       პარაგრაფი
                     </label>
-                    <select
-                      name="paragraphId"
-                      value={formData.paragraphId}
+                    <input
+                      type="text"
+                      name="paragraphName"
+                      value={formData.paragraphName}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-[18px] text-[16px]"
-                    >
-                      <option value="">აირჩიეთ პარაგრაფი</option>
-                      {paragraphs.map(paragraph => (
-                        <option key={paragraph.id} value={paragraph.id}>{paragraph.name}</option>
-                      ))}
-                    </select>
+                      placeholder="შეიყვანეთ პარაგრაფის სახელი..."
+                    />
                   </div>
 
                   {/* Image URL */}
@@ -882,51 +928,110 @@ function AdminQuestionsContent() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
-              </div>
-              
-              <h3 className="text-lg font-medium text-black md:text-[18px] text-[16px] mb-4 text-center">
-                კითხვის წაშლა
-              </h3>
-              
-              <div className="text-center mb-6">
-                <p className="text-sm text-black md:text-[16px] text-[14px] mb-2">
-                  <strong>ყურადღება!</strong> ეს მოქმედება შეუქცევადია.
-                </p>
-                <p className="text-sm text-black md:text-[16px] text-[14px]">
-                  ნამდვილად გსურთ ამ კითხვის წაშლა?
-                </p>
-              </div>
-              
-              <div className="flex space-x-3">
-                <button
-                  onClick={() => deleteQuestion(deletingQuestionId!)}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px]"
-                >
-                  დიახ, წავშალოთ
-                </button>
-                <button
-                  onClick={() => {
-                    setShowDeleteModal(false)
-                    setDeletingQuestionId(null)
-                  }}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px]"
-                >
-                  გაუქმება
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+             {/* Delete Confirmation Modal */}
+       {showDeleteModal && (
+         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+             <div className="mt-3">
+               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                 <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                 </svg>
+               </div>
+               
+               <h3 className="text-lg font-medium text-black md:text-[18px] text-[16px] mb-4 text-center">
+                 კითხვის წაშლა
+               </h3>
+               
+               <div className="text-center mb-6">
+                 <p className="text-sm text-black md:text-[16px] text-[14px] mb-2">
+                   <strong>ყურადღება!</strong> ეს მოქმედება შეუქცევადია.
+                 </p>
+                 <p className="text-sm text-black md:text-[16px] text-[14px]">
+                   ნამდვილად გსურთ ამ კითხვის წაშლა?
+                 </p>
+               </div>
+               
+               <div className="flex space-x-3">
+                 <button
+                   onClick={() => deleteQuestion(deletingQuestionId!)}
+                   className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px]"
+                 >
+                   დიახ, წავშალოთ
+                 </button>
+                 <button
+                   onClick={() => {
+                     setShowDeleteModal(false)
+                     setDeletingQuestionId(null)
+                   }}
+                   className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px]"
+                 >
+                   გაუქმება
+                 </button>
+               </div>
+             </div>
+           </div>
+         </div>
+       )}
+
+       {/* Package Creation Modal */}
+       {showPackageModal && (
+         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+             <div className="mt-3">
+               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
+                 <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                 </svg>
+               </div>
+               
+               <h3 className="text-lg font-medium text-black md:text-[18px] text-[16px] mb-4 text-center">
+                 პაკეტის შექმნა
+               </h3>
+               
+               <div className="mb-6">
+                 <label className="block text-sm font-medium text-black md:text-[16px] text-[14px] mb-2">
+                   პაკეტის სახელი *
+                 </label>
+                 <input
+                   type="text"
+                   value={packageName}
+                   onChange={(e) => setPackageName(e.target.value)}
+                   placeholder="შეიყვანეთ პაკეტის სახელი..."
+                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                 />
+               </div>
+
+               <div className="text-center mb-6">
+                 <p className="text-sm text-black md:text-[16px] text-[14px] mb-2">
+                   <strong>შერჩეული კითხვები:</strong> {selectedQuestions.size}
+                 </p>
+                 <p className="text-sm text-black md:text-[16px] text-[14px]">
+                   ეს კითხვები შევა პაკეტში
+                 </p>
+               </div>
+               
+               <div className="flex space-x-3">
+                 <button
+                   onClick={createPackage}
+                   className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md font-medium md:text-[16px] text-[14px]"
+                 >
+                   პაკეტის შექმნა
+                 </button>
+                 <button
+                   onClick={() => {
+                     setShowPackageModal(false)
+                     setPackageName('')
+                   }}
+                   className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium md:text-[16px] text-[14px]"
+                 >
+                   გაუქმება
+                 </button>
+               </div>
+             </div>
+           </div>
+         </div>
+       )}
     </div>
   )
 }

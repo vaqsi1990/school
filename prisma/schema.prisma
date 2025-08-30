@@ -143,6 +143,7 @@ model Admin {
   // Relations
   user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   managedOlympiads Olympiad[]     @relation("ManagedOlympiads") // Olympiads managed by this admin
+  createdQuestionPackages QuestionPackage[] @relation("CreatedQuestionPackages") // Question packages created by this admin
 
   @@map("admins")
 }
@@ -231,6 +232,8 @@ model Question {
   subjectId   String
   chapterId   String?
   paragraphId String?
+  chapterName String?  // Text field for chapter name (e.g., "თავი 1")
+  paragraphName String? // Text field for paragraph name (e.g., "პარაგრაფი 1.2")
   grade       Int      // Grade level for the question
   round       Int      // Which round this question belongs to (1, 2, or 3)
   createdBy   String?  // Teacher ID who created this question
@@ -245,6 +248,7 @@ model Question {
   answers    StudentAnswer[]
   olympiadQuestions OlympiadQuestion[]
   questionSets QuestionSetQuestion[]
+  questionPackages QuestionPackageQuestion[]
 
   @@map("questions")
 }
@@ -263,6 +267,38 @@ model QuestionSetQuestion {
 
   @@unique([questionSetId, questionId])
   @@map("question_set_questions")
+}
+
+// Question Package model - for grouping questions together
+model QuestionPackage {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdBy   String   // Admin ID who created this package
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  createdByUser Admin @relation("CreatedQuestionPackages", fields: [createdBy], references: [id], onDelete: Cascade)
+  questions    QuestionPackageQuestion[]
+
+  @@map("question_packages")
+}
+
+// Junction table for question packages and questions
+model QuestionPackageQuestion {
+  id              String   @id @default(cuid())
+  questionPackageId String
+  questionId      String
+  order           Int      // Question order in the package
+  createdAt       DateTime @default(now())
+
+  // Relations
+  questionPackage QuestionPackage @relation(fields: [questionPackageId], references: [id], onDelete: Cascade)
+  question        Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([questionPackageId, questionId])
+  @@map("question_package_questions")
 }
 
 // Olympiad model - represents a specific test for a subject and grade
