@@ -227,10 +227,12 @@ model Question {
   options     String[] // For multiple choice questions
   correctAnswer String
   points      Int      @default(1)
+  image       String?  // Optional image URL for questions that need visual content
   subjectId   String
   chapterId   String?
   paragraphId String?
   grade       Int      // Grade level for the question
+  round       Int      // Which round this question belongs to (1, 2, or 3)
   createdBy   String?  // Teacher ID who created this question
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -263,17 +265,19 @@ model QuestionSetQuestion {
   @@map("question_set_questions")
 }
 
-// Olympiad model
+// Olympiad model - represents a specific test for a subject and grade
 model Olympiad {
   id          String   @id @default(cuid())
   name        String
   description String?
   subjectId   String
+  grade       Int      // Specific grade level for this olympiad
   createdBy   String?  // Teacher ID who created this olympiad
   managedBy   String?  // Admin ID who manages this olympiad
   startDate   DateTime
   endDate     DateTime
   isActive    Boolean  @default(false)
+  maxParticipants Int?  // Maximum number of students allowed
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -285,33 +289,37 @@ model Olympiad {
   participations StudentOlympiad[]
   questions      OlympiadQuestion[]
 
+  @@unique([subjectId, grade, name]) // Ensure unique olympiad per subject-grade combination
   @@map("olympiads")
 }
 
-// Round model for olympiad rounds
+// Round model for olympiad rounds - exactly 3 rounds per olympiad
 model Round {
   id         String   @id @default(cuid())
   name       String   // e.g., "Round 1", "Round 2", "Round 3"
-  order      Int      // Round order
+  order      Int      // Round order (1, 2, or 3)
   startTime  DateTime // Specific date and time for this round
   endTime    DateTime // End time for this round
   duration   Int      // Duration in minutes
+  maxQuestions Int    // Maximum number of questions for this round
   olympiadId String
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 
   // Relations
   olympiad Olympiad @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
 
+  @@unique([olympiadId, order]) // Ensure unique round order per olympiad
   @@map("rounds")
 }
 
-// Junction table for olympiad questions
+// Junction table for olympiad questions with round information
 model OlympiadQuestion {
   id          String   @id @default(cuid())
   olympiadId  String
   questionId  String
-  order       Int      // Question order in the olympiad
+  roundNumber Int      // Which round this question appears in (1, 2, or 3)
+  order       Int      // Question order within the round
   createdAt   DateTime @default(now())
 
   // Relations
@@ -329,7 +337,11 @@ model StudentOlympiad {
   olympiadId String
   startTime  DateTime?
   endTime    DateTime?
-  score      Int?
+  currentRound Int     @default(1) // Track which round student is currently in
+  round1Score Int?     // Score for round 1
+  round2Score Int?     // Score for round 2
+  round3Score Int?     // Score for round 3
+  totalScore  Int?     // Combined score from all rounds
   status     ParticipationStatus @default(REGISTERED)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -342,11 +354,13 @@ model StudentOlympiad {
   @@map("student_olympiads")
 }
 
-// Student answers to questions
+// Student answers to questions with round tracking
 model StudentAnswer {
   id         String   @id @default(cuid())
   studentId  String
   questionId String
+  olympiadId String?  // Track which olympiad this answer is for
+  roundNumber Int?     // Track which round this answer is for
   answer     String
   isCorrect  Boolean?
   points     Int?
@@ -356,7 +370,7 @@ model StudentAnswer {
   student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
-  @@unique([studentId, questionId])
+  @@unique([studentId, questionId, olympiadId]) // Allow same question in different olympiads
   @@map("student_answers")
 }
 

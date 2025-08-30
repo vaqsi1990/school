@@ -65,8 +65,8 @@ const HowItWorks: React.FC = () => {
               </div>
 
 
-              <div className="text-start lg:text-left lg:ml-6 max-w-xs">
-                <h3 className="md:text-[21px] text-center md:text-left text-[20px] font-bold text-black mb-3">
+              <div className="text-start md:text-left md:ml-3 max-w-xs">
+                <h3 className="md:text-[18px] text-center md:text-left text-[16px] font-bold text-black mb-3">
                   {step.title}
                 </h3>
                 <p className="text-black md:text-[16px] text-[14px] leading-relaxed">

@@ -285,8 +285,8 @@ function AdminDashboardContent() {
                 <p className=" text-black md:text-[18px] text-[16px]">
                   მართეთ ყველა ოლიმპიადა, კითხვები და შედეგები.
                 </p>
-                <button className="mt-4 w-full cursor-pointer bg-[#f06905] text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
-                  <Link href="/admin/olympiads" className="block bg-[#f06905] w-full h-full">
+                <button className="mt-4 w-full cursor-pointer bg-[#f06905] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                  <Link href="/admin/olympiads" className="block w-full h-full text-white">
                     ოლიმპიადების ნახვა
                   </Link>
                 </button>
