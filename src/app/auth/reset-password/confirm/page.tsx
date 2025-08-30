@@ -18,7 +18,7 @@ export default function ResetPasswordConfirmPage() {
   const [isSuccess, setIsSuccess] = useState(false)
   const [isValidToken, setIsValidToken] = useState(false)
   const [isCheckingToken, setIsCheckingToken] = useState(true)
-  
+
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
@@ -59,7 +59,7 @@ export default function ResetPasswordConfirmPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (password !== confirmPassword) {
       setMessage('პაროლები არ ემთხვევა')
       return
@@ -115,12 +115,8 @@ export default function ResetPasswordConfirmPage() {
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
-            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-              <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
-            <h3 className="mt-4 text-lg font-medium text-gray-900">არასწორი ლინკი</h3>
+
+            <h3 className="mt-4 mb-4 block text-black md:text-[20px] text-[18px]">არასწორი ლინკი</h3>
             <p className="mt-2 text-sm text-gray-600">
               {message}
             </p>
@@ -139,21 +135,13 @@ export default function ResetPasswordConfirmPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center">
-            <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          ახალი პაროლის დაყენება
+    <div className="min-h-screen bg-white flex flex-col  md:mt-[20px]  sm:px-6 lg:px-4">
+      <div className="sm:mx-auto text-center sm:w-full sm:max-w-md">
+
+        <h2 className="mt-6 text-center  font-extrabold text-black md:text-[30px] text-[20px]">
+          შეიყვანეთ  ახალი პაროლი
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-600">
-          შეიყვანეთ თქვენი ახალი პაროლი
-        </p>
+
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -161,7 +149,7 @@ export default function ResetPasswordConfirmPage() {
           {!isSuccess ? (
             <form className="space-y-6" onSubmit={handleSubmit}>
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="block block text-black md:text-[20px] text-[18px] font-medium ">
                   ახალი პაროლი
                 </label>
                 <div className="mt-1 relative">
@@ -173,14 +161,14 @@ export default function ResetPasswordConfirmPage() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className='appearance-none block w-full placeholder:text-[16px] px-8 py-4 border border-black rounded-md placeholder-black  '
                     placeholder="შეიყვანეთ ახალი პაროლი"
                     minLength={6}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-black hover:text-gray-600 transition-colors duration-200"
                   >
                     {showPassword ? (
                       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -197,7 +185,7 @@ export default function ResetPasswordConfirmPage() {
               </div>
 
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="confirmPassword" className="block block text-black md:text-[20px] text-[18px] font-medium ">
                   პაროლის დადასტურება
                 </label>
                 <div className="mt-1 relative">
@@ -209,14 +197,14 @@ export default function ResetPasswordConfirmPage() {
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className='appearance-none block w-full placeholder:text-[16px] px-8 py-4 border border-black rounded-md placeholder-black  '
                     placeholder="გაიმეორეთ პაროლი"
                     minLength={6}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-200"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-black hover:text-gray-600 transition-colors duration-200"
                   >
                     {showConfirmPassword ? (
                       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,9 +221,8 @@ export default function ResetPasswordConfirmPage() {
               </div>
 
               {message && (
-                <div className={`p-3 rounded-md text-sm ${
-                  isSuccess ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
+                <div className={`p-3 rounded-md text-sm ${isSuccess ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                  }`}>
                   {message}
                 </div>
               )}
@@ -244,7 +231,7 @@ export default function ResetPasswordConfirmPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-green-400 disabled:cursor-not-allowed"
+                  className="inline-flex w-full text-white cursor-pointer items-center justify-center px-8 py-4 bg-[#034e64]  md:text-[24px] text-[18px] font-bold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
                   {isLoading ? 'მიმდინარეობს...' : 'პაროლის შეცვლა'}
                 </button>

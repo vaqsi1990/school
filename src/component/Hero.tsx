@@ -33,8 +33,9 @@ const Hero: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
-              href="/register"
-              className="inline-flex items-center justify-center px-8 py-4 bg-[#a2997a] md:text-[20px] text-[18px] font-bold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+              href="/register"   
+              // bg-[#034e64] 
+              className="inline-flex items-center justify-center px-8 py-4 bg-[#034e64]   md:text-[20px] text-[18px] font-bold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
             >
               დარეგისტრირდი ახლა
             </Link>

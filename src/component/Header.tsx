@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
+import Image from 'next/image'
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -13,41 +14,39 @@ const Header: React.FC = () => {
   }
 
   return (
-    <header className="bg-white shadow-lg border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex  justify-between items-center h-16">
+    <header className="bg-white shadow-lg border-b border-gray-200 relative">
+      <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
           {/* Logo and Brand */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="hidden sm:block">
-                <h1 className="text-xl font-bold text-black md:text-[25px] text-[20px]">ონლაინ ოლიმპიადა</h1>
-                <p className="text-sm text-black md:text-[16px] text-[13px]">Online Olympiad</p>
-              </div>
+              <Image src="/logo.jpg" className='rounded-full' alt="Logo" width={60} height={60} />
             </Link>
+
+            {/* Desktop Navigation - moved next to logo */}
+            <nav className="hidden md:flex items-center space-x-8 ml-8">
+              <Link
+                href="/subjects"
+                className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
+              >
+                საგნები
+              </Link>
+
+              <Link
+                href="/about"
+                className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
+              >
+                ჩვენს შესახებ
+              </Link>
+
+              <Link
+                href="/contacts"
+                className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
+              >
+                კონტაქტები
+              </Link>
+            </nav>
           </div>
-
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-
-            <Link
-              href="/subjects"
-              className="text-black  px-3 py-2 rounded-md  md:text-[18px] text-[16px] font-bold transition-colors"
-            >
-              საგნები
-            </Link>
-
-            <Link
-              href="/about"
-              className="text-black  px-3 py-2 rounded-md  md:text-[18px] text-[16px] font-bold transition-colors"
-            >
-              ჩვენს შესახებ
-            </Link>
-          </nav>
 
           {/* Desktop Action Buttons */}
           <div className="hidden md:flex items-center space-x-4">
@@ -55,13 +54,13 @@ const Header: React.FC = () => {
               <>
                 <Link
                   href="/auth/signin"
-                  className="text-black  px-3 py-2 rounded-md  md:text-[18px] text-[16px] font-bold transition-colors"
+                  className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
                 >
                   შესვლა
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="bg-[#a2997a] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold  transition-colors"
+                  className="bg-[#034e64] text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors"
                 >
                   რეგისტრაცია
                 </Link>
@@ -70,13 +69,13 @@ const Header: React.FC = () => {
               <>
                 <Link
                   href="/dashboard"
-                  className="text-black  px-3 py-2 rounded-md  md:text-[20px] text-[18px] cursor-pointer font-bold transition-colors"
+                  className="text-black px-3 py-2 rounded-md md:text-[20px] text-[20px] cursor-pointer font-bold transition-colors "
                 >
                   დეშბორდი
                 </Link>
                 <button
                   onClick={logout}
-                  className="bg-red-600 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] cursor-pointer font-bold  transition-colors"
+                  className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
                 >
                   გამოსვლა
                 </button>
@@ -88,7 +87,7 @@ const Header: React.FC = () => {
           <div className="md:hidden">
             <button
               onClick={toggleMenu}
-              className="text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600"
+              className="text-black p-2"
               aria-label="Toggle menu"
             >
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -104,39 +103,49 @@ const Header: React.FC = () => {
 
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
-          <div className="md:hidden h-screen">
-            <div className="px-2 pt-2 flex flex-col text-center pb-3 space-y-1 sm:px-3 bg-gray-50 rounded-lg mt-2">
+          <div className="md:hidden w-full h-screen text-center absolute top-full left-0 right-0 bg-white shadow-lg border-b border-gray-200 z-50">
+            <div className="px-4 py-6 space-y-4">
+              {/* Mobile Navigation Links */}
+              <div className="space-y-3">
+                <Link
+                  href="/subjects"
+                  className="block text-black px-4 py-3 rounded-lg text-[18px] font-bold transition-colors hover:bg-gray-50 hover:text-blue-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  საგნები
+                </Link>
 
-              <Link
-                href="/subjects"
-                className="text-black  px-3 py-2 rounded-md  md:text-[18px] text-[16px] font-bold transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                საგნები
-              </Link>
+                <Link
+                  href="/about"
+                  className="block text-black px-4 py-3 rounded-lg text-[18px] font-bold transition-colors hover:bg-gray-50 hover:text-blue-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ჩვენს შესახებ
+                </Link>
 
-              <Link
-                href="/about"
-                className="text-black  px-3 py-2 rounded-md  md:text-[18px] text-[16px] font-bold transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                ჩვენს შესახებ
-              </Link>
+                <Link
+                  href="/contacts"
+                  className="block text-black px-4 py-3 rounded-lg text-[18px] font-bold transition-colors hover:bg-gray-50 hover:text-blue-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  კონტაქტები
+                </Link>
+              </div>
 
               {/* Mobile Action Buttons */}
-              <div className="pt-4 space-y-2 border-t border-gray-200">
+              <div className="pt-4 border-t border-gray-200 space-y-3">
                 {!isAuthenticated ? (
                   <>
                     <Link
                       href="/auth/signin"
-                      className="bg-[#a2997a] text-white block px-3 py-2 rounded-md  md:text-[18px] text-[16px] font-bold hover:bg-blue-700 transition-colors"
+                      className="inline-flex w-full text-white cursor-pointer items-center justify-center px-8 py-4 bg-[#034e64]  md:text-[24px] text-[18px] font-bold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       შესვლა
                     </Link>
                     <Link
                       href="/auth/signup"
-                      className="bg-[#a2997a] text-white block px-3 py-2 rounded-md  md:text-[18px] text-[16px] font-bold hover:bg-green-700 transition-colors"
+                      className="inline-flex w-full text-white cursor-pointer items-center justify-center px-8 py-4 bg-[#034e64]  md:text-[24px] text-[18px] font-bold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       რეგისტრაცია
@@ -146,7 +155,7 @@ const Header: React.FC = () => {
                   <>
                     <Link
                       href="/dashboard"
-                      className="bg-blue-600 text-white block px-3 py-2 rounded-md  md:text-[18px] text-[16px] font-bold hover:bg-blue-700 transition-colors"
+                      className="block bg-blue-600 text-white px-4 py-3 rounded-lg text-[18px] font-bold  transition-colors text-center"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       დეშბორდი
@@ -156,7 +165,7 @@ const Header: React.FC = () => {
                         logout()
                         setIsMenuOpen(false)
                       }}
-                      className="bg-red-600 text-white block w-full px-3 py-2 rounded-md  md:text-[18px] text-[16px] font-bold hover:bg-red-700 transition-colors"
+                      className="block w-full bg-red-600 text-white px-4 py-3 rounded-lg text-[18px] font-bold transition-colors"
                     >
                       გამოსვლა
                     </button>

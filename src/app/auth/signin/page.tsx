@@ -45,15 +45,13 @@ export default function SignInPage() {
   }
 
   return (
-    <div className='min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8'>
+    <div className='min-h-screen bg-white flex flex-col  md:mt-[20px]  sm:px-6 lg:px-4'>
       <div className='sm:mx-auto sm:w-full sm:max-w-md'>
         <div className='text-center'>
           <h2 className='mt-6  font-extrabold text-black md:text-[30px] text-[20px]'>
             შესვლა
           </h2>
-          <p className='mt-2 text-black md:text-[18px] text-[16px]'>
-            შესვლა თქვენს ანგარიშზე
-          </p>
+         
         </div>
       </div>
 
@@ -76,7 +74,7 @@ export default function SignInPage() {
             )}
 
             <div>
-              <label htmlFor='email' className='block text-black md:text-[18px] text-[16px]'>
+              <label htmlFor='email' className='block text-black md:text-[20px] text-[18px]'>
                ელ-ფოსტა
               </label>
               <div className='mt-1'>
@@ -85,7 +83,7 @@ export default function SignInPage() {
                   type='email'
                   autoComplete='email'
                   {...register('email')}
-                  className='appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm'
+                  className='appearance-none block w-full placeholder:text-[16px] px-8 py-4 border border-black rounded-md placeholder-black  '
                   placeholder='თქვენი ელ-ფოსტა'
                 />
               </div>
@@ -95,7 +93,7 @@ export default function SignInPage() {
             </div>
 
             <div>
-              <label htmlFor='password' className='block text-black md:text-[18px] text-[16px]'>
+              <label htmlFor='password' className='block text-black md:text-[20px] text-[18px]'>
                პაროლი
               </label>
               <div className='mt-1 relative'>
@@ -104,7 +102,7 @@ export default function SignInPage() {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete='current-password'
                   {...register('password')}
-                  className='appearance-none block w-full px-3 py-2 pr-10 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm'
+                          className='appearance-none block w-full placeholder:text-[16px] px-8 py-4 border border-black rounded-md placeholder-black  '
                   placeholder='თქვენი პაროლი'
                   />
                 <button
@@ -133,7 +131,7 @@ export default function SignInPage() {
               <button
                 type='submit'
                 disabled={isLoading}
-                className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm md:text-[20px] text-[18px] font-bold text-white bg-[#a2997a] cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed'
+                className='inline-flex w-full text-white cursor-pointer items-center justify-center px-8 py-4 bg-[#034e64]  md:text-[24px] text-[18px] font-bold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg'
               >
                 {isLoading ? 'შესვლა...' : 'შესვლა'}
               </button>
@@ -151,7 +149,7 @@ export default function SignInPage() {
             </div>
 
             <div className='mt-6 text-center'>
-              <p className='text-sm text-black md:text-[18px] text-[16px]'>
+              <p className='text-sm text-black md:text-[20px] text-[18px]'>
                 არ გაქვთ ანგარიში?{' '}
                 <Link
                   href='/auth/signup'
@@ -161,7 +159,7 @@ export default function SignInPage() {
                 </Link>
               </p>
             </div>
-            <div className='mt-6 text-center'>
+            <div className='mt-6  md:text-[18px] text-[16px] text-center'>
               <h1> დაგავიწყდა პაროლი?  
                 <Link href='/auth/reset-password' className='font-medium text-black hover:underline transition-all duration-300 md:text-[20px] text-[18px]'>
                   აღადგინეთ
