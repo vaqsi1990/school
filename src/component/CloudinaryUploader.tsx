@@ -12,7 +12,7 @@ type ImageUploadProps = {
 const ImageUpload = ({ onChange, value }: ImageUploadProps): React.JSX.Element => {
   const [imageUrls, setImageUrls] = useState<string[]>(value || []);
 
-  const handleUploadComplete = (res: any[]) => {
+  const handleUploadComplete = (res: { url: string }[]) => {
     const urls = res.map((file) => file.url);
     const newUrls = [...imageUrls, ...urls];
     setImageUrls(newUrls);
