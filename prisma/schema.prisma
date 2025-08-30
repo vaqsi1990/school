@@ -24,6 +24,7 @@ model User {
   admin     Admin?
   accounts  Account[]
   sessions  Session[]
+  manualScores ManualScore[]
 
   @@map("users")
 }
@@ -103,6 +104,7 @@ model Student {
   user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   participations StudentOlympiad[]
   answers        StudentAnswer[]
+  manualScores   ManualScore[]
 
   @@map("students")
 }
@@ -225,10 +227,14 @@ model Question {
   id          String   @id @default(cuid())
   text        String
   type        QuestionType
-  options     String[] // For multiple choice questions
-  correctAnswer String
+  options     String[] // For multiple choice, matching, closed-ended questions
+  correctAnswer String? // For auto-scored questions
   points      Int      @default(1)
+  maxPoints   Int?     // Maximum possible points for manual scoring
   image       String?  // Optional image URL for questions that need visual content
+  content     String?  // For text analysis, map analysis - the main content (text or map description)
+  matchingPairs Json?  // For matching questions: [{"left": "A", "right": "1"}, {"left": "B", "right": "2"}]
+  rubric      String?  // For manual scoring - criteria for grading
   subjectId   String
   chapterId   String?
   paragraphId String?
@@ -237,6 +243,7 @@ model Question {
   grade       Int      // Grade level for the question
   round       Int      // Which round this question belongs to (1, 2, or 3)
   createdBy   String?  // Teacher ID who created this question
+  isAutoScored Boolean @default(true) // Whether system can auto-score this question
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -249,6 +256,7 @@ model Question {
   olympiadQuestions OlympiadQuestion[]
   questionSets QuestionSetQuestion[]
   questionPackages QuestionPackageQuestion[]
+  manualScores ManualScore[]
 
   @@map("questions")
 }
@@ -324,6 +332,7 @@ model Olympiad {
   rounds         Round[]
   participations StudentOlympiad[]
   questions      OlympiadQuestion[]
+  manualScores   ManualScore[]
 
   @@unique([subjectId, grade, name]) // Ensure unique olympiad per subject-grade combination
   @@map("olympiads")
@@ -410,6 +419,29 @@ model StudentAnswer {
   @@map("student_answers")
 }
 
+// Manual scoring for questions that require human evaluation
+model ManualScore {
+  id         String   @id @default(cuid())
+  studentId  String
+  questionId String
+  olympiadId String
+  roundNumber Int
+  scoredBy   String   // Teacher/Admin ID who scored this
+  score      Float    // Can be fractional (0.5, 1.5, etc.)
+  maxScore   Float    // Maximum possible score for this question
+  feedback   String?  // Optional feedback from scorer
+  scoredAt   DateTime @default(now())
+
+  // Relations
+  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  olympiad Olympiad @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
+  scorer   User     @relation(fields: [scoredBy], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, questionId, olympiadId, roundNumber])
+  @@map("manual_scores")
+}
+
 // Enums
 enum UserType {
   STUDENT
@@ -424,9 +456,13 @@ enum AdminRole {
 }
 
 enum QuestionType {
-  MULTIPLE_CHOICE
-  SINGLE_ANSWER
-  TRUE_FALSE
+  MULTIPLE_CHOICE      // მრავალარჩევანიანი - auto-scored
+  TRUE_FALSE           // სწორი/არასწორი - auto-scored
+  MATCHING             // შესაბამისობა - auto-scored
+  TEXT_ANALYSIS        // ტექსტის ანალიზი - manual scoring
+  MAP_ANALYSIS         // რუკის ანალიზი - manual scoring
+  OPEN_ENDED           // ღია კითხვა - manual scoring
+  CLOSED_ENDED         // დახურული კითხვა - manual scoring
 }
 
 enum ParticipationStatus {

@@ -37,7 +37,7 @@ function AdminOlympiadsContent() {
             <div className="p-4 flex-1 flex flex-col">
               <div className="flex items-center">
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[18px] text-[16px]">შექმნა</h3>
+                  <h3 className="text-black md:text-[20px]  text-[18px]">შექმნა</h3>
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
@@ -58,7 +58,7 @@ function AdminOlympiadsContent() {
             <div className="p-4 flex-1 flex flex-col">
               <div className="flex items-center">
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[18px] text-[16px]">მართვა</h3>
+                  <h3 className="text-black md:text-[20px]  text-[18px]">მართვა</h3>
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
@@ -79,7 +79,7 @@ function AdminOlympiadsContent() {
             <div className="p-4 flex-1 flex flex-col">
               <div className="flex items-center">
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[18px] text-[16px]">კითხვები</h3>
+                  <h3 className="text-black md:text-[20px]  text-[18px]">კითხვები</h3>
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
@@ -100,7 +100,7 @@ function AdminOlympiadsContent() {
             <div className="p-4 flex-1 flex flex-col">
               <div className="flex items-center">
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[18px] text-[16px]">პაკეტები</h3>
+                  <h3 className="text-black md:text-[20px]  text-[18px]">პაკეტები</h3>
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
@@ -121,7 +121,7 @@ function AdminOlympiadsContent() {
             <div className="p-4 flex-1 flex flex-col">
               <div className="flex items-center">
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[18px] text-[16px]">შედეგები</h3>
+                  <h3 className="text-black md:text-[20px]  text-[18px]">შედეგები</h3>
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
@@ -142,7 +142,7 @@ function AdminOlympiadsContent() {
             <div className="p-4 flex-1 flex flex-col">
               <div className="flex items-center">
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[18px] text-[16px]">სტატისტიკა</h3>
+                  <h3 className="text-black md:text-[20px]  text-[18px]">სტატისტიკა</h3>
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
@@ -163,7 +163,7 @@ function AdminOlympiadsContent() {
             <div className="p-4 flex-1 flex flex-col">
               <div className="flex items-center">
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[18px] text-[16px]">პარამეტრები</h3>
+                  <h3 className="text-black md:text-[20px]  text-[18px]">პარამეტრები</h3>
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">

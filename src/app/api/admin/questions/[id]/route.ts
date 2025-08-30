@@ -23,18 +23,31 @@ export async function PUT(
       options,
       correctAnswer,
       points,
+      maxPoints,
       image,
+      content,
+      matchingPairs,
+      rubric,
       subjectId,
       chapterName,
       paragraphName,
       grade,
-      round
+      round,
+      isAutoScored
     } = await request.json()
 
     // Validate required fields
-    if (!text || !type || !correctAnswer || !points || !subjectId || !grade || !round) {
+    if (!text || !type || !points || !subjectId || !grade || !round) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
+
+    // Validate auto-scored questions
+    if (isAutoScored && !correctAnswer) {
+      return NextResponse.json(
+        { error: 'Auto-scored questions must have a correct answer' },
         { status: 400 }
       )
     }
@@ -46,16 +59,21 @@ export async function PUT(
         text,
         type,
         options: options || [],
-        correctAnswer,
+        correctAnswer: correctAnswer || null,
         points: parseInt(points),
+        maxPoints: maxPoints ? parseFloat(maxPoints) : null,
         image: image || null,
+        content: content || null,
+        matchingPairs: matchingPairs || null,
+        rubric: rubric || null,
         subjectId,
         chapterId: null, // Keep as null since we're using text fields now
         paragraphId: null, // Keep as null since we're using text fields now
         chapterName: chapterName || null,
         paragraphName: paragraphName || null,
         grade: parseInt(grade),
-        round: parseInt(round)
+        round: parseInt(round),
+        isAutoScored: isAutoScored !== undefined ? isAutoScored : true
       }
     })
 

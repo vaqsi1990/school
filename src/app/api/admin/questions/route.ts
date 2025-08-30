@@ -52,26 +52,55 @@ export async function POST(request: NextRequest) {
       options,
       correctAnswer,
       points,
+      maxPoints,
       image,
+      content,
+      matchingPairs,
+      rubric,
       subjectId,
       chapterName,
       paragraphName,
       grade,
-      round
+      round,
+      isAutoScored
     } = await request.json()
 
     // Validate required fields
-    if (!text || !type || !correctAnswer || !points || !subjectId || !grade || !round) {
+    if (!text || !type || !points || !subjectId || !grade || !round) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       )
     }
 
-    // Validate question type and options
-    if ((type === 'MULTIPLE_CHOICE' || type === 'TRUE_FALSE') && (!options || options.length < 2)) {
+    // Validate auto-scored questions
+    if (isAutoScored && !correctAnswer) {
       return NextResponse.json(
-        { error: 'Multiple choice and true/false questions must have at least 2 options' },
+        { error: 'Auto-scored questions must have a correct answer' },
+        { status: 400 }
+      )
+    }
+
+    // Validate question type and options
+    if ((type === 'MULTIPLE_CHOICE' || type === 'TRUE_FALSE' || type === 'CLOSED_ENDED') && (!options || options.length < 2)) {
+      return NextResponse.json(
+        { error: 'Multiple choice, true/false, and closed-ended questions must have at least 2 options' },
+        { status: 400 }
+      )
+    }
+
+    // Validate matching questions
+    if (type === 'MATCHING' && (!matchingPairs || matchingPairs.length < 1)) {
+      return NextResponse.json(
+        { error: 'Matching questions must have at least one pair' },
+        { status: 400 }
+      )
+    }
+
+    // Validate content for analysis questions
+    if ((type === 'TEXT_ANALYSIS' || type === 'MAP_ANALYSIS') && !content) {
+      return NextResponse.json(
+        { error: 'Text analysis and map analysis questions must have content' },
         { status: 400 }
       )
     }
@@ -82,16 +111,21 @@ export async function POST(request: NextRequest) {
         text,
         type,
         options: options || [],
-        correctAnswer,
+        correctAnswer: correctAnswer || null,
         points: parseInt(points),
+        maxPoints: maxPoints ? parseFloat(maxPoints) : null,
         image: image || null,
+        content: content || null,
+        matchingPairs: matchingPairs || null,
+        rubric: rubric || null,
         subjectId,
         chapterId: null, // Keep as null since we're using text fields now
         paragraphId: null, // Keep as null since we're using text fields now
         chapterName: chapterName || null,
         paragraphName: paragraphName || null,
         grade: parseInt(grade),
-        round: parseInt(round)
+        round: parseInt(round),
+        isAutoScored: isAutoScored !== undefined ? isAutoScored : true
       }
     })
 
