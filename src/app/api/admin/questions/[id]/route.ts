@@ -25,15 +25,14 @@ export async function PUT(
       points,
       maxPoints,
       image,
-      content,
       matchingPairs,
-      rubric,
       subjectId,
       chapterName,
       paragraphName,
       grade,
       round,
-      isAutoScored
+      isAutoScored,
+      subQuestions
     } = await request.json()
 
     // Validate required fields
@@ -52,6 +51,42 @@ export async function PUT(
       )
     }
 
+    // Validate sub-questions for analysis questions
+    if ((type === 'TEXT_ANALYSIS' || type === 'MAP_ANALYSIS') && (!subQuestions || subQuestions.length === 0)) {
+      return NextResponse.json(
+        { error: 'Text analysis and map analysis questions must have at least one sub-question' },
+        { status: 400 }
+      )
+    }
+
+    // Validate sub-questions if they exist
+    if (subQuestions && subQuestions.length > 0) {
+      for (let i = 0; i < subQuestions.length; i++) {
+        const sq = subQuestions[i]
+        if (!sq.text || !sq.points || sq.points < 1 || sq.points > 10) {
+          return NextResponse.json(
+            { error: `Sub-question ${i + 1} must have text and valid points (1-10)` },
+            { status: 400 }
+          )
+        }
+        
+        if (sq.type === 'CLOSED_ENDED' && sq.isAutoScored) {
+          if (!sq.options || sq.options.length < 2) {
+            return NextResponse.json(
+              { error: `Sub-question ${i + 1} must have at least 2 options for auto-scoring` },
+              { status: 400 }
+            )
+          }
+          if (!sq.correctAnswer) {
+            return NextResponse.json(
+              { error: `Sub-question ${i + 1} must have a correct answer for auto-scoring` },
+              { status: 400 }
+            )
+          }
+        }
+      }
+    }
+
     // Update the question
     const updatedQuestion = await prisma.question.update({
       where: { id },
@@ -63,9 +98,7 @@ export async function PUT(
         points: parseInt(points),
         maxPoints: maxPoints ? parseFloat(maxPoints) : null,
         image: image || null,
-        content: content || null,
         matchingPairs: matchingPairs || null,
-        rubric: rubric || null,
         subjectId,
         chapterId: null, // Keep as null since we're using text fields now
         paragraphId: null, // Keep as null since we're using text fields now
@@ -73,7 +106,10 @@ export async function PUT(
         paragraphName: paragraphName || null,
         grade: parseInt(grade),
         round: parseInt(round),
-        isAutoScored: isAutoScored !== undefined ? isAutoScored : true
+        isAutoScored: isAutoScored !== undefined ? isAutoScored : true,
+        // Store sub-questions as JSON in a text field for now
+        // In the future, you might want to create a separate table for sub-questions
+        content: subQuestions ? JSON.stringify(subQuestions) : null
       }
     })
 

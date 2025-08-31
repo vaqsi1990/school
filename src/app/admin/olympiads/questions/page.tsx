@@ -29,6 +29,18 @@ interface Question {
   round: number
   isAutoScored: boolean
   createdAt: string
+  subQuestions?: SubQuestion[] // Add this field
+}
+
+interface SubQuestion {
+  id: string
+  text: string
+  type: 'CLOSED_ENDED' | 'OPEN_ENDED'
+  options?: string[]
+  correctAnswer?: string
+  points: number
+  maxPoints?: number
+  isAutoScored: boolean
 }
 
 function AdminQuestionsContent() {
@@ -37,7 +49,7 @@ function AdminQuestionsContent() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
-  const [activeTab, setActiveTab] = useState<'all' | 'multiple-choice' | 'matching' | 'text-analysis' | 'map-analysis' | 'open-ended' | 'closed-ended'>('all')
+  const [activeTab, setActiveTab] = useState<'all' | 'matching' | 'text-analysis' | 'map-analysis' | 'open-ended' | 'closed-ended'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedSubject, setSelectedSubject] = useState('')
   const [selectedGrade, setSelectedGrade] = useState('')
@@ -64,7 +76,8 @@ function AdminQuestionsContent() {
     paragraphName: '',
     grade: 7,
     round: 1,
-    isAutoScored: true
+    isAutoScored: true,
+    subQuestions: [] as SubQuestion[] // Add this field
   })
 
   useEffect(() => {
@@ -150,7 +163,8 @@ function AdminQuestionsContent() {
       paragraphName: question.paragraphName || '',
       grade: question.grade,
       round: question.round,
-      isAutoScored: question.isAutoScored
+      isAutoScored: question.isAutoScored,
+      subQuestions: question.subQuestions || [] // Assuming subQuestions are part of the question object
     })
     setShowAddForm(true)
   }
@@ -246,13 +260,94 @@ function AdminQuestionsContent() {
     }
   }
 
+  // Sub-questions functions
+  const handleAddSubQuestion = () => {
+    const newSubQuestion: SubQuestion = {
+      id: `temp-${Date.now()}`,
+      text: '',
+      type: 'CLOSED_ENDED',
+      options: ['', '', '', ''],
+      correctAnswer: '',
+      points: 1,
+      maxPoints: 1,
+      isAutoScored: true
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      subQuestions: [...prev.subQuestions, newSubQuestion]
+    }))
+  }
+
+  const handleRemoveSubQuestion = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      subQuestions: prev.subQuestions.filter((_, i) => i !== index)
+    }))
+  }
+
+  const handleSubQuestionChange = (index: number, field: keyof SubQuestion, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      subQuestions: prev.subQuestions.map((sq, i) => 
+        i === index ? { ...sq, [field]: value } : sq
+      )
+    }))
+  }
+
+  const handleSubQuestionOptionChange = (subQuestionIndex: number, optionIndex: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      subQuestions: prev.subQuestions.map((sq, i) => 
+        i === subQuestionIndex 
+          ? { 
+              ...sq, 
+              options: sq.options?.map((opt, j) => j === optionIndex ? value : opt) || []
+            }
+          : sq
+      )
+    }))
+  }
+
+  const handleAddSubQuestionOption = (subQuestionIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      subQuestions: prev.subQuestions.map((sq, i) => 
+        i === subQuestionIndex 
+          ? { 
+              ...sq, 
+              options: [...(sq.options || []), '']
+            }
+          : sq
+      )
+    }))
+  }
+
+  const handleRemoveSubQuestionOption = (subQuestionIndex: number, optionIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      subQuestions: prev.subQuestions.map((sq, i) => 
+        i === subQuestionIndex 
+          ? { 
+              ...sq, 
+              options: sq.options?.filter((_, j) => j !== optionIndex) || []
+            }
+          : sq
+      )
+    }))
+  }
+
   const handleQuestionTypeChange = (type: string) => {
     const isAutoScored = ['MATCHING'].includes(type)
     setFormData(prev => ({
       ...prev,
-              type: type as 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED',
+      type: type as 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED',
       isAutoScored,
-      maxPoints: isAutoScored ? prev.points : prev.maxPoints
+      maxPoints: isAutoScored ? prev.points : prev.maxPoints,
+      // For MATCHING questions, set correctAnswer to "matching"
+      correctAnswer: type === 'MATCHING' ? 'matching' : prev.correctAnswer,
+      // Clear sub-questions if switching away from TEXT_ANALYSIS or MAP_ANALYSIS
+      subQuestions: (type === 'TEXT_ANALYSIS' || type === 'MAP_ANALYSIS') ? prev.subQuestions : []
     }))
   }
 
@@ -271,11 +366,71 @@ function AdminQuestionsContent() {
     e.preventDefault()
 
     try {
+      // Validate that TEXT_ANALYSIS and MAP_ANALYSIS questions have sub-questions
+      if ((formData.type === 'TEXT_ANALYSIS' || formData.type === 'MAP_ANALYSIS') && 
+          (!formData.subQuestions || formData.subQuestions.length === 0)) {
+        alert('ტექსტის ანალიზის და რუკის ანალიზის კითხვებს უნდა ჰქონდეთ მინიმუმ ერთი ქვეკითხვა')
+        return
+      }
+
+      // Validate MATCHING questions
+      if (formData.type === 'MATCHING') {
+        if (!formData.matchingPairs || formData.matchingPairs.length === 0) {
+          alert('შესაბამისობის კითხვებს უნდა ჰქონდეთ მინიმუმ ერთი წყვილი')
+          return
+        }
+        
+        for (let i = 0; i < formData.matchingPairs.length; i++) {
+          const pair = formData.matchingPairs[i]
+          if (!pair.left.trim() || !pair.right.trim()) {
+            alert(`შესაბამისობის წყვილი ${i + 1} უნდა ჰქონდეს მარცხენა და მარჯვენა მნიშვნელობები`)
+            return
+          }
+        }
+      }
+
+      // Validate sub-questions if they exist
+      if (formData.subQuestions && formData.subQuestions.length > 0) {
+        for (let i = 0; i < formData.subQuestions.length; i++) {
+          const sq = formData.subQuestions[i]
+          if (!sq.text.trim()) {
+            alert(`ქვეკითხვა ${i + 1} უნდა ჰქონდეს ტექსტი`)
+            return
+          }
+          if (sq.points < 1 || sq.points > 10) {
+            alert(`ქვეკითხვა ${i + 1} უნდა ჰქონდეს ქულები 1-დან 10-მდე`)
+            return
+          }
+          
+          if (sq.type === 'CLOSED_ENDED' && sq.isAutoScored) {
+            if (!sq.options || sq.options.filter(opt => opt.trim()).length < 2) {
+              alert(`ქვეკითხვა ${i + 1} უნდა ჰქონდეს მინიმუმ 2 პასუხის ვარიანტი ავტომატური შეფასებისთვის`)
+              return
+            }
+            if (!sq.correctAnswer || sq.correctAnswer.trim() === '') {
+              alert(`ქვეკითხვა ${i + 1} უნდა ჰქონდეს სწორი პასუხი ავტომატური შეფასებისთვის`)
+              return
+            }
+          }
+        }
+      }
+
+      // Validate auto-scored questions
+      if (formData.isAutoScored && !formData.correctAnswer && formData.type !== 'MATCHING') {
+        alert('ავტომატურად შეფასებულ კითხვებს უნდა ჰქონდეთ სწორი პასუხი (გარდა შესაბამისობის კითხვებისა)')
+        return
+      }
+
       const url = editingQuestion
         ? `/api/admin/questions/${editingQuestion.id}`
         : '/api/admin/questions'
 
       const method = editingQuestion ? 'PUT' : 'POST'
+
+      // Debug logging
+      console.log('Submitting form data:', formData)
+      console.log('Form data type:', typeof formData)
+      console.log('Sub-questions:', formData.subQuestions)
 
       const response = await fetch(url, {
         method,
@@ -285,6 +440,10 @@ function AdminQuestionsContent() {
         body: JSON.stringify(formData),
       })
 
+      console.log('Response status:', response.status)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+      console.log('Response ok:', response.ok)
+
       if (response.ok) {
         const message = editingQuestion ? 'კითხვა წარმატებით განახლდა!' : 'კითხვა წარმატებით დაემატა!'
         alert(message)
@@ -292,8 +451,28 @@ function AdminQuestionsContent() {
         resetForm()
         fetchQuestions()
       } else {
-        const error = await response.json()
-        alert(`შეცდომა: ${error.message}`)
+        const responseText = await response.text()
+        console.log('Response text length:', responseText.length)
+        console.log('Response text (first 500 chars):', responseText.substring(0, 500))
+        console.log('Response text (last 500 chars):', responseText.substring(Math.max(0, responseText.length - 500)))
+        
+        let error
+        try {
+          if (responseText.trim() === '') {
+            error = { message: `HTTP ${response.status}: Empty response from server` }
+          } else if (responseText.startsWith('<!DOCTYPE') || responseText.startsWith('<html')) {
+            error = { message: `HTTP ${response.status}: Server returned HTML instead of JSON. This usually means a server error.` }
+          } else {
+            error = JSON.parse(responseText)
+          }
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError)
+          console.error('Raw response text:', responseText)
+          error = { message: `HTTP ${response.status}: Invalid response format - ${responseText.substring(0, 100)}...` }
+        }
+        
+        console.error('API Error:', error)
+        alert(`შეცდომა: ${error.message || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Error saving question:', error)
@@ -316,7 +495,8 @@ function AdminQuestionsContent() {
       paragraphName: '',
       grade: 7,
       round: 1,
-      isAutoScored: true
+      isAutoScored: true,
+      subQuestions: []
     })
     setEditingQuestion(null)
   }
@@ -376,56 +556,53 @@ function AdminQuestionsContent() {
   }
 
   const filteredQuestions = questions.filter(question => {
-    if (!searchTerm.trim()) return true
-    
-    const searchLower = searchTerm.toLowerCase().trim()
-    
-    // Simple and robust search across all fields
-    const matchesSearch =
-      // Question text
-      question.text.toLowerCase().includes(searchLower) ||
-      
-      // Subject name
-      (subjects.find(s => s.id === question.subjectId)?.name || '').toLowerCase().includes(searchLower) ||
-      
-      // Chapter name (handle "თავი 2" and "2")
-      (question.chapterName && (
-        question.chapterName.toLowerCase().includes(searchLower) ||
-        searchLower.includes(question.chapterName.toLowerCase())
-      )) ||
-      
-      // Paragraph name (handle "პარაგრაფი 1.2" and "1.2")
-      (question.paragraphName && (
-        question.paragraphName.toLowerCase().includes(searchLower) ||
-        searchLower.includes(question.paragraphName.toLowerCase())
-      )) ||
-      
-      // Grade (handle "10", "10 კლასი", "კლასი 10")
-      question.grade.toString().includes(searchLower) ||
-      (searchLower.includes('კლასი') && question.grade.toString().includes(searchLower.replace('კლასი', '').trim())) ||
-      
-      // Round (handle "1", "1 რაუნდი", "რაუნდი 1")
-      question.round.toString().includes(searchLower) ||
-      (searchLower.includes('რაუნდი') && question.round.toString().includes(searchLower.replace('რაუნდი', '').trim())) ||
-      
-      // Question type
-      question.type.toLowerCase().includes(searchLower) ||
-      getQuestionTypeLabel(question.type).toLowerCase().includes(searchLower) ||
-      
-      // Points
-      question.points.toString().includes(searchLower)
-
-    // Debug logging
+    // Search filtering
+    let matchesSearch = true
     if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase().trim()
+      
+      // Simple and robust search across all fields
+      matchesSearch =
+        // Question text
+        question.text.toLowerCase().includes(searchLower) ||
+        
+        // Subject name
+        (subjects.find(s => s.id === question.subjectId)?.name || '').toLowerCase().includes(searchLower) ||
+        
+        // Chapter name (handle "თავი 2" and "2")
+        (question.chapterName && (
+          question.chapterName.toLowerCase().includes(searchLower) ||
+          searchLower.includes(question.chapterName.toLowerCase())
+        )) ||
+        
+        // Paragraph name (handle "პარაგრაფი 1.2" and "1.2")
+        (question.paragraphName && (
+          question.paragraphName.toLowerCase().includes(searchLower) ||
+          searchLower.includes(question.paragraphName.toLowerCase())
+        )) ||
+        
+        // Grade (handle "10", "10 კლასი", "კლასი 10")
+        question.grade.toString().includes(searchLower) ||
+        (searchLower.includes('კლასი') && question.grade.toString().includes(searchLower.replace('კლასი', '').trim())) ||
+        
+        // Round (handle "1", "1 რაუნდი", "რაუნდი 1")
+        question.round.toString().includes(searchLower) ||
+        (searchLower.includes('რაუნდი') && question.round.toString().includes(searchLower.replace('რაუნდი', '').trim())) ||
+        
+        // Question type
+        question.type.toLowerCase().includes(searchLower) ||
+        getQuestionTypeLabel(question.type).toLowerCase().includes(searchLower) ||
+        
+        // Points
+        question.points.toString().includes(searchLower)
+
+      // Debug logging for search
       console.log(`Searching for: "${searchLower}"`)
       console.log(`Question: "${question.text.substring(0, 50)}..."`)
-      console.log(`Matches: ${matchesSearch}`)
-      console.log(`Grade: ${question.grade}, Round: ${question.round}`)
-      console.log(`Chapter: ${question.chapterName}, Paragraph: ${question.paragraphName}`)
-      console.log('---')
+      console.log(`Search matches: ${matchesSearch}`)
     }
 
-    // Fix tab filtering logic - remove duplicate case
+    // Tab filtering logic
     let matchesType = true
     if (activeTab !== 'all') {
       switch (activeTab) {
@@ -447,13 +624,25 @@ function AdminQuestionsContent() {
         default:
           matchesType = true
       }
+      
+      // Debug logging for tab filtering
+      console.log(`Tab filtering: ${activeTab}, Question type: ${question.type}, matchesType: ${matchesType}`)
     }
 
+    // Other filters
     const matchesSubject = !selectedSubject || question.subjectId === selectedSubject
     const matchesGrade = !selectedGrade || question.grade === parseInt(selectedGrade)
     const matchesRound = !selectedRound || question.round === parseInt(selectedRound)
 
-    return matchesSearch && matchesType && matchesSubject && matchesGrade && matchesRound
+    const finalResult = matchesSearch && matchesType && matchesSubject && matchesGrade && matchesRound
+    
+    // Debug logging for final result
+    if (activeTab !== 'all' || searchTerm.trim()) {
+      console.log(`Question "${question.text.substring(0, 30)}..." - Final result: ${finalResult}`)
+      console.log(`  Search: ${matchesSearch}, Type: ${matchesType}, Subject: ${matchesSubject}, Grade: ${matchesGrade}, Round: ${matchesRound}`)
+    }
+    
+    return finalResult
   })
 
 
@@ -579,9 +768,17 @@ function AdminQuestionsContent() {
 
         {/* Tabs */}
         <div className="mb-6">
+          {/* Debug info */}
+          <div className="mb-2 p-2 bg-gray-100 rounded text-sm">
+            <p><strong>Debug:</strong> Active tab: {activeTab} | Total questions: {questions.length} | Filtered questions: {filteredQuestions.length}</p>
+          </div>
+          
           <div className="flex gap-2 flex-wrap">
             <button
-              onClick={() => setActiveTab('all')}
+              onClick={() => {
+                console.log('Tab clicked: all')
+                setActiveTab('all')
+              }}
               className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'all'
                   ? 'bg-[#034e64] text-white'
                   : 'bg-gray-200 text-black hover:bg-gray-300'
@@ -966,6 +1163,202 @@ function AdminQuestionsContent() {
                     />
                   </div>
 
+                  {/* Sub-questions Section for TEXT_ANALYSIS and MAP_ANALYSIS */}
+                  {(formData.type === 'TEXT_ANALYSIS' || formData.type === 'MAP_ANALYSIS') && (
+                    <div className="md:col-span-2 pt-6 bg-purple-50 p-4 rounded-lg">
+                      {/* Helpful notice */}
+                      <div className="mb-4 p-3 bg-blue-100 border border-blue-300 rounded-lg">
+                        <div className="flex items-start space-x-2">
+                          <span className="text-blue-600 text-lg">💡</span>
+                          <div>
+                            <p className="text-sm font-medium text-blue-800 md:text-[14px] text-[12px]">
+                              {formData.type === 'TEXT_ANALYSIS' ? 'ტექსტის ანალიზის' : 'რუკის ანალიზის'} კითხვისთვის საჭიროა:
+                            </p>
+                            <ul className="text-xs text-blue-700 mt-1 list-disc list-inside space-y-1">
+                              <li>მინიმუმ ერთი ქვეკითხვა</li>
+                              <li>თითოეულ ქვეკითხვას უნდა ჰქონდეს ტექსტი და ქულები</li>
+                              <li>დახურული კითხვებისთვის - პასუხის ვარიანტები და სწორი პასუხი</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="text-lg font-bold text-black md:text-[18px] text-[16px]">
+                          კითხვის დამატება
+                        </h4>
+                        <button
+                          type="button"
+                          onClick={handleAddSubQuestion}
+                          className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-[16px] font-medium"
+                        >
+                          ქვეკითხვის დამატება
+                        </button>
+                      </div>
+
+                      <div className="space-y-4">
+                        {formData.subQuestions.map((subQuestion, index) => (
+                          <div key={subQuestion.id} className="bg-white p-4 rounded-lg border border-purple-200">
+                            <div className="flex justify-between items-center mb-3">
+                              <h5 className="text-md font-semibold text-black md:text-[16px] text-[14px]">
+                                ქვეკითხვა {index + 1}
+                              </h5>
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveSubQuestion(index)}
+                                className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-sm font-medium"
+                              >
+                                წაშლა
+                              </button>
+                            </div>
+
+                            {/* Question Type Selection */}
+                            <div className="mb-3">
+                              <label className="block text-sm font-medium text-black md:text-[16px] text-[14px] mb-2">
+                                კითხვის სახეობა
+                              </label>
+                              <select
+                                value={subQuestion.type}
+                                onChange={(e) => handleSubQuestionChange(index, 'type', e.target.value)}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                              >
+                                <option value="CLOSED_ENDED">1. დახურული კითხვა</option>
+                                <option value="OPEN_ENDED">2. ღია კითხვა</option>
+                              </select>
+                            </div>
+
+                            {/* Question Text */}
+                            <div className="mb-3">
+                              <label className="block text-sm font-medium text-black md:text-[16px] text-[14px] mb-2">
+                                კითხვის ტექსტი *
+                              </label>
+                              <textarea
+                                value={subQuestion.text}
+                                onChange={(e) => handleSubQuestionChange(index, 'text', e.target.value)}
+                                placeholder="შეიყვანეთ ქვეკითხვის ტექსტი..."
+                                rows={3}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                              />
+                            </div>
+
+                            {/* Points */}
+                            <div className="mb-3">
+                              <label className="block text-sm font-medium text-black md:text-[16px] text-[14px] mb-2">
+                                ქულები *
+                              </label>
+                              <input
+                                type="number"
+                                value={subQuestion.points}
+                                onChange={(e) => handleSubQuestionChange(index, 'points', parseInt(e.target.value))}
+                                min="1"
+                                max="10"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                              />
+                            </div>
+
+                            {/* Auto-scored toggle */}
+                            <div className="mb-3">
+                              <label className="flex items-center">
+                                <input
+                                  type="checkbox"
+                                  checked={subQuestion.isAutoScored}
+                                  onChange={(e) => handleSubQuestionChange(index, 'isAutoScored', e.target.checked)}
+                                  className="mr-2"
+                                />
+                                <span className="text-sm text-black md:text-[16px] text-[14px]">
+                                  ავტომატური შეფასება
+                                </span>
+                              </label>
+                            </div>
+
+                            {/* Options for CLOSED_ENDED questions */}
+                            {subQuestion.type === 'CLOSED_ENDED' && subQuestion.isAutoScored && (
+                              <div className="bg-blue-50 p-3 rounded border border-blue-200">
+                                <div className="flex justify-between items-center mb-3">
+                                  <h6 className="text-sm font-medium text-blue-800 md:text-[14px] text-[12px]">
+                                    პასუხის ვარიანტები
+                                  </h6>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleAddSubQuestionOption(index)}
+                                    disabled={(subQuestion.options?.length || 0) >= 6}
+                                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-2 py-1 rounded text-xs font-medium"
+                                  >
+                                    ვარიანტის დამატება
+                                  </button>
+                                </div>
+
+                                <div className="space-y-2">
+                                  {(subQuestion.options || ['', '', '', '']).map((option, optionIndex) => (
+                                    <div key={optionIndex} className="flex items-center space-x-2">
+                                      <span className="text-xs text-blue-700 min-w-[60px]">
+                                        ვარიანტი {optionIndex + 1}:
+                                      </span>
+                                      <input
+                                        type="text"
+                                        value={option}
+                                        onChange={(e) => handleSubQuestionOptionChange(index, optionIndex, e.target.value)}
+                                        placeholder={`შეიყვანეთ პასუხის ვარიანტი ${optionIndex + 1}...`}
+                                        className="flex-1 px-2 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={() => handleRemoveSubQuestionOption(index, optionIndex)}
+                                        disabled={(subQuestion.options?.length || 0) <= 2}
+                                        className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white px-2 py-1 rounded text-xs"
+                                      >
+                                        ×
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+
+                                {/* Correct Answer Selection */}
+                                <div className="mt-3">
+                                  <label className="block text-sm font-medium text-blue-800 md:text-[14px] text-[12px] mb-2">
+                                    სწორი პასუხი *
+                                  </label>
+                                  <select
+                                    value={subQuestion.correctAnswer}
+                                    onChange={(e) => handleSubQuestionChange(index, 'correctAnswer', e.target.value)}
+                                    className="w-full px-2 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  >
+                                    <option value="">აირჩიეთ სწორი პასუხი</option>
+                                    {(subQuestion.options || ['', '', '', '']).map((option, optionIndex) => (
+                                      <option key={optionIndex} value={option}>
+                                        {option || `ვარიანტი ${optionIndex + 1}`}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Manual scoring notice for non-auto-scored questions */}
+                            {!subQuestion.isAutoScored && (
+                              <div className="bg-orange-50 p-3 rounded border border-orange-200">
+                                <p className="text-sm text-orange-700 md:text-[12px] text-[10px]">
+                                  ⚠️ ეს კითხვა საჭიროებს ხელით შეფასებას
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {formData.subQuestions.length === 0 && (
+                        <div className="text-center py-6 text-gray-500">
+                          <p className="md:text-[16px] text-[14px]">
+                            ქვეკითხვები ჯერ არ არის დამატებული
+                          </p>
+                          <p className="text-sm mt-1">
+                            დააჭირეთ "ქვეკითხვის დამატება" ღილაკს
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   
                 </div>
 
@@ -1135,6 +1528,8 @@ function AdminQuestionsContent() {
                     </p>
                   </div>
                 )}
+
+
 
                 {/* Form Actions */}
                 <div className="flex space-x-3 pt-6 border-t">

@@ -234,7 +234,7 @@ model Question {
   points      Int      @default(1)
   maxPoints   Int?     // Maximum possible points for manual scoring
   image       String?  // Optional image URL for questions that need visual content
-  content     String?  // For text analysis, map analysis - the main content (text or map description)
+  content     String?  // For TEXT_ANALYSIS and MAP_ANALYSIS questions: stores sub-questions as JSON
   matchingPairs Json?  // For matching questions: [{"left": "A", "right": "1"}, {"left": "B", "right": "2"}]
   rubric      String?  // For manual scoring - criteria for grading
   subjectId   String
