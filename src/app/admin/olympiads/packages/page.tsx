@@ -45,7 +45,7 @@ function AdminPackagesContent() {
     options: ['', '', '', ''],
     correctAnswer: '',
     questionType: '',
-    grade: 1,
+    grade: 7,
     round: 1,
     chapterName: '',
     paragraphName: ''
@@ -141,7 +141,7 @@ function AdminPackagesContent() {
           options: ['', '', '', ''],
           correctAnswer: '',
           questionType: '',
-          grade: 1,
+          grade: 7,
           round: 1,
           chapterName: '',
           paragraphName: ''
@@ -179,12 +179,22 @@ function AdminPackagesContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-black md:text-[24px] text-[20px] font-bold mb-2">
-          კითხვების პაკეტები
-        </h1>
-        <p className="text-black md:text-[18px] text-[16px] text-gray-600">
-          მართეთ თქვენი შექმნილი კითხვების პაკეტები
-        </p>
+        <div className="flex justify-between items-start mb-4">
+          <div>
+            <h1 className="text-black md:text-[24px] text-[20px] font-bold mb-2">
+              კითხვების პაკეტები
+            </h1>
+            <p className="text-black md:text-[18px] text-[16px] text-gray-600">
+              მართეთ თქვენი შექმნილი კითხვების პაკეტები
+            </p>
+          </div>
+          <a
+            href="/admin/olympiads"
+            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+          >
+            უკან დაბრუნება
+          </a>
+        </div>
       </div>
 
       <div className="grid gap-6">
@@ -374,15 +384,15 @@ function AdminPackagesContent() {
                    <label className="block text-black md:text-[18px] text-[16px] font-medium mb-2">
                      კლასი *
                    </label>
-                   <select
-                     value={questionEditForm.grade}
-                     onChange={(e) => setQuestionEditForm({ ...questionEditForm, grade: parseInt(e.target.value) })}
-                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black md:text-[18px] text-[16px]"
-                   >
-                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(grade => (
-                       <option key={grade} value={grade}>{grade}</option>
-                     ))}
-                   </select>
+                                       <select
+                      value={questionEditForm.grade}
+                      onChange={(e) => setQuestionEditForm({ ...questionEditForm, grade: parseInt(e.target.value) })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black md:text-[18px] text-[16px]"
+                    >
+                      {[7, 8, 9, 10, 11, 12].map(grade => (
+                        <option key={grade} value={grade}>{grade} კლასი</option>
+                      ))}
+                    </select>
                  </div>
 
                  <div>
@@ -478,7 +488,7 @@ function AdminPackagesContent() {
                      options: ['', '', '', ''],
                      correctAnswer: '',
                      questionType: '',
-                     grade: 1,
+                     grade: 7,
                      round: 1,
                      chapterName: '',
                      paragraphName: ''

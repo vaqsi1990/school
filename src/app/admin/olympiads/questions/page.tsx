@@ -20,7 +20,6 @@ interface Question {
   maxPoints?: number
   image?: string
   matchingPairs?: Array<{ left: string, right: string }>
-  rubric?: string
   subjectId: string
   chapterId?: string
   paragraphId?: string
@@ -60,11 +59,10 @@ function AdminQuestionsContent() {
     maxPoints: 1,
     image: '',
     matchingPairs: [{ left: '', right: '' }],
-    rubric: '',
     subjectId: '',
     chapterName: '',
     paragraphName: '',
-    grade: 5,
+    grade: 7,
     round: 1,
     isAutoScored: true
   })
@@ -147,7 +145,6 @@ function AdminQuestionsContent() {
       maxPoints: question.maxPoints || question.points,
       image: question.image || '',
       matchingPairs: question.matchingPairs || [{ left: '', right: '' }],
-      rubric: question.rubric || '',
       subjectId: question.subjectId,
       chapterName: question.chapterName || '',
       paragraphName: question.paragraphName || '',
@@ -314,11 +311,10 @@ function AdminQuestionsContent() {
       maxPoints: 1,
       image: '',
       matchingPairs: [{ left: '', right: '' }],
-      rubric: '',
       subjectId: '',
       chapterName: '',
       paragraphName: '',
-      grade: 5,
+      grade: 7,
       round: 1,
       isAutoScored: true
     })
@@ -380,25 +376,62 @@ function AdminQuestionsContent() {
   }
 
   const filteredQuestions = questions.filter(question => {
-    const searchLower = searchTerm.toLowerCase()
+    if (!searchTerm.trim()) return true
+    
+    const searchLower = searchTerm.toLowerCase().trim()
+    
+    // Simple and robust search across all fields
     const matchesSearch =
+      // Question text
       question.text.toLowerCase().includes(searchLower) ||
-      (question.chapterName && question.chapterName.toLowerCase().includes(searchLower)) ||
-      (question.paragraphName && question.paragraphName.toLowerCase().includes(searchLower)) ||
+      
+      // Subject name
       (subjects.find(s => s.id === question.subjectId)?.name || '').toLowerCase().includes(searchLower) ||
+      
+      // Chapter name (handle "თავი 2" and "2")
+      (question.chapterName && (
+        question.chapterName.toLowerCase().includes(searchLower) ||
+        searchLower.includes(question.chapterName.toLowerCase())
+      )) ||
+      
+      // Paragraph name (handle "პარაგრაფი 1.2" and "1.2")
+      (question.paragraphName && (
+        question.paragraphName.toLowerCase().includes(searchLower) ||
+        searchLower.includes(question.paragraphName.toLowerCase())
+      )) ||
+      
+      // Grade (handle "10", "10 კლასი", "კლასი 10")
       question.grade.toString().includes(searchLower) ||
+      (searchLower.includes('კლასი') && question.grade.toString().includes(searchLower.replace('კლასი', '').trim())) ||
+      
+      // Round (handle "1", "1 რაუნდი", "რაუნდი 1")
       question.round.toString().includes(searchLower) ||
+      (searchLower.includes('რაუნდი') && question.round.toString().includes(searchLower.replace('რაუნდი', '').trim())) ||
+      
+      // Question type
       question.type.toLowerCase().includes(searchLower) ||
-      (question.rubric && question.rubric.toLowerCase().includes(searchLower))
+      getQuestionTypeLabel(question.type).toLowerCase().includes(searchLower) ||
+      
+      // Points
+      question.points.toString().includes(searchLower)
 
-    // Fix tab filtering logic
+    // Debug logging
+    if (searchTerm.trim()) {
+      console.log(`Searching for: "${searchLower}"`)
+      console.log(`Question: "${question.text.substring(0, 50)}..."`)
+      console.log(`Matches: ${matchesSearch}`)
+      console.log(`Grade: ${question.grade}, Round: ${question.round}`)
+      console.log(`Chapter: ${question.chapterName}, Paragraph: ${question.paragraphName}`)
+      console.log('---')
+    }
+
+    // Fix tab filtering logic - remove duplicate case
     let matchesType = true
     if (activeTab !== 'all') {
       switch (activeTab) {
         case 'closed-ended':
           matchesType = question.type === 'CLOSED_ENDED'
           break
-
         case 'matching':
           matchesType = question.type === 'MATCHING'
           break
@@ -410,9 +443,6 @@ function AdminQuestionsContent() {
           break
         case 'open-ended':
           matchesType = question.type === 'OPEN_ENDED'
-          break
-        case 'closed-ended':
-          matchesType = question.type === 'CLOSED_ENDED'
           break
         default:
           matchesType = true
@@ -499,13 +529,21 @@ function AdminQuestionsContent() {
         <div className="mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
             <div className="lg:col-span-2">
-              <input
-                type="text"
-                placeholder="მოძებნა ყველა ველით (კითხვა, საგანი, თავი, პარაგრაფი, კლასი, რაუნდი)..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
-              />
+              <div className="relative">
+                                 <input
+                   type="text"
+                   placeholder="მოძებნა: კითხვა, საგანი, თავი (მაგ: 2), პარაგრაფი (მაგ: 1.2), კლასი (მაგ: 10 კლასი), რაუნდი (მაგ: 1 რაუნდი), ქულები, ტიპი..."
+                   value={searchTerm}
+                   onChange={(e) => setSearchTerm(e.target.value)}
+                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                 />
+                 {searchTerm && (
+                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
+                     {filteredQuestions.length} / {questions.length}
+                   </div>
+                 )}
+                
+               </div>
             </div>
             <div>
               <select
@@ -526,7 +564,7 @@ function AdminQuestionsContent() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
               >
                 <option value="">ყველა კლასი</option>
-                {[5, 6, 7, 8, 9, 10, 11, 12].map(grade => (
+                {[7, 8, 9, 10, 11, 12].map(grade => (
                   <option key={grade} value={grade}>{grade} კლასი</option>
                 ))}
               </select>
@@ -691,9 +729,7 @@ function AdminQuestionsContent() {
                         }`}>
                         {getQuestionTypeLabel(question.type)}
                       </span>
-                      {!question.isAutoScored && (
-                        <div className="text-xs text-orange-600 mt-1">🖊️ ხელით</div>
-                      )}
+                     
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       {subjects.find(s => s.id === question.subjectId)?.name || 'უცნობი'}
@@ -937,23 +973,7 @@ function AdminQuestionsContent() {
                     />
                   </div>
 
-                  {/* Rubric for Manual Scoring */}
-                  {!formData.isAutoScored && (
-                    <div className="md:col-span-2">
-                      <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
-                        შეფასების კრიტერიუმები *
-                      </label>
-                      <textarea
-                        name="rubric"
-                        required
-                        value={formData.rubric}
-                        onChange={handleInputChange}
-                        rows={4}
-                        className="w-full px-4 text-black placeholder:text-black py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
-                        placeholder="შეიყვანეთ შეფასების კრიტერიუმები (მაგ: სრული პასუხი - 2 ქულა, ნაწილობრივი - 1 ქულა)..."
-                      />
-                    </div>
-                  )}
+                  
                 </div>
 
                 {/* Options Section */}
