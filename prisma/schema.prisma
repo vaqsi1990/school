@@ -103,6 +103,7 @@ model Student {
   // Relations
   user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   participations StudentOlympiad[]
+  olympiadEventParticipations StudentOlympiadEvent[]
   answers        StudentAnswer[]
   manualScores   ManualScore[]
 
@@ -146,6 +147,7 @@ model Admin {
   user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   managedOlympiads Olympiad[]     @relation("ManagedOlympiads") // Olympiads managed by this admin
   createdQuestionPackages QuestionPackage[] @relation("CreatedQuestionPackages") // Question packages created by this admin
+  createdOlympiadEvents OlympiadEvent[] @relation("CreatedOlympiadEvents") // Olympiad events created by this admin
 
   @@map("admins")
 }
@@ -289,6 +291,7 @@ model QuestionPackage {
   // Relations
   createdByUser Admin @relation("CreatedQuestionPackages", fields: [createdBy], references: [id], onDelete: Cascade)
   questions    QuestionPackageQuestion[]
+  olympiadEvents OlympiadEvent[] // Many-to-many relationship with olympiad events
 
   @@map("question_packages")
 }
@@ -336,6 +339,31 @@ model Olympiad {
 
   @@unique([subjectId, grade, name]) // Ensure unique olympiad per subject-grade combination
   @@map("olympiads")
+}
+
+// New OlympiadEvent model - represents a multi-subject, multi-grade olympiad event
+model OlympiadEvent {
+  id                    String   @id @default(cuid())
+  name                  String
+  description           String?
+  startDate             DateTime
+  endDate               DateTime
+  registrationDeadline  DateTime
+  maxParticipants       Int
+  isActive              Boolean  @default(true)
+  rounds                Int      @default(3)
+  subjects              String[] // Array of subject names
+  grades                Int[]    // Array of grade numbers
+  createdBy             String   // Admin ID who created this olympiad
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  createdByUser         Admin    @relation("CreatedOlympiadEvents", fields: [createdBy], references: [id], onDelete: Cascade)
+  packages              QuestionPackage[] // Many-to-many relationship with packages
+  participations        StudentOlympiadEvent[]
+
+  @@map("olympiad_events")
 }
 
 // Round model for olympiad rounds - exactly 3 rounds per olympiad
@@ -397,6 +425,30 @@ model StudentOlympiad {
 
   @@unique([studentId, olympiadId])
   @@map("student_olympiads")
+}
+
+// Student participation in olympiad events
+model StudentOlympiadEvent {
+  id         String   @id @default(cuid())
+  studentId  String
+  olympiadEventId String
+  startTime  DateTime?
+  endTime    DateTime?
+  currentRound Int     @default(1) // Track which round student is currently in
+  round1Score Int?     // Score for round 1
+  round2Score Int?     // Score for round 2
+  round3Score Int?     // Score for round 3
+  totalScore  Int?     // Combined score from all rounds
+  status     ParticipationStatus @default(REGISTERED)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  student      Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  olympiadEvent OlympiadEvent @relation(fields: [olympiadEventId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, olympiadEventId])
+  @@map("student_olympiad_events")
 }
 
 // Student answers to questions with round tracking

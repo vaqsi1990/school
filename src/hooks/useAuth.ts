@@ -2,10 +2,13 @@
 
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 export function useAuth() {
-  const { data: session, status } = useSession()
+  const { data: session, status, update } = useSession()
   const router = useRouter()
+  const [retryCount, setRetryCount] = useState(0)
+  const [lastError, setLastError] = useState<string | null>(null)
 
   const isAuthenticated = status === 'authenticated'
   const isLoading = status === 'loading'
@@ -13,8 +16,30 @@ export function useAuth() {
   const isTeacher = session?.user?.userType === 'TEACHER'
   const isAdmin = session?.user?.userType === 'ADMIN'
 
+  // Retry session update on error
+  useEffect(() => {
+    if (status === 'unauthenticated' && retryCount < 3) {
+      const timer = setTimeout(() => {
+        console.log('Retrying session update...', retryCount + 1)
+        setRetryCount(prev => prev + 1)
+        update()
+      }, 1000 * (retryCount + 1)) // Exponential backoff
+
+      return () => clearTimeout(timer)
+    }
+  }, [status, retryCount, update])
+
+  // Reset retry count on successful authentication
+  useEffect(() => {
+    if (status === 'authenticated') {
+      setRetryCount(0)
+      setLastError(null)
+    }
+  }, [status])
+
   const login = async (email: string, password: string) => {
     try {
+      setLastError(null)
       const result = await signIn('credentials', {
         email,
         password,
@@ -45,18 +70,29 @@ export function useAuth() {
             georgianError = 'ელ-ფოსტა ან პაროლი არასწორია. გთხოვთ შეამოწმოთ და სცადოთ თავიდან'
         }
         
+        setLastError(georgianError)
         throw new Error(georgianError)
       }
 
       return { success: true }
     } catch (error) {
-      return { success: false, error: error instanceof Error ? error.message : 'შესვლა ვერ მოხერხდა' }
+      const errorMessage = error instanceof Error ? error.message : 'შესვლა ვერ მოხერხდა'
+      setLastError(errorMessage)
+      return { success: false, error: errorMessage }
     }
   }
 
   const logout = async () => {
-    await signOut({ redirect: false })
-    router.push('/')
+    try {
+      await signOut({ redirect: false })
+      setRetryCount(0)
+      setLastError(null)
+      router.push('/')
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Force redirect even if logout fails
+      router.push('/')
+    }
   }
 
   const requireAuth = (userType?: 'STUDENT' | 'TEACHER' | 'ADMIN') => {
@@ -73,6 +109,17 @@ export function useAuth() {
     return true
   }
 
+  const refreshSession = async () => {
+    try {
+      await update()
+      setRetryCount(0)
+      setLastError(null)
+    } catch (error) {
+      console.error('Session refresh error:', error)
+      setLastError('სესიის განახლება ვერ მოხერხდა')
+    }
+  }
+
   return {
     session,
     user: session?.user,
@@ -84,5 +131,8 @@ export function useAuth() {
     login,
     logout,
     requireAuth,
+    refreshSession,
+    lastError,
+    retryCount
   }
 }

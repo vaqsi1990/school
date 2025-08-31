@@ -505,14 +505,7 @@ function AdminQuestionsContent() {
                   </button>
                 </>
               )}
-              {subjects.length === 0 && (
-                <button
-                  onClick={createDefaultSubjects}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
-                >
-                  საწყისი საგნების შექმნა
-                </button>
-              )}
+             
               <Link
                 href="/admin/olympiads"
                 className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"

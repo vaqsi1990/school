@@ -16,40 +16,49 @@ export const authOptions: NextAuthOptions = {
           throw new Error("ასეთი იუზერი ვერ მოიძებნა")
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
-          },
-          include: {
-            student: true,
-            teacher: true,
-            admin: true
+        try {
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.email
+            },
+            include: {
+              student: true,
+              teacher: true,
+              admin: true
+            }
+          })
+
+          if (!user) {
+            throw new Error("მომხმარებელი ამ ელ-ფოსტით არ არსებობს. გთხოვთ შეამოწმოთ ელ-ფოსტა ან დარეგისტრირდეთ")
           }
-        })
 
-        if (!user) {
-          throw new Error("მომხმარებელი ამ ელ-ფოსტით არ არსებობს. გთხოვთ შეამოწმოთ ელ-ფოსტა ან დარეგისტრირდეთ")
-        }
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+          if (!isPasswordValid) {
+            throw new Error("პაროლი არასწორია. გთხოვთ სცადოთ თავიდან")
+          }
 
-        if (!isPasswordValid) {
-          throw new Error("პაროლი არასწორია. გთხოვთ სცადოთ თავიდან")
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          userType: user.userType,
-          student: user.student || undefined,
-          teacher: user.teacher || undefined,
-          admin: user.admin || undefined
+          return {
+            id: user.id,
+            email: user.email,
+            userType: user.userType,
+            student: user.student || undefined,
+            teacher: user.teacher || undefined,
+            admin: user.admin || undefined
+          }
+        } catch (error) {
+          console.error('Auth error:', error)
+          throw new Error("სისტემური შეცდომა მოხდა. გთხოვთ სცადოთ მოგვიანებით")
         }
       }
     })
   ],
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
     async jwt({ token, user }) {
@@ -82,5 +91,16 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
     error: "/auth/error"
+  },
+  debug: process.env.NODE_ENV === 'development',
+  secret: process.env.NEXTAUTH_SECRET || 'your-secret-key-here',
+  // Add proper error handling
+  events: {
+    async signIn({ user, account, profile, isNewUser }) {
+      console.log('User signed in:', user.email)
+    },
+    async signOut({ session, token }) {
+      console.log('User signed out')
+    }
   }
 }
