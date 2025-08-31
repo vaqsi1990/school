@@ -428,10 +428,7 @@ function AdminQuestionsContent() {
 
       const method = editingQuestion ? 'PUT' : 'POST'
 
-      // Debug logging
-      console.log('Submitting form data:', formData)
-      console.log('Form data type:', typeof formData)
-      console.log('Sub-questions:', formData.subQuestions)
+    
 
       const response = await fetch(url, {
         method,
@@ -769,10 +766,7 @@ function AdminQuestionsContent() {
 
         {/* Tabs */}
         <div className="mb-6">
-          {/* Debug info */}
-          <div className="mb-2 p-2 bg-gray-100 rounded text-sm">
-            <p><strong>Debug:</strong> Active tab: {activeTab} | Total questions: {questions.length} | Filtered questions: {filteredQuestions.length}</p>
-          </div>
+         
           
           <div className="flex gap-2 flex-wrap">
             <button
