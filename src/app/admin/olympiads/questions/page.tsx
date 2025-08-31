@@ -41,6 +41,7 @@ interface SubQuestion {
   points: number
   maxPoints?: number
   isAutoScored: boolean
+  image?: string
 }
 
 function AdminQuestionsContent() {
@@ -271,7 +272,8 @@ function AdminQuestionsContent() {
       correctAnswer: '',
       points: 1,
       maxPoints: 1,
-      isAutoScored: true
+      isAutoScored: true,
+      image: ''
     }
     
     setFormData(prev => ({
@@ -1236,6 +1238,36 @@ function AdminQuestionsContent() {
                               />
                             </div>
 
+                            {/* Image Upload for Sub-Question */}
+                            <div className="mb-3">
+                              <label className="block text-sm font-medium text-black md:text-[16px] text-[14px] mb-2">
+                                სურათი (არასავალდებულო)
+                              </label>
+                              <div className="space-y-2">
+                                {subQuestion.image ? (
+                                  <div className="relative">
+                                    <img 
+                                      src={subQuestion.image} 
+                                      alt="Sub-question image" 
+                                      className="w-full max-w-md h-auto rounded-lg border border-gray-300"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSubQuestionChange(index, 'image', '')}
+                                      className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                                    >
+                                      ×
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <ImageUpload
+                                    onChange={(urls) => handleSubQuestionChange(index, 'image', urls[0] || '')}
+                                    value={subQuestion.image ? [subQuestion.image] : []}
+                                  />
+                                )}
+                              </div>
+                            </div>
+
                             {/* Points */}
                             <div className="mb-3">
                               <label className="block text-sm font-medium text-black md:text-[16px] text-[14px] mb-2">
@@ -1300,9 +1332,9 @@ function AdminQuestionsContent() {
                                         type="button"
                                         onClick={() => handleRemoveSubQuestionOption(index, optionIndex)}
                                         disabled={(subQuestion.options?.length || 0) <= 2}
-                                        className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white px-2 py-1 rounded text-xs"
+                                        className="bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white px-2 py-1 rounded text-[16px] font-medium"
                                       >
-                                        ×
+                                        წაშლა
                                       </button>
                                     </div>
                                   ))}
