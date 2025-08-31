@@ -1412,56 +1412,121 @@ function AdminQuestionsContent() {
                   <div className=" pt-6 bg-green-50 p-4 rounded-lg">
                     <div className="flex justify-between items-center mb-4">
                       <h4 className="text-lg font-bold text-black md:text-[18px] text-[16px]">
-                        შესაბამისობის წყვილები
-                      </h4>
-                      <button
-                        type="button"
-                        onClick={handleAddMatchingPair}
-                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-[16px] font-medium"
-                      >
-                        წყვილის დამატება
-                      </button>
-                    </div>
+                        შესაბამისობის წყვილები (6 ან ნებისმიერი რაოდენობა)
+                       </h4>
+                       <button
+                         type="button"
+                         onClick={handleAddMatchingPair}
+                         className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-[16px] font-medium"
+                       >
+                         წყვილის დამატება
+                       </button>
+                     </div>
 
-                    <div className="space-y-3">
-                      {formData.matchingPairs.map((pair, index) => (
-                        <div key={index} className="flex items-center space-x-3 bg-white p-3 rounded border">
-                          <span className="text-sm font-medium text-gray-600 min-w-[60px]">
-                            {String.fromCharCode(65 + index)}:
-                          </span>
-                          <input
-                            type="text"
-                            value={pair.left}
-                            onChange={(e) => handleMatchingPairChange(index, 'left', e.target.value)}
-                            placeholder="მარცხენა მხარე..."
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
-                          />
-                          <span className="text-gray-500">→</span>
-                          <input
-                            type="text"
-                            value={pair.right}
-                            onChange={(e) => handleMatchingPairChange(index, 'right', e.target.value)}
-                            placeholder="მარჯვენა მხარე..."
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveMatchingPair(index)}
-                            disabled={formData.matchingPairs.length <= 1}
-                            className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-[16px] font-medium"
-                          >
-                            წაშლა
-                          </button>
-                        </div>
-                      ))}
-                    </div>
+                     <div className="space-y-3">
+                       {formData.matchingPairs.map((pair, index) => (
+                         <div key={index} className="flex items-center space-x-3 bg-white p-3 rounded border">
+                           <span className="text-sm font-medium text-gray-600 min-w-[60px]">
+                             {String.fromCharCode(65 + index)}:
+                           </span>
+                           <input
+                             type="text"
+                             value={pair.left}
+                             onChange={(e) => handleMatchingPairChange(index, 'left', e.target.value)}
+                             placeholder="მარცხენა მხარე..."
+                             className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                           />
+                           <span className="text-gray-500">→</span>
+                           <input
+                             type="text"
+                             value={pair.right}
+                             onChange={(e) => handleMatchingPairChange(index, 'right', e.target.value)}
+                             placeholder="მარჯვენა მხარე..."
+                             className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                           />
+                           <button
+                             type="button"
+                             onClick={() => handleRemoveMatchingPair(index)}
+                             disabled={formData.matchingPairs.length <= 1}
+                             className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-2 py-1 rounded text-sm font-medium"
+                           >
+                             წაშლა
+                           </button>
+                         </div>
+                       ))}
+                     </div>
 
-                    <div className="mt-4 p-3 bg-green-100 rounded text-sm border-l-4 border-green-400">
-                      <p className="font-medium text-green-800">💡 მნიშვნელოვანი:</p>
-                      <p className="text-green-700">შეიყვანეთ შესაბამისობის წყვილები (მაგ: A→1, B→2, C→3)</p>
-                    </div>
-                  </div>
-                )}
+                     <div className="mt-4 p-3 bg-green-100 rounded text-sm border-l-4 border-green-400">
+                       <p className="font-medium text-green-800">💡 მნიშვნელოვანი:</p>
+                       <p className="text-green-700">შეიყვანეთ შესაბამისობის წყვილები (მაგ: A→1, B→2, C→3, D→4, E→5, F→6)</p>
+                     </div>
+
+                     {/* Correct Answer Display for MATCHING */}
+                     <div className="mt-4 p-3 bg-blue-100 rounded text-sm border-l-4 border-blue-400">
+                       <p className="font-medium text-blue-800">✅ სწორი პასუხი:</p>
+                       <p className="text-blue-700">შესაბამისობის წყვილები ავტომატურად გაითვლება სწორად</p>
+                       <p className="text-blue-600 text-xs mt-1">სისტემა ავტომატურად ადგენს სწორ პასუხს თქვენი შეყვანილი წყვილების მიხედვით</p>
+                     </div>
+
+                     {/* Correct Answer Selection for MATCHING */}
+                     <div className="mt-4">
+                       <label className="block text-sm font-medium text-green-800 mb-2">
+                         სწორი პასუხი *
+                       </label>
+                       <div className="p-3 bg-green-50 border border-green-200 rounded-md">
+                         <p className="text-sm text-green-700 mb-2">
+                           შესაბამისობის კითხვებისთვის სწორი პასუხი ავტომატურად დაყენებულია:
+                         </p>
+                         <div className="bg-white p-2 rounded border">
+                           <code className="text-green-800 font-mono text-sm">
+                             {formData.matchingPairs.map((pair, index) => 
+                               `${String.fromCharCode(65 + index)} → ${pair.right || '?'}`
+                             ).join(', ')}
+                           </code>
+                         </div>
+                         <p className="text-xs text-green-600 mt-2">
+                           სისტემა ავტომატურად შეამოწმებს სტუდენტის პასუხს ამ წყვილების მიხედვით
+                         </p>
+                         
+                         {/* View Correct Answer Button */}
+                         <div className="mt-3 pt-3 border-t border-green-200">
+                           <button
+                             type="button"
+                             onClick={() => {
+                               const pairs = formData.matchingPairs
+                                 .map((pair, index) => `${String.fromCharCode(65 + index)} → ${pair.right}`)
+                                 .filter(pair => pair.includes('→') && !pair.includes('→ ?'))
+                                 .join('\n')
+                               
+                               if (pairs) {
+                                 alert(`✅ სწორი პასუხი:\n\n${pairs}\n\nსისტემა ავტომატურად შეამოწმებს ამ წყვილების მიხედვით!`)
+                               } else {
+                                 alert('⚠️ გთხოვთ შეიყვანოთ შესაბამისობის წყვილები!')
+                               }
+                             }}
+                             className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm font-medium"
+                           >
+                             👁️ სწორი პასუხის ნახვა
+                           </button>
+                           <p className="text-xs text-green-600 mt-1">
+                             დააჭირეთ ღილაკს რომ დაინახოთ სწორი პასუხი
+                           </p>
+                         </div>
+                       </div>
+                     </div>
+
+                     {/* Scoring Information */}
+                     <div className="mt-4 p-3 bg-yellow-100 rounded text-sm border-l-4 border-yellow-400">
+                       <p className="font-medium text-yellow-800">📊 ქულების გამოთვლა:</p>
+                       <p className="text-yellow-700">ქულები გამოითვლება პროპორციულად სწორი პასუხების რაოდენობისა</p>
+                       <div className="mt-2 text-xs text-yellow-600">
+                         <p>• {formData.matchingPairs.length} სწორი = {formData.points} ქულა (100%)</p>
+                         <p>• {Math.ceil(formData.matchingPairs.length / 2)} სწორი = {Math.ceil(formData.points / 2)} ქულა (50%)</p>
+                         <p>• 1 სწორი = 1 ქულა ({(1 / formData.matchingPairs.length * 100).toFixed(1)}%)</p>
+                       </div>
+                     </div>
+                   </div>
+                 )}
 
               
                 {/* Correct Answer - Only for Auto-scored Questions */}
