@@ -383,7 +383,7 @@ export default function SignUpPage() {
                   className="block w-full px-3 py-2 border border-black rounded-md shadow-sm focus:outline-none text-black focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 >
                   <option value="">აირჩიეთ კლასი</option>
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((grade) => (
+                  {Array.from({ length: 6 }, (_, i) => i + 7).map((grade) => (
                     <option key={grade} value={grade}>
                       {grade} კლასი
                     </option>
