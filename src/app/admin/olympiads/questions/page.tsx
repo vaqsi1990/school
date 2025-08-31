@@ -13,14 +13,14 @@ interface Subject {
 interface Question {
   id: string
   text: string
-  type: 'MULTIPLE_CHOICE' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED' | 'CLOSED_ENDED'
+  type: 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED'
   options: string[]
   correctAnswer?: string
   points: number
   maxPoints?: number
   image?: string
   content?: string
-  matchingPairs?: Array<{left: string, right: string}>
+  matchingPairs?: Array<{ left: string, right: string }>
   rubric?: string
   subjectId: string
   chapterId?: string
@@ -54,14 +54,14 @@ function AdminQuestionsContent() {
   // Form state
   const [formData, setFormData] = useState({
     text: '',
-    type: 'MULTIPLE_CHOICE' as 'MULTIPLE_CHOICE' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED' | 'CLOSED_ENDED',
+          type: 'CLOSED_ENDED' as 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED',
     options: ['', '', '', ''],
     correctAnswer: '',
     points: 1,
     maxPoints: 1,
     image: '',
     content: '',
-    matchingPairs: [{left: '', right: ''}],
+    matchingPairs: [{ left: '', right: '' }],
     rubric: '',
     subjectId: '',
     chapterName: '',
@@ -149,7 +149,7 @@ function AdminQuestionsContent() {
       maxPoints: question.maxPoints || question.points,
       image: question.image || '',
       content: question.content || '',
-      matchingPairs: question.matchingPairs || [{left: '', right: ''}],
+      matchingPairs: question.matchingPairs || [{ left: '', right: '' }],
       rubric: question.rubric || '',
       subjectId: question.subjectId,
       chapterName: question.chapterName || '',
@@ -238,7 +238,7 @@ function AdminQuestionsContent() {
   const handleAddMatchingPair = () => {
     setFormData(prev => ({
       ...prev,
-      matchingPairs: [...prev.matchingPairs, {left: '', right: ''}]
+      matchingPairs: [...prev.matchingPairs, { left: '', right: '' }]
     }))
   }
 
@@ -253,10 +253,10 @@ function AdminQuestionsContent() {
   }
 
   const handleQuestionTypeChange = (type: string) => {
-    const isAutoScored = ['MULTIPLE_CHOICE', 'MATCHING'].includes(type)
+    const isAutoScored = ['MATCHING'].includes(type)
     setFormData(prev => ({
       ...prev,
-      type: type as 'MULTIPLE_CHOICE' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED' | 'CLOSED_ENDED',
+              type: type as 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED',
       isAutoScored,
       maxPoints: isAutoScored ? prev.points : prev.maxPoints
     }))
@@ -264,27 +264,25 @@ function AdminQuestionsContent() {
 
   const getQuestionTypeLabel = (type: string) => {
     const labels = {
-      'MULTIPLE_CHOICE': 'მრავალარჩევანიანი',
-     
+      'CLOSED_ENDED': 'დახურული კითხვა',
       'MATCHING': 'შესაბამისობა',
       'TEXT_ANALYSIS': 'ტექსტის ანალიზი',
       'MAP_ANALYSIS': 'რუკის ანალიზი',
       'OPEN_ENDED': 'ღია კითხვა',
-      'CLOSED_ENDED': 'დახურული კითხვა'
     }
     return labels[type as keyof typeof labels] || type
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     try {
-      const url = editingQuestion 
+      const url = editingQuestion
         ? `/api/admin/questions/${editingQuestion.id}`
         : '/api/admin/questions'
-      
+
       const method = editingQuestion ? 'PUT' : 'POST'
-      
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -312,14 +310,14 @@ function AdminQuestionsContent() {
   const resetForm = () => {
     setFormData({
       text: '',
-      type: 'MULTIPLE_CHOICE',
+      type: 'CLOSED_ENDED',
       options: ['', '', '', ''],
       correctAnswer: '',
       points: 1,
       maxPoints: 1,
       image: '',
       content: '',
-      matchingPairs: [{left: '', right: ''}],
+      matchingPairs: [{ left: '', right: '' }],
       rubric: '',
       subjectId: '',
       chapterName: '',
@@ -387,7 +385,7 @@ function AdminQuestionsContent() {
 
   const filteredQuestions = questions.filter(question => {
     const searchLower = searchTerm.toLowerCase()
-    const matchesSearch = 
+    const matchesSearch =
       question.text.toLowerCase().includes(searchLower) ||
       (question.chapterName && question.chapterName.toLowerCase().includes(searchLower)) ||
       (question.paragraphName && question.paragraphName.toLowerCase().includes(searchLower)) ||
@@ -397,13 +395,13 @@ function AdminQuestionsContent() {
       question.type.toLowerCase().includes(searchLower) ||
       (question.content && question.content.toLowerCase().includes(searchLower)) ||
       (question.rubric && question.rubric.toLowerCase().includes(searchLower))
-    
+
     // Fix tab filtering logic
     let matchesType = true
     if (activeTab !== 'all') {
       switch (activeTab) {
-        case 'multiple-choice':
-          matchesType = question.type === 'MULTIPLE_CHOICE'
+        case 'closed-ended':
+          matchesType = question.type === 'CLOSED_ENDED'
           break
 
         case 'matching':
@@ -425,11 +423,11 @@ function AdminQuestionsContent() {
           matchesType = true
       }
     }
-    
+
     const matchesSubject = !selectedSubject || question.subjectId === selectedSubject
     const matchesGrade = !selectedGrade || question.grade === parseInt(selectedGrade)
     const matchesRound = !selectedRound || question.round === parseInt(selectedRound)
-    
+
     return matchesSearch && matchesType && matchesSubject && matchesGrade && matchesRound
   })
 
@@ -472,13 +470,13 @@ function AdminQuestionsContent() {
                     onClick={() => setShowPackageModal(true)}
                     className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
                   >
-                     პაკეტის შექმნა ({selectedQuestions.size})
+                    პაკეტის შექმნა ({selectedQuestions.size})
                   </button>
                   <button
                     onClick={() => setSelectedQuestions(new Set())}
                     className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
                   >
-                     გაწმენდა
+                    გაწმენდა
                   </button>
                 </>
               )}
@@ -558,75 +556,60 @@ function AdminQuestionsContent() {
           <div className="flex gap-2 flex-wrap">
             <button
               onClick={() => setActiveTab('all')}
-              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${
-                activeTab === 'all' 
-                  ? 'bg-[#034e64] text-white' 
+              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'all'
+                  ? 'bg-[#034e64] text-white'
                   : 'bg-gray-200 text-black hover:bg-gray-300'
-              }`}
+                }`}
             >
               ყველა ({questions.length})
             </button>
             <button
-              onClick={() => setActiveTab('multiple-choice')}
-              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${
-                activeTab === 'multiple-choice' 
-                  ? 'bg-[#034e64] text-white' 
+              onClick={() => setActiveTab('closed-ended')}
+              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'closed-ended'
+                  ? 'bg-[#034e64] text-white'
                   : 'bg-gray-200 text-black hover:bg-gray-300'
-              }`}
+                }`}
             >
-              მრავალარჩევანიანი ({questions.filter(q => q.type === 'MULTIPLE_CHOICE').length})
+              დახურული კითხვები ({questions.filter(q => q.type === 'CLOSED_ENDED').length})
             </button>
 
             <button
               onClick={() => setActiveTab('matching')}
-              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${
-                activeTab === 'matching' 
-                  ? 'bg-[#034e64] text-white' 
+              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'matching'
+                  ? 'bg-[#034e64] text-white'
                   : 'bg-gray-200 text-black hover:bg-gray-300'
-              }`}
+                }`}
             >
               შესაბამისობა ({questions.filter(q => q.type === 'MATCHING').length})
             </button>
             <button
               onClick={() => setActiveTab('text-analysis')}
-              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${
-                activeTab === 'text-analysis' 
-                  ? 'bg-[#034e64] text-white' 
+              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'text-analysis'
+                  ? 'bg-[#034e64] text-white'
                   : 'bg-gray-200 text-black hover:bg-gray-300'
-              }`}
+                }`}
             >
               ტექსტის ანალიზი ({questions.filter(q => q.type === 'TEXT_ANALYSIS').length})
             </button>
             <button
               onClick={() => setActiveTab('map-analysis')}
-              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${
-                activeTab === 'map-analysis' 
-                  ? 'bg-[#034e64] text-white' 
+              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'map-analysis'
+                  ? 'bg-[#034e64] text-white'
                   : 'bg-gray-200 text-black hover:bg-gray-300'
-              }`}
+                }`}
             >
               რუკის ანალიზი ({questions.filter(q => q.type === 'MAP_ANALYSIS').length})
             </button>
             <button
               onClick={() => setActiveTab('open-ended')}
-              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${
-                activeTab === 'open-ended' 
-                  ? 'bg-[#034e64] text-white' 
+              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'open-ended'
+                  ? 'bg-[#034e64] text-white'
                   : 'bg-gray-300 text-black hover:bg-gray-400'
-              }`}
+                }`}
             >
               ღია კითხვა ({questions.filter(q => q.type === 'OPEN_ENDED').length})
             </button>
-            <button
-              onClick={() => setActiveTab('closed-ended')}
-              className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${
-                activeTab === 'closed-ended' 
-                  ? 'bg-[#034e64] text-white' 
-                  : 'bg-gray-200 text-black hover:bg-gray-300'
-              }`}
-            >
-              დახურული კითხვა ({questions.filter(q => q.type === 'CLOSED_ENDED').length})
-            </button>
+
           </div>
         </div>
 
@@ -658,7 +641,7 @@ function AdminQuestionsContent() {
                     ტიპი
                   </th>
                   <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
-              საგანი
+                    საგანი
                   </th>
                   <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     თავი
@@ -702,16 +685,15 @@ function AdminQuestionsContent() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-[16px] font-normal rounded-full ${
-                        question.type === 'MULTIPLE_CHOICE' ? ' text-black' :
+                      <span className={`inline-flex px-2 py-1 text-[16px] font-normal rounded-full ${question.type === 'CLOSED_ENDED' ? ' text-black' :
 
-                        question.type === 'MATCHING' ? 'text-black' :
-                        question.type === 'TEXT_ANALYSIS' ? 'text-black' :
-                        question.type === 'MAP_ANALYSIS' ? 'text-black' :
-                        question.type === 'OPEN_ENDED' ? 'text-black' :
-                        question.type === 'CLOSED_ENDED' ? 'text-black' :
-                        'text-black'
-                      }`}>
+                          question.type === 'MATCHING' ? 'text-black' :
+                            question.type === 'TEXT_ANALYSIS' ? 'text-black' :
+                              question.type === 'MAP_ANALYSIS' ? 'text-black' :
+                                question.type === 'OPEN_ENDED' ? 'text-black' :
+                                  question.type === 'CLOSED_ENDED' ? 'text-black' :
+                                    'text-black'
+                        }`}>
                         {getQuestionTypeLabel(question.type)}
                       </span>
                       {!question.isAutoScored && (
@@ -738,13 +720,13 @@ function AdminQuestionsContent() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       <div className="flex space-x-2">
-                        <button 
+                        <button
                           onClick={() => editQuestion(question)}
                           className="bg-[#feb931] text-[16px] hover:bg-[#feb931] text-white px-3 py-1 rounded text-xs font-medium"
                         >
                           რედაქტირება
                         </button>
-                        <button 
+                        <button
                           onClick={() => openDeleteModal(question.id)}
                           className="bg-red-600 text-[16px] hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium"
                         >
@@ -757,7 +739,7 @@ function AdminQuestionsContent() {
               </tbody>
             </table>
           </div>
-          
+
           {filteredQuestions.length === 0 && (
             <div className="text-center py-12">
               <p className="text-black md:text-[18px] text-[16px]">კითხვა ვერ მოიძებნა</p>
@@ -782,9 +764,28 @@ function AdminQuestionsContent() {
                   ×
                 </button>
               </div>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Question Type */}
+                  <div>
+                    <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
+                      კითხვის ტიპი *
+                    </label>
+                    <select
+                      name="type"
+                      required
+                      value={formData.type}
+                      onChange={(e) => handleQuestionTypeChange(e.target.value)}
+                      className="w-full px-4 text-black placeholder:text-black py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                    >
+                      <option className='text-black placeholder:text-black'  value="CLOSED_ENDED">დახურული კითხვა (ხელით)</option>
+                      <option className='text-black placeholder:text-black'  value="MATCHING">შესაბამისობა (ავტომატური)</option>
+                      <option className='text-black placeholder:text-black'  value="TEXT_ANALYSIS">ტექსტის ანალიზი (ხელით)</option>
+                      <option  className='text-black placeholder:text-black' value="MAP_ANALYSIS">რუკის ანალიზი (ხელით)</option>
+                      <option className='text-black placeholder:text-black'  value="OPEN_ENDED">ღია კითხვა (ხელით)</option>
+                    </select>
+                  </div>
                   {/* Question Text */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
@@ -796,7 +797,7 @@ function AdminQuestionsContent() {
                       value={formData.text}
                       onChange={handleInputChange}
                       rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                      className="w-full text-black placeholder:text-black px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                       placeholder="შეიყვანეთ კითხვის ტექსტი..."
                     />
                   </div>
@@ -804,7 +805,7 @@ function AdminQuestionsContent() {
                   {/* Content for Text Analysis and Map Analysis */}
                   {(formData.type === 'TEXT_ANALYSIS' || formData.type === 'MAP_ANALYSIS') && (
                     <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
+                      <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
                         {formData.type === 'TEXT_ANALYSIS' ? 'ტექსტის შინაარსი *' : 'რუკის აღწერა *'}
                       </label>
                       <textarea
@@ -813,37 +814,17 @@ function AdminQuestionsContent() {
                         value={formData.content}
                         onChange={handleInputChange}
                         rows={6}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                        className="w-full px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                         placeholder={formData.type === 'TEXT_ANALYSIS' ? 'შეიყვანეთ ანალიზის ტექსტი...' : 'შეიყვანეთ რუკის აღწერა...'}
                       />
                     </div>
                   )}
 
-                  {/* Question Type */}
-                  <div>
-                    <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
-                      კითხვის ტიპი *
-                    </label>
-                    <select
-                      name="type"
-                      required
-                      value={formData.type}
-                      onChange={(e) => handleQuestionTypeChange(e.target.value)}
-                      className="w-full px-4 py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
-                    >
-                      <option value="MULTIPLE_CHOICE">მრავალარჩევანიანი (ავტომატური)</option>
 
-                      <option value="MATCHING">შესაბამისობა (ავტომატური)</option>
-                      <option value="TEXT_ANALYSIS">ტექსტის ანალიზი (ხელით)</option>
-                      <option value="MAP_ANALYSIS">რუკის ანალიზი (ხელით)</option>
-                      <option value="OPEN_ENDED">ღია კითხვა (ხელით)</option>
-                      <option value="CLOSED_ENDED">დახურული კითხვა (ხელით)</option>
-                    </select>
-                  </div>
 
                   {/* Points */}
                   <div>
-                    <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
+                    <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
                       ქულები *
                     </label>
                     <input
@@ -854,14 +835,14 @@ function AdminQuestionsContent() {
                       max="10"
                       value={formData.points}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                      className="w-full px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                     />
                   </div>
 
                   {/* Max Points for Manual Scoring */}
                   {!formData.isAutoScored && (
                     <div>
-                      <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
+                      <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
                         მაქსიმალური ქულები *
                       </label>
                       <input
@@ -873,7 +854,7 @@ function AdminQuestionsContent() {
                         step="0.5"
                         value={formData.maxPoints}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                        className="w-full px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                         placeholder="მაგ: 2.5"
                       />
                     </div>
@@ -889,11 +870,11 @@ function AdminQuestionsContent() {
                       required
                       value={formData.subjectId}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                      className="w-full px-4 text-black placeholder:text-black py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                     >
                       <option value="">აირჩიეთ საგანი</option>
                       {subjects.map(subject => (
-                        <option key={subject.id} value={subject.id}>{subject.name}</option>
+                        <option key={subject.id} className='text-black placeholder:text-black' value={subject.id}>{subject.name}</option>
                       ))}
                     </select>
                   </div>
@@ -908,10 +889,10 @@ function AdminQuestionsContent() {
                       required
                       value={formData.grade}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                      className="w-full px-4 text-black placeholder:text-black py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                     >
-                      {[ 7, 8, 9, 10, 11, 12].map(grade => (
-                        <option key={grade} value={grade}>{grade} კლასი</option>
+                      {[7, 8, 9, 10, 11, 12].map(grade => (
+                        <option key={grade} className='text-black placeholder:text-black' value={grade}>{grade} კლასი</option>
                       ))}
                     </select>
                   </div>
@@ -926,11 +907,11 @@ function AdminQuestionsContent() {
                       required
                       value={formData.round}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-[14px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                      className="w-full px-4 text-black placeholder:text-black py-[14px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                     >
-                      <option value={1}>1 რაუნდი</option>
-                      <option value={2}>2 რაუნდი</option>
-                      <option value={3}>3 რაუნდი</option>
+                      <option value={1} className='text-black placeholder:text-black'>1 რაუნდი</option>
+                      <option value={2} className='text-black placeholder:text-black'>2 რაუნდი</option>
+                      <option value={3} className='text-black placeholder:text-black'>3 რაუნდი</option>
                     </select>
                   </div>
 
@@ -944,14 +925,14 @@ function AdminQuestionsContent() {
                       name="chapterName"
                       value={formData.chapterName}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                      className="w-full px-4 text-black placeholder:text-black py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                       placeholder="შეიყვანეთ თავის სახელი..."
                     />
                   </div>
 
                   {/* Paragraph */}
                   <div>
-                    <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
+                    <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
                       პარაგრაფი
                     </label>
                     <input
@@ -959,7 +940,7 @@ function AdminQuestionsContent() {
                       name="paragraphName"
                       value={formData.paragraphName}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                      className="w-full px-4 text-black placeholder:text-black py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                       placeholder="შეიყვანეთ პარაგრაფის სახელი..."
                     />
                   </div>
@@ -969,7 +950,7 @@ function AdminQuestionsContent() {
                     <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
                       სურათის URL (არასავალდებულო)
                     </label>
-                    <ImageUpload 
+                    <ImageUpload
                       onChange={(urls) => setFormData(prev => ({ ...prev, image: urls[0] || '' }))}
                       value={formData.image ? [formData.image] : []}
                     />
@@ -987,7 +968,7 @@ function AdminQuestionsContent() {
                         value={formData.rubric}
                         onChange={handleInputChange}
                         rows={4}
-                        className="w-full px-4 py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                        className="w-full px-4 text-black placeholder:text-black py-[11px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                         placeholder="შეიყვანეთ შეფასების კრიტერიუმები (მაგ: სრული პასუხი - 2 ქულა, ნაწილობრივი - 1 ქულა)..."
                       />
                     </div>
@@ -995,26 +976,26 @@ function AdminQuestionsContent() {
                 </div>
 
                 {/* Options Section */}
-                {formData.type === 'MULTIPLE_CHOICE' && (
+                                  {formData.type === 'CLOSED_ENDED' && (
                   <div className=" pt-6 bg-blue-50 p-4 rounded-lg">
                     <div className="flex justify-between items-center mb-4">
                       <h4 className="text-lg font-bold text-black md:text-[18px] text-[16px]">
-                         პასუხის ვარიანტები (ყველა პასუხი)
+                        პასუხის ვარიანტები (ყველა პასუხი)
                       </h4>
                       <button
                         type="button"
                         onClick={handleAddOption}
                         disabled={formData.options.length >= 6}
-                        className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-[16px] font-medium"
+                        className="bg-blue-600  hover:bg-blue-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-[16px] font-medium"
                       >
-                         ვარიანტის დამატება
+                        ვარიანტის დამატება
                       </button>
                     </div>
-                    
+
                     <div className="space-y-3">
                       {formData.options.map((option, index) => (
                         <div key={index} className="flex items-center space-x-3 bg-white p-3 rounded border">
-                          <span className="text-[18px] font-medium text-gray-600 min-w-[80px]">
+                          <span className="text-[18px] font-medium text-black placeholder:text-black min-w-[80px]">
                             ვარიანტი {index + 1}:
                           </span>
                           <input
@@ -1022,7 +1003,7 @@ function AdminQuestionsContent() {
                             value={option}
                             onChange={(e) => handleOptionChange(index, e.target.value)}
                             placeholder={`შეიყვანეთ პასუხის ვარიანტი ${index + 1}...`}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                            className="flex-1 px-3 py-2 border text-black placeholder:text-black border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                           />
                           <button
                             type="button"
@@ -1030,14 +1011,14 @@ function AdminQuestionsContent() {
                             disabled={formData.options.length <= 2}
                             className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-[16px] font-medium"
                           >
-                             წაშლა
+                            წაშლა
                           </button>
                         </div>
                       ))}
                     </div>
-                    
+
                     <div className="mt-4 p-3 bg-yellow-100 rounded text-sm border-l-4 border-yellow-400">
-                      <p className="font-medium text-yellow-800">💡 მნიშვნელოვანი:</p>
+                      <p className="font-medium text-yellow-800"> მნიშვნელოვანი:</p>
                       <p className="text-yellow-700">შეიყვანეთ ყველა პასუხის ვარიანტი (სწორი და არასწორი), შემდეგ აირჩიეთ სწორი პასუხი ქვემოთ</p>
                     </div>
                   </div>
@@ -1056,10 +1037,10 @@ function AdminQuestionsContent() {
                         onClick={handleAddMatchingPair}
                         className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-[16px] font-medium"
                       >
-                         წყვილის დამატება
+                        წყვილის დამატება
                       </button>
                     </div>
-                    
+
                     <div className="space-y-3">
                       {formData.matchingPairs.map((pair, index) => (
                         <div key={index} className="flex items-center space-x-3 bg-white p-3 rounded border">
@@ -1092,7 +1073,7 @@ function AdminQuestionsContent() {
                         </div>
                       ))}
                     </div>
-                    
+
                     <div className="mt-4 p-3 bg-green-100 rounded text-sm border-l-4 border-green-400">
                       <p className="font-medium text-green-800">💡 მნიშვნელოვანი:</p>
                       <p className="text-green-700">შეიყვანეთ შესაბამისობის წყვილები (მაგ: A→1, B→2, C→3)</p>
@@ -1100,61 +1081,14 @@ function AdminQuestionsContent() {
                   </div>
                 )}
 
-                {formData.type === 'CLOSED_ENDED' && (
-                  <div className=" pt-6 bg-purple-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-center mb-4">
-                      <h4 className="text-lg font-bold text-black md:text-[18px] text-[16px]">
-                        პასუხის ვარიანტები
-                      </h4>
-                      <button
-                        type="button"
-                        onClick={handleAddOption}
-                        disabled={formData.options.length >= 6}
-                        className="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-[16px] font-medium"
-                      >
-                         ვარიანტის დამატება
-                      </button>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      {formData.options.map((option, index) => (
-                        <div key={index} className="flex items-center space-x-3 bg-white p-3 rounded border">
-                          <span className="text-[18px] font-medium text-gray-600 min-w-[80px]">
-                            ვარიანტი {index + 1}:
-                          </span>
-                          <input
-                            type="text"
-                            value={option}
-                            onChange={(e) => handleOptionChange(index, e.target.value)}
-                            placeholder={`შეიყვანეთ პასუხის ვარიანტი ${index + 1}...`}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[18px] text-[16px]"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveOption(index)}
-                            disabled={formData.options.length <= 2}
-                            className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-[16px] font-medium"
-                          >
-                            წაშლა
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <div className="mt-4 p-3 bg-purple-100 rounded text-sm border-l-4 border-purple-400">
-                      <p className="font-medium text-purple-800">💡 მნიშვნელოვანი:</p>
-                      <p className="text-purple-700">შეიყვანეთ ყველა პასუხის ვარიანტი, შემდეგ აირჩიეთ სწორი პასუხი ქვემოთ</p>
-                    </div>
-                  </div>
-                )}
-
+              
                 {/* Correct Answer - Only for Auto-scored Questions */}
                 {formData.isAutoScored && (
                   <div>
                     <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
                       სწორი პასუხი *
                     </label>
-                    {formData.type === 'MULTIPLE_CHOICE' ? (
+                    {formData.type === 'CLOSED_ENDED' ? (
                       <select
                         name="correctAnswer"
                         required
@@ -1230,110 +1164,110 @@ function AdminQuestionsContent() {
         </div>
       )}
 
-             {/* Delete Confirmation Modal */}
-       {showDeleteModal && (
-         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-             <div className="mt-3">
-               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                 <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                 </svg>
-               </div>
-               
-               <h3 className="text-lg font-medium text-black md:text-[18px] text-[16px] mb-4 text-center">
-                 კითხვის წაშლა
-               </h3>
-               
-               <div className="text-center mb-6">
-                 <p className="text-sm text-black md:text-[16px] text-[14px] mb-2">
-                   <strong>ყურადღება!</strong> ეს მოქმედება შეუქცევადია.
-                 </p>
-                 <p className="text-sm text-black md:text-[16px] text-[14px]">
-                   ნამდვილად გსურთ ამ კითხვის წაშლა?
-                 </p>
-               </div>
-               
-               <div className="flex space-x-3">
-                 <button
-                   onClick={() => deleteQuestion(deletingQuestionId!)}
-                   className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px]"
-                 >
-                   დიახ, წავშალოთ
-                 </button>
-                 <button
-                   onClick={() => {
-                     setShowDeleteModal(false)
-                     setDeletingQuestionId(null)
-                   }}
-                   className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px]"
-                 >
-                   გაუქმება
-                 </button>
-               </div>
-             </div>
-           </div>
-         </div>
-       )}
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
 
-       {/* Package Creation Modal */}
-       {showPackageModal && (
-         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-             <div className="mt-3">
-               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
-                 <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                 </svg>
-               </div>
-               
-               <h3 className="text-lg font-medium text-black md:text-[18px] text-[16px] mb-4 text-center">
-                 პაკეტის შექმნა
-               </h3>
-               
-               <div className="mb-6">
-                 <label className="block text-sm font-medium text-black md:text-[16px] text-[14px] mb-2">
-                   პაკეტის სახელი *
-                 </label>
-                 <input
-                   type="text"
-                   value={packageName}
-                   onChange={(e) => setPackageName(e.target.value)}
-                   placeholder="შეიყვანეთ პაკეტის სახელი..."
-                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
-                 />
-               </div>
+              <h3 className="text-lg font-medium text-black md:text-[18px] text-[16px] mb-4 text-center">
+                კითხვის წაშლა
+              </h3>
 
-               <div className="text-center mb-6">
-                 <p className="text-sm text-black md:text-[16px] text-[14px] mb-2">
-                   <strong>შერჩეული კითხვები:</strong> {selectedQuestions.size}
-                 </p>
-                 <p className="text-sm text-black md:text-[16px] text-[14px]">
-                   ეს კითხვები შევა პაკეტში
-                 </p>
-               </div>
-               
-               <div className="flex space-x-3">
-                 <button
-                   onClick={createPackage}
-                   className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md font-medium md:text-[16px] text-[14px]"
-                 >
-                   პაკეტის შექმნა
-                 </button>
-                 <button
-                   onClick={() => {
-                     setShowPackageModal(false)
-                     setPackageName('')
-                   }}
-                   className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium md:text-[16px] text-[14px]"
-                 >
-                   გაუქმება
-                 </button>
-               </div>
-             </div>
-           </div>
-         </div>
-       )}
+              <div className="text-center mb-6">
+                <p className="text-sm text-black md:text-[16px] text-[14px] mb-2">
+                  <strong>ყურადღება!</strong> ეს მოქმედება შეუქცევადია.
+                </p>
+                <p className="text-sm text-black md:text-[16px] text-[14px]">
+                  ნამდვილად გსურთ ამ კითხვის წაშლა?
+                </p>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => deleteQuestion(deletingQuestionId!)}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px]"
+                >
+                  დიახ, წავშალოთ
+                </button>
+                <button
+                  onClick={() => {
+                    setShowDeleteModal(false)
+                    setDeletingQuestionId(null)
+                  }}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px]"
+                >
+                  გაუქმება
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Package Creation Modal */}
+      {showPackageModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-purple-100 mb-4">
+                <svg className="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+
+              <h3 className="text-lg font-medium text-black md:text-[18px] text-[16px] mb-4 text-center">
+                პაკეტის შექმნა
+              </h3>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-black md:text-[16px] text-[14px] mb-2">
+                  პაკეტის სახელი *
+                </label>
+                <input
+                  type="text"
+                  value={packageName}
+                  onChange={(e) => setPackageName(e.target.value)}
+                  placeholder="შეიყვანეთ პაკეტის სახელი..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                />
+              </div>
+
+              <div className="text-center mb-6">
+                <p className="text-sm text-black md:text-[16px] text-[14px] mb-2">
+                  <strong>შერჩეული კითხვები:</strong> {selectedQuestions.size}
+                </p>
+                <p className="text-sm text-black md:text-[16px] text-[14px]">
+                  ეს კითხვები შევა პაკეტში
+                </p>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={createPackage}
+                  className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md font-medium md:text-[16px] text-[14px]"
+                >
+                  პაკეტის შექმნა
+                </button>
+                <button
+                  onClick={() => {
+                    setShowPackageModal(false)
+                    setPackageName('')
+                  }}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium md:text-[16px] text-[14px]"
+                >
+                  გაუქმება
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
