@@ -1339,7 +1339,7 @@ function AdminQuestionsContent() {
                             {!subQuestion.isAutoScored && (
                               <div className="bg-orange-50 p-3 rounded border border-orange-200">
                                 <p className="text-sm text-orange-700 md:text-[12px] text-[10px]">
-                                  ⚠️ ეს კითხვა საჭიროებს ხელით შეფასებას
+                                   ეს კითხვა საჭიროებს ხელით შეფასებას
                                 </p>
                               </div>
                             )}
@@ -1353,7 +1353,7 @@ function AdminQuestionsContent() {
                             ქვეკითხვები ჯერ არ არის დამატებული
                           </p>
                           <p className="text-sm mt-1">
-                            დააჭირეთ "ქვეკითხვის დამატება" ღილაკს
+                            დააჭირეთ ქვეკითხვის დამატება ღილაკს
                           </p>
                         </div>
                       )}
