@@ -116,36 +116,37 @@ function AdminQuestionsContent() {
     }
   }
 
-  const createDefaultSubjects = async () => {
-    try {
-      const defaultSubjects = [
-        { name: 'მათემატიკა', description: 'მათემატიკის საგანი' },
-        { name: 'ფიზიკა', description: 'ფიზიკის საგანი' },
-        { name: 'ქიმია', description: 'ქიმიის საგანი' },
-        { name: 'ბიოლოგია', description: 'ბიოლოგიის საგანი' },
-        { name: 'ისტორია', description: 'ისტორიის საგანი' },
-        { name: 'გეოგრაფია', description: 'გეოგრაფიის საგანი' },
-        { name: 'ქართული ენა', description: 'ქართული ენის საგანი' },
-        { name: 'ინგლისური ენა', description: 'ინგლისური ენის საგანი' }
-      ]
+  // Function to create default subjects (unused but kept for future use)
+  // const createDefaultSubjects = async () => {
+  //   try {
+  //     const defaultSubjects = [
+  //       { name: 'მათემატიკა', description: 'მათემატიკის საგანი' },
+  //       { name: 'ფიზიკა', description: 'ფიზიკის საგანი' },
+  //       { name: 'ქიმია', description: 'ქიმიის საგანი' },
+  //       { name: 'ბიოლოგია', description: 'ბიოლოგიის საგანი' },
+  //       { name: 'ისტორია', description: 'ისტორიის საგანი' },
+  //       { name: 'გეოგრაფია', description: 'გეოგრაფიის საგანი' },
+  //       { name: 'ქართული ენა', description: 'ქართული ენის საგანი' },
+  //       { name: 'ინგლისური ენა', description: 'ინგლისური ენის საგანი' }
+  //     ]
 
-      for (const subject of defaultSubjects) {
-        await fetch('/api/admin/subjects', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(subject),
-        })
-      }
+  //     for (const subject of defaultSubjects) {
+  //       await fetch('/api/admin/subjects', {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify(subject),
+  //       })
+  //     }
 
-      alert('საწყისი საგნები წარმატებით შეიქმნა!')
-      fetchSubjects()
-    } catch (error) {
-      console.error('Error creating default subjects:', error)
-      alert('შეცდომა მოხდა საგნების შექმნისას')
-    }
-  }
+  //     alert('საწყისი საგნები წარმატებით შეიქმნა!')
+  //     fetchSubjects()
+  //   } catch (error) {
+  //     console.error('Error creating default subjects:', error)
+  //     alert('შეცდომა მოხდა საგნების შექმნისას')
+  //   }
+  // }
 
   const editQuestion = (question: Question) => {
     setEditingQuestion(question)
@@ -286,7 +287,7 @@ function AdminQuestionsContent() {
     }))
   }
 
-  const handleSubQuestionChange = (index: number, field: keyof SubQuestion, value: any) => {
+  const handleSubQuestionChange = (index: number, field: keyof SubQuestion, value: string | number | boolean) => {
     setFormData(prev => ({
       ...prev,
       subQuestions: prev.subQuestions.map((sq, i) => 
@@ -1524,7 +1525,7 @@ function AdminQuestionsContent() {
                     </div>
                     <p className="text-orange-700 md:text-[16px] text-[14px]">
                       ეს კითხვა საჭიროებს ხელით შეფასებას. სისტემა ავტომატურად ვერ გაითვლის ქულას.
-                      გამსწორებელი/მასწავლებელი ხელით მიანიჭებს ქულას შეფასების კრიტერიუმების მიხედვით.
+                                             გამსწორებელი ან მასწავლებელი ხელით მიანიჭებს ქულას შეფასების კრიტერიუმების მიხედვით.
                     </p>
                   </div>
                 )}
