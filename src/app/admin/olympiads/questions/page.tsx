@@ -19,7 +19,6 @@ interface Question {
   points: number
   maxPoints?: number
   image?: string
-  content?: string
   matchingPairs?: Array<{ left: string, right: string }>
   rubric?: string
   subjectId: string
@@ -60,7 +59,6 @@ function AdminQuestionsContent() {
     points: 1,
     maxPoints: 1,
     image: '',
-    content: '',
     matchingPairs: [{ left: '', right: '' }],
     rubric: '',
     subjectId: '',
@@ -148,7 +146,6 @@ function AdminQuestionsContent() {
       points: question.points,
       maxPoints: question.maxPoints || question.points,
       image: question.image || '',
-      content: question.content || '',
       matchingPairs: question.matchingPairs || [{ left: '', right: '' }],
       rubric: question.rubric || '',
       subjectId: question.subjectId,
@@ -316,7 +313,6 @@ function AdminQuestionsContent() {
       points: 1,
       maxPoints: 1,
       image: '',
-      content: '',
       matchingPairs: [{ left: '', right: '' }],
       rubric: '',
       subjectId: '',
@@ -393,7 +389,6 @@ function AdminQuestionsContent() {
       question.grade.toString().includes(searchLower) ||
       question.round.toString().includes(searchLower) ||
       question.type.toLowerCase().includes(searchLower) ||
-      (question.content && question.content.toLowerCase().includes(searchLower)) ||
       (question.rubric && question.rubric.toLowerCase().includes(searchLower))
 
     // Fix tab filtering logic
@@ -789,36 +784,22 @@ function AdminQuestionsContent() {
                   {/* Question Text */}
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
-                      კითხვის ტექსტი *
+                      {formData.type === 'TEXT_ANALYSIS' ? 'ტექსტი *' : 
+                       formData.type === 'MAP_ANALYSIS' ? 'რუკის აღწერა *' : 
+                       'კითხვის ტექსტი *'}
                     </label>
                     <textarea
                       name="text"
                       required
                       value={formData.text}
                       onChange={handleInputChange}
-                      rows={4}
+                      rows={formData.type === 'TEXT_ANALYSIS' || formData.type === 'MAP_ANALYSIS' ? 6 : 4}
                       className="w-full text-black placeholder:text-black px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
-                      placeholder="შეიყვანეთ კითხვის ტექსტი..."
+                      placeholder={formData.type === 'TEXT_ANALYSIS' ? 'შეიყვანეთ ანალიზის ტექსტი...' : 
+                                   formData.type === 'MAP_ANALYSIS' ? 'შეიყვანეთ რუკის აღწერა...' : 
+                                   'შეიყვანეთ კითხვის ტექსტი...'}
                     />
                   </div>
-
-                  {/* Content for Text Analysis and Map Analysis */}
-                  {(formData.type === 'TEXT_ANALYSIS' || formData.type === 'MAP_ANALYSIS') && (
-                    <div className="md:col-span-2">
-                      <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
-                        {formData.type === 'TEXT_ANALYSIS' ? 'ტექსტის შინაარსი *' : 'რუკის აღწერა *'}
-                      </label>
-                      <textarea
-                        name="content"
-                        required
-                        value={formData.content}
-                        onChange={handleInputChange}
-                        rows={6}
-                        className="w-full px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
-                        placeholder={formData.type === 'TEXT_ANALYSIS' ? 'შეიყვანეთ ანალიზის ტექსტი...' : 'შეიყვანეთ რუკის აღწერა...'}
-                      />
-                    </div>
-                  )}
 
 
 
