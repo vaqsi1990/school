@@ -19,7 +19,7 @@ interface Question {
   points: number
   maxPoints?: number
   image?: string
-  matchingPairs?: Array<{ left: string, right: string }>
+  matchingPairs?: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
   subjectId: string
   chapterId?: string
   paragraphId?: string
@@ -63,22 +63,38 @@ function AdminQuestionsContent() {
   const [packageName, setPackageName] = useState('')
 
   // Form state
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    text: string
+    type: 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED'
+    options: string[]
+    correctAnswer: string
+    points: number
+    maxPoints: number
+    image: string
+    matchingPairs: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
+    subjectId: string
+    chapterName: string
+    paragraphName: string
+    grade: number
+    round: number
+    isAutoScored: boolean
+    subQuestions: SubQuestion[]
+  }>({
     text: '',
-          type: 'CLOSED_ENDED' as 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED',
+    type: 'CLOSED_ENDED',
     options: ['', '', '', ''],
     correctAnswer: '',
     points: 1,
     maxPoints: 1,
     image: '',
-    matchingPairs: [{ left: '', right: '' }],
+    matchingPairs: [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
     subjectId: '',
     chapterName: '',
     paragraphName: '',
     grade: 7,
     round: 1,
     isAutoScored: true,
-    subQuestions: [] as SubQuestion[] // Add this field
+    subQuestions: []
   })
 
   useEffect(() => {
@@ -159,14 +175,19 @@ function AdminQuestionsContent() {
       points: question.points,
       maxPoints: question.maxPoints || question.points,
       image: question.image || '',
-      matchingPairs: question.matchingPairs || [{ left: '', right: '' }],
+      matchingPairs: question.matchingPairs?.map(pair => ({
+        left: pair.left,
+        leftImage: pair.leftImage,
+        right: pair.right,
+        rightImage: pair.rightImage
+      })) || [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
       subjectId: question.subjectId,
       chapterName: question.chapterName || '',
       paragraphName: question.paragraphName || '',
       grade: question.grade,
       round: question.round,
       isAutoScored: question.isAutoScored,
-      subQuestions: question.subQuestions || [] // Assuming subQuestions are part of the question object
+      subQuestions: question.subQuestions || []
     })
     setShowAddForm(true)
   }
@@ -236,7 +257,7 @@ function AdminQuestionsContent() {
     }
   }
 
-  const handleMatchingPairChange = (index: number, field: 'left' | 'right', value: string) => {
+  const handleMatchingPairChange = (index: number, field: 'left' | 'right' | 'leftImage' | 'rightImage', value: string) => {
     const newPairs = [...formData.matchingPairs]
     newPairs[index] = { ...newPairs[index], [field]: value }
     setFormData(prev => ({
@@ -248,7 +269,7 @@ function AdminQuestionsContent() {
   const handleAddMatchingPair = () => {
     setFormData(prev => ({
       ...prev,
-      matchingPairs: [...prev.matchingPairs, { left: '', right: '' }]
+      matchingPairs: [...prev.matchingPairs, { left: '', leftImage: undefined, right: '', rightImage: undefined }]
     }))
   }
 
@@ -489,7 +510,7 @@ function AdminQuestionsContent() {
       points: 1,
       maxPoints: 1,
       image: '',
-      matchingPairs: [{ left: '', right: '' }],
+      matchingPairs: [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
       subjectId: '',
       chapterName: '',
       paragraphName: '',
@@ -1457,33 +1478,111 @@ function AdminQuestionsContent() {
 
                      <div className="space-y-3">
                        {formData.matchingPairs.map((pair, index) => (
-                         <div key={index} className="flex items-center space-x-3 bg-white p-3 rounded border">
-                           <span className="text-sm font-medium text-gray-600 min-w-[60px]">
-                             {String.fromCharCode(65 + index)}:
-                           </span>
-                           <input
-                             type="text"
-                             value={pair.left}
-                             onChange={(e) => handleMatchingPairChange(index, 'left', e.target.value)}
-                             placeholder="მარცხენა მხარე..."
-                             className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
-                           />
-                           <span className="text-gray-500">→</span>
-                           <input
-                             type="text"
-                             value={pair.right}
-                             onChange={(e) => handleMatchingPairChange(index, 'right', e.target.value)}
-                             placeholder="მარჯვენა მხარე..."
-                             className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
-                           />
-                           <button
-                             type="button"
-                             onClick={() => handleRemoveMatchingPair(index)}
-                             disabled={formData.matchingPairs.length <= 1}
-                             className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-2 py-1 rounded text-sm font-medium"
-                           >
-                             წაშლა
-                           </button>
+                         <div key={index} className="bg-white p-4 rounded border">
+                           <div className="flex items-center space-x-3 mb-3">
+                             <span className="text-sm font-medium text-gray-600 min-w-[60px]">
+                               {String.fromCharCode(65 + index)}:
+                             </span>
+                             <span className="text-gray-500">→</span>
+                           </div>
+                           
+                           {/* Left Side */}
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                             <div>
+                               <label className="block text-sm font-medium text-gray-700 mb-2">
+                                 მარცხენა მხარე
+                               </label>
+                               <div className="space-y-2">
+                                 {pair.leftImage ? (
+                                   <div className="relative">
+                                     <img 
+                                       src={pair.leftImage} 
+                                       alt="Left side image" 
+                                       className="w-full max-w-xs h-auto rounded-lg border border-gray-300"
+                                     />
+                                     <button
+                                       type="button"
+                                       onClick={() => handleMatchingPairChange(index, 'leftImage', '')}
+                                       className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                                     >
+                                       ×
+                                     </button>
+                                   </div>
+                                 ) : (
+                                   <div className="space-y-2">
+                                     <input
+                                       type="text"
+                                       value={pair.left}
+                                       onChange={(e) => handleMatchingPairChange(index, 'left', e.target.value)}
+                                       placeholder="ტექსტი ან სურათი..."
+                                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 md:text-[16px] text-[14px]"
+                                     />
+                                     <div className="text-center">
+                                       <span className="text-xs text-gray-500">ან</span>
+                                     </div>
+                                     <ImageUpload
+                                       onChange={(urls) => handleMatchingPairChange(index, 'leftImage', urls[0] || '')}
+                                       value={pair.leftImage ? [pair.leftImage] : []}
+                                     />
+                                   </div>
+                                 )}
+                               </div>
+                             </div>
+                             
+                             {/* Right Side */}
+                             <div>
+                               <label className="block text-sm font-medium text-gray-700 mb-2">
+                                 მარჯვენა მხარე
+                               </label>
+                               <div className="space-y-2">
+                                 {pair.rightImage ? (
+                                   <div className="relative">
+                                     <img 
+                                       src={pair.rightImage} 
+                                       alt="Right side image" 
+                                       className="w-full max-w-xs h-auto rounded-lg border border-gray-300"
+                                     />
+                                     <button
+                                       type="button"
+                                       onClick={() => handleMatchingPairChange(index, 'rightImage', '')}
+                                       className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                                     >
+                                       ×
+                                     </button>
+                                   </div>
+                                 ) : (
+                                   <div className="space-y-2">
+                                     <input
+                                       type="text"
+                                       value={pair.right}
+                                       onChange={(e) => handleMatchingPairChange(index, 'right', e.target.value)}
+                                       placeholder="ტექსტი ან სურათი..."
+                                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 md:text-[16px] text-[14px]"
+                                     />
+                                     <div className="text-center">
+                                       <span className="text-xs text-gray-500">ან</span>
+                                     </div>
+                                     <ImageUpload
+                                       onChange={(urls) => handleMatchingPairChange(index, 'rightImage', urls[0] || '')}
+                                       value={pair.rightImage ? [pair.rightImage] : []}
+                                     />
+                                   </div>
+                                 )}
+                               </div>
+                             </div>
+                           </div>
+                           
+                           {/* Remove Button */}
+                           <div className="flex justify-end">
+                             <button
+                               type="button"
+                               onClick={() => handleRemoveMatchingPair(index)}
+                               disabled={formData.matchingPairs.length <= 1}
+                               className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-sm font-medium"
+                             >
+                               წაშლა
+                             </button>
+                           </div>
                          </div>
                        ))}
                      </div>
