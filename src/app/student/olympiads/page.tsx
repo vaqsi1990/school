@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useAuth } from '@/hooks/useAuth'
 
 interface Olympiad {
   id: string
@@ -13,18 +14,25 @@ interface Olympiad {
   subjects: string[]
   grades: number[]
   status: 'upcoming' | 'active' | 'completed'
+  isRegistered: boolean
+  registrationStatus?: 'REGISTERED' | 'IN_PROGRESS' | 'COMPLETED' | 'DISQUALIFIED'
 }
 
 export default function StudentOlympiadsPage() {
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth()
   const [olympiads, setOlympiads] = useState<Olympiad[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [registrationStatus, setRegistrationStatus] = useState<{[key: string]: 'idle' | 'loading' | 'success' | 'error'}>({})
   const [successMessage, setSuccessMessage] = useState('')
 
+
+
   useEffect(() => {
-    fetchOlympiads()
-  }, [])
+    if (isAuthenticated && user?.userType === 'STUDENT') {
+      fetchOlympiads()
+    }
+  }, [isAuthenticated, user])
 
   const fetchOlympiads = async () => {
     try {
@@ -120,6 +128,61 @@ export default function StudentOlympiadsPage() {
       setRegistrationStatus(prev => ({ ...prev, [olympiadId]: 'error' }))
       setError('რეგისტრაცია ვერ მოხერხდა')
     }
+  }
+
+  const handleStartOlympiad = async (olympiadId: string) => {
+    try {
+      setError('')
+      setSuccessMessage('')
+
+      // For now, just show a message that the olympiad will start
+      // In the future, this could redirect to the actual olympiad test page
+      setSuccessMessage('ოლიმპიადა მალე დაიწყება!')
+      
+      // TODO: Implement actual olympiad start functionality
+      // This could redirect to a test page or show the first round
+      console.log('Starting olympiad:', olympiadId)
+      
+    } catch (err) {
+      console.error('Error starting olympiad:', err)
+      setError('ოლიმპიადის დაწყება ვერ მოხერხდა')
+    }
+  }
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#034e64] mx-auto"></div>
+            <p className="mt-4 text-gray-600 md:text-[18px] text-[16px]">ავტორიზაცია მოწმდება...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error if not authenticated or not a student
+  if (!isAuthenticated || user?.userType !== 'STUDENT') {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-red-600">წვდომა აკრძალულია</h2>
+            <p className="mt-2 text-gray-600">თქვენ არ გაქვთ ამ გვერდზე წვდომის ნებართვა</p>
+            <p className="mt-1 text-sm text-gray-500">მომხმარებელი: {user?.email || 'უცნობი'}</p>
+            <p className="mt-1 text-sm text-gray-500">ტიპი: {user?.userType || 'უცნობი'}</p>
+            <Link
+              href="/auth/signin"
+              className="mt-4 inline-block bg-[#034e64] text-white px-4 py-2 rounded-md hover:bg-[#023a4d]"
+            >
+              შესვლა
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (isLoading) {
@@ -266,23 +329,32 @@ export default function StudentOlympiadsPage() {
                     >
                       დეტალები
                     </button>
-                                         <button
-                       onClick={() => handleRegistration(olympiad.id)}
-                       disabled={registrationStatus[olympiad.id] === 'loading' || registrationStatus[olympiad.id] === 'success'}
-                       className={`flex-1 cursor-pointer px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors ${
-                         registrationStatus[olympiad.id] === 'success'
-                           ? 'bg-green-700 text-white cursor-not-allowed'
-                           : registrationStatus[olympiad.id] === 'loading'
-                           ? 'bg-gray-400 text-white cursor-not-allowed'
-                           : 'bg-green-600 hover:bg-green-700 text-white'
-                       }`}
-                     >
-                       {registrationStatus[olympiad.id] === 'loading'
-                         ? 'იტვირთება...'
-                         : registrationStatus[olympiad.id] === 'success'
-                         ? 'დარეგისტრირებული'
-                         : 'რეგისტრაცია'}
-                     </button>
+                    {olympiad.isRegistered ? (
+                      <button
+                        onClick={() => handleStartOlympiad(olympiad.id)}
+                        className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors"
+                      >
+                        დაწყება
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleRegistration(olympiad.id)}
+                        disabled={registrationStatus[olympiad.id] === 'loading' || registrationStatus[olympiad.id] === 'success'}
+                        className={`flex-1 cursor-pointer px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors ${
+                          registrationStatus[olympiad.id] === 'success'
+                            ? 'bg-green-700 text-white cursor-not-allowed'
+                            : registrationStatus[olympiad.id] === 'loading'
+                            ? 'bg-gray-400 text-white cursor-not-allowed'
+                            : 'bg-green-600 hover:bg-green-700 text-white'
+                        }`}
+                      >
+                        {registrationStatus[olympiad.id] === 'loading'
+                          ? 'იტვირთება...'
+                          : registrationStatus[olympiad.id] === 'success'
+                          ? 'დარეგისტრირებული'
+                          : 'რეგისტრაცია'}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

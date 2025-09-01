@@ -39,16 +39,16 @@ interface TransformedOlympiad {
   subjects: string[]
   grades: number[]
   status: 'upcoming' | 'completed'
+  isRegistered: boolean
+  registrationStatus?: 'REGISTERED' | 'IN_PROGRESS' | 'COMPLETED' | 'DISQUALIFIED'
 }
 
 export async function GET(request: NextRequest) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions)
-    console.log('Session:', session)
     
     if (!session) {
-      console.log('No session found')
       return NextResponse.json(
         { error: 'ავტორიზაცია საჭიროა' },
         { status: 401 }
@@ -57,7 +57,6 @@ export async function GET(request: NextRequest) {
 
     // Check if user is a student
     if (session.user.userType !== 'STUDENT') {
-      console.log('User is not a student:', session.user.userType)
       return NextResponse.json(
         { error: 'მხოლოდ სტუდენტებს შეუძლიათ ოლიმპიადების ნახვა' },
         { status: 403 }
@@ -66,10 +65,10 @@ export async function GET(request: NextRequest) {
 
     console.log('User ID:', session.user.id)
 
-    // Get student's grade
+    // Get student's grade and ID
     const student = await prisma.student.findUnique({
       where: { userId: session.user.id },
-      select: { grade: true }
+      select: { id: true, grade: true }
     }) as StudentData | null
 
     console.log('Student found:', student)
@@ -113,18 +112,42 @@ export async function GET(request: NextRequest) {
     console.log('Found olympiads:', olympiads.length)
     console.log('Olympiads:', olympiads)
 
+    // Get student's registrations for all olympiads
+    const studentRegistrations = await prisma.studentOlympiadEvent.findMany({
+      where: {
+        studentId: student.id,
+        olympiadEventId: {
+          in: olympiads.map(o => o.id)
+        }
+      },
+      select: {
+        olympiadEventId: true,
+        status: true
+      }
+    })
+
+    // Create a map for quick lookup
+    const registrationMap = new Map(
+      studentRegistrations.map(reg => [reg.olympiadEventId, reg.status])
+    )
+
     // Transform data for frontend
-    const transformedOlympiads: TransformedOlympiad[] = olympiads.map((olympiad: OlympiadEventData) => ({
-      id: olympiad.id,
-      title: olympiad.name,
-      description: olympiad.description || '',
-      startDate: olympiad.startDate.toISOString(),
-      endDate: olympiad.endDate.toISOString(),
-      registrationDeadline: olympiad.registrationDeadline.toISOString(),
-      subjects: olympiad.subjects,
-      grades: olympiad.grades,
-      status: olympiad.isActive ? 'upcoming' : 'completed'
-    }))
+    const transformedOlympiads: TransformedOlympiad[] = olympiads.map((olympiad: OlympiadEventData) => {
+      const registrationStatus = registrationMap.get(olympiad.id)
+      return {
+        id: olympiad.id,
+        title: olympiad.name,
+        description: olympiad.description || '',
+        startDate: olympiad.startDate.toISOString(),
+        endDate: olympiad.endDate.toISOString(),
+        registrationDeadline: olympiad.registrationDeadline.toISOString(),
+        subjects: olympiad.subjects,
+        grades: olympiad.grades,
+        status: olympiad.isActive ? 'upcoming' : 'completed',
+        isRegistered: !!registrationStatus,
+        registrationStatus: registrationStatus || undefined
+      }
+    })
 
     console.log('Transformed olympiads:', transformedOlympiads)
 
