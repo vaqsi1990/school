@@ -49,6 +49,14 @@ function AdminQuestionsContent() {
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [questions, setQuestions] = useState<Question[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+  // Helper function to display subject name with abbreviation
+  const getDisplaySubjectName = (subjectName: string) => {
+    if (subjectName === 'ერთიანი ეროვნული გამოცდები') {
+      return 'ე.ე.გ'
+    }
+    return subjectName
+  }
   const [showAddForm, setShowAddForm] = useState(false)
   const [activeTab, setActiveTab] = useState<'all' | 'matching' | 'text-analysis' | 'map-analysis' | 'open-ended' | 'closed-ended'>('all')
   const [searchTerm, setSearchTerm] = useState('')
@@ -557,8 +565,9 @@ function AdminQuestionsContent() {
         // Question text
         question.text.toLowerCase().includes(searchLower) ||
         
-        // Subject name
+        // Subject name (including abbreviation)
         (subjects.find(s => s.id === question.subjectId)?.name || '').toLowerCase().includes(searchLower) ||
+        getDisplaySubjectName(subjects.find(s => s.id === question.subjectId)?.name || '').toLowerCase().includes(searchLower) ||
         
         // Chapter name (handle "თავი 2" and "2")
         (question.chapterName && (
@@ -726,7 +735,7 @@ function AdminQuestionsContent() {
               >
                 <option value="">ყველა საგანი</option>
                 {subjects.map(subject => (
-                  <option key={subject.id} value={subject.id}>{subject.name}</option>
+                  <option key={subject.id} value={subject.id}>{getDisplaySubjectName(subject.name)}</option>
                 ))}
               </select>
             </div>
@@ -910,7 +919,7 @@ function AdminQuestionsContent() {
                      
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
-                      {subjects.find(s => s.id === question.subjectId)?.name || 'უცნობი'}
+                      {getDisplaySubjectName(subjects.find(s => s.id === question.subjectId)?.name || 'უცნობი')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       {question.chapterName || '-'}
