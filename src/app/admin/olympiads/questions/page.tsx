@@ -894,16 +894,22 @@ function AdminQuestionsContent() {
                         className="h-4 w-4 text-blue-600  border-gray-300 rounded"
                       />
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="max-w-xs">
-                        <div className="text-sm font-medium text-black md:text-[18px] text-[16px]">
-                          {question.text.length > 100 ? `${question.text.substring(0, 100)}...` : question.text}
-                        </div>
-                        {question.image && (
-                          <div className="text-xs text-gray-500 mt-1"> სურათი არის</div>
-                        )}
-                      </div>
-                    </td>
+                                         <td className="px-6 py-4">
+                       <div className="max-w-xs">
+                         <div className="text-sm font-medium text-black md:text-[18px] text-[16px]">
+                           {(() => {
+                             const words = question.text.split(' ')
+                             if (words.length > 3) {
+                               return `${words.slice(0, 3).join(' ')}...`
+                             }
+                             return question.text
+                           })()}
+                         </div>
+                         {question.image && (
+                           <div className="text-xs text-gray-500 mt-1"> სურათი არის</div>
+                         )}
+                       </div>
+                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-[16px] font-normal rounded-full ${question.type === 'CLOSED_ENDED' ? ' text-black' :
 
