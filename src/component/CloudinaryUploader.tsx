@@ -21,9 +21,9 @@ const ImageUpload = ({ onChange, value }: ImageUploadProps): React.JSX.Element =
   };
 
   return (
-    <div className="bg-black text-white p-4 rounded">
+    <div className="bg-black text-white p-2 rounded">
       <UploadButton
-        className="text-white font-bold py-2 px-4 rounded"
+        className="text-white font-bold py-1 px-3 rounded text-sm"
         endpoint="imageUploader"
         onClientUploadComplete={handleUploadComplete}
         onUploadError={(error: Error) => {
@@ -32,23 +32,23 @@ const ImageUpload = ({ onChange, value }: ImageUploadProps): React.JSX.Element =
       />
 
       {imageUrls.length > 0 ? (
-        <div className="mt-4 space-y-2">
-          <h2 className="text-lg font-semibold">Uploaded Images</h2>
-          <div className="grid grid-cols-2 gap-4">
+        <div className="mt-2 space-y-1">
+          <h2 className="text-sm font-semibold">Uploaded Images</h2>
+          <div className="grid grid-cols-3 gap-2">
             {imageUrls.map((url, index) => (
               <Image  
                 key={index}
                 src={url}
                 alt={`Uploaded ${index}`}
                 className="rounded border border-gray-500"
-                width={200}
-                height={200}
+                width={120}
+                height={120}
               />
             ))}
           </div>
         </div>
       ) : (
-        <p className="mt-2 text-gray-400">No images uploaded yet.</p>
+        <p className="mt-1 text-gray-400 text-sm">No images uploaded yet.</p>
       )}
     </div>
   );
