@@ -17,7 +17,7 @@ const HowItWorks: React.FC = () => {
     {
 
       title: "აირჩიე საგანი",
-      description: "მათემატიკა, მეცნიერება ან ლიტერატურა",
+      description: "მათემატიკა, მეცნიერება, ლიტერატურა ან ერთიანი ეროვნული გამოცდები",
       color: "from-red-500 to-red-600",
       stepNumber: "ნაბიჯი "
     },

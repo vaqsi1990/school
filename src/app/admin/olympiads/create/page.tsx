@@ -68,7 +68,8 @@ function CreateOlympiadContent() {
     'ისტორია',
     'გეოგრაფია',
     'ქართული ენა',
-    'ინგლისური ენა'
+    'ინგლისური ენა',
+    'ერთიანი ეროვნული გამოცდები'
   ]
 
   // Fetch available packages
