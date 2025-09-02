@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
             order: 'asc'
           }
         },
-        createdByUser: {
+        createdByAdmin: {
           select: {
             name: true,
             lastname: true
