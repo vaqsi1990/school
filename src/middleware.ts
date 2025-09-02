@@ -24,32 +24,16 @@ export default withAuth(
       return NextResponse.redirect(new URL("/auth/signin", req.url))
     }
 
-    // თუ ჯერ არ არის userType ჩაწერილი token-ში → დავუშვათ გვერდზე გადასვლა
+    // მნიშვნელოვანი: თუ token არსებობს, მაგრამ userType არ არის → დავუშვათ
+    // ეს ხდება sign in პროცესის დროს, როცა JWT ჯერ კიდევ იქმნება
     if (!token.userType) {
-      console.log("Middleware - Token has no userType yet, allowing request")
+      console.log("Middleware - Token exists but no userType yet, allowing request")
       return NextResponse.next()
     }
 
-    // Student routes protection
-    if (path.startsWith("/student") && token.userType !== "STUDENT") {
-      console.log("Middleware - Student route access denied for:", token.userType)
-      return NextResponse.redirect(new URL("/unauthorized", req.url))
-    }
-
-    // Teacher routes protection
-    if (path.startsWith("/teacher") && token.userType !== "TEACHER") {
-      console.log("Middleware - Teacher route access denied for:", token.userType)
-      return NextResponse.redirect(new URL("/unauthorized", req.url))
-    }
-
-    // Admin routes protection
-    if (path.startsWith("/admin") && token.userType !== "ADMIN") {
-      console.log("Middleware - Admin route access denied for:", token.userType)
-      return NextResponse.redirect(new URL("/unauthorized", req.url))
-    }
-
-    // Dashboard redirect by role
+    // Dashboard redirect by role - ეს უნდა მოხდეს პირველად
     if (path === "/dashboard") {
+      console.log("Middleware - Dashboard redirect for userType:", token.userType)
       switch (token.userType) {
         case "STUDENT":
           return NextResponse.redirect(new URL("/student/dashboard", req.url))
@@ -62,11 +46,27 @@ export default withAuth(
       }
     }
 
+    // Route protection - მხოლოდ მაშინ, როცა userType უკვე არსებობს
+    if (path.startsWith("/student") && token.userType !== "STUDENT") {
+      console.log("Middleware - Student route access denied for:", token.userType)
+      return NextResponse.redirect(new URL("/unauthorized", req.url))
+    }
+
+    if (path.startsWith("/teacher") && token.userType !== "TEACHER") {
+      console.log("Middleware - Teacher route access denied for:", token.userType)
+      return NextResponse.redirect(new URL("/unauthorized", req.url))
+    }
+
+    if (path.startsWith("/admin") && token.userType !== "ADMIN") {
+      console.log("Middleware - Admin route access denied for:", token.userType)
+      return NextResponse.redirect(new URL("/unauthorized", req.url))
+    }
+
     return NextResponse.next()
   },
   {
     callbacks: {
-      // token თუ არსებობს, ვუშვებთ
+      // token თუ არსებობს, ვუშვებთ - მაგრამ userType-ის შემოწმება ცალკე ხდება
       authorized: ({ token }) => !!token
     }
   }

@@ -68,8 +68,10 @@ export const authOptions: NextAuthOptions = {
         token.student = user.student
         token.teacher = user.teacher
         token.admin = user.admin
+        // დავრწმუნდეთ, რომ userType უკვე დაყენებულია
+        console.log('JWT callback - UserType set to:', token.userType)
       }
-      console.log('JWT callback - Token:', { userType: token.userType, email: token.email })
+      console.log('JWT callback - Final token:', { userType: token.userType, email: token.email })
       return token
     },
     async session({ session, token }) {

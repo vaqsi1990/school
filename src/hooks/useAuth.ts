@@ -40,6 +40,8 @@ export function useAuth() {
   const login = async (email: string, password: string) => {
     try {
       setLastError(null)
+      console.log('Attempting login for:', email)
+      
       const result = await signIn('credentials', {
         email,
         password,
@@ -47,10 +49,8 @@ export function useAuth() {
       })
 
       if (result?.error) {
-        // Debug log to see what error is returned
         console.log('NextAuth error:', result.error)
         
-        // Translate NextAuth errors to Georgian
         let georgianError = 'შესვლა ვერ მოხერხდა'
         
         switch (result.error) {
@@ -74,9 +74,15 @@ export function useAuth() {
         throw new Error(georgianError)
       }
 
+      console.log('Login successful, updating session...')
+      
       // Force session update after successful login
       await update()
       
+      // დამატებითი დაყოვნება session-ის სრულად დამკვიდრებისთვის
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      console.log('Session update completed')
       return { success: true }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'შესვლა ვერ მოხერხდა'

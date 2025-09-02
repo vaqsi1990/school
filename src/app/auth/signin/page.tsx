@@ -31,10 +31,12 @@ export default function SignInPage() {
       const result = await login(data.email, data.password)
       
       if (result.success) {
-        // Add a small delay to ensure session is established
+        // ველოდებით session-ის სრულად დამკვიდრებას
+        // და შემდეგ ვამისამართებთ dashboard-ზე
         setTimeout(() => {
+          console.log('Redirecting to dashboard after successful login')
           router.push('/dashboard')
-        }, 500)
+        }, 1000) // გავზარდეთ დრო 1 წამამდე
       } else {
         setError(result.error || 'შესვლა ვერ მოხერხდა')
       }
