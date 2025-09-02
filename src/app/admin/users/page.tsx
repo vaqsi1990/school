@@ -280,7 +280,7 @@ function UserManagementContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className=" mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
@@ -292,7 +292,7 @@ function UserManagementContent() {
             </div>
             <Link
               href="/admin/dashboard"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+              className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
             >
               დაბრუნება
             </Link>
@@ -300,7 +300,7 @@ function UserManagementContent() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className=" mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search and Filter */}
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -483,7 +483,7 @@ function UserManagementContent() {
                               ? `${user.admin.name} ${user.admin.lastname}`
                               : user.email
                           )}
-                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium"
+                          className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d] mr-2"
                         >
                           პაროლის შეცვლა
                         </button>
@@ -500,7 +500,7 @@ function UserManagementContent() {
                               : user.email,
                             user.userType
                           )}
-                          className="bg-red-800 hover:bg-red-900 text-white px-3 py-1 rounded text-xs font-medium"
+                          className="bg-red-600 cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-red-700"
                         >
                           წაშლა
                         </button>
@@ -579,14 +579,14 @@ function UserManagementContent() {
                   <button
                     type="submit"
                     disabled={isResetting}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-md font-medium"
+                    className="flex-1 bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d] disabled:bg-gray-400"
                   >
                     {isResetting ? 'მიმდინარეობს...' : 'პაროლის შეცვლა'}
                   </button>
                   <button
                     type="button"
                     onClick={closePasswordResetModal}
-                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium"
+                    className="flex-1 bg-gray-500 cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-gray-600"
                   >
                     გაუქმება
                   </button>
@@ -639,13 +639,13 @@ function UserManagementContent() {
                 <button
                   onClick={handleDeleteUser}
                   disabled={isDeleting}
-                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-4 py-2 rounded-md font-medium"
+                  className="flex-1 bg-red-600 cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-red-700 disabled:bg-red-400"
                 >
                   {isDeleting ? 'მიმდინარეობს...' : 'დიახ, წავშალოთ'}
                 </button>
                 <button
                   onClick={closeDeleteUserModal}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium"
+                  className="flex-1 bg-gray-500 cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-gray-600"
                 >
                   გაუქმება
                 </button>

@@ -35,15 +35,36 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Get all subjects to map IDs to names
+    const subjects = await prisma.subject.findMany({
+      select: {
+        id: true,
+        name: true
+      }
+    })
+
+    const subjectMap = new Map(subjects.map(subject => [subject.id, subject.name]))
+
     return NextResponse.json({
-      users: users.map(user => ({
-        id: user.id,
-        email: user.email,
-        userType: user.userType,
-        student: user.student,
-        teacher: user.teacher,
-        admin: user.admin
-      }))
+      users: users.map(user => {
+        // If user is a teacher, get subject name
+        let teacherWithSubject = user.teacher
+        if (user.teacher) {
+          teacherWithSubject = {
+            ...user.teacher,
+            subject: subjectMap.get(user.teacher.subject) || user.teacher.subject
+          }
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          userType: user.userType,
+          student: user.student,
+          teacher: teacherWithSubject,
+          admin: user.admin
+        }
+      })
     })
 
   } catch (error) {

@@ -120,6 +120,7 @@ model Teacher {
   school    String
   phone     String   @unique
   isVerified Boolean @default(false)
+  canReviewAnswers Boolean @default(false) // Permission to review student answers
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

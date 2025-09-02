@@ -38,12 +38,25 @@ export const authOptions: NextAuthOptions = {
             throw new Error("პაროლი არასწორია. გთხოვთ სცადოთ თავიდან")
           }
 
+          // If user is a teacher, get subject name
+          let teacherWithSubject = user.teacher
+          if (user.teacher) {
+            const subject = await prisma.subject.findUnique({
+              where: { id: user.teacher.subject },
+              select: { name: true }
+            })
+            teacherWithSubject = {
+              ...user.teacher,
+              subject: subject?.name || user.teacher.subject
+            }
+          }
+
           return {
             id: user.id,
             email: user.email,
             userType: user.userType,
             student: user.student || undefined,
-            teacher: user.teacher || undefined,
+            teacher: teacherWithSubject || undefined,
             admin: user.admin || undefined
           }
         } catch (error) {

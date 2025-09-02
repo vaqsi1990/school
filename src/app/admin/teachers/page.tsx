@@ -1,0 +1,249 @@
+'use client'
+
+import { AdminOnly } from '@/components/auth/ProtectedRoute'
+import Link from 'next/link'
+import { useState, useEffect } from 'react'
+
+interface Teacher {
+  id: string
+  name: string
+  lastname: string
+  email: string
+  subject: string
+  school: string
+  phone: string
+  isVerified: boolean
+  canReviewAnswers: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+function AdminTeachersContent() {
+  const [teachers, setTeachers] = useState<Teacher[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [updatingPermissions, setUpdatingPermissions] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchTeachers()
+  }, [])
+
+  const fetchTeachers = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/admin/teachers')
+      if (response.ok) {
+        const data = await response.json()
+        setTeachers(data.teachers)
+      } else {
+        setError('მასწავლებლების ჩატვირთვა ვერ მოხერხდა')
+      }
+    } catch (error) {
+      console.error('Error fetching teachers:', error)
+      setError('დაფიქსირდა შეცდომა')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const toggleReviewPermission = async (teacherId: string, currentPermission: boolean) => {
+    try {
+      setUpdatingPermissions(teacherId)
+      const response = await fetch('/api/admin/teachers/permissions', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          teacherId,
+          canReviewAnswers: !currentPermission
+        })
+      })
+
+      if (response.ok) {
+        // Update the local state
+        setTeachers(prevTeachers => 
+          prevTeachers.map(teacher => 
+            teacher.id === teacherId 
+              ? { ...teacher, canReviewAnswers: !currentPermission }
+              : teacher
+          )
+        )
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || 'უფლებების განახლება ვერ მოხერხდა')
+      }
+    } catch (error) {
+      console.error('Error updating permissions:', error)
+      setError('დაფიქსირდა შეცდომა')
+    } finally {
+      setUpdatingPermissions(null)
+    }
+  }
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className=" mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 md:text-[20px] text-[18px]">
+            მასწავლებლების მართვა
+          </h1>
+          <p className="mt-2 text-gray-600 md:text-[18px] text-[16px]">
+            მასწავლებლების სიის ნახვა და მართვა
+          </p>
+        </div>
+
+        <div className="bg-white shadow rounded-lg p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 md:text-[20px] text-[18px]">
+              მასწავლებლების სია
+            </h2>
+            <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
+              ახალი მასწავლებელი
+            </button>
+          </div>
+
+          {loading ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-red-600 md:text-[18px] text-[16px]">{error}</p>
+              <button 
+                onClick={fetchTeachers}
+                className="mt-4 bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+              >
+                ხელახლა ცდა
+              </button>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                      სახელი
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                      გვარი
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                      ელ-ფოსტა
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                      საგანი
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                      სკოლა
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                      ვერიფიკაცია
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                      პასუხების შემოწმება
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                      მოქმედებები
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {teachers.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-4 text-center text-gray-500 md:text-[18px] text-[16px]">
+                        მასწავლებლები არ არის
+                      </td>
+                    </tr>
+                  ) : (
+                    teachers.map((teacher) => (
+                      <tr key={teacher.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                          {teacher.name}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                          {teacher.lastname}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                          {teacher.email}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                          {teacher.subject}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                          {teacher.school}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            teacher.isVerified 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {teacher.isVerified ? 'ვერიფიცირებული' : 'არ არის ვერიფიცირებული'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                          <button
+                            onClick={() => toggleReviewPermission(teacher.id, teacher.canReviewAnswers)}
+                            disabled={updatingPermissions === teacher.id}
+                            className={`mt-4 w-full cursor-pointer  text-black px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold ${
+                              teacher.canReviewAnswers
+                                ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                            } ${updatingPermissions === teacher.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                          >
+                            {updatingPermissions === teacher.id ? (
+                              <span className="flex items-center">
+                                <div className="animate-spin rounded-full h-3 w-3 border-b border-current mr-1"></div>
+                                მიმდინარეობს...
+                              </span>
+                            ) : (
+                              teacher.canReviewAnswers ? 'აქტიური' : 'არააქტიური'
+                            )}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d] mr-2">
+                            რედაქტირება
+                          </button>
+                          <button className="bg-red-600 cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-red-700">
+                            წაშლა
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6 flex justify-between items-center">
+          <Link 
+            href="/admin/dashboard"
+            className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+          >
+            დაბრუნება დაშბორდზე
+          </Link>
+          
+          <div className="flex space-x-2">
+            <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
+              ექსპორტი
+            </button>
+            <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
+              იმპორტი
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function AdminTeachersPage() {
+  return (
+    <AdminOnly>
+      <AdminTeachersContent />
+    </AdminOnly>
+  )
+}

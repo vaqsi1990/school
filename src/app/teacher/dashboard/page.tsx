@@ -3,13 +3,67 @@
 import { useAuth } from '@/hooks/useAuth'
 import { TeacherOnly } from '@/components/auth/ProtectedRoute'
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
+
+interface TeacherProfile {
+  id: string
+  name: string
+  lastname: string
+  email: string
+  subject: string
+  school: string
+  phone: string
+  isVerified: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 function TeacherDashboardContent() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
+  const [profile, setProfile] = useState<TeacherProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [canReviewAnswers, setCanReviewAnswers] = useState(false)
+  const [permissionLoading, setPermissionLoading] = useState(true)
   
-  // Debug logging to see what user data is available
-  console.log('Full user object:', user);
-  console.log('Teacher data:', user?.teacher);
-  console.log('User type:', user?.userType);
+  useEffect(() => {
+    fetchProfile()
+    checkPermissions()
+  }, [])
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/teacher/profile')
+      if (response.ok) {
+        const data = await response.json()
+        setProfile(data.profile)
+      } else {
+        console.error('Failed to fetch profile')
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const checkPermissions = async () => {
+    try {
+      setPermissionLoading(true)
+      const response = await fetch('/api/teacher/permissions')
+      if (response.ok) {
+        const data = await response.json()
+        setCanReviewAnswers(data.canReviewAnswers)
+      } else {
+        setCanReviewAnswers(false)
+      }
+    } catch (error) {
+      console.error('Error checking permissions:', error)
+      setCanReviewAnswers(false)
+    } finally {
+      setPermissionLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -21,18 +75,13 @@ function TeacherDashboardContent() {
                 მასწავლებლის დეშბორდი
               </h1>
               <p className="text-black md:text-[18px] text-[16px]">
-                კეთილი იყოს თქვენი მობრძანება, {user?.teacher?.name || user?.email} {user?.teacher?.lastname || ''}
+                კეთილი იყოს თქვენი მობრძანება, {profile?.name || user?.teacher?.name || user?.email} {profile?.lastname || user?.teacher?.lastname || ''}
               </p>
               <p className="text-black md:text-[16px] text-[14px]">
                 როლი: მასწავლებელი
               </p>
             </div>
-            <button
-              onClick={logout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
-            >
-              გამოსვლა
-            </button>
+           
           </div>
         </div>
       </div>
@@ -58,43 +107,43 @@ function TeacherDashboardContent() {
                 <div className="flex justify-between">
                   <span className="md:text-[16px] text-[14px] text-black">სახელი:</span>
                   <span className="md:text-[16px] text-[14px] font-medium text-black">
-                    {user?.teacher?.name || 'არ არის მითითებული'}
+                    {loading ? 'იტვირთება...' : (profile?.name || user?.teacher?.name || 'არ არის მითითებული')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="md:text-[16px] text-[14px] text-black">გვარი:</span>
                   <span className="md:text-[16px] text-[14px] font-medium text-black">
-                    {user?.teacher?.lastname || 'არ არის მითითებული'}
+                    {loading ? 'იტვირთება...' : (profile?.lastname || user?.teacher?.lastname || 'არ არის მითითებული')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="md:text-[16px] text-[14px] text-black">საგანი:</span>
                   <span className="md:text-[16px] text-[14px] font-medium text-black">
-                    {user?.teacher?.subject || 'არ არის მითითებული'}
+                    {loading ? 'იტვირთება...' : (profile?.subject || user?.teacher?.subject || 'არ არის მითითებული')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="md:text-[16px] text-[14px] text-black">სკოლა:</span>
                   <span className="md:text-[16px] text-[14px] font-medium text-black">
-                    {user?.teacher?.school || 'არ არის მითითებული'}
+                    {loading ? 'იტვირთება...' : (profile?.school || user?.teacher?.school || 'არ არის მითითებული')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="md:text-[16px] text-[14px] text-black">ტელეფონი:</span>
                   <span className="md:text-[16px] text-[14px] font-medium text-black">
-                    {user?.teacher?.phone || 'არ არის მითითებული'}
+                    {loading ? 'იტვირთება...' : (profile?.phone || user?.teacher?.phone || 'არ არის მითითებული')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="md:text-[16px] text-[14px] text-black">სტატუსი:</span>
-                  <span className={`md:text-[16px] text-[14px] font-medium ${user?.teacher?.isVerified ? 'text-green-600' : 'text-yellow-600'}`}>
-                    {user?.teacher?.isVerified ? 'ვერიფიცირებული' : 'ვერიფიკაციის პროცესში'}
+                  <span className={`md:text-[16px] text-[14px] font-medium ${profile?.isVerified || user?.teacher?.isVerified ? 'text-green-600' : 'text-yellow-600'}`}>
+                    {loading ? 'იტვირთება...' : ((profile?.isVerified || user?.teacher?.isVerified) ? 'ვერიფიცირებული' : 'ვერიფიკაციის პროცესში')}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="md:text-[16px] text-[14px] text-black">ელ-ფოსტა:</span>
                   <span className="md:text-[16px] text-[14px] font-medium text-black">
-                    {user?.email || 'არ არის მითითებული'}
+                    {loading ? 'იტვირთება...' : (profile?.email || user?.email || 'არ არის მითითებული')}
                   </span>
                 </div>
               
@@ -103,59 +152,84 @@ function TeacherDashboardContent() {
           </div>
 
 
-          {/* Create Questions Card */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">კითხვების შექმნა</h3>
-                </div>
-              </div>
-              <div className="mt-4">
-                <p className="text-black md:text-[18px] text-[16px]">
-                  შექმენით ახალი კითხვები ოლიმპიადებისთვის.
-                </p>
-                <button className="mt-4 w-full cursor-pointer bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium text-black">
-                  კითხვის დამატება
-                </button>
-              </div>
-            </div>
-          </div>
 
-          {/* Manage Olympiads Card */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
+                     {/* View Olympiads Card */}
+           <div className="bg-white overflow-hidden shadow rounded-lg">
+             <div className="p-6">
+               <div className="flex items-center">
+                 <div className="flex-shrink-0">
+                   <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                     </svg>
+                   </div>
+                 </div>
+                 <div className="ml-4">
+                   <h3 className="text-lg font-medium text-gray-900">ოლიმპიადების ნახვა</h3>
+                 </div>
+               </div>
+               <div className="mt-4">
+                   <p className="text-black md:text-[18px] text-[16px]">
+                   ნახეთ არსებული ოლიმპიადები და კითხვების პაკეტები.
+                 </p>
+                 <button className="mt-4 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium text-black">
+                   <Link href="/teacher/olympiads" className="block w-full h-full text-white">
+                    ოლიმპიადების ნახვა
+                   </Link>
+                 </button>
+               </div>
+             </div>
+           </div>
+
+                       {/* Check Answers Card */}
+            <div className={`overflow-hidden shadow rounded-lg ${canReviewAnswers ? 'bg-white' : 'bg-gray-100'}`}>
+              <div className="p-6">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${canReviewAnswers ? 'bg-green-500' : 'bg-gray-400'}`}>
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-medium text-gray-900">პასუხების შემოწმება</h3>
+                    {!permissionLoading && (
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        canReviewAnswers 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {canReviewAnswers ? 'უფლება არის' : 'უფლება არ არის'}
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="ml-4">
-                  <h3 className="text-lg font-medium text-gray-900">ოლიმპიადების მართვა</h3>
+                <div className="mt-4">
+                    <p className={`md:text-[18px] text-[16px] ${canReviewAnswers ? 'text-black' : 'text-gray-500'}`}>
+                    {canReviewAnswers 
+                      ? 'შეამოწმეთ სტუდენტების პასუხები და შედეგები.'
+                      : 'პასუხების შემოწმების უფლება ადმინისტრატორმა უნდა მიანიჭოს.'
+                    }
+                  </p>
+                  {canReviewAnswers ? (
+                    <button className="mt-4 w-full cursor-pointer bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium text-black">
+                      <Link href="/teacher/answers" className="block w-full h-full text-white">
+                       პასუხების შემოწმება
+                      </Link>
+                    </button>
+                  ) : (
+                    <button 
+                      disabled 
+                      className="mt-4 w-full cursor-not-allowed bg-gray-400 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium text-black"
+                    >
+                      უფლება არ არის
+                    </button>
+                  )}
                 </div>
               </div>
-              <div className="mt-4">
-                  <p className="text-black md:text-[18px] text-[16px]">
-                  მართეთ თქვენი შექმნილი ოლიმპიადები და კითხვები.
-                </p>
-                <button className="mt-4 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium text-black">
-                  <Link href="/teacher/olympiads" className="block w-full h-full text-white">
-                    ოლიმპიადების ნახვა
-                  </Link>
-                </button>
-              </div>
             </div>
-          </div>
         </div>
       </div>
     </div>
