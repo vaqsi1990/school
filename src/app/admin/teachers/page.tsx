@@ -23,6 +23,7 @@ function AdminTeachersContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [updatingPermissions, setUpdatingPermissions] = useState<string | null>(null)
+  const [updatingVerification, setUpdatingVerification] = useState<string | null>(null)
 
   useEffect(() => {
     fetchTeachers()
@@ -78,6 +79,41 @@ function AdminTeachersContent() {
       setError('დაფიქსირდა შეცდომა')
     } finally {
       setUpdatingPermissions(null)
+    }
+  }
+
+  const toggleVerification = async (teacherId: string, currentVerification: boolean) => {
+    try {
+      setUpdatingVerification(teacherId)
+      const response = await fetch('/api/admin/teachers/verify', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          teacherId,
+          isVerified: !currentVerification
+        })
+      })
+
+      if (response.ok) {
+        // Update the local state
+        setTeachers(prevTeachers => 
+          prevTeachers.map(teacher => 
+            teacher.id === teacherId 
+              ? { ...teacher, isVerified: !currentVerification }
+              : teacher
+          )
+        )
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || 'ვერიფიკაციის განახლება ვერ მოხერხდა')
+      }
+    } catch (error) {
+      console.error('Error updating verification:', error)
+      setError('დაფიქსირდა შეცდომა')
+    } finally {
+      setUpdatingVerification(null)
     }
   }
   return (
@@ -142,9 +178,7 @@ function AdminTeachersContent() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
                       პასუხების შემოწმება
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
-                      მოქმედებები
-                    </th>
+                   
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -173,13 +207,24 @@ function AdminTeachersContent() {
                           {teacher.school}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            teacher.isVerified 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {teacher.isVerified ? 'ვერიფიცირებული' : 'არ არის ვერიფიცირებული'}
-                          </span>
+                          <button
+                            onClick={() => toggleVerification(teacher.id, teacher.isVerified)}
+                            disabled={updatingVerification === teacher.id}
+                            className={`mt-4 w-full cursor-pointer bg-[#feb909] text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold ${
+                              teacher.isVerified 
+                                ? 'bg-black text-white' 
+                                : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                            } ${updatingVerification === teacher.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                          >
+                            {updatingVerification === teacher.id ? (
+                              <span className="flex items-center">
+                                <div className="animate-spin rounded-full h-3 w-3 border-b border-current mr-1"></div>
+                                მიმდინარეობს...
+                              </span>
+                            ) : (
+                              teacher.isVerified ? 'ვერიფიცირებულია' : 'არ არის ვერიფ'
+                            )}
+                          </button>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
                           <button
@@ -188,7 +233,7 @@ function AdminTeachersContent() {
                             className={`mt-4 w-full cursor-pointer  text-black px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold ${
                               teacher.canReviewAnswers
                                 ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                                : 'bg-gray-100 text-black hover:bg-gray-200'
                             } ${updatingPermissions === teacher.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                           >
                             {updatingPermissions === teacher.id ? (
@@ -201,14 +246,7 @@ function AdminTeachersContent() {
                             )}
                           </button>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d] mr-2">
-                            რედაქტირება
-                          </button>
-                          <button className="bg-red-600 cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-red-700">
-                            წაშლა
-                          </button>
-                        </td>
+                       
                       </tr>
                     ))
                   )}

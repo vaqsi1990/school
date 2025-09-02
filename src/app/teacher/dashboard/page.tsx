@@ -166,16 +166,16 @@ function TeacherDashboardContent() {
                    </div>
                  </div>
                  <div className="ml-4">
-                   <h3 className="text-lg font-medium text-gray-900">ოლიმპიადების ნახვა</h3>
+                   <h3 className="text-lg font-medium text-gray-900">teacher/questionsკითხვების ნახვა</h3>
                  </div>
                </div>
                <div className="mt-4">
                    <p className="text-black md:text-[18px] text-[16px]">
-                   ნახეთ არსებული ოლიმპიადები და კითხვების პაკეტები.
+                   ნახეთ არსებული კითხვები.
                  </p>
                  <button className="mt-4 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium text-black">
-                   <Link href="/teacher/olympiads" className="block w-full h-full text-white">
-                    ოლიმპიადების ნახვა
+                   <Link href="/teacher/questions" className="block w-full h-full text-white">
+                    კითხვების ნახვა
                    </Link>
                  </button>
                </div>

@@ -248,6 +248,12 @@ model Question {
   grade       Int      // Grade level for the question
   round       Int      // Which round this question belongs to (1, 2, or 3)
   createdBy   String?  // Teacher ID who created this question
+  createdByType UserType? // Whether created by ADMIN or TEACHER
+  status      QuestionStatus @default(ACTIVE) // Status of the question (ACTIVE, PENDING, REJECTED)
+  isReported  Boolean @default(false) // Whether the question has been reported
+  reportReason String? // Reason for reporting
+  reportedBy  String? // Teacher ID who reported the question
+  reportedAt  DateTime? // When the question was reported
   isAutoScored Boolean @default(true) // Whether system can auto-score this question
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -527,4 +533,10 @@ enum ParticipationStatus {
   IN_PROGRESS
   COMPLETED
   DISQUALIFIED
+}
+
+enum QuestionStatus {
+  ACTIVE
+  PENDING
+  REJECTED
 }

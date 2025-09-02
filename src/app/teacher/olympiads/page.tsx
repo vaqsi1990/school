@@ -1,10 +1,43 @@
 'use client'
 
-
+import { useState, useEffect } from 'react'
 import { TeacherOnly } from '@/components/auth/ProtectedRoute'
 import Link from 'next/link'
 
+interface TeacherProfile {
+  id: string
+  name: string
+  lastname: string
+  email: string
+  subject: string
+  school: string
+  phone: string
+  isVerified: boolean
+  createdAt: string
+  updatedAt: string
+}
+
 function TeacherOlympiadsContent() {
+  const [profile, setProfile] = useState<TeacherProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchProfile()
+  }, [])
+
+  const fetchProfile = async () => {
+    try {
+      const response = await fetch('/api/teacher/profile')
+      if (response.ok) {
+        const data = await response.json()
+        setProfile(data.profile)
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow">
@@ -15,7 +48,7 @@ function TeacherOlympiadsContent() {
                 ოლიმპიადების ნახვა
               </h1>
               <p className="text-black md:text-[18px] text-[16px]">
-                ნახეთ არსებული ოლიმპიადები და კითხვების პაკეტები
+                ნახეთ არსებული ოლიმპიადები
               </p>
             </div>
             <div className="flex gap-4">
@@ -35,36 +68,11 @@ function TeacherOlympiadsContent() {
             ხელმისაწვდომი ფუნქციები
           </h2>
           <p className="text-black md:text-[20px] text-[18px] mb-6">
-            მასწავლებლებს შეუძლიათ მხოლოდ კითხვების პაკეტების ნახვა და მართვა
+            მასწავლებლებს შეუძლიათ მხოლოდ კითხვების ნახვა
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Manage Packages Card */}
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-6">
-              <div className="flex items-center mb-4">
-                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <h3 className="text-black md:text-[20px] text-[18px] font-semibold">
-                    პაკეტების მართვა
-                  </h3>
-                </div>
-              </div>
-              <p className="text-black md:text-[20px] text-[18px] mb-4">
-                შექმენით და მართეთ კითხვების პაკეტები თქვენი საგნისთვის
-              </p>
-              <Link href="/teacher/olympiads/packages">
-                <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
-                  პაკეტების ნახვა
-                </button>
-              </Link>
-            </div>
-          </div>
 
           {/* View Questions Card */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
@@ -76,17 +84,22 @@ function TeacherOlympiadsContent() {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[20px] text-[18px] font-semibold">
-                    კითხვების ნახვა
-                  </h3>
-                </div>
-              </div>
-              <p className="text-black md:text-[20px] text-[18px] mb-4">
-                ნახეთ არსებული კითხვები თქვენი საგნისთვის
-              </p>
-              <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
-                კითხვების ნახვა
-              </button>
+                                 <h3 className="text-black md:text-[20px] text-[18px] font-semibold">
+                   კითხვები
+                   </h3>
+                 </div>
+               </div>
+               <p className="text-black md:text-[20px] text-[18px] mb-4">
+                 {profile?.isVerified 
+                   ? 'დაამატეთ და მართეთ კითხვები თქვენი საგნისთვის'
+                   : 'შემოგვთავაზეთ კითხვები განსახილველად'
+                 }
+               </p>
+                             <Link href="/teacher/questions">
+                 <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
+                   {profile?.isVerified ? 'კითხვების დამატება' : 'კითხვის გაგზავნა'}
+                 </button>
+               </Link>
             </div>
           </div>
 
@@ -106,11 +119,11 @@ function TeacherOlympiadsContent() {
                 </div>
               </div>
               <p className="text-black md:text-[20px] text-[18px] mb-4">
-                ოლიმპიადების შექმნა და მართვა მხოლოდ ადმინისტრატორებს შეუძლიათ
+                ოლიმპიადების და პაკეტების შექმნა და მართვა მხოლოდ ადმინისტრატორებს შეუძლიათ
               </p>
               <div className="bg-blue-50 p-3 rounded-md">
                 <p className="text-blue-800 md:text-[16px] text-[14px]">
-                  მასწავლებლებს შეუძლიათ მხოლოდ კითხვების პაკეტების შექმნა და მართვა
+                  მასწავლებლებს შეუძლიათ მხოლოდ კითხვების ნახვა
                 </p>
               </div>
             </div>
@@ -142,13 +155,13 @@ function TeacherOlympiadsContent() {
                 <div className="flex items-start">
                   <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3"></div>
                   <p className="text-black md:text-[18px] text-[16px]">
-                    <strong>კითხვების პაკეტები:</strong> მასწავლებლებს შეუძლიათ კითხვების პაკეტების შექმნა და მართვა
+                    <strong>კითხვების პაკეტები:</strong> კითხვების პაკეტების შექმნა და მართვა მხოლოდ ადმინისტრატორებს შეუძლიათ
                   </p>
                 </div>
                 <div className="flex items-start">
                   <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3"></div>
                   <p className="text-black md:text-[18px] text-[16px]">
-                    <strong>კითხვების დამატება:</strong> მასწავლებლებს შეუძლიათ კითხვების დამატება მხოლოდ თავიანთი საგნისთვის
+                    <strong>კითხვების დამატება:</strong> ვერიფიცირებულ მასწავლებლებს შეუძლიათ პირდაპირ დამატება, ვერიფიკაციის პროცესში მყოფებს - გაგზავნა განსახილველად
                   </p>
                 </div>
                 <div className="flex items-start">
