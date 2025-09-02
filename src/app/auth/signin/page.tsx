@@ -31,8 +31,10 @@ export default function SignInPage() {
       const result = await login(data.email, data.password)
       
       if (result.success) {
-        // Redirect to dashboard after successful login
-        router.push('/dashboard')
+        // Add a small delay to ensure session is established
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 500)
       } else {
         setError(result.error || 'შესვლა ვერ მოხერხდა')
       }

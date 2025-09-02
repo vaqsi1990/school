@@ -63,21 +63,25 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        console.log('JWT callback - Setting user data:', { userType: user.userType, email: user.email })
         token.userType = user.userType
         token.student = user.student
         token.teacher = user.teacher
         token.admin = user.admin
       }
+      console.log('JWT callback - Token:', { userType: token.userType, email: token.email })
       return token
     },
     async session({ session, token }) {
       if (token) {
+        console.log('Session callback - Token:', { userType: token.userType, email: token.email })
         session.user.id = token.sub!
         session.user.userType = token.userType
         session.user.student = token.student
         session.user.teacher = token.teacher
         session.user.admin = token.admin
       }
+      console.log('Session callback - Session:', { userType: session.user.userType, email: session.user.email })
       return session
     },
     async redirect({ url, baseUrl }) {

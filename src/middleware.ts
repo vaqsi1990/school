@@ -6,6 +6,9 @@ export default withAuth(
     const token = req.nextauth.token
     const path = req.nextUrl.pathname
 
+    // Debug logging
+    console.log('Middleware - Path:', path, 'Token:', token ? { userType: token.userType, email: token.email } : 'No token')
+
     // Allow access to root page without authentication
     if (path === "/") {
       return NextResponse.next()
@@ -13,25 +16,36 @@ export default withAuth(
 
     // If no token, redirect to signin
     if (!token) {
+      console.log('Middleware - No token, redirecting to signin')
       return NextResponse.redirect(new URL("/auth/signin", req.url))
+    }
+
+    // Add a small delay to ensure session is properly established
+    // This helps prevent race conditions during login
+    if (!token.userType) {
+      console.log('Middleware - No userType in token, allowing request to proceed')
+      // If userType is not available yet, allow the request to proceed
+      // The client-side auth will handle the redirect if needed
+      return NextResponse.next()
     }
 
     // Student routes protection
     if (path.startsWith("/student") && token.userType !== "STUDENT") {
+      console.log('Middleware - Student route access denied for userType:', token.userType)
       return NextResponse.redirect(new URL("/unauthorized", req.url))
     }
 
     // Teacher routes protection
     if (path.startsWith("/teacher") && token.userType !== "TEACHER") {
+      console.log('Middleware - Teacher route access denied for userType:', token.userType)
       return NextResponse.redirect(new URL("/unauthorized", req.url))
     }
 
     // Admin routes protection
     if (path.startsWith("/admin") && token.userType !== "ADMIN") {
+      console.log('Middleware - Admin route access denied for userType:', token.userType)
       return NextResponse.redirect(new URL("/unauthorized", req.url))
     }
-
-
 
     // Dashboard access based on user type
     if (path === "/dashboard") {

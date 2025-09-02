@@ -74,6 +74,9 @@ export function useAuth() {
         throw new Error(georgianError)
       }
 
+      // Force session update after successful login
+      await update()
+      
       return { success: true }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'შესვლა ვერ მოხერხდა'
