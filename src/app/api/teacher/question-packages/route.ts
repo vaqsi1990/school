@@ -7,19 +7,25 @@ const prisma = new PrismaClient()
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if user is authenticated and is admin
+    // Check if user is authenticated and is teacher
     const session = await getServerSession(authOptions)
-    if (!session?.user || session.user.userType !== 'ADMIN') {
+    if (!session?.user || session.user.userType !== 'TEACHER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get the admin record for this user
-    const admin = await prisma.admin.findUnique({
-      where: { userId: session.user.id }
+    // Get the teacher record for this user
+    const teacher = await prisma.teacher.findUnique({
+      where: { userId: session.user.id },
+      include: { user: true }
     })
 
-    if (!admin) {
-      return NextResponse.json({ error: 'Admin record not found' }, { status: 404 })
+    if (!teacher) {
+      return NextResponse.json({ error: 'Teacher record not found' }, { status: 404 })
+    }
+
+    // Check if teacher is verified
+    if (!teacher.isVerified) {
+      return NextResponse.json({ error: 'Teacher account not verified' }, { status: 403 })
     }
 
     const { name, questionIds, description } = await request.json()
@@ -32,14 +38,45 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify that all questions exist
+    // Verify that all questions exist and belong to the teacher's subject
     const questions = await prisma.question.findMany({
-      where: { id: { in: questionIds } }
+      where: { 
+        id: { in: questionIds },
+        subjectId: {
+          in: await prisma.subject.findMany({
+            where: { name: teacher.subject },
+            select: { id: true }
+          }).then(subjects => subjects.map(s => s.id))
+        }
+      },
+      include: {
+        subject: true
+      }
     })
 
     if (questions.length !== questionIds.length) {
       return NextResponse.json(
-        { error: 'Some questions not found' },
+        { error: 'Some questions not found or do not belong to your subject' },
+        { status: 400 }
+      )
+    }
+
+    // Verify that all questions are from the teacher's subject
+    const teacherSubject = await prisma.subject.findFirst({
+      where: { name: teacher.subject }
+    })
+
+    if (!teacherSubject) {
+      return NextResponse.json(
+        { error: 'Teacher subject not found' },
+        { status: 400 }
+      )
+    }
+
+    const invalidQuestions = questions.filter(q => q.subjectId !== teacherSubject.id)
+    if (invalidQuestions.length > 0) {
+      return NextResponse.json(
+        { error: 'Some questions do not belong to your registered subject' },
         { status: 400 }
       )
     }
@@ -49,8 +86,8 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         description: description || '',
-        createdBy: admin.id,
-        createdByType: 'ADMIN',
+        createdBy: teacher.id, // This will be the teacher's ID
+        createdByType: 'TEACHER',
         questions: {
           create: questionIds.map((questionId: string, index: number) => ({
             questionId,
@@ -66,6 +103,9 @@ export async function POST(request: NextRequest) {
                 subject: true
               }
             }
+          },
+          orderBy: {
+            order: 'asc'
           }
         }
       }
@@ -86,14 +126,26 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    // Check if user is authenticated and is admin
+    // Check if user is authenticated and is teacher
     const session = await getServerSession(authOptions)
-    if (!session?.user || session.user.userType !== 'ADMIN') {
+    if (!session?.user || session.user.userType !== 'TEACHER') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get all question packages
+    // Get the teacher record for this user
+    const teacher = await prisma.teacher.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!teacher) {
+      return NextResponse.json({ error: 'Teacher record not found' }, { status: 404 })
+    }
+
+    // Get question packages created by this teacher
     const packages = await prisma.questionPackage.findMany({
+      where: {
+        createdBy: teacher.id
+      },
       include: {
         questions: {
           include: {
@@ -105,12 +157,6 @@ export async function GET(request: NextRequest) {
           },
           orderBy: {
             order: 'asc'
-          }
-        },
-        createdByUser: {
-          select: {
-            name: true,
-            lastname: true
           }
         }
       },

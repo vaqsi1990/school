@@ -128,6 +128,7 @@ model Teacher {
   createdOlympiads Olympiad[]     @relation("CreatedOlympiads")
   questionSets   QuestionSet[]    // Question sets created by this teacher
   createdQuestions Question[]      @relation("CreatedByTeacher")
+  createdQuestionPackages QuestionPackage[] @relation("TeacherQuestionPackages") // Question packages created by this teacher
 
   @@map("teachers")
 }
@@ -146,7 +147,7 @@ model Admin {
   // Relations
   user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   managedOlympiads Olympiad[]     @relation("ManagedOlympiads") // Olympiads managed by this admin
-  createdQuestionPackages QuestionPackage[] @relation("CreatedQuestionPackages") // Question packages created by this admin
+  createdQuestionPackages QuestionPackage[] @relation("AdminQuestionPackages") // Question packages created by this admin
   createdOlympiadEvents OlympiadEvent[] @relation("CreatedOlympiadEvents") // Olympiad events created by this admin
 
   @@map("admins")
@@ -284,12 +285,14 @@ model QuestionPackage {
   id          String   @id @default(cuid())
   name        String
   description String?
-  createdBy   String   // Admin ID who created this package
+  createdBy   String   // Admin or Teacher ID who created this package
+  createdByType UserType // Whether created by ADMIN or TEACHER
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   // Relations
-  createdByUser Admin @relation("CreatedQuestionPackages", fields: [createdBy], references: [id], onDelete: Cascade)
+  createdByAdmin Admin? @relation("AdminQuestionPackages", fields: [createdBy], references: [id], onDelete: Cascade, map: "question_packages_createdBy_admin_fkey")
+  createdByTeacher Teacher? @relation("TeacherQuestionPackages", fields: [createdBy], references: [id], onDelete: Cascade, map: "question_packages_createdBy_teacher_fkey")
   questions    QuestionPackageQuestion[]
   olympiadEvents OlympiadEvent[] // Many-to-many relationship with olympiad events
 

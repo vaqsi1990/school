@@ -1,12 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { registrationSchema, type RegistrationFormData } from '@/lib/validations/auth'
 import { type VerificationStep } from '@/types/verification'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+
+interface Subject {
+  id: string
+  name: string
+}
 
 export default function SignUpPage() {
   const [currentStep, setCurrentStep] = useState<VerificationStep>('email')
@@ -17,7 +22,32 @@ export default function SignUpPage() {
   const [success, setSuccess] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [subjects, setSubjects] = useState<Subject[]>([])
   const router = useRouter()
+
+  // Helper function to display subject name with abbreviation
+  const getDisplaySubjectName = (subjectName: string) => {
+    if (subjectName === 'ერთიანი ეროვნული გამოცდები') {
+      return 'ე.ე.გ'
+    }
+    return subjectName
+  }
+
+  useEffect(() => {
+    fetchSubjects()
+  }, [])
+
+  const fetchSubjects = async () => {
+    try {
+      const response = await fetch('/api/subjects')
+      if (response.ok) {
+        const data = await response.json()
+        setSubjects(data.subjects)
+      }
+    } catch (error) {
+      console.error('Error fetching subjects:', error)
+    }
+  }
 
   const {
     register,
@@ -230,7 +260,7 @@ export default function SignUpPage() {
           >
             <option value="">აირჩიეთ </option>
             <option value="STUDENT">მოსწავლე</option>
-           
+            <option value="TEACHER">მასწავლებელი</option>
             <option value="ADMIN">ადმინისტრატორი</option>
           </select>
         </div>
@@ -484,13 +514,16 @@ export default function SignUpPage() {
                 საგანი *
               </label>
               <div className="mt-1">
-                <input
+                <select
                   id="subject"
-                  type="text"
                   {...register('subject')}
-                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="საგანი"
-                />
+                  className="block w-full px-3 py-2 border border-black md:text-[18px] text-[16px] rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                >
+                  <option value="">აირჩიეთ საგანი</option>
+                  {subjects.map(subject => (
+                    <option key={subject.id} value={subject.id}>{getDisplaySubjectName(subject.name)}</option>
+                  ))}
+                </select>
               </div>
               {errors.subject && (
                 <p className="mt-2 text-sm text-red-600">{errors.subject.message}</p>

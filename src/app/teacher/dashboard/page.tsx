@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { TeacherOnly } from '@/components/auth/ProtectedRoute'
-
+import Link from 'next/link'
 function TeacherDashboardContent() {
   const { user, logout } = useAuth()
   
@@ -149,7 +149,9 @@ function TeacherDashboardContent() {
                   მართეთ თქვენი შექმნილი ოლიმპიადები და კითხვები.
                 </p>
                 <button className="mt-4 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium text-black">
-                  ოლიმპიადების ნახვა
+                  <Link href="/teacher/olympiads" className="block w-full h-full text-white">
+                    ოლიმპიადების ნახვა
+                  </Link>
                 </button>
               </div>
             </div>
