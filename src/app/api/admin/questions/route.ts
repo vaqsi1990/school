@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     console.log(`Found ${questions.length} questions`)
 
     // Parse sub-questions from content field for TEXT_ANALYSIS and MAP_ANALYSIS questions
-    const questionsWithSubQuestions = questions.map(question => {
+    const questionsWithSubQuestions = questions.map((question: typeof questions[0]) => {
       if ((question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS') && question.content) {
         try {
           const subQuestions = JSON.parse(question.content)
@@ -172,7 +172,7 @@ export async function POST(request: NextRequest) {
     if (type === 'CLOSED_ENDED') {
       if (useImageOptions) {
         // For image-based options
-        if (!imageOptions || imageOptions.length < 2 || imageOptions.filter(img => img !== '').length < 2) {
+        if (!imageOptions || imageOptions.length < 2 || imageOptions.filter((img: string) => img !== '').length < 2) {
           const errorMsg = 'Image-based closed-ended questions must have at least 2 images'
           console.log('Validation failed:', errorMsg)
           return NextResponse.json({ error: errorMsg }, { status: 400 })

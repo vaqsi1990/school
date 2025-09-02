@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { Prisma } from '@prisma/client'
 
 export async function POST(request: NextRequest) {
   try {
@@ -137,11 +136,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if packages match selected subjects and grades
-    const packageSubjects = new Set(existingPackages.flatMap(pkg => 
-      pkg.questions.map(q => q.question.subject.name)
+    const packageSubjects = new Set(existingPackages.flatMap((pkg: any) => 
+      pkg.questions.map((q: any) => q.question.subject.name)
     ))
-    const packageGrades = new Set(existingPackages.flatMap(pkg => 
-      pkg.questions.map(q => q.question.grade)
+    const packageGrades = new Set(existingPackages.flatMap((pkg: any) => 
+      pkg.questions.map((q: any) => q.question.grade)
     ))
 
     const hasMatchingSubjects = subjects.some(subject => packageSubjects.has(subject))
@@ -248,7 +247,7 @@ export async function GET(request: NextRequest) {
     const isActive = searchParams.get('isActive')
 
     // Build where clause
-    const where: Prisma.OlympiadEventWhereInput = {}
+    const where: any = {}
     
     if (search) {
       where.OR = [
