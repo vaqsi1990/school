@@ -47,23 +47,13 @@ export default function ProtectedRoute({
     }
   }, [isLoading, isAuthenticated, user, allowedUserTypes, router])
 
-  // Show loading state
-  if (isLoading && showLoading) {
+
+
+  // Show loading state while redirecting or if user doesn't have permission
+  if (isLoading || (isAuthenticated && allowedUserTypes && user && !allowedUserTypes.includes(user.userType))) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
-
-  // Show unauthorized message if user doesn't have permission
-  if (isAuthenticated && allowedUserTypes && user && !allowedUserTypes.includes(user.userType)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
-          <p className="text-gray-600">You don&apos;t have permission to view this page.</p>
-        </div>
       </div>
     )
   }
