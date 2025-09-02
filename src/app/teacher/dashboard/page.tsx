@@ -166,7 +166,7 @@ function TeacherDashboardContent() {
                    </div>
                  </div>
                  <div className="ml-4">
-                   <h3 className="text-lg font-medium text-gray-900">teacher/questionsკითხვების ნახვა</h3>
+                   <h3 className="text-lg font-medium text-gray-900">კითხვების ნახვა</h3>
                  </div>
                </div>
                <div className="mt-4">
