@@ -15,6 +15,7 @@ interface Question {
   text: string
   type: 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED'
   options: string[]
+  imageOptions?: string[]
   correctAnswer?: string
   points: number
   maxPoints?: number
@@ -75,6 +76,8 @@ function AdminQuestionsContent() {
     text: string
     type: 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED'
     options: string[]
+    imageOptions: string[]
+    useImageOptions: boolean
     correctAnswer: string
     points: number
     maxPoints: number
@@ -91,6 +94,8 @@ function AdminQuestionsContent() {
     text: '',
     type: 'CLOSED_ENDED',
     options: ['', '', '', ''],
+    imageOptions: ['', '', '', ''],
+    useImageOptions: false,
     correctAnswer: '',
     points: 1,
     maxPoints: 1,
@@ -101,7 +106,7 @@ function AdminQuestionsContent() {
     paragraphName: '',
     grade: 7,
     round: 1,
-    isAutoScored: true,
+    isAutoScored: false,
     subQuestions: []
   })
 
@@ -149,6 +154,8 @@ function AdminQuestionsContent() {
       text: question.text,
       type: question.type,
       options: question.options,
+      imageOptions: question.imageOptions || ['', '', '', ''],
+      useImageOptions: !!(question.imageOptions && question.imageOptions.length > 0 && question.imageOptions.some((img: string) => img !== '')),
       correctAnswer: question.correctAnswer || '',
       points: question.points,
       maxPoints: question.maxPoints || question.points,
@@ -231,6 +238,34 @@ function AdminQuestionsContent() {
       setFormData(prev => ({
         ...prev,
         options: newOptions
+      }))
+    }
+  }
+
+  const handleImageOptionChange = (index: number, value: string) => {
+    const newImageOptions = [...formData.imageOptions]
+    newImageOptions[index] = value
+    setFormData(prev => ({
+      ...prev,
+      imageOptions: newImageOptions
+    }))
+  }
+
+  const handleAddImageOption = () => {
+    if (formData.imageOptions.length < 6) {
+      setFormData(prev => ({
+        ...prev,
+        imageOptions: [...prev.imageOptions, '']
+      }))
+    }
+  }
+
+  const handleRemoveImageOption = (index: number) => {
+    if (formData.imageOptions.length > 2) {
+      const newImageOptions = formData.imageOptions.filter((_, i) => i !== index)
+      setFormData(prev => ({
+        ...prev,
+        imageOptions: newImageOptions
       }))
     }
   }
@@ -484,6 +519,8 @@ function AdminQuestionsContent() {
       text: '',
       type: 'CLOSED_ENDED',
       options: ['', '', '', ''],
+      imageOptions: ['', '', '', ''],
+      useImageOptions: false,
       correctAnswer: '',
       points: 1,
       maxPoints: 1,
@@ -494,7 +531,7 @@ function AdminQuestionsContent() {
       paragraphName: '',
       grade: 7,
       round: 1,
-      isAutoScored: true,
+      isAutoScored: false,
       subQuestions: []
     })
     setEditingQuestion(null)
@@ -1396,21 +1433,127 @@ function AdminQuestionsContent() {
                 </div>
 
                 {/* Options Section */}
-                                  {formData.type === 'CLOSED_ENDED' && (
-                  <div className=" pt-6 bg-blue-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-center mb-4">
-                      <h4 className="text-lg font-bold text-black md:text-[18px] text-[16px]">
-                        პასუხის ვარიანტები (ყველა პასუხი)
-                      </h4>
-                      <button
-                        type="button"
-                        onClick={handleAddOption}
-                        disabled={formData.options.length >= 6}
-                        className="bg-blue-600  hover:bg-blue-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-[16px] font-medium"
-                      >
-                        ვარიანტის დამატება
-                      </button>
+                {formData.type === 'CLOSED_ENDED' && (
+                  <div className="pt-6 bg-blue-50 p-4 rounded-lg">
+                    {/* Image Options Toggle */}
+                    <div className="mb-4 p-3 bg-white rounded border">
+                      <label className="flex items-center space-x-3">
+                        <input
+                          type="checkbox"
+                          checked={formData.useImageOptions}
+                          onChange={(e) => setFormData(prev => ({ ...prev, useImageOptions: e.target.checked }))}
+                          className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                        />
+                        <span className="text-black md:text-[16px] text-[14px] font-medium">
+                          გამოიყენეთ სურათები პასუხის ვარიანტებად
+                        </span>
+                      </label>
+                      <p className="text-gray-600 text-sm mt-1 ml-7">
+                        თუ ჩართულია, მოსწავლეები აირჩევენ სწორ პასუხს სურათზე დაჭერით
+                      </p>
                     </div>
+
+                    {formData.useImageOptions ? (
+                      /* Image Options Section */
+                      <div>
+                        <div className="flex justify-between items-center mb-4">
+                          <h4 className="text-lg font-bold text-black md:text-[18px] text-[16px]">
+                            სურათის პასუხის ვარიანტები (აირჩიეთ სწორი სურათი)
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={handleAddImageOption}
+                            disabled={formData.imageOptions.length >= 6}
+                            className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-[16px] font-medium"
+                          >
+                            სურათის დამატება
+                          </button>
+                        </div>
+
+                        <div className="space-y-3">
+                          {formData.imageOptions.map((imageOption, index) => (
+                            <div key={index} className="bg-white p-3 rounded border">
+                              <div className="flex items-center space-x-3 mb-2">
+                                <span className="text-[16px] font-medium text-black min-w-[80px]">
+                                  სურათი {index + 1}:
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveImageOption(index)}
+                                  disabled={formData.imageOptions.length <= 2}
+                                  className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-2 py-1 rounded text-sm font-medium"
+                                >
+                                  წაშლა
+                                </button>
+                              </div>
+                              
+                              {imageOption ? (
+                                <div className="relative">
+                                  <img 
+                                    src={imageOption} 
+                                    alt={`Option ${index + 1}`} 
+                                    className="w-full max-w-md h-auto rounded-lg border border-gray-300"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => handleImageOptionChange(index, '')}
+                                    className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                                  >
+                                    ×
+                                  </button>
+                                </div>
+                              ) : (
+                                <ImageUpload
+                                  onChange={(urls) => handleImageOptionChange(index, urls[0] || '')}
+                                  value={imageOption ? [imageOption] : []}
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-4 p-3 bg-yellow-100 rounded text-sm border-l-4 border-yellow-400">
+                          <p className="font-medium text-yellow-800">მნიშვნელოვანი:</p>
+                          <p className="text-yellow-700">აირჩიეთ სწორი სურათი ქვემოთ მოცემული სიიდან</p>
+                        </div>
+
+                        {/* Correct Answer Selection for Image Options */}
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium text-blue-800 mb-2">
+                            სწორი სურათი *
+                          </label>
+                          <select
+                            name="correctAnswer"
+                            required
+                            value={formData.correctAnswer}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-[16px] text-[14px]"
+                          >
+                            <option value="">აირჩიეთ სწორი სურათი</option>
+                            {formData.imageOptions.map((imageOption, index) => (
+                              <option key={index} value={imageOption}>
+                                {imageOption ? `სურათი ${index + 1}` : `სურათი ${index + 1} (არ არის ატვირთული)`}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Text Options Section */
+                      <div>
+                        <div className="flex justify-between items-center mb-4">
+                          <h4 className="text-lg font-bold text-black md:text-[18px] text-[16px]">
+                            პასუხის ვარიანტები (ყველა პასუხი)
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={handleAddOption}
+                            disabled={formData.options.length >= 6}
+                            className="bg-blue-600  hover:bg-blue-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-[16px] font-medium"
+                          >
+                            ვარიანტის დამატება
+                          </button>
+                        </div>
 
                     <div className="space-y-3">
                       {formData.options.map((option, index) => (
@@ -1441,6 +1584,8 @@ function AdminQuestionsContent() {
                       <p className="font-medium text-yellow-800"> მნიშვნელოვანი:</p>
                       <p className="text-yellow-700">შეიყვანეთ ყველა პასუხის ვარიანტი (სწორი და არასწორი), შემდეგ აირჩიეთ სწორი პასუხი ქვემოთ</p>
                     </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1645,28 +1790,36 @@ function AdminQuestionsContent() {
                  )}
 
               
-                {/* Correct Answer - Only for Auto-scored Questions */}
-                {formData.isAutoScored && (
+                {/* Correct Answer Selection */}
+                {formData.type === 'CLOSED_ENDED' && !formData.useImageOptions && (
                   <div>
                     <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
                       სწორი პასუხი *
                     </label>
-                    {formData.type === 'CLOSED_ENDED' ? (
-                      <select
-                        name="correctAnswer"
-                        required
-                        value={formData.correctAnswer}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
-                      >
-                        <option value="">აირჩიეთ სწორი პასუხი</option>
-                        {formData.options.map((option, index) => (
-                          <option key={index} value={option}>
-                            {option || `ვარიანტი ${index + 1}`}
-                          </option>
-                        ))}
-                      </select>
-                    ) : formData.type === 'MATCHING' ? (
+                    <select
+                      name="correctAnswer"
+                      required
+                      value={formData.correctAnswer}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                    >
+                      <option value="">აირჩიეთ სწორი პასუხი</option>
+                      {formData.options.map((option, index) => (
+                        <option key={index} value={option}>
+                          {option || `ვარიანტი ${index + 1}`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
+                {/* Correct Answer - Only for Auto-scored Questions (other types) */}
+                {formData.isAutoScored && formData.type !== 'CLOSED_ENDED' && (
+                  <div>
+                    <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
+                      სწორი პასუხი *
+                    </label>
+                    {formData.type === 'MATCHING' ? (
                       <div className="space-y-2">
                         <p className="text-sm text-gray-600">შესაბამისობის წყვილები ავტომატურად გაითვლება სწორად</p>
                         <input

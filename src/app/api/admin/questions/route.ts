@@ -93,6 +93,8 @@ export async function POST(request: NextRequest) {
       text,
       type,
       options,
+      imageOptions,
+      useImageOptions,
       correctAnswer,
       points,
       maxPoints,
@@ -167,10 +169,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate question type and options
-    if (type === 'CLOSED_ENDED' && (!options || options.length < 2)) {
-      const errorMsg = 'Closed-ended questions must have at least 2 options'
-      console.log('Validation failed:', errorMsg)
-      return NextResponse.json({ error: errorMsg }, { status: 400 })
+    if (type === 'CLOSED_ENDED') {
+      if (useImageOptions) {
+        // For image-based options
+        if (!imageOptions || imageOptions.length < 2 || imageOptions.filter(img => img !== '').length < 2) {
+          const errorMsg = 'Image-based closed-ended questions must have at least 2 images'
+          console.log('Validation failed:', errorMsg)
+          return NextResponse.json({ error: errorMsg }, { status: 400 })
+        }
+      } else {
+        // For text-based options
+        if (!options || options.length < 2) {
+          const errorMsg = 'Closed-ended questions must have at least 2 options'
+          console.log('Validation failed:', errorMsg)
+          return NextResponse.json({ error: errorMsg }, { status: 400 })
+        }
+      }
     }
 
     // Validate matching questions
@@ -238,7 +252,8 @@ export async function POST(request: NextRequest) {
         data: {
           text,
           type,
-          options: options || [],
+          options: useImageOptions ? [] : (options || []),
+          imageOptions: useImageOptions ? (imageOptions || []) : [],
           correctAnswer: correctAnswer || null,
           points: pointsNum,
           maxPoints: maxPoints ? parseFloat(maxPoints) : null,

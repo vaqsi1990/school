@@ -232,6 +232,7 @@ model Question {
   text        String
   type        QuestionType
   options     String[] // For multiple choice, matching, closed-ended questions
+  imageOptions String[] // For closed-ended questions with image options
   correctAnswer String? // For auto-scored questions
   points      Int      @default(1)
   maxPoints   Int?     // Maximum possible points for manual scoring
