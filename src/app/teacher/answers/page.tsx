@@ -339,9 +339,7 @@ function TeacherAnswersContent() {
                            <div className="md:text-[16px] text-[14px] text-black font-medium">
                              პასუხი #{answer.id}
                            </div>
-                           <div className="md:text-[16px] text-[14px] text-gray-500">
-                             ID: {answer.studentId}
-                           </div>
+                          
                          </div>
                        </div>
                      </td>

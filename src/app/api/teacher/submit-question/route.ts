@@ -38,20 +38,37 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate type-specific fields
-    if (type === 'MULTIPLE_CHOICE' && (!options || !Array.isArray(options) || options.length === 0)) {
-      return NextResponse.json(
-        { error: 'Multiple choice questions require options' },
-        { status: 400 }
-      )
+    if (type === 'CLOSED_ENDED') {
+      if (useImageOptions) {
+        if (!imageOptions || !Array.isArray(imageOptions) || imageOptions.length === 0) {
+          return NextResponse.json(
+            { error: 'Closed-ended questions with image options require at least one image option' },
+            { status: 400 }
+          )
+        }
+      } else {
+        if (!options || !Array.isArray(options) || options.length === 0) {
+          return NextResponse.json(
+            { error: 'Closed-ended questions require options' },
+            { status: 400 }
+          )
+        }
+      }
     }
 
-    // Get the subject ID for the teacher's subject
-    const subject = await prisma.subject.findFirst({
+    // Get or create the subject for the teacher
+    let subject = await prisma.subject.findFirst({
       where: { name: teacher.subject }
     })
 
     if (!subject) {
-      return NextResponse.json({ error: 'Teacher subject not found' }, { status: 404 })
+      // Create the subject if it doesn't exist
+      subject = await prisma.subject.create({
+        data: {
+          name: teacher.subject,
+          description: `${teacher.subject} subject`
+        }
+      })
     }
 
     // Create the question with pending status

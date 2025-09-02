@@ -418,7 +418,7 @@ function TeacherQuestionsContent() {
   }
 
   const handleQuestionTypeChange = (type: string) => {
-    const isAutoScored = ['MATCHING'].includes(type)
+    const isAutoScored = ['MATCHING', 'CLOSED_ENDED'].includes(type)
     setFormData(prev => ({
       ...prev,
       type: type as 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED',
@@ -433,6 +433,12 @@ function TeacherQuestionsContent() {
     e.preventDefault()
 
     try {
+      // Basic validation
+      if (!formData.text || formData.text.trim() === '') {
+        alert('გთხოვთ შეიყვანოთ კითხვის ტექსტი')
+        return
+      }
+
       // Validate that TEXT_ANALYSIS and MAP_ANALYSIS questions have sub-questions
       if ((formData.type === 'TEXT_ANALYSIS' || formData.type === 'MAP_ANALYSIS') && 
           (!formData.subQuestions || formData.subQuestions.length === 0)) {
@@ -482,14 +488,33 @@ function TeacherQuestionsContent() {
         }
       }
 
-      // Validate auto-scored questions
-      if (formData.isAutoScored && !formData.correctAnswer && formData.type !== 'MATCHING') {
-        alert('ავტომატურად შეფასებულ კითხვებს უნდა ჰქონდეთ სწორი პასუხი (გარდა შესაბამისობის კითხვებისა)')
-        return
+      // Validate CLOSED_ENDED questions
+      if (formData.type === 'CLOSED_ENDED') {
+        if (formData.useImageOptions) {
+          if (!formData.imageOptions || formData.imageOptions.filter(opt => opt.trim()).length === 0) {
+            alert('გთხოვთ დაამატოთ მინიმუმ ერთი სურათი პასუხის ვარიანტად')
+            return
+          }
+          if (!formData.correctAnswer || formData.correctAnswer.trim() === '') {
+            alert('გთხოვთ აირჩიოთ სწორი სურათი')
+            return
+          }
+        } else {
+          if (!formData.options || formData.options.filter(opt => opt.trim()).length < 2) {
+            alert('გთხოვთ დაამატოთ მინიმუმ 2 პასუხის ვარიანტი')
+            return
+          }
+          if (!formData.correctAnswer || formData.correctAnswer.trim() === '') {
+            alert('გთხოვთ აირჩიოთ სწორი პასუხი')
+            return
+          }
+        }
       }
 
       const url = profile?.isVerified ? '/api/teacher/questions' : '/api/teacher/submit-question'
       const method = 'POST'
+
+      console.log('Sending form data:', formData)
 
       const response = await fetch(url, {
         method,
@@ -507,8 +532,9 @@ function TeacherQuestionsContent() {
         resetForm()
         fetchQuestions()
       } else {
-        const error = await response.json()
-        alert(`შეცდომა: ${error.message || 'Unknown error'}`)
+        const errorData = await response.json()
+        console.error('API Error:', errorData)
+        alert(`შეცდომა: ${errorData.error || errorData.message || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Error saving question:', error)
@@ -599,15 +625,25 @@ function TeacherQuestionsContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
-                კითხვების მართვა
-              </h1>
-              <p className="text-black md:text-[18px] text-[16px]">
-                {profile?.isVerified 
-                  ? 'დაამატეთ და მართეთ კითხვები თქვენი საგნისთვის'
-                  : 'შემოგვთავაზეთ კითხვები განსახილველად'
-                }
-              </p>
+                             <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
+                 კითხვების მართვა
+               </h1>
+               <p className="text-black md:text-[18px] text-[16px]">
+                 {profile?.isVerified 
+                   ? 'დაამატეთ და მართეთ კითხვები თქვენი საგნისთვის'
+                   : 'შემოგვთავაზეთ კითხვები განსახილველად'
+                 }
+               </p>
+               {profile?.subject && (
+                 <div className="mt-2">
+                   <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 md:text-[16px] text-[14px]">
+                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                     </svg>
+                     საგანი: {profile.subject}
+                   </span>
+                 </div>
+               )}
             </div>
             <div className="flex gap-4">
               <Link href="/teacher/olympiads">
@@ -755,16 +791,23 @@ function TeacherQuestionsContent() {
                 <h3 className={`text-lg font-medium ${profile?.isVerified ? 'text-green-800' : 'text-yellow-800'}`}>
                   {profile?.isVerified ? 'ვერიფიცირებული მასწავლებელი' : 'ვერიფიკაციის პროცესში'}
                 </h3>
-                <p className={`text-sm ${profile?.isVerified ? 'text-green-700' : 'text-yellow-700'}`}>
-                  {profile?.isVerified 
-                    ? 'თქვენ შეგიძლიათ პირდაპირ დაამატოთ კითხვები თქვენი საგნისთვის'
-                    : 'თქვენი კითხვები გაიგზავნება ადმინისტრატორთან განსახილველად'
-                  }
-                </p>
+                                 <p className={`text-sm ${profile?.isVerified ? 'text-green-700' : 'text-yellow-700'}`}>
+                   {profile?.isVerified 
+                     ? 'თქვენ შეგიძლიათ პირდაპირ დაამატოთ კითხვები თქვენი საგნისთვის'
+                     : 'თქვენი კითხვები გაიგზავნება ადმინისტრატორთან განსახილველად'
+                   }
+                 </p>
+                 {profile?.subject && (
+                   <p className={`text-sm ${profile?.isVerified ? 'text-green-600' : 'text-yellow-600'} font-medium mt-1`}>
+                     საგანი: <span className="font-semibold">{profile.subject}</span>
+                   </p>
+                 )}
               </div>
             </div>
           </div>
         </div>
+
+       
 
         {/* Create/Submit Question Form */}
         {(showCreateForm || showSubmitForm) && (
@@ -778,12 +821,12 @@ function TeacherQuestionsContent() {
                   <label className="block text-black md:text-[20px] text-[18px] font-medium mb-2">
                     კითხვის ტიპი
                   </label>
-                  <select
-                    value={formData.type}
-                    onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED' }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md md:text-[20px] text-[18px] focus:outline-none focus:ring-2 focus:ring-[#034e64]"
-                    required
-                  >
+                                     <select
+                     value={formData.type}
+                     onChange={(e) => handleQuestionTypeChange(e.target.value)}
+                     className="w-full px-3 py-2 border border-gray-300 rounded-md md:text-[20px] text-[18px] focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                     required
+                   >
                                          <option value="CLOSED_ENDED">დახურული კითხვა (ხელით)</option>
                      <option value="MATCHING">შესაბამისობა (ავტომატური)</option>
                      <option value="TEXT_ANALYSIS">ტექსტის ანალიზი (ხელით)</option>
