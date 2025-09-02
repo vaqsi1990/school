@@ -8,14 +8,12 @@ import { ReactNode } from 'react'
 interface ProtectedRouteProps {
   children: ReactNode
   allowedUserTypes?: ('STUDENT' | 'TEACHER' | 'ADMIN')[]
-  redirectTo?: string
   showLoading?: boolean
 }
 
 export default function ProtectedRoute({ 
   children, 
   allowedUserTypes, 
-  redirectTo = '/unauthorized',
   showLoading = true 
 }: ProtectedRouteProps) {
   const { user, isAuthenticated, isLoading } = useAuth()
@@ -30,11 +28,24 @@ export default function ProtectedRoute({
     if (!isLoading && isAuthenticated && allowedUserTypes && user) {
       const hasPermission = allowedUserTypes.includes(user.userType)
       if (!hasPermission) {
-        router.push(redirectTo)
+        // Redirect to appropriate dashboard based on user type
+        switch (user.userType) {
+          case 'STUDENT':
+            router.push('/student/dashboard')
+            break
+          case 'TEACHER':
+            router.push('/teacher/dashboard')
+            break
+          case 'ADMIN':
+            router.push('/admin/dashboard')
+            break
+          default:
+            router.push('/auth/signin')
+        }
         return
       }
     }
-  }, [isLoading, isAuthenticated, user, allowedUserTypes, redirectTo, router])
+  }, [isLoading, isAuthenticated, user, allowedUserTypes, router])
 
   // Show loading state
   if (isLoading && showLoading) {

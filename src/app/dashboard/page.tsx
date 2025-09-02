@@ -22,7 +22,7 @@ export default function DashboardPage() {
           router.push('/admin/dashboard')
           break
         default:
-          router.push('/unauthorized')
+          router.push('/auth/signin')
       }
     } else if (!isLoading && !isAuthenticated) {
       router.push('/auth/signin')

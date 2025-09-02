@@ -49,17 +49,17 @@ export default withAuth(
     // Route protection - მხოლოდ მაშინ, როცა userType უკვე არსებობს
     if (path.startsWith("/student") && token.userType !== "STUDENT") {
       console.log("Middleware - Student route access denied for:", token.userType)
-      return NextResponse.redirect(new URL("/unauthorized", req.url))
+      return NextResponse.redirect(new URL("/auth/signin", req.url))
     }
 
     if (path.startsWith("/teacher") && token.userType !== "TEACHER") {
       console.log("Middleware - Teacher route access denied for:", token.userType)
-      return NextResponse.redirect(new URL("/unauthorized", req.url))
+      return NextResponse.redirect(new URL("/auth/signin", req.url))
     }
 
     if (path.startsWith("/admin") && token.userType !== "ADMIN") {
       console.log("Middleware - Admin route access denied for:", token.userType)
-      return NextResponse.redirect(new URL("/unauthorized", req.url))
+      return NextResponse.redirect(new URL("/auth/signin", req.url))
     }
 
     return NextResponse.next()

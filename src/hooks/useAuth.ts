@@ -111,7 +111,20 @@ export function useAuth() {
     }
 
     if (userType && session?.user?.userType !== userType) {
-      router.push('/unauthorized')
+      // Redirect to appropriate dashboard based on user type
+      switch (session?.user?.userType) {
+        case 'STUDENT':
+          router.push('/student/dashboard')
+          break
+        case 'TEACHER':
+          router.push('/teacher/dashboard')
+          break
+        case 'ADMIN':
+          router.push('/admin/dashboard')
+          break
+        default:
+          router.push('/auth/signin')
+      }
       return false
     }
 
