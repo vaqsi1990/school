@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       users: users.map(user => {
         // If user is a teacher, the subject is already stored as a name
-        let teacherWithSubject = user.teacher
+        const teacherWithSubject = user.teacher
 
         return {
           id: user.id,
