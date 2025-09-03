@@ -35,26 +35,10 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Get all subjects to map IDs to names
-    const subjects = await prisma.subject.findMany({
-      select: {
-        id: true,
-        name: true
-      }
-    })
-
-    const subjectMap = new Map(subjects.map(subject => [subject.id, subject.name]))
-
     return NextResponse.json({
       users: users.map(user => {
-        // If user is a teacher, get subject name
+        // If user is a teacher, the subject is already stored as a name
         let teacherWithSubject = user.teacher
-        if (user.teacher) {
-          teacherWithSubject = {
-            ...user.teacher,
-            subject: subjectMap.get(user.teacher.subject) || user.teacher.subject
-          }
-        }
 
         return {
           id: user.id,

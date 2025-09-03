@@ -27,18 +27,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
-    // Get subject name
-    const subject = await prisma.subject.findUnique({
-      where: { id: teacher.subject },
-      select: { name: true }
-    })
-
     const profile = {
       id: teacher.id,
       name: teacher.name,
       lastname: teacher.lastname,
       email: teacher.user.email,
-      subject: subject?.name || teacher.subject, // Use subject name if found, otherwise keep the original value
+      subject: teacher.subject, // Subject is already stored as a name
       school: teacher.school,
       phone: teacher.phone,
       isVerified: teacher.isVerified,

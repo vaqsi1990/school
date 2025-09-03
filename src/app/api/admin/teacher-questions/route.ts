@@ -1,0 +1,177 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
+
+export async function GET(request: NextRequest) {
+  try {
+    console.log('=== GET /api/admin/teacher-questions START ===')
+    
+    // Check if user is authenticated and is admin
+    const session = await getServerSession(authOptions)
+    if (!session?.user || session.user.userType !== 'ADMIN') {
+      console.log('Authentication failed:', { user: session?.user, userType: session?.user?.userType })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    console.log('Authentication successful for user:', session.user.email)
+
+    // Get query parameters
+    const { searchParams } = new URL(request.url)
+    const status = searchParams.get('status') || 'PENDING'
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '10')
+    const skip = (page - 1) * limit
+
+    // Fetch teacher questions with related data
+    const questions = await prisma.question.findMany({
+      where: {
+        createdByType: 'TEACHER',
+        status: status as 'PENDING' | 'ACTIVE' | 'REJECTED'
+      },
+      include: {
+        subject: true,
+        createdByTeacher: {
+          select: {
+            name: true,
+            lastname: true,
+            subject: true,
+            school: true
+          }
+        }
+      },
+      orderBy: [
+        { createdAt: 'desc' }
+      ],
+      skip,
+      take: limit
+    })
+
+    // Get total count for pagination
+    const totalCount = await prisma.question.count({
+      where: {
+        createdByType: 'TEACHER',
+        status: status as 'PENDING' | 'ACTIVE' | 'REJECTED'
+      }
+    })
+
+    // Get counts for different statuses
+    const pendingCount = await prisma.question.count({
+      where: {
+        createdByType: 'TEACHER',
+        status: 'PENDING'
+      }
+    })
+
+    const activeCount = await prisma.question.count({
+      where: {
+        createdByType: 'TEACHER',
+        status: 'ACTIVE'
+      }
+    })
+
+    const rejectedCount = await prisma.question.count({
+      where: {
+        createdByType: 'TEACHER',
+        status: 'REJECTED'
+      }
+    })
+
+    console.log(`Found ${questions.length} teacher questions with status: ${status}`)
+    console.log('=== GET /api/admin/teacher-questions SUCCESS ===')
+    
+    return NextResponse.json({ 
+      questions,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / limit)
+      },
+      counts: {
+        pending: pendingCount,
+        active: activeCount,
+        rejected: rejectedCount
+      }
+    })
+  } catch (error) {
+    console.error('=== GET /api/admin/teacher-questions ERROR ===')
+    console.error('Error fetching teacher questions:', error)
+    return NextResponse.json(
+      { error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}` },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    console.log('=== PATCH /api/admin/teacher-questions START ===')
+    
+    // Check if user is authenticated and is admin
+    const session = await getServerSession(authOptions)
+    if (!session?.user || session.user.userType !== 'ADMIN') {
+      console.log('Authentication failed:', { user: session?.user, userType: session?.user?.userType })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    console.log('Authentication successful for user:', session.user.email)
+
+    const body = await request.json()
+    const { questionId, action } = body
+
+    if (!questionId || !action) {
+      return NextResponse.json({ error: 'Missing questionId or action' }, { status: 400 })
+    }
+
+    if (!['approve', 'reject'].includes(action)) {
+      return NextResponse.json({ error: 'Invalid action. Must be "approve" or "reject"' }, { status: 400 })
+    }
+
+    // Get the question to verify it exists and is a teacher question
+    const question = await prisma.question.findFirst({
+      where: {
+        id: questionId,
+        createdByType: 'TEACHER'
+      }
+    })
+
+    if (!question) {
+      return NextResponse.json({ error: 'Question not found or not a teacher question' }, { status: 404 })
+    }
+
+    // Update the question status
+    const newStatus = action === 'approve' ? 'ACTIVE' : 'REJECTED'
+    
+    const updatedQuestion = await prisma.question.update({
+      where: { id: questionId },
+      data: { status: newStatus },
+      include: {
+        subject: true,
+        createdByTeacher: {
+          select: {
+            name: true,
+            lastname: true,
+            subject: true,
+            school: true
+          }
+        }
+      }
+    })
+
+    console.log(`Question ${questionId} ${action}d successfully`)
+    console.log('=== PATCH /api/admin/teacher-questions SUCCESS ===')
+    
+    return NextResponse.json({ 
+      message: `Question ${action}d successfully`,
+      question: updatedQuestion
+    })
+  } catch (error) {
+    console.error('=== PATCH /api/admin/teacher-questions ERROR ===')
+    console.error('Error updating teacher question:', error)
+    return NextResponse.json(
+      { error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}` },
+      { status: 500 }
+    )
+  }
+}

@@ -33,18 +33,12 @@ export async function PUT(request: NextRequest) {
       }
     })
 
-    // Get subject name
-    const subject = await prisma.subject.findFirst({
-      where: { id: teacher.subject },
-      select: { name: true }
-    })
-
     const formattedTeacher = {
       id: teacher.id,
       name: teacher.name,
       lastname: teacher.lastname,
       email: teacher.user.email,
-      subject: subject?.name || teacher.subject,
+      subject: teacher.subject, // Subject is already stored as a name
       school: teacher.school,
       phone: teacher.phone,
       isVerified: teacher.isVerified,

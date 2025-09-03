@@ -16,12 +16,23 @@ export async function GET(request: NextRequest) {
 
     console.log('Authentication successful for user:', session.user.email)
 
-    // Fetch all questions with related data
+    // Fetch only ACTIVE questions with related data
     const questions = await prisma.question.findMany({
+      where: {
+        status: 'ACTIVE'
+      },
       include: {
         subject: true,
         chapter: true,
-        paragraph: true
+        paragraph: true,
+        createdByTeacher: {
+          select: {
+            name: true,
+            lastname: true,
+            subject: true,
+            school: true
+          }
+        }
       },
       orderBy: [
         { subject: { name: 'asc' } },
@@ -247,7 +258,7 @@ export async function POST(request: NextRequest) {
     console.log('All validations passed, creating question...')
 
     try {
-      // Create new question
+      // Create new question with ACTIVE status
       const question = await prisma.question.create({
         data: {
           text,
@@ -266,6 +277,8 @@ export async function POST(request: NextRequest) {
           paragraphName: paragraphName || null,
           grade: gradeNum,
           round: roundNum,
+          createdByType: 'ADMIN',
+          status: 'ACTIVE',
           isAutoScored: isAutoScored !== undefined ? isAutoScored : true,
           // Store sub-questions as JSON in a text field for now
           // In the future, you might want to create a separate table for sub-questions

@@ -20,6 +20,25 @@ interface Question {
   reportReason?: string
   chapterName?: string
   paragraphName?: string
+  options?: string[]
+  imageOptions?: string[]
+  correctAnswer?: string
+  points?: number
+  maxPoints?: number
+  image?: string
+  matchingPairs?: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
+  isAutoScored?: boolean
+  subQuestions?: Array<{
+    id: string
+    text: string
+    type: 'CLOSED_ENDED' | 'OPEN_ENDED'
+    options?: string[]
+    correctAnswer?: string
+    points: number
+    maxPoints?: number
+    isAutoScored: boolean
+    image?: string
+  }>
 }
 
 interface TeacherProfile {
@@ -42,6 +61,7 @@ function TeacherQuestionsContent() {
   const [loading, setLoading] = useState(true)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showSubmitForm, setShowSubmitForm] = useState(false)
+  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'all' | 'matching' | 'text-analysis' | 'map-analysis' | 'open-ended' | 'closed-ended'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedGrade, setSelectedGrade] = useState('')
@@ -245,6 +265,65 @@ function TeacherQuestionsContent() {
     } catch (error) {
       console.error('Error reporting question:', error)
       alert('შეცდომა კითხვის დარეპორტებისას')
+    }
+  }
+
+  const handleEditQuestion = async (questionId: string) => {
+    // Find the question to edit
+    const questionToEdit = questions.find(q => q.id === questionId)
+    if (!questionToEdit) {
+      alert('კითხვა ვერ მოიძებნა')
+      return
+    }
+
+    // Populate form with question data
+    setFormData({
+      text: questionToEdit.text,
+      type: questionToEdit.type as 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED',
+      options: questionToEdit.options || ['', '', '', ''],
+      imageOptions: questionToEdit.imageOptions || ['', '', '', ''],
+      useImageOptions: false, // You might want to detect this from the question data
+      correctAnswer: questionToEdit.correctAnswer || '',
+      points: questionToEdit.points || 1,
+      maxPoints: questionToEdit.maxPoints || 1,
+      image: questionToEdit.image || '',
+      matchingPairs: questionToEdit.matchingPairs || [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
+      grade: questionToEdit.grade,
+      round: questionToEdit.round,
+      isAutoScored: questionToEdit.isAutoScored || false,
+      subQuestions: questionToEdit.subQuestions || [],
+      chapterName: questionToEdit.chapterName || '',
+      paragraphName: questionToEdit.paragraphName || ''
+    })
+
+    // Set edit mode
+    setEditingQuestionId(questionId)
+    setShowCreateForm(true)
+  }
+
+  const handleDeleteQuestion = async (questionId: string) => {
+    if (!confirm('ნამდვილად გსურთ ამ კითხვის წაშლა?')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/teacher/questions?id=${questionId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        alert('კითხვა წარმატებით წაიშალა')
+        fetchQuestions() // Refresh the list
+      } else {
+        const error = await response.json()
+        alert(error.error || 'შეცდომა კითხვის წაშლისას')
+      }
+    } catch (error) {
+      console.error('Error deleting question:', error)
+      alert('შეცდომა კითხვის წაშლისას')
     }
   }
 
@@ -512,23 +591,30 @@ function TeacherQuestionsContent() {
       }
 
       const url = profile?.isVerified ? '/api/teacher/questions' : '/api/teacher/submit-question'
-      const method = 'POST'
+      const method = editingQuestionId ? 'PUT' : 'POST'
 
       console.log('Sending form data:', formData)
+
+      const requestBody = editingQuestionId 
+        ? { ...formData, questionId: editingQuestionId }
+        : formData
 
       const response = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(requestBody),
       })
 
       if (response.ok) {
-        const message = profile?.isVerified ? 'კითხვა წარმატებით დაემატა!' : 'კითხვა წარმატებით გაიგზავნა ადმინისტრატორთან განსახილველად!'
+        const message = editingQuestionId 
+          ? 'კითხვა წარმატებით განახლდა!' 
+          : (profile?.isVerified ? 'კითხვა წარმატებით გაიგზავნა ადმინისტრატორთან განსახილველად!' : 'კითხვა წარმატებით გაიგზავნა ადმინისტრატორთან განსახილველად!')
         alert(message)
         setShowCreateForm(false)
         setShowSubmitForm(false)
+        setEditingQuestionId(null)
         resetForm()
         fetchQuestions()
       } else {
@@ -628,12 +714,12 @@ function TeacherQuestionsContent() {
                              <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
                  კითხვების მართვა
                </h1>
-               <p className="text-black md:text-[18px] text-[16px]">
-                 {profile?.isVerified 
-                   ? 'დაამატეთ და მართეთ კითხვები თქვენი საგნისთვის'
-                   : 'შემოგვთავაზეთ კითხვები განსახილველად'
-                 }
-               </p>
+                               <p className="text-black md:text-[18px] text-[16px]">
+                  {profile?.isVerified 
+                    ? 'დაამატეთ და მართეთ კითხვები ადმინისტრატორის დადასტურებისთვის'
+                    : 'შემოგვთავაზეთ კითხვები განსახილველად'
+                  }
+                </p>
                {profile?.subject && (
                  <div className="mt-2">
                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 md:text-[16px] text-[14px]">
@@ -788,12 +874,12 @@ function TeacherQuestionsContent() {
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className={`text-lg font-medium ${profile?.isVerified ? 'text-green-800' : 'text-yellow-800'}`}>
-                  {profile?.isVerified ? 'ვერიფიცირებული მასწავლებელი' : 'ვერიფიკაციის პროცესში'}
-                </h3>
+                                 <h3 className={`text-lg font-medium ${profile?.isVerified ? 'text-green-800' : 'text-yellow-800'}`}>
+                   {profile?.isVerified ? 'ვერიფიცირებული მასწავლებელი' : 'ვერიფიკაციის პროცესში'}
+                 </h3>
                                  <p className={`text-sm ${profile?.isVerified ? 'text-green-700' : 'text-yellow-700'}`}>
                    {profile?.isVerified 
-                     ? 'თქვენ შეგიძლიათ პირდაპირ დაამატოთ კითხვები თქვენი საგნისთვის'
+                     ? 'თქვენ შეგიძლიათ დაამატოთ კითხვები ადმინისტრატორის დადასტურებისთვის'
                      : 'თქვენი კითხვები გაიგზავნება ადმინისტრატორთან განსახილველად'
                    }
                  </p>
@@ -813,7 +899,9 @@ function TeacherQuestionsContent() {
         {(showCreateForm || showSubmitForm) && (
           <div className="bg-white shadow rounded-lg p-6 mb-8">
             <h2 className="text-black md:text-[20px] text-[18px] font-semibold mb-4">
-              {profile?.isVerified ? 'ახალი კითხვის დამატება' : 'კითხვის გაგზავნა'}
+              {editingQuestionId 
+                ? 'კითხვის რედაქტირება' 
+                : (profile?.isVerified ? 'ახალი კითხვის დამატება' : 'კითხვის გაგზავნა')}
             </h2>
                          <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1437,13 +1525,17 @@ function TeacherQuestionsContent() {
                   type="submit"
                   className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
                 >
-                  {profile?.isVerified ? 'კითხვის დამატება' : 'კითხვის გაგზავნა'}
+                                     {editingQuestionId 
+                     ? 'კითხვის განახლება' 
+                     : (profile?.isVerified ? 'კითხვის გაგზავნა' : 'კითხვის გაგზავნა')}
                 </button>
                 <button
                   type="button"
                   onClick={() => {
                     setShowCreateForm(false)
                     setShowSubmitForm(false)
+                    setEditingQuestionId(null)
+                    resetForm()
                   }}
                   className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold"
                 >
@@ -1474,9 +1566,9 @@ function TeacherQuestionsContent() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <p className="text-black md:text-[20px] text-[18px] mb-4">
-                  {profile?.isVerified ? 'ჯერ არ გაქვთ დამატებული კითხვები' : 'ჯერ არ გაქვთ გაგზავნილი კითხვები'}
-                </p>
+                                 <p className="text-black md:text-[20px] text-[18px] mb-4">
+                   {profile?.isVerified ? 'ჯერ არ გაქვთ მიმდინარე კითხვები' : 'ჯერ არ გაქვთ გაგზავნილი კითხვები'}
+                 </p>
                 <button
                   onClick={() => profile?.isVerified ? setShowCreateForm(true) : setShowSubmitForm(true)}
                   className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
@@ -1528,10 +1620,16 @@ function TeacherQuestionsContent() {
                     <div className="flex gap-2">
                       {profile?.isVerified && !question.isReported && (
                         <>
-                          <button className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded-md md:text-[16px] text-[14px] font-bold">
+                          <button 
+                            onClick={() => handleEditQuestion(question.id)}
+                            className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded-md md:text-[16px] text-[14px] font-bold"
+                          >
                             რედაქტირება
                           </button>
-                          <button className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md md:text-[16px] text-[14px] font-bold">
+                          <button 
+                            onClick={() => handleDeleteQuestion(question.id)}
+                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md md:text-[16px] text-[14px] font-bold"
+                          >
                             წაშლა
                           </button>
                         </>
