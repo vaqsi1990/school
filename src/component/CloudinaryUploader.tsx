@@ -4,6 +4,8 @@
 import { UploadButton } from "@/utils/uploadthing";
 import { useState } from "react";
 import Image from "next/image";
+import { toast } from "react-hot-toast";
+
 type ImageUploadProps = {
   onChange: (urls: string[]) => void;
   value: string[];
@@ -17,7 +19,7 @@ const ImageUpload = ({ onChange, value }: ImageUploadProps): React.JSX.Element =
     const newUrls = [...imageUrls, ...urls];
     setImageUrls(newUrls);
     onChange(newUrls); // ეს ატვირთული URL-ები გადავა form-ში
-    alert("Files uploaded successfully!");
+    toast.success("ფაილები წარმატებით ატვირთა!");
   };
 
   return (
@@ -27,29 +29,29 @@ const ImageUpload = ({ onChange, value }: ImageUploadProps): React.JSX.Element =
         endpoint="imageUploader"
         onClientUploadComplete={handleUploadComplete}
         onUploadError={(error: Error) => {
-          alert(`ERROR! ${error.message}`);
+          toast.error(`შეცდომა! ${error.message}`);
         }}
       />
 
-      {imageUrls.length > 0 ? (
-        <div className="mt-2 space-y-1">
-          <h2 className="text-sm font-semibold">Uploaded Images</h2>
-          <div className="grid grid-cols-3 gap-2">
-            {imageUrls.map((url, index) => (
-              <Image  
-                key={index}
-                src={url}
-                alt={`Uploaded ${index}`}
-                className="rounded border border-gray-500"
-                width={120}
-                height={120}
-              />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <p className="mt-1 text-gray-400 text-sm">No images uploaded yet.</p>
-      )}
+             {imageUrls.filter(url => url && url.trim() !== '').length > 0 ? (
+         <div className="mt-2 space-y-1">
+           <h2 className="text-sm font-semibold">ატვირთული სურათები</h2>
+           <div className="grid grid-cols-3 gap-2">
+             {imageUrls.filter(url => url && url.trim() !== '').map((url, index) => (
+               <Image  
+                 key={index}
+                 src={url}
+                 alt={`ატვირთული ${index}`}
+                 className="rounded border border-gray-500"
+                 width={120}
+                 height={120}
+               />
+             ))}
+           </div>
+         </div>
+       ) : (
+         <p className="mt-1 text-gray-400 text-sm">სურათები ჯერ არ არის ატვირთული.</p>
+       )}
     </div>
   );
 };

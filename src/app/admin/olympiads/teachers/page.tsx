@@ -153,7 +153,7 @@ function AdminTeacherQuestionsContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
@@ -173,7 +173,7 @@ function AdminTeacherQuestionsContent() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className=" mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white overflow-hidden shadow rounded-lg">
@@ -318,11 +318,9 @@ function AdminTeacherQuestionsContent() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       სტატუსი
                     </th>
-                    {currentStatus === 'PENDING' && (
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         მოქმედებები
                       </th>
-                    )}
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -359,24 +357,32 @@ function AdminTeacherQuestionsContent() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         {getStatusBadge(question.status)}
                       </td>
-                      {currentStatus === 'PENDING' && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => handleAction(question.id, 'approve')}
-                              className="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md text-sm"
-                            >
-                              დადასტურება
-                            </button>
-                            <button
-                              onClick={() => handleAction(question.id, 'reject')}
-                              className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md text-sm"
-                            >
-                              უარყოფა
-                            </button>
-                          </div>
-                        </td>
-                      )}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <Link
+                            href={`/admin/olympiads/teachers/edit/${question.id}`}
+                            className="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md text-sm"
+                          >
+                            რედაქტირება
+                          </Link>
+                          {currentStatus === 'PENDING' && (
+                            <>
+                              <button
+                                onClick={() => handleAction(question.id, 'approve')}
+                                className="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md text-sm"
+                              >
+                                დადასტურება
+                              </button>
+                              <button
+                                onClick={() => handleAction(question.id, 'reject')}
+                                className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md text-sm"
+                              >
+                                უარყოფა
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
