@@ -1,7 +1,7 @@
 'use client'
 
 import { AdminOnly } from '@/components/auth/ProtectedRoute'
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, use, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'react-hot-toast'
@@ -127,12 +127,12 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
         points: questionData.points,
         maxPoints: questionData.maxPoints || questionData.points,
         image: questionData.image || '',
-        matchingPairs: questionData.matchingPairs?.map((pair: any) => ({
-          left: pair.left,
-          leftImage: pair.leftImage,
-          right: pair.right,
-          rightImage: pair.rightImage
-        })) || [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
+                 matchingPairs: questionData.matchingPairs?.map((pair: { left: string; leftImage?: string; right: string; rightImage?: string }) => ({
+           left: pair.left,
+           leftImage: pair.leftImage,
+           right: pair.right,
+           rightImage: pair.rightImage
+         })) || [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
         subjectId: questionData.subjectId,
         chapterName: questionData.chapterName || '',
         paragraphName: questionData.paragraphName || '',
