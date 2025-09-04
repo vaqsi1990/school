@@ -3,9 +3,27 @@
 import { useAuth } from '@/hooks/useAuth'
 import { AdminOnly } from '@/components/auth/ProtectedRoute'
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 
 function AdminOlympiadsContent() {
   const { user } = useAuth()
+  const [pendingCount, setPendingCount] = useState(0)
+
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      try {
+        const response = await fetch('/api/admin/teacher-questions?status=PENDING&limit=1')
+        if (response.ok) {
+          const data = await response.json()
+          setPendingCount(data.counts.pending)
+        }
+      } catch (error) {
+        console.error('Error fetching pending count:', error)
+      }
+    }
+
+    fetchPendingCount()
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -89,6 +107,30 @@ function AdminOlympiadsContent() {
                 <button className="mt-3 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
                   <Link href="/admin/olympiads/questions" className="block w-full h-full text-white">
                     კითხვების მართვა
+                  </Link>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Teachers Management Card */}
+          <div className="bg-white overflow-hidden shadow rounded-lg flex flex-col h-full">
+            <div className="p-4 flex-1 flex flex-col">
+              <div className="flex items-center justify-between">
+                <div className="ml-4">
+                  <h3 className="text-black md:text-[20px]  text-[18px]">მასწავლებლის კითხვები</h3>
+                </div>
+                <div className="bg-yellow-500 text-white rounded-full px-2 py-1 text-xs font-bold">
+                  <span>{pendingCount}</span>
+                </div>
+              </div>
+              <div className="mt-3 flex-1 flex flex-col">
+                <p className="text-black md:text-[18px] text-[16px] flex-1">
+                  მართეთ მასწავლებლების მიერ დამატებული კითხვები და დადასტურება.
+                </p>
+                <button className="mt-3 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                  <Link href="/admin/olympiads/teachers" className="block w-full h-full text-white">
+                    მასწავლებლის კითხვების ნახვა
                   </Link>
                 </button>
               </div>

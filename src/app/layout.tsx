@@ -5,6 +5,7 @@ import Header from "@/component/Header";
 import Footer from "@/component/Footer";
 import SessionProvider from '@/components/providers/SessionProvider'
 import AuthErrorBoundary from '@/components/auth/AuthErrorBoundary'
+import { Toaster } from 'react-hot-toast'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
             <Header />
             {children}
             <Footer />
+            <Toaster position="top-right" />
           </AuthErrorBoundary>
         </SessionProvider>
       </body>

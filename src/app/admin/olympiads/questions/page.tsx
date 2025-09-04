@@ -22,6 +22,10 @@ interface Question {
   image?: string
   matchingPairs?: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
   subjectId: string
+  subject?: {
+    id: string
+    name: string
+  }
   chapterId?: string
   paragraphId?: string
   chapterName?: string
@@ -31,6 +35,12 @@ interface Question {
   isAutoScored: boolean
   createdAt: string
   subQuestions?: SubQuestion[] // Add this field
+  createdByTeacher?: {
+    name: string
+    lastname: string
+    subject: string
+    school: string
+  }
 }
 
 interface SubQuestion {
@@ -109,7 +119,9 @@ function AdminQuestionsContent() {
     isAutoScored: false,
     subQuestions: []
   })
-
+ console.log('questions', questions);
+ console.log('subjects', subjects);
+ 
   useEffect(() => {
     if (user) {
       fetchSubjects()
@@ -603,8 +615,8 @@ function AdminQuestionsContent() {
         question.text.toLowerCase().includes(searchLower) ||
         
         // Subject name (including abbreviation)
-        (subjects.find(s => s.id === question.subjectId)?.name || '').toLowerCase().includes(searchLower) ||
-        getDisplaySubjectName(subjects.find(s => s.id === question.subjectId)?.name || '').toLowerCase().includes(searchLower) ||
+        (question.subject?.name || '').toLowerCase().includes(searchLower) ||
+        getDisplaySubjectName(question.subject?.name || '').toLowerCase().includes(searchLower) ||
         
         // Chapter name (handle "თავი 2" and "2")
         (question.chapterName && (
@@ -916,6 +928,9 @@ function AdminQuestionsContent() {
                     ქულები
                   </th>
                   <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
+                    მასწავლებელი
+                  </th>
+                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     მოქმედებები
                   </th>
                 </tr>
@@ -962,7 +977,7 @@ function AdminQuestionsContent() {
                      
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
-                      {getDisplaySubjectName(subjects.find(s => s.id === question.subjectId)?.name || 'უცნობი')}
+                      {getDisplaySubjectName(question.subject?.name || 'უცნობი')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       {question.chapterName || '-'}
@@ -978,6 +993,23 @@ function AdminQuestionsContent() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       {question.points}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-black md:text-[16px] text-[16px]">
+                      {question.createdByTeacher ? (
+                        <div>
+                          <div className="font-medium">
+                            {question.createdByTeacher.name} {question.createdByTeacher.lastname}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {question.createdByTeacher.school}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {question.createdByTeacher.subject}
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">ადმინი</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       <div className="flex space-x-2">
