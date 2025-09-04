@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
       subjects,
       grades,
       rounds,
-      packages
+      packages,
+      minimumPointsThreshold
     } = body
 
     // Validate required fields
@@ -108,6 +109,16 @@ export async function POST(request: NextRequest) {
         { error: 'რაუნდების რაოდენობა უნდა იყოს 1-დან 10-მდე' },
         { status: 400 }
       )
+    }
+
+    // Validate minimum points threshold
+    if (minimumPointsThreshold !== undefined && minimumPointsThreshold !== null) {
+      if (minimumPointsThreshold < 0 || minimumPointsThreshold > 100) {
+        return NextResponse.json(
+          { error: 'მინიმალური ქულის ზღვარი უნდა იყოს 0-დან 100-მდე' },
+          { status: 400 }
+        )
+      }
     }
 
     // Verify packages exist and match subjects/grades
@@ -185,6 +196,7 @@ export async function POST(request: NextRequest) {
         rounds,
         subjects: subjects,
         grades: grades,
+        minimumPointsThreshold: minimumPointsThreshold || null,
         createdBy: admin.id,
         packages: {
           connect: packages.map(pkgId => ({ id: pkgId }))

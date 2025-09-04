@@ -37,6 +37,7 @@ interface OlympiadFormData {
   grades: number[]
   rounds: number
   packages: string[] // Array of package IDs
+  minimumPointsThreshold: number
 }
 
 function CreateOlympiadContent() {
@@ -57,7 +58,8 @@ function CreateOlympiadContent() {
     subjects: [],
     grades: [7, 8, 9, 10, 11, 12],
     rounds: 3,
-    packages: []
+    packages: [],
+    minimumPointsThreshold: 0
   })
 
   const availableSubjects = [
@@ -235,7 +237,8 @@ function CreateOlympiadContent() {
       subjects: [],
       grades: [7, 8, 9, 10, 11, 12],
       rounds: 3,
-      packages: []
+      packages: [],
+      minimumPointsThreshold: 0
     })
   }
 
@@ -402,7 +405,7 @@ function CreateOlympiadContent() {
             </div>
 
             {/* Settings */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-6">
               <div className="flex flex-col h-full">
                 <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
                   რაუნდების რაოდენობა *
@@ -418,6 +421,25 @@ function CreateOlympiadContent() {
                   <option value={2}>2 რაუნდი</option>
                   <option value={3}>3 რაუნდი</option>
                 </select>
+              </div>
+
+              <div className="flex flex-col h-full">
+                <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
+                  მინიმალური ქულის ზღვარი (არასავალდებულო)
+                </label>
+                <input
+                  type="number"
+                  name="minimumPointsThreshold"
+                  min="0"
+                  max="100"
+                  value={formData.minimumPointsThreshold}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
+                  placeholder="0"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  თუ მითითებულია, მოსწავლეები ავტომატურად გაივლიან ოლიმპიადას
+                </p>
               </div>
 
               <div className="flex items-center h-full">

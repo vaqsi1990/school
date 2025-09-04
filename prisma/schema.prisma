@@ -365,6 +365,7 @@ model OlympiadEvent {
   rounds                Int      @default(3)
   subjects              String[] // Array of subject names
   grades                Int[]    // Array of grade numbers
+  minimumPointsThreshold Int?    // Minimum points required to pass the olympiad
   createdBy             String   // Admin ID who created this olympiad
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt

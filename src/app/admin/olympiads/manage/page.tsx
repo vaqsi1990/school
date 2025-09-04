@@ -29,6 +29,7 @@ interface OlympiadEvent {
   rounds: number
   subjects: string[]
   grades: number[]
+  minimumPointsThreshold?: number | null
   packages: QuestionPackage[]
   createdByUser: CreatedByUser
   _count: {
@@ -285,6 +286,9 @@ export default function ManageOlympiadsPage() {
                             <div><strong>რაუნდები:</strong> {olympiad.rounds}</div>
                             <div><strong>პაკეტები:</strong> {olympiad.packages.length}</div>
                             <div><strong>მონაწილეები:</strong> {olympiad._count.participations}/{olympiad.maxParticipants}</div>
+                            {olympiad.minimumPointsThreshold && (
+                              <div><strong>მინ. ქულის ზღვარი:</strong> {olympiad.minimumPointsThreshold} ქულა</div>
+                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
