@@ -365,6 +365,8 @@ model OlympiadEvent {
   rounds                Int      @default(3)
   subjects              String[] // Array of subject names
   grades                Int[]    // Array of grade numbers
+  questionTypes         QuestionType[] // Array of question types to include
+  questionTypeQuantities Json?   // Object with question type quantities: {"MATCHING": 6, "CLOSED_ENDED": 4}
   minimumPointsThreshold Int?    // Minimum points required to pass the olympiad
   createdBy             String   // Admin ID who created this olympiad
   createdAt             DateTime @default(now())
@@ -520,8 +522,6 @@ enum AdminRole {
 }
 
 enum QuestionType {
-  MULTIPLE_CHOICE      // მრავალარჩევანიანი - auto-scored
-  TRUE_FALSE           // სწორი/არასწორი - auto-scored
   MATCHING             // შესაბამისობა - auto-scored
   TEXT_ANALYSIS        // ტექსტის ანალიზი - manual scoring
   MAP_ANALYSIS         // რუკის ანალიზი - manual scoring

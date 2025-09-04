@@ -37,6 +37,8 @@ interface OlympiadFormData {
   grades: number[]
   rounds: number
   packages: string[] // Array of package IDs
+  questionTypes: string[]
+  questionTypeQuantities: Record<string, number>
   minimumPointsThreshold: number
 }
 
@@ -59,6 +61,8 @@ function CreateOlympiadContent() {
     grades: [7, 8, 9, 10, 11, 12],
     rounds: 3,
     packages: [],
+    questionTypes: [],
+    questionTypeQuantities: {},
     minimumPointsThreshold: 0
   })
 
@@ -72,6 +76,14 @@ function CreateOlympiadContent() {
     'ქართული ენა',
     'ინგლისური ენა',
     'ერთიანი ეროვნული გამოცდები'
+  ]
+
+  const availableQuestionTypes = [
+    { value: 'MATCHING', label: 'შესაბამისობა' },
+    { value: 'TEXT_ANALYSIS', label: 'ტექსტის ანალიზი' },
+    { value: 'MAP_ANALYSIS', label: 'რუკის ანალიზი' },
+    { value: 'OPEN_ENDED', label: 'ღია კითხვა' },
+    { value: 'CLOSED_ENDED', label: 'დახურული კითხვა' }
   ]
 
   // Fetch available packages
@@ -145,6 +157,28 @@ function CreateOlympiadContent() {
     }))
   }
 
+  const handleQuestionTypeToggle = (questionType: string) => {
+    setFormData(prev => ({
+      ...prev,
+      questionTypes: prev.questionTypes.includes(questionType)
+        ? prev.questionTypes.filter(qt => qt !== questionType)
+        : [...prev.questionTypes, questionType],
+      questionTypeQuantities: prev.questionTypes.includes(questionType)
+        ? { ...prev.questionTypeQuantities }
+        : { ...prev.questionTypeQuantities, [questionType]: 1 }
+    }))
+  }
+
+  const handleQuantityChange = (questionType: string, quantity: number) => {
+    setFormData(prev => ({
+      ...prev,
+      questionTypeQuantities: {
+        ...prev.questionTypeQuantities,
+        [questionType]: Math.max(0, quantity)
+      }
+    }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
@@ -160,6 +194,11 @@ function CreateOlympiadContent() {
 
     if (formData.packages.length === 0) {
       alert('გთხოვთ აირჩიოთ მინიმუმ ერთი პაკეტი')
+      return
+    }
+
+    if (formData.questionTypes.length === 0) {
+      alert('გთხოვთ აირჩიოთ მინიმუმ ერთი კითხვის ტიპი')
       return
     }
 
@@ -238,6 +277,8 @@ function CreateOlympiadContent() {
       grades: [7, 8, 9, 10, 11, 12],
       rounds: 3,
       packages: [],
+      questionTypes: [],
+      questionTypeQuantities: {},
       minimumPointsThreshold: 0
     })
   }
@@ -550,6 +591,48 @@ function CreateOlympiadContent() {
                 </div>
               )}
             </div>
+
+                         {/* Question Types */}
+             <div>
+               <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-3">
+                 კითხვების ტიპები და რაოდენობა *
+               </label>
+               <div className="space-y-4">
+                 {availableQuestionTypes.map((questionType) => (
+                   <div key={questionType.value} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                     <div className="flex items-center">
+                       <input
+                         type="checkbox"
+                         checked={formData.questionTypes.includes(questionType.value)}
+                         onChange={() => handleQuestionTypeToggle(questionType.value)}
+                         className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300 rounded"
+                       />
+                       <span className="ml-2 text-black md:text-[16px] text-[14px] font-medium">{questionType.label}</span>
+                     </div>
+                     {formData.questionTypes.includes(questionType.value) && (
+                       <div className="flex items-center space-x-2">
+                         <label className="text-sm text-gray-600">რაოდენობა:</label>
+                         <input
+                           type="number"
+                           min="1"
+                           max="50"
+                           value={formData.questionTypeQuantities[questionType.value] || 1}
+                           onChange={(e) => handleQuantityChange(questionType.value, parseInt(e.target.value) || 1)}
+                           className="w-16 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black text-sm"
+                         />
+                       </div>
+                     )}
+                   </div>
+                 ))}
+               </div>
+               {formData.questionTypes.length > 0 && (
+                 <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                   <p className="text-sm text-blue-800 md:text-[16px] text-[14px]">
+                     <strong>სულ კითხვები:</strong> {Object.values(formData.questionTypeQuantities).reduce((sum, qty) => sum + qty, 0)} კითხვა
+                   </p>
+                 </div>
+               )}
+             </div>
 
             {/* Subjects */}
             <div>

@@ -29,6 +29,8 @@ interface OlympiadEvent {
   rounds: number
   subjects: string[]
   grades: number[]
+  questionTypes: string[]
+  questionTypeQuantities?: Record<string, number> | null
   minimumPointsThreshold?: number | null
   packages: QuestionPackage[]
   createdByUser: CreatedByUser
@@ -129,6 +131,19 @@ export default function ManageOlympiadsPage() {
       hour: '2-digit',
       minute: '2-digit'
     })
+  }
+
+  const getQuestionTypeLabel = (type: string) => {
+    const typeLabels: Record<string, string> = {
+      'MULTIPLE_CHOICE': 'მრავალარჩევანიანი',
+      'TRUE_FALSE': 'სწორი/არასწორი',
+      'MATCHING': 'შესაბამისობა',
+      'TEXT_ANALYSIS': 'ტექსტის ანალიზი',
+      'MAP_ANALYSIS': 'რუკის ანალიზი',
+      'OPEN_ENDED': 'ღია კითხვა',
+      'CLOSED_ENDED': 'დახურული კითხვა'
+    }
+    return typeLabels[type] || type
   }
 
   if (isLoading && olympiads.length === 0) {
@@ -283,6 +298,10 @@ export default function ManageOlympiadsPage() {
                           <div className="text-black md:text-[16px] text-[14px]">
                             <div><strong>საგნები:</strong> {olympiad.subjects.join(', ')}</div>
                             <div><strong>კლასები:</strong> {olympiad.grades.join(', ')}</div>
+                                                         <div><strong>კითხვების ტიპები:</strong> {olympiad.questionTypes.map(getQuestionTypeLabel).join(', ')}</div>
+                             {olympiad.questionTypeQuantities && (
+                               <div><strong>კითხვების რაოდენობა:</strong> {Object.entries(olympiad.questionTypeQuantities).map(([type, qty]) => `${getQuestionTypeLabel(type)}: ${qty}`).join(', ')}</div>
+                             )}
                             <div><strong>რაუნდები:</strong> {olympiad.rounds}</div>
                             <div><strong>პაკეტები:</strong> {olympiad.packages.length}</div>
                             <div><strong>მონაწილეები:</strong> {olympiad._count.participations}/{olympiad.maxParticipants}</div>

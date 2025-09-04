@@ -36,6 +36,8 @@ export async function POST(request: NextRequest) {
       grades,
       rounds,
       packages,
+      questionTypes,
+      questionTypeQuantities,
       minimumPointsThreshold
     } = body
 
@@ -92,6 +94,14 @@ export async function POST(request: NextRequest) {
     if (!Array.isArray(packages) || packages.length === 0) {
       return NextResponse.json(
         { error: 'მინიმუმ ერთი პაკეტი უნდა იყოს არჩეული' },
+        { status: 400 }
+      )
+    }
+
+    // Validate question types
+    if (!Array.isArray(questionTypes) || questionTypes.length === 0) {
+      return NextResponse.json(
+        { error: 'მინიმუმ ერთი კითხვის ტიპი უნდა იყოს არჩეული' },
         { status: 400 }
       )
     }
@@ -196,6 +206,8 @@ export async function POST(request: NextRequest) {
         rounds,
         subjects: subjects,
         grades: grades,
+        questionTypes: questionTypes,
+        questionTypeQuantities: questionTypeQuantities || null,
         minimumPointsThreshold: minimumPointsThreshold || null,
         createdBy: admin.id,
         packages: {
