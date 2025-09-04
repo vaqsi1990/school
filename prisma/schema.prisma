@@ -365,7 +365,7 @@ model OlympiadEvent {
   rounds                Int      @default(3)
   subjects              String[] // Array of subject names
   grades                Int[]    // Array of grade numbers
-  questionTypes         QuestionType[] // Array of question types to include
+  questionTypes         QuestionType[] // Array of question types to include (in order)
   questionTypeQuantities Json?   // Object with question type quantities: {"MATCHING": 6, "CLOSED_ENDED": 4}
   minimumPointsThreshold Int?    // Minimum points required to pass the olympiad
   createdBy             String   // Admin ID who created this olympiad

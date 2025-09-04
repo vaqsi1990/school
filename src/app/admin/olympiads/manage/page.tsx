@@ -298,10 +298,10 @@ export default function ManageOlympiadsPage() {
                           <div className="text-black md:text-[16px] text-[14px]">
                             <div><strong>საგნები:</strong> {olympiad.subjects.join(', ')}</div>
                             <div><strong>კლასები:</strong> {olympiad.grades.join(', ')}</div>
-                                                         <div><strong>კითხვების ტიპები:</strong> {olympiad.questionTypes.map(getQuestionTypeLabel).join(', ')}</div>
-                             {olympiad.questionTypeQuantities && (
-                               <div><strong>კითხვების რაოდენობა:</strong> {Object.entries(olympiad.questionTypeQuantities).map(([type, qty]) => `${getQuestionTypeLabel(type)}: ${qty}`).join(', ')}</div>
-                             )}
+                                                                                      <div><strong>კითხვების ტიპები:</strong> {olympiad.questionTypes.map((type, index) => `${index + 1}. ${getQuestionTypeLabel(type)}`).join(', ')}</div>
+                              {olympiad.questionTypeQuantities && (
+                                <div><strong>კითხვების რაოდენობა:</strong> {Object.entries(olympiad.questionTypeQuantities).map(([type, qty]) => `${getQuestionTypeLabel(type)}: ${qty}`).join(', ')}</div>
+                              )}
                             <div><strong>რაუნდები:</strong> {olympiad.rounds}</div>
                             <div><strong>პაკეტები:</strong> {olympiad.packages.length}</div>
                             <div><strong>მონაწილეები:</strong> {olympiad._count.participations}/{olympiad.maxParticipants}</div>

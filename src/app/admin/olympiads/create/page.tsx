@@ -39,6 +39,7 @@ interface OlympiadFormData {
   packages: string[] // Array of package IDs
   questionTypes: string[]
   questionTypeQuantities: Record<string, number>
+  questionTypeOrder: string[] // Array to store the order of question types
   minimumPointsThreshold: number
 }
 
@@ -63,6 +64,7 @@ function CreateOlympiadContent() {
     packages: [],
     questionTypes: [],
     questionTypeQuantities: {},
+    questionTypeOrder: [],
     minimumPointsThreshold: 0
   })
 
@@ -158,15 +160,58 @@ function CreateOlympiadContent() {
   }
 
   const handleQuestionTypeToggle = (questionType: string) => {
-    setFormData(prev => ({
-      ...prev,
-      questionTypes: prev.questionTypes.includes(questionType)
-        ? prev.questionTypes.filter(qt => qt !== questionType)
-        : [...prev.questionTypes, questionType],
-      questionTypeQuantities: prev.questionTypes.includes(questionType)
-        ? { ...prev.questionTypeQuantities }
-        : { ...prev.questionTypeQuantities, [questionType]: 1 }
-    }))
+    setFormData(prev => {
+      const isCurrentlySelected = prev.questionTypes.includes(questionType)
+      
+      if (isCurrentlySelected) {
+        // Remove from all arrays
+        const newQuantities = { ...prev.questionTypeQuantities }
+        delete newQuantities[questionType]
+        
+        return {
+          ...prev,
+          questionTypes: prev.questionTypes.filter(qt => qt !== questionType),
+          questionTypeQuantities: newQuantities,
+          questionTypeOrder: prev.questionTypeOrder.filter(qt => qt !== questionType)
+        }
+      } else {
+        // Add to all arrays
+        return {
+          ...prev,
+          questionTypes: [...prev.questionTypes, questionType],
+          questionTypeQuantities: { ...prev.questionTypeQuantities, [questionType]: 1 },
+          questionTypeOrder: [...prev.questionTypeOrder, questionType]
+        }
+      }
+    })
+  }
+
+  const moveQuestionTypeUp = (index: number) => {
+    if (index === 0) return
+    setFormData(prev => {
+      const newOrder = [...prev.questionTypeOrder]
+      const temp = newOrder[index]
+      newOrder[index] = newOrder[index - 1]
+      newOrder[index - 1] = temp
+      return {
+        ...prev,
+        questionTypeOrder: newOrder
+      }
+    })
+  }
+
+  const moveQuestionTypeDown = (index: number) => {
+    setFormData(prev => {
+      if (index === prev.questionTypeOrder.length - 1) return prev
+      const newOrder = [...prev.questionTypeOrder]
+      const temp = newOrder[index]
+      newOrder[index] = newOrder[index + 1]
+      newOrder[index + 1] = temp
+      return {
+        ...prev,
+        questionTypeOrder: newOrder
+      }
+    })
   }
 
   const handleQuantityChange = (questionType: string, quantity: number) => {
@@ -279,6 +324,7 @@ function CreateOlympiadContent() {
       packages: [],
       questionTypes: [],
       questionTypeQuantities: {},
+      questionTypeOrder: [],
       minimumPointsThreshold: 0
     })
   }
@@ -597,7 +643,9 @@ function CreateOlympiadContent() {
                <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-3">
                  კითხვების ტიპები და რაოდენობა *
                </label>
-               <div className="space-y-4">
+               
+               {/* Question Type Selection */}
+               <div className="space-y-4 mb-6">
                  {availableQuestionTypes.map((questionType) => (
                    <div key={questionType.value} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
                      <div className="flex items-center">
@@ -625,11 +673,71 @@ function CreateOlympiadContent() {
                    </div>
                  ))}
                </div>
+
+               {/* Question Type Order */}
+               {formData.questionTypeOrder.length > 1 && (
+                 <div className="mb-6">
+                   <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-3">
+                     კითხვების ტიპების თანმიმდევრობა
+                   </label>
+                   <div className="space-y-2">
+                     {formData.questionTypeOrder.map((questionType, index) => {
+                       const typeInfo = availableQuestionTypes.find(t => t.value === questionType)
+                       return (
+                         <div key={questionType} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-gray-50">
+                           <div className="flex items-center space-x-3">
+                             <span className="text-sm text-gray-500 font-medium">#{index + 1}</span>
+                             <span className="text-black md:text-[16px] text-[14px] font-medium">
+                               {typeInfo?.label || questionType}
+                             </span>
+                             <span className="text-sm text-gray-600">
+                               ({formData.questionTypeQuantities[questionType] || 1} კითხვა)
+                             </span>
+                           </div>
+                           <div className="flex space-x-1">
+                             <button
+                               type="button"
+                               onClick={() => moveQuestionTypeUp(index)}
+                               disabled={index === 0}
+                               className="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                               title="ზემოთ"
+                             >
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                               </svg>
+                             </button>
+                             <button
+                               type="button"
+                               onClick={() => moveQuestionTypeDown(index)}
+                               disabled={index === formData.questionTypeOrder.length - 1}
+                               className="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                               title="ქვემოთ"
+                             >
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                               </svg>
+                             </button>
+                           </div>
+                         </div>
+                       )
+                     })}
+                   </div>
+                 </div>
+               )}
+
                {formData.questionTypes.length > 0 && (
                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
                    <p className="text-sm text-blue-800 md:text-[16px] text-[14px]">
                      <strong>სულ კითხვები:</strong> {Object.values(formData.questionTypeQuantities).reduce((sum, qty) => sum + qty, 0)} კითხვა
                    </p>
+                   {formData.questionTypeOrder.length > 1 && (
+                     <p className="text-sm text-blue-700 mt-1">
+                       <strong>თანმიმდევრობა:</strong> {formData.questionTypeOrder.map((type, index) => {
+                         const typeInfo = availableQuestionTypes.find(t => t.value === type)
+                         return `${index + 1}. ${typeInfo?.label || type}`
+                       }).join(' → ')}
+                     </p>
+                   )}
                  </div>
                )}
              </div>

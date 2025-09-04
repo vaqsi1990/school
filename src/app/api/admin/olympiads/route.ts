@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
       packages,
       questionTypes,
       questionTypeQuantities,
+      questionTypeOrder,
       minimumPointsThreshold
     } = body
 
@@ -206,7 +207,7 @@ export async function POST(request: NextRequest) {
         rounds,
         subjects: subjects,
         grades: grades,
-        questionTypes: questionTypes,
+        questionTypes: questionTypeOrder && questionTypeOrder.length > 0 ? questionTypeOrder : questionTypes,
         questionTypeQuantities: questionTypeQuantities || null,
         minimumPointsThreshold: minimumPointsThreshold || null,
         createdBy: admin.id,
