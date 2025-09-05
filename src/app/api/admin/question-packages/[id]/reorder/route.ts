@@ -44,7 +44,7 @@ export async function PUT(
 
     // Validate that all question IDs belong to this package
     const packageQuestionIds = questionPackage.questions.map(q => q.id)
-    const providedQuestionIds = questionOrders.map((q: any) => q.id)
+    const providedQuestionIds = questionOrders.map((q: { id: string; order: number }) => q.id)
     
     const allQuestionsExist = providedQuestionIds.every((id: string) => 
       packageQuestionIds.includes(id)
