@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -13,6 +13,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const resolvedParams = await params
     const { isActive } = await request.json()
 
     if (typeof isActive !== 'boolean') {
@@ -24,7 +25,7 @@ export async function PATCH(
 
     // Check if olympiad exists
     const existingOlympiad = await prisma.olympiadEvent.findUnique({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     if (!existingOlympiad) {
@@ -33,7 +34,7 @@ export async function PATCH(
 
     // Update status
     const updatedOlympiad = await prisma.olympiadEvent.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: { isActive },
       select: {
         id: true,
