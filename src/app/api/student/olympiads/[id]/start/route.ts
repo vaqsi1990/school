@@ -3,6 +3,19 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+interface QuestionWithDetails {
+  questionId: string
+  question: {
+    text: string
+    type: string
+    options: string[]
+    correctAnswer: string | null
+    points: number
+    image: string | null
+    imageOptions: string[]
+  }
+}
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -86,13 +99,13 @@ export async function POST(
       const allQuestions = olympiad.packages.flatMap(pkg => 
         pkg.questions.map(qp => ({
           id: qp.questionId,
-          question: (qp as any).question?.text || '',
-          type: (qp as any).question?.type || 'OPEN_ENDED',
-          options: (qp as any).question?.options || [],
-          correctAnswer: (qp as any).question?.correctAnswer || '',
-          points: (qp as any).question?.points || 1,
-          image: (qp as any).question?.image || null,
-          imageOptions: (qp as any).question?.imageOptions || []
+          question: (qp as QuestionWithDetails).question?.text || '',
+          type: (qp as QuestionWithDetails).question?.type || 'OPEN_ENDED',
+          options: (qp as QuestionWithDetails).question?.options || [],
+          correctAnswer: (qp as QuestionWithDetails).question?.correctAnswer || '',
+          points: (qp as QuestionWithDetails).question?.points || 1,
+          image: (qp as QuestionWithDetails).question?.image || null,
+          imageOptions: (qp as QuestionWithDetails).question?.imageOptions || []
         }))
       )
       
@@ -120,13 +133,13 @@ export async function POST(
     const allQuestions = olympiad.packages.flatMap(pkg => 
       pkg.questions.map(qp => ({
         id: qp.questionId,
-        question: (qp as any).question?.text || '',
-        type: (qp as any).question?.type || 'OPEN_ENDED',
-        options: (qp as any).question?.options || [],
-        correctAnswer: (qp as any).question?.correctAnswer || '',
-        points: (qp as any).question?.points || 1,
-        image: (qp as any).question?.image || null,
-        imageOptions: (qp as any).question?.imageOptions || []
+        question: (qp as QuestionWithDetails).question?.text || '',
+        type: (qp as QuestionWithDetails).question?.type || 'OPEN_ENDED',
+        options: (qp as QuestionWithDetails).question?.options || [],
+        correctAnswer: (qp as QuestionWithDetails).question?.correctAnswer || '',
+        points: (qp as QuestionWithDetails).question?.points || 1,
+        image: (qp as QuestionWithDetails).question?.image || null,
+        imageOptions: (qp as QuestionWithDetails).question?.imageOptions || []
       }))
     )
 
