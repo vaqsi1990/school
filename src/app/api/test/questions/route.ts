@@ -53,7 +53,8 @@ export async function GET(request: NextRequest) {
       subjectId: question.subjectId,
       subjectName: question.subject.name,
       grade: question.grade,
-      round: question.round
+      round: question.round,
+      matchingPairs: question.matchingPairs
     }))
 
     return NextResponse.json({ questions: formattedQuestions })

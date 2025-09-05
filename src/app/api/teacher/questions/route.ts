@@ -105,6 +105,33 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Validate matching questions
+    if (type === 'MATCHING') {
+      if (!matchingPairs || !Array.isArray(matchingPairs) || matchingPairs.length < 1) {
+        return NextResponse.json(
+          { error: 'Matching questions must have at least one pair' },
+          { status: 400 }
+        )
+      }
+      
+      // Validate each pair has left and right values
+      for (let i = 0; i < matchingPairs.length; i++) {
+        const pair = matchingPairs[i]
+        if (!pair || typeof pair !== 'object' || !pair.left || !pair.right) {
+          return NextResponse.json(
+            { error: `Matching pair ${i + 1} must have both left and right values` },
+            { status: 400 }
+          )
+        }
+        if (!pair.left.trim() || !pair.right.trim()) {
+          return NextResponse.json(
+            { error: `Matching pair ${i + 1} left and right values cannot be empty` },
+            { status: 400 }
+          )
+        }
+      }
+    }
+
         // Get or create the subject for the teacher
     let subject = await prisma.subject.findFirst({
       where: { name: teacher.subject }

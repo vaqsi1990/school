@@ -16,13 +16,14 @@ interface Question {
   subjectId: string
   grade: number
   round: number
+  matchingPairs?: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
 }
 
 function StudentTestContent() {
   const { user } = useAuth()
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [answers, setAnswers] = useState<Record<string, string>>({})
+  const [answers, setAnswers] = useState<Record<string, string | Record<string, string>>>({})
   const [loading, setLoading] = useState(true)
   const [submitted, setSubmitted] = useState(false)
 
@@ -45,7 +46,7 @@ function StudentTestContent() {
     }
   }
 
-  const handleAnswer = (questionId: string, answer: string) => {
+  const handleAnswer = (questionId: string, answer: string | Record<string, string>) => {
     setAnswers(prev => ({
       ...prev,
       [questionId]: answer
@@ -125,7 +126,7 @@ function StudentTestContent() {
   }
 
   const currentQuestion = questions[currentQuestionIndex]
-  const currentAnswer = answers[currentQuestion.id] || ''
+  const currentAnswer = answers[currentQuestion.id] || (currentQuestion.type === 'MATCHING' ? {} : '')
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -220,10 +221,83 @@ function StudentTestContent() {
             </div>
           )}
 
+          {currentQuestion.type === 'MATCHING' && (
+            <div className="space-y-6">
+              <div className="text-sm text-gray-600 mb-4">
+                შეაერთეთ მარცხენა სვეტის ელემენტები მარჯვენა სვეტის შესაბამის ელემენტებთან
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Left Column */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-900 mb-4">მარცხენა სვეტი</h3>
+                  {currentQuestion.matchingPairs?.map((pair, index) => (
+                    <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                        {String.fromCharCode(65 + index)}:
+                      </span>
+                      <span className="text-gray-900">{pair.left}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-900 mb-4">მარჯვენა სვეტი</h3>
+                  {currentQuestion.matchingPairs?.map((pair, index) => (
+                    <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                        {index + 1}:
+                      </span>
+                      <span className="text-gray-900">{pair.right}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Matching Interface */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <h4 className="font-medium text-gray-900 mb-3">შესაბამისობა:</h4>
+                <div className="space-y-3">
+                  {currentQuestion.matchingPairs?.map((pair, index) => (
+                    <div key={index} className="flex items-center space-x-4">
+                      <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                        {String.fromCharCode(65 + index)}:
+                      </span>
+                      <select
+                        value={(currentAnswer as Record<string, string>)[`${String.fromCharCode(65 + index)}`] || ''}
+                        onChange={(e) => {
+                          const newAnswer = { ...(currentAnswer as Record<string, string>) }
+                          newAnswer[`${String.fromCharCode(65 + index)}`] = e.target.value
+                          handleAnswer(currentQuestion.id, newAnswer)
+                        }}
+                        className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">აირჩიეთ...</option>
+                        {currentQuestion.matchingPairs?.map((_, rightIndex) => (
+                          <option key={rightIndex} value={rightIndex + 1}>
+                            {rightIndex + 1}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="text-gray-500">→</span>
+                      <span className="text-sm text-gray-600">
+                        {(currentAnswer as Record<string, string>)[`${String.fromCharCode(65 + index)}`] ? 
+                          `${(currentAnswer as Record<string, string>)[`${String.fromCharCode(65 + index)}`]}` : 
+                          'შეარჩიეთ'
+                        }
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {currentQuestion.type === 'OPEN_ENDED' && (
             <div>
               <textarea
-                value={currentAnswer}
+                value={currentAnswer as string}
                 onChange={(e) => handleAnswer(currentQuestion.id, e.target.value)}
                 placeholder="შეიყვანეთ თქვენი პასუხი..."
                 className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
