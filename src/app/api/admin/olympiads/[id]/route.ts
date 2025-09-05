@@ -6,7 +6,7 @@ import { prisma } from '@/lib/prisma'
 // GET - Get single olympiad
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,8 +14,9 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const resolvedParams = await params
     const olympiad = await prisma.olympiadEvent.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: {
         packages: true,
         createdByUser: {
@@ -54,7 +55,7 @@ export async function GET(
 // PUT - Update olympiad
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -62,6 +63,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const resolvedParams = await params
     const body = await request.json()
     const {
       name,
@@ -90,7 +92,7 @@ export async function PUT(
 
     // Check if olympiad exists
     const existingOlympiad = await prisma.olympiadEvent.findUnique({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     if (!existingOlympiad) {
@@ -99,7 +101,7 @@ export async function PUT(
 
     // Update olympiad
     const updatedOlympiad = await prisma.olympiadEvent.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: {
         name,
         description,
@@ -146,7 +148,7 @@ export async function PUT(
 // DELETE - Delete olympiad
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -154,9 +156,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const resolvedParams = await params
     // Check if olympiad exists
     const existingOlympiad = await prisma.olympiadEvent.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: {
         _count: {
           select: {
@@ -180,7 +183,7 @@ export async function DELETE(
 
     // Delete olympiad
     await prisma.olympiadEvent.delete({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     return NextResponse.json({
