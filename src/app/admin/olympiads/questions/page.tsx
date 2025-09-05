@@ -618,6 +618,17 @@ function AdminQuestionsContent() {
         (question.subject?.name || '').toLowerCase().includes(searchLower) ||
         getDisplaySubjectName(question.subject?.name || '').toLowerCase().includes(searchLower) ||
         
+        // Teacher name (first name, last name, or full name)
+        (question.createdByTeacher?.name || '').toLowerCase().includes(searchLower) ||
+        (question.createdByTeacher?.lastname || '').toLowerCase().includes(searchLower) ||
+        `${question.createdByTeacher?.name || ''} ${question.createdByTeacher?.lastname || ''}`.toLowerCase().includes(searchLower) ||
+        
+        // Teacher school
+        (question.createdByTeacher?.school || '').toLowerCase().includes(searchLower) ||
+        
+        // Teacher subject
+        (question.createdByTeacher?.subject || '').toLowerCase().includes(searchLower) ||
+        
         // Chapter name (handle "თავი 2" and "2")
         (question.chapterName && (
           question.chapterName.toLowerCase().includes(searchLower) ||
@@ -763,7 +774,7 @@ function AdminQuestionsContent() {
               <div className="relative">
                                  <input
                    type="text"
-                   placeholder="მოძებნა: კითხვა, საგანი, თავი (მაგ: 2), პარაგრაფი (მაგ: 1.2), კლასი (მაგ: 10 კლასი), რაუნდი (მაგ: 1 რაუნდი), ქულები, ტიპი..."
+                   placeholder="მოძებნა: კითხვა, საგანი, მასწავლებელი, სკოლა, თავი (მაგ: 2), პარაგრაფი (მაგ: 1.2), კლასი (მაგ: 10 კლასი), რაუნდი (მაგ: 1 რაუნდი), ქულები, ტიპი..."
                    value={searchTerm}
                    onChange={(e) => setSearchTerm(e.target.value)}
                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
@@ -921,15 +932,9 @@ function AdminQuestionsContent() {
                   <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     კლასი
                   </th>
-                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
-                    რაუნდი
-                  </th>
-                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
-                    ქულები
-                  </th>
-                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
-                    მასწავლებელი
-                  </th>
+                 
+                  
+                 
                   <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     მოქმედებები
                   </th>
@@ -985,32 +990,12 @@ function AdminQuestionsContent() {
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       {question.paragraphName || '-'}
                     </td>
+                  
+                  
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
-                      {question.grade} კლასი
+                      {question.grade}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
-                      {question.round} რაუნდი
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
-                      {question.points}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-black md:text-[16px] text-[16px]">
-                      {question.createdByTeacher ? (
-                        <div>
-                          <div className="font-medium">
-                            {question.createdByTeacher.name} {question.createdByTeacher.lastname}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {question.createdByTeacher.school}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {question.createdByTeacher.subject}
-                          </div>
-                        </div>
-                      ) : (
-                        <span className="text-gray-400">ადმინი</span>
-                      )}
-                    </td>
+                   
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       <div className="flex space-x-2">
                         <button
@@ -1176,23 +1161,7 @@ function AdminQuestionsContent() {
                     </select>
                   </div>
 
-                  {/* Round */}
-                  <div>
-                    <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
-                      რაუნდი *
-                    </label>
-                    <select
-                      name="round"
-                      required
-                      value={formData.round}
-                      onChange={handleInputChange}
-                      className="w-full px-4 text-black placeholder:text-black py-[14px] border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
-                    >
-                      <option value={1} className='text-black placeholder:text-black'>1 რაუნდი</option>
-                      <option value={2} className='text-black placeholder:text-black'>2 რაუნდი</option>
-                      <option value={3} className='text-black placeholder:text-black'>3 რაუნდი</option>
-                    </select>
-                  </div>
+               
 
                   {/* Chapter */}
                   <div>
