@@ -16,6 +16,7 @@ interface Olympiad {
   status: 'upcoming' | 'active' | 'completed'
   isRegistered: boolean
   registrationStatus?: 'REGISTERED' | 'IN_PROGRESS' | 'COMPLETED' | 'DISQUALIFIED'
+  isRegistrationOpen: boolean
 }
 
 export default function StudentOlympiadsPage() {
@@ -91,7 +92,8 @@ export default function StudentOlympiadsPage() {
     return date.toLocaleDateString('ka-GE', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'Asia/Tbilisi'
     })
   }
 
@@ -330,13 +332,13 @@ export default function StudentOlympiadsPage() {
                       დეტალები
                     </button>
                     {olympiad.isRegistered ? (
-                      <button
-                        onClick={() => handleStartOlympiad(olympiad.id)}
-                        className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors"
+                      <Link
+                        href={`/student/olympiads/${olympiad.id}`}
+                        className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors text-center"
                       >
                         დაწყება
-                      </button>
-                    ) : (
+                      </Link>
+                    ) : olympiad.isRegistrationOpen ? (
                       <button
                         onClick={() => handleRegistration(olympiad.id)}
                         disabled={registrationStatus[olympiad.id] === 'loading' || registrationStatus[olympiad.id] === 'success'}
@@ -353,6 +355,13 @@ export default function StudentOlympiadsPage() {
                           : registrationStatus[olympiad.id] === 'success'
                           ? 'დარეგისტრირებული'
                           : 'რეგისტრაცია'}
+                      </button>
+                    ) : (
+                      <button
+                        disabled
+                        className="flex-1 cursor-pointer bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold cursor-not-allowed"
+                      >
+                        რეგისტრაცია დასრულდა
                       </button>
                     )}
                   </div>

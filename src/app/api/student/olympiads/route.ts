@@ -41,6 +41,7 @@ interface TransformedOlympiad {
   status: 'upcoming' | 'completed'
   isRegistered: boolean
   registrationStatus?: 'REGISTERED' | 'IN_PROGRESS' | 'COMPLETED' | 'DISQUALIFIED'
+  isRegistrationOpen: boolean
 }
 
 export async function GET(request: NextRequest) {
@@ -89,9 +90,7 @@ export async function GET(request: NextRequest) {
         grades: {
           has: student.grade
         },
-        startDate: {
-          gte: new Date()
-        }
+        isActive: true
       },
       select: {
         id: true,
@@ -134,6 +133,18 @@ export async function GET(request: NextRequest) {
     // Transform data for frontend
     const transformedOlympiads: TransformedOlympiad[] = olympiads.map((olympiad: OlympiadEventData) => {
       const registrationStatus = registrationMap.get(olympiad.id)
+      const now = new Date()
+      const isRegistrationOpen = now <= olympiad.registrationDeadline
+      const hasStarted = now >= olympiad.startDate
+      const hasEnded = now >= olympiad.endDate
+      
+      let status: 'upcoming' | 'completed' = 'upcoming'
+      if (hasEnded) {
+        status = 'completed'
+      } else if (hasStarted) {
+        status = 'upcoming' // Active olympiad
+      }
+      
       return {
         id: olympiad.id,
         title: olympiad.name,
@@ -143,9 +154,10 @@ export async function GET(request: NextRequest) {
         registrationDeadline: olympiad.registrationDeadline.toISOString(),
         subjects: olympiad.subjects,
         grades: olympiad.grades,
-        status: olympiad.isActive ? 'upcoming' : 'completed',
+        status,
         isRegistered: !!registrationStatus,
-        registrationStatus: registrationStatus || undefined
+        registrationStatus: registrationStatus || undefined,
+        isRegistrationOpen
       }
     })
 

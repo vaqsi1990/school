@@ -108,10 +108,47 @@ export default function ManageOlympiadsPage() {
 
   const handleStatusToggle = async (olympiadId: string, currentStatus: boolean) => {
     try {
-      // TODO: Implement status toggle API endpoint
-      console.log('Toggle status for olympiad:', olympiadId, 'to:', !currentStatus)
+      const response = await fetch(`/api/admin/olympiads/${olympiadId}/toggle-status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isActive: !currentStatus }),
+      })
+
+      if (response.ok) {
+        // Refresh the olympiads list
+        fetchOlympiads()
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || 'სტატუსის ცვლილებისას შეცდომა მოხდა')
+      }
     } catch (err) {
+      setError('სისტემური შეცდომა მოხდა')
       console.error('Error toggling status:', err)
+    }
+  }
+
+  const handleDeleteOlympiad = async (olympiadId: string, olympiadName: string) => {
+    if (!confirm(`ნამდვილად გსურთ "${olympiadName}" ოლიმპიადის წაშლა? ეს მოქმედება შეუქცევადია.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/olympiads/${olympiadId}`, {
+        method: 'DELETE',
+      })
+
+      if (response.ok) {
+        // Refresh the olympiads list
+        fetchOlympiads()
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || 'ოლიმპიადის წაშლისას შეცდომა მოხდა')
+      }
+    } catch (err) {
+      setError('სისტემური შეცდომა მოხდა')
+      console.error('Error deleting olympiad:', err)
     }
   }
 
@@ -119,7 +156,8 @@ export default function ManageOlympiadsPage() {
     return new Date(dateString).toLocaleDateString('ka-GE', {
       year: 'numeric',
       month: 'long',
-      day: 'numeric'
+      day: 'numeric',
+      timeZone: 'Asia/Tbilisi'
     })
   }
 
@@ -129,7 +167,8 @@ export default function ManageOlympiadsPage() {
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: 'Asia/Tbilisi'
     })
   }
 
@@ -337,12 +376,18 @@ export default function ManageOlympiadsPage() {
                             >
                               რედაქტირება
                             </Link>
-                            <Link
-                              href={`/admin/olympiads/${olympiad.id}/view`}
-                              className="bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1 rounded-md text-xs font-medium transition-colors"
+                            <button
+                              onClick={() => handleDeleteOlympiad(olympiad.id, olympiad.name)}
+                              disabled={olympiad._count.participations > 0}
+                              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                                olympiad._count.participations > 0
+                                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                  : 'bg-red-100 text-red-700 hover:bg-red-200'
+                              }`}
+                              title={olympiad._count.participations > 0 ? 'წაშლა შეუძლებელია - არის მონაწილეები' : 'ოლიმპიადის წაშლა'}
                             >
-                              ნახვა
-                            </Link>
+                              წაშლა
+                            </button>
                           </div>
                         </td>
                       </tr>
