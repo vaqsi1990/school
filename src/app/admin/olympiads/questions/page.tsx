@@ -789,7 +789,7 @@ function AdminQuestionsContent() {
             </div>
             <div>
               <select
-                value={selectedSubject}
+                value={selectedSubject || ''}
                 onChange={(e) => setSelectedSubject(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
               >
@@ -801,7 +801,7 @@ function AdminQuestionsContent() {
             </div>
             <div>
               <select
-                value={selectedGrade}
+                value={selectedGrade || ''}
                 onChange={(e) => setSelectedGrade(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
               >
@@ -813,7 +813,7 @@ function AdminQuestionsContent() {
             </div>
             <div>
               <select
-                value={selectedRound}
+                value={selectedRound || ''}
                 onChange={(e) => setSelectedRound(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
               >

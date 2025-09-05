@@ -353,7 +353,7 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
               </label>
               <input
                 type="number"
-                value={formData.rounds}
+                value={formData.rounds || 1}
                 onChange={(e) => handleInputChange('rounds', parseInt(e.target.value))}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
                 min="1"

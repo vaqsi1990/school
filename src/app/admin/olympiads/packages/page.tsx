@@ -2,6 +2,104 @@
 
 import { useState, useEffect } from 'react'
 import { AdminOnly } from '@/components/auth/ProtectedRoute'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import {
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+const getQuestionTypeInGeorgian = (type: string) => {
+  switch (type) {
+    case 'OPEN_ENDED':
+      return 'ღია კითხვა'
+    case 'CLOSED_ENDED':
+      return 'დახურული კითხვა'
+    default:
+      return type || 'არ არის მითითებული'
+  }
+}
+
+interface SortableQuestionProps {
+  question: QuestionPackage['questions'][0]
+  packageId: string
+  isReordering: boolean
+  onEdit: () => void
+}
+
+function SortableQuestion({ question, packageId, isReordering, onEdit }: SortableQuestionProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: question.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center space-x-3 p-3 rounded-md transition-colors ${
+        isDragging 
+          ? 'bg-blue-100 shadow-lg' 
+          : isReordering 
+            ? 'bg-yellow-50 hover:bg-yellow-100 cursor-move' 
+            : 'bg-gray-50'
+      }`}
+      {...attributes}
+      {...(isReordering ? listeners : {})}
+    >
+      <div className="flex items-center space-x-2">
+        <span className="text-black md:text-[16px] text-[14px] font-medium text-blue-600">
+          {question.order}.
+        </span>
+        {isReordering && (
+          <span className="text-gray-400 text-lg">⋮⋮</span>
+        )}
+      </div>
+      <div className="flex-1">
+        <div className="text-black md:text-[16px] text-[14px] font-medium">
+          {question.question.text.length > 100 
+            ? `${question.question.text.substring(0, 100)}...` 
+            : question.question.text
+          }
+        </div>
+        <div className="text-black md:text-[14px] text-[12px] text-gray-500">
+          {question.question.subject?.name || 'საგანი არ არის მითითებული'} • კლასი: {question.question.grade} • რაუნდი: {question.question.round} • ტიპი: {getQuestionTypeInGeorgian(question.question.type)}
+        </div>
+      </div>
+      {!isReordering && (
+        <button
+          onClick={onEdit}
+          className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+        >
+          რედაქტირება
+        </button>
+      )}
+    </div>
+  )
+}
 
 interface QuestionPackage {
   id: string
@@ -19,14 +117,18 @@ interface QuestionPackage {
       }
       options: string[]
       correctAnswer: string
-      questionType: string
+      type: string
       grade: number
       round: number
       chapterName?: string
       paragraphName?: string
     }
   }[]
-  createdByUser: {
+  createdByAdmin?: {
+    name: string
+    lastname: string
+  }
+  createdByTeacher?: {
     name: string
     lastname: string
   }
@@ -44,12 +146,20 @@ function AdminPackagesContent() {
     text: '',
     options: ['', '', '', ''],
     correctAnswer: '',
-    questionType: '',
+    type: '',
     grade: 7,
     round: 1,
     chapterName: '',
     paragraphName: ''
   })
+  const [reorderingPackage, setReorderingPackage] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   useEffect(() => {
     fetchPackages()
@@ -115,7 +225,7 @@ function AdminPackagesContent() {
       text: q.question.text,
       options: q.question.options || ['', '', '', ''],
       correctAnswer: q.question.correctAnswer,
-      questionType: q.question.questionType,
+      type: q.question.type,
       grade: q.question.grade,
       round: q.question.round,
       chapterName: q.question.chapterName || '',
@@ -140,7 +250,7 @@ function AdminPackagesContent() {
           text: '',
           options: ['', '', '', ''],
           correctAnswer: '',
-          questionType: '',
+          type: '',
           grade: 7,
           round: 1,
           chapterName: '',
@@ -166,6 +276,56 @@ function AdminPackagesContent() {
       newExpanded.add(packageId)
     }
     setExpandedPackages(newExpanded)
+  }
+
+  const handleDragEnd = async (event: DragEndEvent, packageId: string) => {
+    const { active, over } = event
+
+    if (!over || active.id === over.id) return
+
+    try {
+      // Update local state immediately for better UX
+      const updatedPackages = packages.map(pkg => {
+        if (pkg.id === packageId) {
+          const oldIndex = pkg.questions.findIndex(q => q.id === active.id)
+          const newIndex = pkg.questions.findIndex(q => q.id === over.id)
+          
+          const newQuestions = arrayMove(pkg.questions, oldIndex, newIndex)
+          
+          // Update order numbers
+          const questionsWithNewOrder = newQuestions.map((q, index) => ({
+            ...q,
+            order: index + 1
+          }))
+          
+          return { ...pkg, questions: questionsWithNewOrder }
+        }
+        return pkg
+      })
+      setPackages(updatedPackages)
+
+      // Send update to server
+      const response = await fetch(`/api/admin/question-packages/${packageId}/reorder`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionOrders: updatedPackages.find(pkg => pkg.id === packageId)?.questions.map(q => ({
+            id: q.id,
+            order: q.order
+          })) || []
+        })
+      })
+
+      if (!response.ok) {
+        // Revert changes if server update failed
+        await fetchPackages()
+        console.error('Failed to update question order')
+      }
+    } catch (error) {
+      console.error('Error reordering questions:', error)
+      // Revert changes on error
+      await fetchPackages()
+    }
   }
 
   if (loading) {
@@ -255,7 +415,7 @@ function AdminPackagesContent() {
                       </p>
                     )}
                     <div className="text-black md:text-[16px] text-[14px] text-gray-500">
-                      შექმნილია: {pkg.createdByUser.name} {pkg.createdByUser.lastname} • {new Date(pkg.createdAt).toLocaleDateString('ka-GE')}
+                      შექმნილია: {pkg.createdByAdmin ? `${pkg.createdByAdmin.name} ${pkg.createdByAdmin.lastname}` : pkg.createdByTeacher ? `${pkg.createdByTeacher.name} ${pkg.createdByTeacher.lastname}` : 'უცნობი მომხმარებელი'} • {new Date(pkg.createdAt).toLocaleDateString('ka-GE')}
                     </div>
                   </div>
                   <div className="flex space-x-2">
@@ -264,6 +424,16 @@ function AdminPackagesContent() {
                       className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-black md:text-[16px] text-[14px]"
                     >
                        რედაქტირება
+                    </button>
+                    <button
+                      onClick={() => setReorderingPackage(reorderingPackage === pkg.id ? null : pkg.id)}
+                      className={`px-3 py-1 rounded-md text-black md:text-[16px] text-[14px] ${
+                        reorderingPackage === pkg.id 
+                          ? 'bg-green-600 text-white hover:bg-green-700' 
+                          : 'bg-yellow-600 text-white hover:bg-yellow-700'
+                      }`}
+                    >
+                      {reorderingPackage === pkg.id ? 'რიგის შეცვლის დასრულება' : 'რიგის შეცვლა'}
                     </button>
                     <button
                       onClick={() => setDeleteModal(pkg.id)}
@@ -288,31 +458,37 @@ function AdminPackagesContent() {
                   </button>
                   
                   {expandedPackages.has(pkg.id) && (
-                    <div className="mt-3 space-y-2">
-                      {pkg.questions.map((q) => (
-                        <div key={q.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-md">
-                          <span className="text-black md:text-[16px] text-[14px] font-medium text-blue-600">
-                            {q.order}.
-                          </span>
-                          <div className="flex-1">
-                            <div className="text-black md:text-[16px] text-[14px] font-medium">
-                              {q.question.text.length > 100 
-                                ? `${q.question.text.substring(0, 100)}...` 
-                                : q.question.text
-                              }
-                            </div>
-                            <div className="text-black md:text-[14px] text-[12px] text-gray-500">
-                              {q.question.subject?.name || 'საგანი არ არის მითითებული'} • კლასი: {q.question.grade} • რაუნდი: {q.question.round}
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleEditQuestion(pkg, q)}
-                            className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-                          >
-                            რედაქტირება
-                          </button>
+                    <div className="mt-3">
+                      {reorderingPackage === pkg.id ? (
+                        <div className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+                          <p className="text-black md:text-[16px] text-[14px] text-yellow-800">
+                            💡 კითხვების რიგის შესაცვლელად გადაიტანეთ ისინი drag and drop-ით
+                          </p>
                         </div>
-                      ))}
+                      ) : null}
+                      
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={(event) => handleDragEnd(event, pkg.id)}
+                      >
+                        <SortableContext
+                          items={pkg.questions.map(q => q.id)}
+                          strategy={verticalListSortingStrategy}
+                        >
+                          <div className="space-y-2">
+                            {pkg.questions.map((q) => (
+                              <SortableQuestion
+                                key={q.id}
+                                question={q}
+                                packageId={pkg.id}
+                                isReordering={reorderingPackage === pkg.id}
+                                onEdit={() => handleEditQuestion(pkg, q)}
+                              />
+                            ))}
+                          </div>
+                        </SortableContext>
+                      </DndContext>
                     </div>
                   )}
                 </div>
@@ -461,7 +637,7 @@ function AdminPackagesContent() {
                    სწორი პასუხი *
                  </label>
                  <select
-                   value={questionEditForm.correctAnswer}
+                   value={questionEditForm.correctAnswer || ''}
                    onChange={(e) => setQuestionEditForm({ ...questionEditForm, correctAnswer: e.target.value })}
                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black md:text-[18px] text-[16px]"
                  >
@@ -483,16 +659,16 @@ function AdminPackagesContent() {
                <button
                  onClick={() => {
                    setEditingQuestion(null)
-                   setQuestionEditForm({
-                     text: '',
-                     options: ['', '', '', ''],
-                     correctAnswer: '',
-                     questionType: '',
-                     grade: 7,
-                     round: 1,
-                     chapterName: '',
-                     paragraphName: ''
-                   })
+                                     setQuestionEditForm({
+                    text: '',
+                    options: ['', '', '', ''],
+                    correctAnswer: '',
+                    type: '',
+                    grade: 7,
+                    round: 1,
+                    chapterName: '',
+                    paragraphName: ''
+                  })
                  }}
                  className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 text-black md:text-[18px] text-[16px]"
                >

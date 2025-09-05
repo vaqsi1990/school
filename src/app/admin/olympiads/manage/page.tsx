@@ -231,7 +231,7 @@ export default function ManageOlympiadsPage() {
               </div>
               <div className="flex gap-4">
                 <select
-                  value={isActiveFilter}
+                  value={isActiveFilter || 'all'}
                   onChange={(e) => setIsActiveFilter(e.target.value)}
                   className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px]"
                 >
