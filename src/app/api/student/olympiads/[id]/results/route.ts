@@ -3,6 +3,19 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+interface QuestionWithDetails {
+  questionId: string
+  question: {
+    text: string
+    type: string
+    options: string[]
+    correctAnswer: string | null
+    points: number
+    image: string | null
+    imageOptions: string[]
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -51,7 +64,7 @@ export async function GET(
 
     const maxScore = olympiad.packages.reduce((total, pkg) => {
       return total + pkg.questions.reduce((pkgTotal, qp) => {
-        return pkgTotal + ((qp as any).question?.points || 1)
+        return pkgTotal + ((qp as QuestionWithDetails).question?.points || 1)
       }, 0)
     }, 0)
 
