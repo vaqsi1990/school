@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, use, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -69,12 +69,7 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
 
   const gradeOptions = [7, 8, 9, 10, 11, 12]
 
-  useEffect(() => {
-    fetchOlympiad()
-    fetchAvailableData()
-  }, [resolvedParams.id])
-
-  const fetchOlympiad = async () => {
+  const fetchOlympiad = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/olympiads/${resolvedParams.id}`)
       if (!response.ok) {
@@ -106,7 +101,12 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [resolvedParams.id])
+
+  useEffect(() => {
+    fetchOlympiad()
+    fetchAvailableData()
+  }, [fetchOlympiad])
 
   const fetchAvailableData = async () => {
     try {
@@ -121,7 +121,7 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
       const subjectsResponse = await fetch('/api/subjects')
       if (subjectsResponse.ok) {
         const subjectsData = await subjectsResponse.json()
-        setAvailableSubjects(subjectsData.subjects?.map((s: any) => s.name) || [])
+        setAvailableSubjects(subjectsData.subjects?.map((s: { name: string }) => s.name) || [])
       }
     } catch (err) {
       console.error('Error fetching available data:', err)
@@ -161,7 +161,7 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
     }
   }
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
