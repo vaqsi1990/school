@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
 }
 
@@ -8,41 +8,38 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Base User model with common fields
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  userType  UserType
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  student   Student?
-  teacher   Teacher?
-  admin     Admin?
-  accounts  Account[]
-  sessions  Session[]
+  id           String        @id @default(cuid())
+  email        String        @unique
+  password     String
+  userType     UserType
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  accounts     Account[]
+  sessions     Session[]
+  admin        Admin?
   manualScores ManualScore[]
+  student      Student?
+  teacher      Teacher?
 
   @@map("users")
 }
-model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -52,16 +49,15 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model VerificationToken {
-  id         String   @id @default(cuid())
-  email      String
-  token      String   @unique
-  expires    DateTime
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
 
   @@unique([email, token])
   @@map("verification_tokens")
@@ -87,101 +83,86 @@ model VerifiedEmail {
   @@map("verified_emails")
 }
 
-// Student model
 model Student {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  name      String
-  lastname  String
-  grade     Int
-  school    String
-  phone     String   @unique
-  code      String   @unique @db.VarChar(6) // 6-digit unique code
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  participations StudentOlympiad[]
+  id                          String                 @id @default(cuid())
+  userId                      String                 @unique
+  name                        String
+  lastname                    String
+  grade                       Int
+  school                      String
+  phone                       String                 @unique
+  code                        String                 @unique @db.VarChar(6)
+  createdAt                   DateTime               @default(now())
+  updatedAt                   DateTime               @updatedAt
+  manualScores                ManualScore[]
+  answers                     StudentAnswer[]
   olympiadEventParticipations StudentOlympiadEvent[]
-  answers        StudentAnswer[]
-  manualScores   ManualScore[]
+  participations              StudentOlympiad[]
+  user                        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("students")
 }
 
-// Teacher model
 model Teacher {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  name      String
-  lastname  String
-  subject   String   // Subject they teach
-  school    String
-  phone     String   @unique
-  isVerified Boolean @default(false)
-  canReviewAnswers Boolean @default(false) // Permission to review student answers
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdOlympiads Olympiad[]     @relation("CreatedOlympiads")
-  questionSets   QuestionSet[]    // Question sets created by this teacher
-  createdQuestions Question[]      @relation("CreatedByTeacher")
-  createdQuestionPackages QuestionPackage[] @relation("TeacherQuestionPackages") // Question packages created by this teacher
+  id                      String            @id @default(cuid())
+  userId                  String            @unique
+  name                    String
+  lastname                String
+  subject                 String
+  school                  String
+  phone                   String            @unique
+  isVerified              Boolean           @default(false)
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  canReviewAnswers        Boolean           @default(false)
+  createdOlympiads        Olympiad[]        @relation("CreatedOlympiads")
+  createdQuestionPackages QuestionPackage[] @relation("TeacherQuestionPackages")
+  questionSets            QuestionSet[]
+  createdQuestions        Question[]        @relation("CreatedByTeacher")
+  user                    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("teachers")
 }
 
-// Admin model
 model Admin {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  name      String
-  lastname  String
-  role      AdminRole @default(SUPER_ADMIN)
-  permissions String[] 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  managedOlympiads Olympiad[]     @relation("ManagedOlympiads") // Olympiads managed by this admin
-  createdQuestionPackages QuestionPackage[] @relation("AdminQuestionPackages") // Question packages created by this admin
-  createdOlympiadEvents OlympiadEvent[] @relation("CreatedOlympiadEvents") // Olympiad events created by this admin
+  id                      String            @id @default(cuid())
+  userId                  String            @unique
+  name                    String
+  lastname                String
+  role                    AdminRole         @default(SUPER_ADMIN)
+  permissions             String[]
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+  user                    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdOlympiadEvents   OlympiadEvent[]   @relation("CreatedOlympiadEvents")
+  managedOlympiads        Olympiad[]        @relation("ManagedOlympiads")
+  createdQuestionPackages QuestionPackage[] @relation("AdminQuestionPackages")
 
   @@map("admins")
 }
 
-// Subject model
 model Subject {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  chapters    Chapter[]
-  olympiads   Olympiad[]
-  questions   Question[]
+  id           String        @id @default(cuid())
+  name         String        @unique
+  description  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  chapters     Chapter[]
+  olympiads    Olympiad[]
   questionSets QuestionSet[]
+  questions    Question[]
 
   @@map("subjects")
 }
 
-// Chapter model for organizing questions
 model Chapter {
-  id          String   @id @default(cuid())
+  id          String      @id @default(cuid())
   name        String
   description String?
-  order       Int      // For ordering chapters
+  order       Int
   subjectId   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   subject     Subject     @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   paragraphs  Paragraph[]
   questions   Question[]
@@ -189,326 +170,283 @@ model Chapter {
   @@map("chapters")
 }
 
-// Paragraph model for further organization
 model Paragraph {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String
   content   String?
-  order     Int      // For ordering paragraphs
+  order     Int
   chapterId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   chapter   Chapter    @relation(fields: [chapterId], references: [id], onDelete: Cascade)
   questions Question[]
 
   @@map("paragraphs")
 }
 
-// QuestionSet model for teachers to organize questions
 model QuestionSet {
-  id          String   @id @default(cuid())
+  id          String                @id @default(cuid())
   name        String
   description String?
   teacherId   String
   subjectId   String
   grade       Int
-  isPublic    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  teacher     Teacher        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  subject     Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  isPublic    Boolean               @default(false)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
   questions   QuestionSetQuestion[]
+  subject     Subject               @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacher     Teacher               @relation(fields: [teacherId], references: [id], onDelete: Cascade)
 
   @@map("question_sets")
 }
 
-// Question model
 model Question {
-  id          String   @id @default(cuid())
-  text        String
-  type        QuestionType
-  options     String[] // For multiple choice, matching, closed-ended questions
-  imageOptions String[] // For closed-ended questions with image options
-  correctAnswer String? // For auto-scored questions
-  points      Int      @default(1)
-  maxPoints   Int?     // Maximum possible points for manual scoring
-  image       String?  // Optional image URL for questions that need visual content
-  content     String?  // For TEXT_ANALYSIS and MAP_ANALYSIS questions: stores sub-questions as JSON
-  matchingPairs Json?  // For matching questions: [{"left": "A", "right": "1"}, {"left": "B", "right": "2"}]
-  rubric      String?  // For manual scoring - criteria for grading
-  subjectId   String
-  chapterId   String?
-  paragraphId String?
-  chapterName String?  // Text field for chapter name (e.g., "თავი 1")
-  paragraphName String? // Text field for paragraph name (e.g., "პარაგრაფი 1.2")
-  grade       Int      // Grade level for the question
-  round       Int      // Which round this question belongs to (1, 2, or 3)
-  createdBy   String?  // Teacher ID who created this question
-  createdByType UserType? // Whether created by ADMIN or TEACHER
-  status      QuestionStatus @default(ACTIVE) // Status of the question (ACTIVE, PENDING, REJECTED)
-  isReported  Boolean @default(false) // Whether the question has been reported
-  reportReason String? // Reason for reporting
-  reportedBy  String? // Teacher ID who reported the question
-  reportedAt  DateTime? // When the question was reported
-  isAutoScored Boolean @default(true) // Whether system can auto-score this question
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  subject    Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  chapter    Chapter?       @relation(fields: [chapterId], references: [id])
-  paragraph  Paragraph?     @relation(fields: [paragraphId], references: [id])
-  createdByTeacher Teacher? @relation("CreatedByTeacher", fields: [createdBy], references: [id])
-  answers    StudentAnswer[]
+  id                String                    @id @default(cuid())
+  text              String
+  type              QuestionType
+  options           String[]
+  correctAnswer     String?
+  points            Int                       @default(1)
+  subjectId         String
+  chapterId         String?
+  paragraphId       String?
+  grade             Int
+  createdBy         String?
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  image             String?
+  round             Int
+  chapterName       String?
+  content           String?
+  isAutoScored      Boolean                   @default(true)
+  matchingPairs     Json?
+  maxPoints         Int?
+  paragraphName     String?
+  rubric            String?
+  imageOptions      String[]
+  createdByType     UserType?
+  isReported        Boolean                   @default(false)
+  reportReason      String?
+  reportedAt        DateTime?
+  reportedBy        String?
+  status            QuestionStatus            @default(ACTIVE)
+  manualScores      ManualScore[]
   olympiadQuestions OlympiadQuestion[]
-  questionSets QuestionSetQuestion[]
-  questionPackages QuestionPackageQuestion[]
-  manualScores ManualScore[]
+  questionPackages  QuestionPackageQuestion[]
+  questionSets      QuestionSetQuestion[]
+  chapter           Chapter?                  @relation(fields: [chapterId], references: [id])
+  createdByTeacher  Teacher?                  @relation("CreatedByTeacher", fields: [createdBy], references: [id])
+  paragraph         Paragraph?                @relation(fields: [paragraphId], references: [id])
+  subject           Subject                   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  answers           StudentAnswer[]
 
   @@map("questions")
 }
 
-// Junction table for question sets and questions
 model QuestionSetQuestion {
-  id           String   @id @default(cuid())
+  id            String      @id @default(cuid())
   questionSetId String
-  questionId   String
-  order        Int      // Question order in the set
-  createdAt    DateTime @default(now())
-
-  // Relations
-  questionSet QuestionSet @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
-  question    Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId    String
+  order         Int
+  createdAt     DateTime    @default(now())
+  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionSet   QuestionSet @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
 
   @@unique([questionSetId, questionId])
   @@map("question_set_questions")
 }
 
-// Question Package model - for grouping questions together
 model QuestionPackage {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  createdBy   String   // Admin or Teacher ID who created this package
-  createdByType UserType // Whether created by ADMIN or TEACHER
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  createdByAdmin Admin? @relation("AdminQuestionPackages", fields: [createdBy], references: [id], onDelete: Cascade, map: "question_packages_createdBy_admin_fkey")
-  createdByTeacher Teacher? @relation("TeacherQuestionPackages", fields: [createdBy], references: [id], onDelete: Cascade, map: "question_packages_createdBy_teacher_fkey")
-  questions    QuestionPackageQuestion[]
-  olympiadEvents OlympiadEvent[] // Many-to-many relationship with olympiad events
+  id               String                    @id @default(cuid())
+  name             String
+  description      String?
+  createdByAdminId String?
+  createdByTeacherId String?
+  createdAt        DateTime                  @default(now())
+  updatedAt        DateTime                  @updatedAt
+  questions        QuestionPackageQuestion[]
+  createdByAdmin   Admin?                    @relation("AdminQuestionPackages", fields: [createdByAdminId], references: [id], onDelete: Cascade)
+  createdByTeacher Teacher?                  @relation("TeacherQuestionPackages", fields: [createdByTeacherId], references: [id], onDelete: Cascade)
+  olympiadEvents   OlympiadEvent[]           @relation("OlympiadEventToQuestionPackage")
 
   @@map("question_packages")
 }
 
-// Junction table for question packages and questions
 model QuestionPackageQuestion {
-  id              String   @id @default(cuid())
+  id                String          @id @default(cuid())
   questionPackageId String
-  questionId      String
-  order           Int      // Question order in the package
-  createdAt       DateTime @default(now())
-
-  // Relations
-  questionPackage QuestionPackage @relation(fields: [questionPackageId], references: [id], onDelete: Cascade)
-  question        Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionId        String
+  order             Int
+  createdAt         DateTime        @default(now())
+  question          Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionPackage   QuestionPackage @relation(fields: [questionPackageId], references: [id], onDelete: Cascade)
 
   @@unique([questionPackageId, questionId])
   @@map("question_package_questions")
 }
 
-// Olympiad model - represents a specific test for a subject and grade
 model Olympiad {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  subjectId   String
-  grade       Int      // Specific grade level for this olympiad
-  createdBy   String?  // Teacher ID who created this olympiad
-  managedBy   String?  // Admin ID who manages this olympiad
-  startDate   DateTime
-  endDate     DateTime
-  isActive    Boolean  @default(false)
-  maxParticipants Int?  // Maximum number of students allowed
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String             @id @default(cuid())
+  name             String
+  description      String?
+  subjectId        String
+  createdBy        String?
+  managedBy        String?
+  startDate        DateTime
+  endDate          DateTime
+  isActive         Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  grade            Int
+  maxParticipants  Int?
+  manualScores     ManualScore[]
+  questions        OlympiadQuestion[]
+  createdByTeacher Teacher?           @relation("CreatedOlympiads", fields: [createdBy], references: [id])
+  managedByAdmin   Admin?             @relation("ManagedOlympiads", fields: [managedBy], references: [id])
+  subject          Subject            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  rounds           Round[]
+  participations   StudentOlympiad[]
 
-  // Relations
-  subject        Subject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  createdByTeacher Teacher?        @relation("CreatedOlympiads", fields: [createdBy], references: [id])
-  managedByAdmin   Admin?          @relation("ManagedOlympiads", fields: [managedBy], references: [id])
-  rounds         Round[]
-  participations StudentOlympiad[]
-  questions      OlympiadQuestion[]
-  manualScores   ManualScore[]
-
-  @@unique([subjectId, grade, name]) // Ensure unique olympiad per subject-grade combination
+  @@unique([subjectId, grade, name])
   @@map("olympiads")
 }
 
-// New OlympiadEvent model - represents a multi-subject, multi-grade olympiad event
 model OlympiadEvent {
-  id                    String   @id @default(cuid())
-  name                  String
-  description           String?
-  startDate             DateTime
-  endDate               DateTime
-  registrationDeadline  DateTime
-  maxParticipants       Int
-  isActive              Boolean  @default(true)
-  rounds                Int      @default(3)
-  subjects              String[] // Array of subject names
-  grades                Int[]    // Array of grade numbers
-  questionTypes         QuestionType[] // Array of question types to include (in order)
-  questionTypeQuantities Json?   // Object with question type quantities: {"MATCHING": 6, "CLOSED_ENDED": 4}
-  minimumPointsThreshold Int?    // Minimum points required to pass the olympiad
-  createdBy             String   // Admin ID who created this olympiad
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-
-  // Relations
-  createdByUser         Admin    @relation("CreatedOlympiadEvents", fields: [createdBy], references: [id], onDelete: Cascade)
-  packages              QuestionPackage[] // Many-to-many relationship with packages
-  participations        StudentOlympiadEvent[]
+  id                     String                 @id @default(cuid())
+  name                   String
+  description            String?
+  startDate              DateTime
+  endDate                DateTime
+  registrationDeadline   DateTime
+  maxParticipants        Int
+  isActive               Boolean                @default(true)
+  rounds                 Int                    @default(3)
+  subjects               String[]
+  grades                 Int[]
+  createdBy              String
+  createdAt              DateTime               @default(now())
+  updatedAt              DateTime               @updatedAt
+  minimumPointsThreshold Int?
+  questionTypes          QuestionType[]
+  questionTypeQuantities Json?
+  createdByUser          Admin                  @relation("CreatedOlympiadEvents", fields: [createdBy], references: [id], onDelete: Cascade)
+  participations         StudentOlympiadEvent[]
+  packages               QuestionPackage[]      @relation("OlympiadEventToQuestionPackage")
 
   @@map("olympiad_events")
 }
 
-// Round model for olympiad rounds - exactly 3 rounds per olympiad
 model Round {
-  id         String   @id @default(cuid())
-  name       String   // e.g., "Round 1", "Round 2", "Round 3"
-  order      Int      // Round order (1, 2, or 3)
-  startTime  DateTime // Specific date and time for this round
-  endTime    DateTime // End time for this round
-  duration   Int      // Duration in minutes
-  maxQuestions Int    // Maximum number of questions for this round
-  olympiadId String
-  createdAt  DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(cuid())
+  name         String
+  order        Int
+  startTime    DateTime
+  endTime      DateTime
+  duration     Int
+  olympiadId   String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  maxQuestions Int
+  olympiad     Olympiad @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
 
-  // Relations
-  olympiad Olympiad @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
-
-  @@unique([olympiadId, order]) // Ensure unique round order per olympiad
+  @@unique([olympiadId, order])
   @@map("rounds")
 }
 
-// Junction table for olympiad questions with round information
 model OlympiadQuestion {
   id          String   @id @default(cuid())
   olympiadId  String
   questionId  String
-  roundNumber Int      // Which round this question appears in (1, 2, or 3)
-  order       Int      // Question order within the round
+  order       Int
   createdAt   DateTime @default(now())
-
-  // Relations
-  olympiad Olympiad  @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
-  question Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  roundNumber Int
+  olympiad    Olympiad @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@unique([olympiadId, questionId])
   @@map("olympiad_questions")
 }
 
-// Student participation in olympiads
 model StudentOlympiad {
-  id         String   @id @default(cuid())
-  studentId  String
-  olympiadId String
-  startTime  DateTime?
-  endTime    DateTime?
-  currentRound Int     @default(1) // Track which round student is currently in
-  round1Score Int?     // Score for round 1
-  round2Score Int?     // Score for round 2
-  round3Score Int?     // Score for round 3
-  totalScore  Int?     // Combined score from all rounds
-  status     ParticipationStatus @default(REGISTERED)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // Relations
-  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  olympiad Olympiad @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
+  id           String              @id @default(cuid())
+  studentId    String
+  olympiadId   String
+  startTime    DateTime?
+  endTime      DateTime?
+  status       ParticipationStatus @default(REGISTERED)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  currentRound Int                 @default(1)
+  round1Score  Int?
+  round2Score  Int?
+  round3Score  Int?
+  totalScore   Int?
+  olympiad     Olympiad            @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
+  student      Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, olympiadId])
   @@map("student_olympiads")
 }
 
-// Student participation in olympiad events
 model StudentOlympiadEvent {
-  id         String   @id @default(cuid())
-  studentId  String
+  id              String              @id @default(cuid())
+  studentId       String
   olympiadEventId String
-  startTime  DateTime?
-  endTime    DateTime?
-  currentRound Int     @default(1) // Track which round student is currently in
-  round1Score Int?     // Score for round 1
-  round2Score Int?     // Score for round 2
-  round3Score Int?     // Score for round 3
-  totalScore  Int?     // Combined score from all rounds
-  status     ParticipationStatus @default(REGISTERED)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // Relations
-  student      Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  olympiadEvent OlympiadEvent @relation(fields: [olympiadEventId], references: [id], onDelete: Cascade)
+  startTime       DateTime?
+  endTime         DateTime?
+  currentRound    Int                 @default(1)
+  round1Score     Int?
+  round2Score     Int?
+  round3Score     Int?
+  totalScore      Int?
+  status          ParticipationStatus @default(REGISTERED)
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  olympiadEvent   OlympiadEvent       @relation(fields: [olympiadEventId], references: [id], onDelete: Cascade)
+  student         Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, olympiadEventId])
   @@map("student_olympiad_events")
 }
 
-// Student answers to questions with round tracking
 model StudentAnswer {
-  id         String   @id @default(cuid())
-  studentId  String
-  questionId String
-  olympiadId String?  // Track which olympiad this answer is for
-  roundNumber Int?     // Track which round this answer is for
-  answer     String
-  isCorrect  Boolean?
-  points     Int?
-  answeredAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  studentId   String
+  questionId  String
+  answer      String
+  isCorrect   Boolean?
+  points      Int?
+  answeredAt  DateTime @default(now())
+  olympiadId  String?
+  roundNumber Int?
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-  // Relations
-  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-
-  @@unique([studentId, questionId, olympiadId]) // Allow same question in different olympiads
+  @@unique([studentId, questionId, olympiadId])
   @@map("student_answers")
 }
 
-// Manual scoring for questions that require human evaluation
 model ManualScore {
-  id         String   @id @default(cuid())
-  studentId  String
-  questionId String
-  olympiadId String
+  id          String   @id @default(cuid())
+  studentId   String
+  questionId  String
+  olympiadId  String
   roundNumber Int
-  scoredBy   String   // Teacher/Admin ID who scored this
-  score      Float    // Can be fractional (0.5, 1.5, etc.)
-  maxScore   Float    // Maximum possible score for this question
-  feedback   String?  // Optional feedback from scorer
-  scoredAt   DateTime @default(now())
-
-  // Relations
-  student  Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  olympiad Olympiad @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
-  scorer   User     @relation(fields: [scoredBy], references: [id], onDelete: Cascade)
+  scoredBy    String
+  score       Float
+  maxScore    Float
+  feedback    String?
+  scoredAt    DateTime @default(now())
+  olympiad    Olympiad @relation(fields: [olympiadId], references: [id], onDelete: Cascade)
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  scorer      User     @relation(fields: [scoredBy], references: [id], onDelete: Cascade)
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, questionId, olympiadId, roundNumber])
   @@map("manual_scores")
 }
 
-// Enums
 enum UserType {
   STUDENT
   TEACHER
@@ -522,11 +460,11 @@ enum AdminRole {
 }
 
 enum QuestionType {
-  MATCHING             // შესაბამისობა - auto-scored
-  TEXT_ANALYSIS        // ტექსტის ანალიზი - manual scoring
-  MAP_ANALYSIS         // რუკის ანალიზი - manual scoring
-  OPEN_ENDED           // ღია კითხვა - manual scoring
-  CLOSED_ENDED         // დახურული კითხვა - manual scoring
+  MATCHING
+  TEXT_ANALYSIS
+  MAP_ANALYSIS
+  OPEN_ENDED
+  CLOSED_ENDED
 }
 
 enum ParticipationStatus {

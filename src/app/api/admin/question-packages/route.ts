@@ -19,8 +19,11 @@ export async function POST(request: NextRequest) {
     })
 
     if (!admin) {
+      console.error('Admin record not found for user:', session.user.id)
       return NextResponse.json({ error: 'Admin record not found' }, { status: 404 })
     }
+
+    console.log('Admin found:', { id: admin.id, name: admin.name, lastname: admin.lastname })
 
     const { name, questionIds, description } = await request.json()
 
@@ -45,12 +48,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the question package
+    console.log('Creating question package with data:', {
+      name,
+      description: description || '',
+      createdBy: admin.id,
+      createdByType: 'ADMIN',
+      questionCount: questionIds.length
+    })
+    
     const questionPackage = await prisma.questionPackage.create({
       data: {
         name,
         description: description || '',
-        createdBy: admin.id,
-        createdByType: 'ADMIN',
+        createdByAdminId: admin.id,
         questions: {
           create: questionIds.map((questionId: string, index: number) => ({
             questionId,
@@ -77,6 +87,15 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error creating question package:', error)
+    
+    // Check if it's a foreign key constraint error
+    if (error instanceof Error && error.message.includes('Foreign key constraint')) {
+      return NextResponse.json(
+        { error: 'Database constraint error. Please check if admin record exists.' },
+        { status: 400 }
+      )
+    }
+    
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -108,6 +127,12 @@ export async function GET(request: NextRequest) {
           }
         },
         createdByAdmin: {
+          select: {
+            name: true,
+            lastname: true
+          }
+        },
+        createdByTeacher: {
           select: {
             name: true,
             lastname: true
