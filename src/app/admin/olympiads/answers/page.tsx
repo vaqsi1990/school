@@ -34,7 +34,6 @@ interface OlympiadSummary {
 }
 
 function AdminAnswersContent() {
-  const { user } = useAuth()
   const [answers, setAnswers] = useState<StudentAnswer[]>([])
   const [olympiadSummaries, setOlympiadSummaries] = useState<OlympiadSummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -48,7 +47,7 @@ function AdminAnswersContent() {
   useEffect(() => {
     fetchAnswers()
     fetchOlympiadSummaries()
-  }, [filter, selectedOlympiad, currentPage])
+  }, [filter, selectedOlympiad, currentPage, itemsPerPage])
 
   const fetchAnswers = async () => {
     try {
@@ -198,7 +197,7 @@ function AdminAnswersContent() {
               </label>
               <select
                 value={filter}
-                onChange={(e) => setFilter(e.target.value as any)}
+                onChange={(e) => setFilter(e.target.value as 'all' | 'COMPLETED' | 'IN_PROGRESS' | 'DISQUALIFIED')}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="all">ყველა სტატუსი</option>

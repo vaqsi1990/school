@@ -42,7 +42,7 @@ export async function POST(
     await Promise.all(updatePromises)
 
     // Calculate total score
-    const totalScore = Object.values(scores).reduce((sum: number, score: any) => sum + score, 0)
+    const totalScore = Object.values(scores).reduce((sum: number, score: unknown) => sum + Number(score), 0)
 
     // Update participation total score
     await prisma.studentOlympiadEvent.update({
