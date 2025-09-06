@@ -158,7 +158,7 @@ function TestQuestionsContent() {
 
   const calculateScore = () => {
     let correct = 0
-    let total = selectedQuestions.length
+    const total = selectedQuestions.length
     
     selectedQuestions.forEach(question => {
       if (question.type === 'MATCHING') {
