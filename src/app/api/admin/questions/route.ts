@@ -3,7 +3,13 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(request: NextRequest) {
+interface QuestionWithSubQuestions {
+  id: string
+  type: string
+  subQuestions?: any[]
+}
+
+export async function GET() {
   try {
     console.log('=== GET /api/admin/questions START ===')
     
@@ -70,7 +76,7 @@ export async function GET(request: NextRequest) {
     })
 
     console.log('=== GET /api/admin/questions SUCCESS ===')
-    console.log('Returning questions with subQuestions:', questionsWithSubQuestions.filter(q => q.type === 'TEXT_ANALYSIS' || q.type === 'MAP_ANALYSIS').map(q => ({ id: q.id, type: q.type, hasSubQuestions: !!(q as any).subQuestions })))
+    console.log('Returning questions with subQuestions:', questionsWithSubQuestions.filter(q => q.type === 'TEXT_ANALYSIS' || q.type === 'MAP_ANALYSIS').map(q => ({ id: q.id, type: q.type, hasSubQuestions: !!(q as QuestionWithSubQuestions).subQuestions })))
     return NextResponse.json({ questions: questionsWithSubQuestions })
   } catch (error) {
     console.error('=== GET /api/admin/questions ERROR ===')
