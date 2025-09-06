@@ -10,6 +10,7 @@ interface OlympiadEventData {
   description: string | null
   startDate: Date
   endDate: Date
+  registrationStartDate: Date
   registrationDeadline: Date
   subjects: string[]
   grades: number[]
@@ -98,6 +99,7 @@ export async function GET(request: NextRequest) {
         description: true,
         startDate: true,
         endDate: true,
+        registrationStartDate: true,
         registrationDeadline: true,
         subjects: true,
         grades: true,
@@ -134,9 +136,20 @@ export async function GET(request: NextRequest) {
     const transformedOlympiads: TransformedOlympiad[] = olympiads.map((olympiad: OlympiadEventData) => {
       const registrationStatus = registrationMap.get(olympiad.id)
       const now = new Date()
-      const isRegistrationOpen = now <= olympiad.registrationDeadline
+      const isRegistrationOpen = now >= olympiad.registrationStartDate && now <= olympiad.registrationDeadline
       const hasStarted = now >= olympiad.startDate
       const hasEnded = now >= olympiad.endDate
+      
+      console.log('Olympiad:', olympiad.name, {
+        now: now.toISOString(),
+        registrationStartDate: olympiad.registrationStartDate.toISOString(),
+        registrationDeadline: olympiad.registrationDeadline.toISOString(),
+        startDate: olympiad.startDate.toISOString(),
+        endDate: olympiad.endDate.toISOString(),
+        isRegistrationOpen,
+        hasStarted,
+        hasEnded
+      })
       
       let status: 'upcoming' | 'completed' = 'upcoming'
       if (hasEnded) {
@@ -151,6 +164,7 @@ export async function GET(request: NextRequest) {
         description: olympiad.description || '',
         startDate: olympiad.startDate.toISOString(),
         endDate: olympiad.endDate.toISOString(),
+        registrationStartDate: olympiad.registrationStartDate.toISOString(),
         registrationDeadline: olympiad.registrationDeadline.toISOString(),
         subjects: olympiad.subjects,
         grades: olympiad.grades,
@@ -178,10 +192,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('POST /api/student/olympiads - Starting registration')
+    
     // Check authentication
     const session = await getServerSession(authOptions)
+    console.log('Session:', session?.user?.email, session?.user?.userType)
     
     if (!session) {
+      console.log('No session found')
       return NextResponse.json(
         { error: 'ავტორიზაცია საჭიროა' },
         { status: 401 }
@@ -190,6 +208,7 @@ export async function POST(request: NextRequest) {
 
     // Check if user is a student
     if (session.user.userType !== 'STUDENT') {
+      console.log('User is not a student:', session.user.userType)
       return NextResponse.json(
         { error: 'მხოლოდ სტუდენტებს შეუძლიათ ოლიმპიადებზე რეგისტრაცია' },
         { status: 403 }
@@ -197,6 +216,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { olympiadId } = await request.json()
+    console.log('Olympiad ID:', olympiadId)
 
     if (!olympiadId) {
       return NextResponse.json(

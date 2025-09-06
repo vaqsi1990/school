@@ -318,6 +318,7 @@ model OlympiadEvent {
   description            String?
   startDate              DateTime
   endDate                DateTime
+  registrationStartDate  DateTime               @default(now())
   registrationDeadline   DateTime
   maxParticipants        Int
   isActive               Boolean                @default(true)

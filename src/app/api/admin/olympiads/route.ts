@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
       description,
       startDate,
       endDate,
+      registrationStartDate,
       registrationDeadline,
       maxParticipants,
       isActive,
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Validate required fields
-    if (!name || !description || !startDate || !endDate || !registrationDeadline) {
+    if (!name || !description || !startDate || !endDate || !registrationStartDate || !registrationDeadline) {
       return NextResponse.json(
         { error: 'ყველა სავალდებულო ველი უნდა იყოს შევსებული' },
         { status: 400 }
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
     // Validate dates
     const start = new Date(startDate)
     const end = new Date(endDate)
+    const registrationStart = new Date(registrationStartDate)
     const registration = new Date(registrationDeadline)
     const now = new Date()
 
@@ -66,6 +68,13 @@ export async function POST(request: NextRequest) {
     if (end < start) {
       return NextResponse.json(
         { error: 'დასრულების თარიღი უნდა იყოს დაწყების თარიღის შემდეგ ან იმავე დღეს' },
+        { status: 400 }
+      )
+    }
+
+    if (registrationStart >= registration) {
+      return NextResponse.json(
+        { error: 'რეგისტრაციის გახსნის თარიღი უნდა იყოს რეგისტრაციის ბოლო თარიღამდე' },
         { status: 400 }
       )
     }
@@ -201,6 +210,7 @@ export async function POST(request: NextRequest) {
         description,
         startDate: new Date(startDate),
         endDate: new Date(endDate),
+        registrationStartDate: new Date(registrationStartDate),
         registrationDeadline: new Date(registrationDeadline),
         maxParticipants: parseInt(maxParticipants),
         isActive,

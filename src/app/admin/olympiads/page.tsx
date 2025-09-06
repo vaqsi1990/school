@@ -184,16 +184,16 @@ function AdminOlympiadsContent() {
             <div className="p-4 flex-1 flex flex-col">
               <div className="flex items-center">
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[20px]  text-[18px]">სტატისტიკა</h3>
+                  <h3 className="text-black md:text-[20px]  text-[18px]">პასუხები</h3>
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
                 <p className="text-black md:text-[18px] text-[16px] flex-1">
-                  ნახეთ ოლიმპიადების სტატისტიკა და ანალიტიკა.
+                  ნახეთ ოლიმპიადების პასუხები და შეამოწმეთ პასუხები პრივატულობის დაცვით.
                 </p>
                 <button className="mt-3 w-full cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
-                  <Link href="/admin/olympiads/statistics" className="block w-full h-full text-white">
-                    სტატისტიკა
+                  <Link href="/admin/olympiads/answers" className="block w-full h-full text-white">
+                    პასუხების შემოწმება
                   </Link>
                 </button>
               </div>
@@ -205,16 +205,16 @@ function AdminOlympiadsContent() {
             <div className="p-4 flex-1 flex flex-col">
               <div className="flex items-center">
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[20px]  text-[18px]">პარამეტრები</h3>
+                  <h3 className="text-black md:text-[20px]  text-[18px]">ტესტის კითხვები</h3>
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
                 <p className="text-black md:text-[18px] text-[16px] flex-1">
-                  მართეთ ოლიმპიადების სისტემის პარამეტრები.
+                  მართეთ ტესტის კითხვები.
                 </p>
                 <button className="mt-3 w-full cursor-pointer bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
-                  <Link href="/admin/olympiads/settings" className="block w-full h-full text-white">
-                    პარამეტრები
+                  <Link href="/admin/olympiads/testquestions" className="block w-full h-full text-white">
+                    ტესტის კითხვები
                   </Link>
                 </button>
               </div>

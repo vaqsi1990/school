@@ -66,20 +66,38 @@ export async function POST(
       pkg.questions.map(qp => qp.question)
     )
 
+    // Save individual answers to StudentAnswer table
+    const savedAnswers = []
     for (const question of allQuestions) {
       totalQuestions++
       const studentAnswer = answers[question.id]
       
       if (studentAnswer) {
         let isCorrect = false
+        let points = 0
         
         if (question.type === 'MATCHING' || question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS' || question.type === 'CLOSED_ENDED') {
           isCorrect = studentAnswer === question.correctAnswer
+          points = isCorrect ? question.points : 0
         } else if (question.type === 'OPEN_ENDED') {
           // For open-ended questions, we'll need manual review
           // For now, we'll give partial credit
           isCorrect = studentAnswer.trim().length > 0
+          points = 0 // Will be scored manually later
         }
+        
+        // Save individual answer
+        const savedAnswer = await prisma.studentAnswer.create({
+          data: {
+            studentId: student.id,
+            questionId: question.id,
+            answer: studentAnswer,
+            isCorrect: isCorrect,
+            points: points,
+            olympiadId: olympiad.id // Add olympiad reference
+          }
+        })
+        savedAnswers.push(savedAnswer)
         
         if (isCorrect) {
           totalScore += question.points

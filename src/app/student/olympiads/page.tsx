@@ -10,6 +10,7 @@ interface Olympiad {
   description: string
   startDate: string
   endDate: string
+  registrationStartDate: string
   registrationDeadline: string
   subjects: string[]
   grades: number[]
@@ -87,8 +88,14 @@ export default function StudentOlympiadsPage() {
     }
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) {
+      return 'თარიღი არ არის მითითებული'
+    }
     const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      return 'არასწორი თარიღი'
+    }
     return date.toLocaleDateString('ka-GE', {
       year: 'numeric',
       month: 'long',
@@ -99,6 +106,7 @@ export default function StudentOlympiadsPage() {
 
   const handleRegistration = async (olympiadId: string) => {
     try {
+      console.log('Starting registration for olympiad:', olympiadId)
       setRegistrationStatus(prev => ({ ...prev, [olympiadId]: 'loading' }))
       setError('')
       setSuccessMessage('')
@@ -111,7 +119,9 @@ export default function StudentOlympiadsPage() {
         body: JSON.stringify({ olympiadId }),
       })
 
+      console.log('Registration response status:', response.status)
       const result = await response.json()
+      console.log('Registration response data:', result)
 
       if (response.ok) {
         setRegistrationStatus(prev => ({ ...prev, [olympiadId]: 'success' }))
@@ -304,9 +314,16 @@ export default function StudentOlympiadsPage() {
                     
                     <div className="flex items-center text-sm text-gray-500">
                       <svg className="flex-shrink-0 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>რეგისტრაციის გახსნა: {formatDate(olympiad.registrationStartDate)}</span>
+                    </div>
+                    
+                    <div className="flex items-center text-sm text-gray-500">
+                      <svg className="flex-shrink-0 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span>რეგისტრაცია: {formatDate(olympiad.registrationDeadline)}</span>
+                      <span>რეგისტრაციის დასრულება: {formatDate(olympiad.registrationDeadline)}</span>
                     </div>
 
                     <div className="flex items-center text-sm text-gray-500">
