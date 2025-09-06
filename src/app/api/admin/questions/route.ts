@@ -3,10 +3,23 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+interface SubQuestion {
+  id: string
+  text: string
+  type: 'CLOSED_ENDED' | 'OPEN_ENDED'
+  options?: string[]
+  correctAnswer?: string
+  answerTemplate?: string
+  points: number
+  maxPoints?: number
+  isAutoScored: boolean
+  image?: string
+}
+
 interface QuestionWithSubQuestions {
   id: string
   type: string
-  subQuestions?: any[]
+  subQuestions?: SubQuestion[]
 }
 
 export async function GET() {
