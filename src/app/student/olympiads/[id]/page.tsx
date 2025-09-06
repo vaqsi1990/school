@@ -483,7 +483,31 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               კითხვა {currentQuestionIndex + 1}
             </h2>
-            <p className="text-gray-700 mb-4">{currentQuestion.question}</p>
+            
+            {(currentQuestion.type === 'TEXT_ANALYSIS' || currentQuestion.type === 'MAP_ANALYSIS') ? (
+              <div className="mb-4">
+                <h3 className="text-lg font-semibold text-black md:text-[18px] text-[16px] mb-4">
+                  {currentQuestion.type === 'TEXT_ANALYSIS' ? 'ტექსტი ანალიზისთვის:' : 'რუკის აღწერა ანალიზისთვის:'}
+                </h3>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+                    {currentQuestion.question}
+                  </p>
+                </div>
+                {currentQuestion.image && (
+                  <div className="mb-4">
+                    <img 
+                      src={currentQuestion.image} 
+                      alt="კითხვის სურათი" 
+                      className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-700 mb-4">{currentQuestion.question}</p>
+            )}
+            
             <p className="text-sm text-gray-500">ქულები: {currentQuestion.points}</p>
           </div>
 
