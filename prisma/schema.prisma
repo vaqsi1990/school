@@ -207,6 +207,7 @@ model Question {
   type              QuestionType
   options           String[]
   correctAnswer     String?
+  answerTemplate    String?                   // Template for open-ended questions (visible only to teachers/admins)
   points            Int                       @default(1)
   subjectId         String
   chapterId         String?

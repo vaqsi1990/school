@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Verified teachers should use the direct question creation endpoint' }, { status: 403 })
     }
 
-    const { text, type, grade, round, options, correctAnswer, matchingPairs, image, imageOptions, useImageOptions, chapterName, paragraphName } = await request.json()
+    const { text, type, grade, round, options, correctAnswer, answerTemplate, matchingPairs, image, imageOptions, useImageOptions, chapterName, paragraphName } = await request.json()
 
     // Validate required fields
     if (!text || !type || !grade || !round) {
@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
         createdBy: teacher.id,
         options: type === 'CLOSED_ENDED' ? (useImageOptions ? [] : options) : [],
         correctAnswer: type === 'CLOSED_ENDED' ? (useImageOptions ? correctAnswer : (options[correctAnswer] || '')) : '',
+        answerTemplate: answerTemplate || null,
         matchingPairs: matchingPairs ? matchingPairs : null,
         image: image || null,
         imageOptions: imageOptions || [],

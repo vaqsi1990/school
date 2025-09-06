@@ -17,6 +17,7 @@ interface Question {
   options: string[]
   imageOptions?: string[]
   correctAnswer?: string
+  answerTemplate?: string
   points: number
   maxPoints?: number
   image?: string
@@ -89,6 +90,7 @@ function AdminQuestionsContent() {
     imageOptions: string[]
     useImageOptions: boolean
     correctAnswer: string
+    answerTemplate: string
     points: number
     maxPoints: number
     image: string
@@ -107,6 +109,7 @@ function AdminQuestionsContent() {
     imageOptions: ['', '', '', ''],
     useImageOptions: false,
     correctAnswer: '',
+    answerTemplate: '',
     points: 1,
     maxPoints: 1,
     image: '',
@@ -169,6 +172,7 @@ function AdminQuestionsContent() {
       imageOptions: question.imageOptions || ['', '', '', ''],
       useImageOptions: !!(question.imageOptions && question.imageOptions.length > 0 && question.imageOptions.some((img: string) => img !== '')),
       correctAnswer: question.correctAnswer || '',
+      answerTemplate: question.answerTemplate || '',
       points: question.points,
       maxPoints: question.maxPoints || question.points,
       image: question.image || '',
@@ -534,6 +538,7 @@ function AdminQuestionsContent() {
       imageOptions: ['', '', '', ''],
       useImageOptions: false,
       correctAnswer: '',
+      answerTemplate: '',
       points: 1,
       maxPoints: 1,
       image: '',
@@ -1840,6 +1845,27 @@ function AdminQuestionsContent() {
                         placeholder="შეიყვანეთ სწორი პასუხი..."
                       />
                     )}
+                  </div>
+                )}
+
+                {/* Answer Template for Open-ended Questions */}
+                {formData.type === 'OPEN_ENDED' && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-purple-800 mb-2">
+                      პასუხის შაბლონი (მასწავლებლებისთვის) *
+                    </label>
+                    <textarea
+                      name="answerTemplate"
+                      required
+                      value={formData.answerTemplate}
+                      onChange={handleInputChange}
+                      rows={4}
+                      className="w-full px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                      placeholder="შეიყვანეთ პასუხის შაბლონი ან მაგალითი, რომელიც დაეხმარება მასწავლებლებს შეფასებაში..."
+                    />
+                    <p className="text-xs text-purple-600 mt-1">
+                      ეს შაბლონი მხოლოდ მასწავლებლებს და ადმინებს ჩანს ტესტების შეფასებისას
+                    </p>
                   </div>
                 )}
 

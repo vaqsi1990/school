@@ -20,6 +20,7 @@ interface StudentAnswer {
     type: 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED'
     options: string[]
     correctAnswer?: string
+    answerTemplate?: string
     points: number
     maxPoints?: number
     image?: string
@@ -368,6 +369,13 @@ function StudentAnswerDetailContent() {
                     <div className="mt-3 pt-3 border-t border-gray-200">
                       <h6 className="font-medium text-gray-900 mb-1">სწორი პასუხი:</h6>
                       <p className="text-gray-700">{answer.question.correctAnswer}</p>
+                    </div>
+                  )}
+                  
+                  {answer.question.type === 'OPEN_ENDED' && answer.question.answerTemplate && (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <h6 className="font-medium text-purple-900 mb-1">პასუხის შაბლონი:</h6>
+                      <p className="text-purple-700 text-sm bg-purple-50 p-2 rounded">{answer.question.answerTemplate}</p>
                     </div>
                   )}
                 </div>

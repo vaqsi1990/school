@@ -73,6 +73,7 @@ function TeacherQuestionsContent() {
     imageOptions: string[]
     useImageOptions: boolean
     correctAnswer: string
+    answerTemplate: string
     points: number
     maxPoints: number
     image: string
@@ -100,6 +101,7 @@ function TeacherQuestionsContent() {
     imageOptions: ['', '', '', ''],
     useImageOptions: false,
     correctAnswer: '',
+    answerTemplate: '',
     points: 1,
     maxPoints: 1,
     image: '',
@@ -170,6 +172,7 @@ function TeacherQuestionsContent() {
           imageOptions: ['', '', '', ''],
           useImageOptions: false,
           correctAnswer: '',
+          answerTemplate: '',
           points: 1,
           maxPoints: 1,
           image: '',
@@ -219,6 +222,7 @@ function TeacherQuestionsContent() {
           imageOptions: ['', '', '', ''],
           useImageOptions: false,
           correctAnswer: '',
+          answerTemplate: '',
           points: 1,
           maxPoints: 1,
           image: '',
@@ -284,6 +288,7 @@ function TeacherQuestionsContent() {
       imageOptions: questionToEdit.imageOptions || ['', '', '', ''],
       useImageOptions: false, // You might want to detect this from the question data
       correctAnswer: questionToEdit.correctAnswer || '',
+      answerTemplate: '',
       points: questionToEdit.points || 1,
       maxPoints: questionToEdit.maxPoints || 1,
       image: questionToEdit.image || '',
@@ -636,6 +641,7 @@ function TeacherQuestionsContent() {
       imageOptions: ['', '', '', ''],
       useImageOptions: false,
       correctAnswer: '',
+      answerTemplate: '',
       points: 1,
       maxPoints: 1,
       image: '',
@@ -1518,7 +1524,26 @@ function TeacherQuestionsContent() {
                  </div>
                )}
 
-
+               {/* Answer Template for Open-ended Questions */}
+               {formData.type === 'OPEN_ENDED' && (
+                 <div className="mt-4">
+                   <label className="block text-sm font-medium text-purple-800 mb-2">
+                     პასუხის შაბლონი (მასწავლებლებისთვის) *
+                   </label>
+                   <textarea
+                     name="answerTemplate"
+                     required
+                     value={formData.answerTemplate}
+                     onChange={handleInputChange}
+                     rows={4}
+                     className="w-full px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                     placeholder="შეიყვანეთ პასუხის შაბლონი ან მაგალითი, რომელიც დაეხმარება მასწავლებლებს შეფასებაში..."
+                   />
+                   <p className="text-xs text-purple-600 mt-1">
+                     ეს შაბლონი მხოლოდ მასწავლებლებს და ადმინებს ჩანს ტესტების შეფასებისას
+                   </p>
+                 </div>
+               )}
 
               <div className="mt-6 flex gap-4">
                 <button

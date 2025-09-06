@@ -405,152 +405,15 @@ function TestQuestionsContent() {
             </div>
             
             <div className="p-6">
-              <div className="text-center mb-8">
-                <div className="inline-block bg-blue-100 rounded-full p-6">
-                  <div className="text-4xl font-bold text-blue-600">
-                    {calculateScore().percentage}%
+              <div className="text-center py-12">
+                <div className="inline-block bg-green-100 rounded-full p-8">
+                  <div className="text-2xl font-bold text-green-600 mb-2">
+                    ტესტირება დასრულებულია
                   </div>
-                  <div className="text-sm text-blue-600 mt-2">
-                    {calculateScore().correct} / {calculateScore().total} სწორი პასუხი
+                  <div className="text-sm text-green-600">
+                    ყველა კითხვა გადახედილია
                   </div>
                 </div>
-              </div>
-              
-              <div className="space-y-4">
-                {selectedQuestions.map((question, index) => {
-                  const userAnswer = userAnswers[question.id]
-                  let isCorrect = false
-                  
-                  if (question.type === 'MATCHING') {
-                    // For MATCHING questions, check if all pairs are correct
-                    if (question.matchingPairs && question.matchingPairs.length > 0) {
-                      let pairCorrect = 0
-                      question.matchingPairs.forEach((_, pairIndex) => {
-                        const userAnswerKey = `${question.id}_${pairIndex}`
-                        const userAnswerValue = userAnswers[userAnswerKey]
-                        const correctAnswerIndex = pairIndex
-                        if (userAnswerValue === correctAnswerIndex.toString()) {
-                          pairCorrect++
-                        }
-                      })
-                      isCorrect = pairCorrect === question.matchingPairs.length
-                    }
-                  } else {
-                    // For other question types
-                    isCorrect = question.correctAnswer ? userAnswer === question.correctAnswer : false
-                  }
-                  
-                  return (
-                    <div key={question.id} className={`border rounded-lg p-4 ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                      <div className="flex justify-between items-start mb-2">
-                        <h4 className="font-semibold text-black md:text-[16px] text-[14px]">
-                          კითხვა {index + 1}
-                        </h4>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${isCorrect ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
-                          {isCorrect ? 'სწორი' : 'არასწორი'}
-                        </span>
-                      </div>
-                      
-                      <p className="text-gray-700 mb-3">{question.text}</p>
-                      
-                      {question.image && (
-                        <div className="mb-3">
-                          <img 
-                            src={question.image} 
-                            alt="კითხვის სურათი" 
-                            className="max-w-full h-auto max-h-64 object-contain rounded-lg border shadow-sm"
-                          />
-                        </div>
-                      )}
-                      
-                      {question.type === 'MATCHING' ? (
-                        // MATCHING Question Results
-                        <div className="space-y-3">
-                          {question.matchingPairs && question.matchingPairs.length > 0 ? (
-                            question.matchingPairs.map((pair, pairIndex) => {
-                              const userAnswerKey = `${question.id}_${pairIndex}`
-                              const userAnswerValue = userAnswers[userAnswerKey]
-                              const correctAnswerIndex = pairIndex // For matching, correct answer is usually the same index
-                              const isCorrect = userAnswerValue === correctAnswerIndex.toString()
-                              
-                              return (
-                                <div key={pairIndex} className={`p-3 rounded-lg ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
-                                  <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-4">
-                                      <span className="text-sm font-medium text-gray-700">{pair.left}</span>
-                                      <span className="text-gray-400">→</span>
-                                      <span className="text-sm text-gray-600">{pair.right}</span>
-                                    </div>
-                                    <span className={`px-2 py-1 rounded text-xs font-medium ${isCorrect ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
-                                      {isCorrect ? 'სწორი' : 'არასწორი'}
-                                    </span>
-                                  </div>
-                                  {userAnswerValue && (
-                                    <div className="mt-2 text-xs text-gray-600">
-                                      თქვენი არჩევანი: {question.matchingPairs![parseInt(userAnswerValue)]?.right || 'უცნობი'}
-                                    </div>
-                                  )}
-                                </div>
-                              )
-                            })
-                          ) : (
-                            <div className="p-3 bg-gray-100 rounded-lg">
-                              <p className="text-gray-600">ამ შესაბამისობის კითხვას არ აქვს წყვილები</p>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        // Other Question Types Results
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <strong className="text-green-700">სწორი პასუხი:</strong>
-                              <p className="text-green-600">{question.correctAnswer || 'პასუხი არ არის მითითებული'}</p>
-                            </div>
-                            <div>
-                              <strong className="text-blue-700">თქვენი პასუხი:</strong>
-                              <p className="text-blue-600">{userAnswer || 'პასუხი არ არის მოცემული'}</p>
-                            </div>
-                          </div>
-                          
-                          {question.imageOptions && question.imageOptions.length > 0 && (
-                            <div>
-                              <strong className="text-gray-700 text-sm">ვარიანტები:</strong>
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-                                {question.imageOptions.map((imageUrl, index) => (
-                                  <div key={index} className="relative">
-                                    <img 
-                                      src={imageUrl} 
-                                      alt={`ვარიანტი ${index + 1}`}
-                                      className="w-16 h-16 object-cover rounded border"
-                                    />
-                                    {userAnswer === imageUrl && (
-                                      <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-1 rounded">
-                                        თქვენი არჩევანი
-                                      </div>
-                                    )}
-                                    {question.correctAnswer === imageUrl && (
-                                      <div className="absolute top-0 left-0 bg-green-500 text-white text-xs px-1 rounded">
-                                        სწორი
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                      
-                      {question.explanation && (
-                        <div className="mt-3 p-3 bg-gray-100 rounded">
-                          <strong className="text-gray-700">განმარტება:</strong>
-                          <p className="text-gray-600 mt-1">{question.explanation}</p>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
               </div>
               
               <div className="mt-8 flex justify-center space-x-4">
