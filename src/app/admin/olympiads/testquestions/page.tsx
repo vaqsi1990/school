@@ -14,6 +14,8 @@ interface Question {
   explanation: string | null
   points: number
   matchingPairs: Array<{left: string, right: string}> | null
+  image: string | null
+  imageOptions: string[]
   subject: {
     name: string
   }
@@ -367,6 +369,15 @@ function TestQuestionsContent() {
                                   </span>
                                 </div>
                                 <p className="text-sm text-gray-700 line-clamp-2">{question.text}</p>
+                                {question.image && (
+                                  <div className="mt-2">
+                                    <img 
+                                      src={question.image} 
+                                      alt="კითხვის სურათი" 
+                                      className="w-16 h-16 object-cover rounded border"
+                                    />
+                                  </div>
+                                )}
                               </div>
                               <button
                                 onClick={() => handleQuestionSelect([question])}
@@ -442,6 +453,16 @@ function TestQuestionsContent() {
                       
                       <p className="text-gray-700 mb-3">{question.text}</p>
                       
+                      {question.image && (
+                        <div className="mb-3">
+                          <img 
+                            src={question.image} 
+                            alt="კითხვის სურათი" 
+                            className="max-w-full h-auto max-h-64 object-contain rounded-lg border shadow-sm"
+                          />
+                        </div>
+                      )}
+                      
                       {question.type === 'MATCHING' ? (
                         // MATCHING Question Results
                         <div className="space-y-3">
@@ -480,15 +501,44 @@ function TestQuestionsContent() {
                         </div>
                       ) : (
                         // Other Question Types Results
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <strong className="text-green-700">სწორი პასუხი:</strong>
-                            <p className="text-green-600">{question.correctAnswer || 'პასუხი არ არის მითითებული'}</p>
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <strong className="text-green-700">სწორი პასუხი:</strong>
+                              <p className="text-green-600">{question.correctAnswer || 'პასუხი არ არის მითითებული'}</p>
+                            </div>
+                            <div>
+                              <strong className="text-blue-700">თქვენი პასუხი:</strong>
+                              <p className="text-blue-600">{userAnswer || 'პასუხი არ არის მოცემული'}</p>
+                            </div>
                           </div>
-                          <div>
-                            <strong className="text-blue-700">თქვენი პასუხი:</strong>
-                            <p className="text-blue-600">{userAnswer || 'პასუხი არ არის მოცემული'}</p>
-                          </div>
+                          
+                          {question.imageOptions && question.imageOptions.length > 0 && (
+                            <div>
+                              <strong className="text-gray-700 text-sm">ვარიანტები:</strong>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+                                {question.imageOptions.map((imageUrl, index) => (
+                                  <div key={index} className="relative">
+                                    <img 
+                                      src={imageUrl} 
+                                      alt={`ვარიანტი ${index + 1}`}
+                                      className="w-16 h-16 object-cover rounded border"
+                                    />
+                                    {userAnswer === imageUrl && (
+                                      <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs px-1 rounded">
+                                        თქვენი არჩევანი
+                                      </div>
+                                    )}
+                                    {question.correctAnswer === imageUrl && (
+                                      <div className="absolute top-0 left-0 bg-green-500 text-white text-xs px-1 rounded">
+                                        სწორი
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                       
@@ -550,6 +600,16 @@ function TestQuestionsContent() {
                       {selectedQuestions[currentQuestionIndex].text}
                     </h3>
                     
+                    {selectedQuestions[currentQuestionIndex].image && (
+                      <div className="mb-4">
+                        <img 
+                          src={selectedQuestions[currentQuestionIndex].image} 
+                          alt="კითხვის სურათი" 
+                          className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
+                        />
+                      </div>
+                    )}
+                    
                     <div className="space-y-2">
                       {selectedQuestions[currentQuestionIndex].type === 'MATCHING' ? (
                         // MATCHING Question
@@ -581,8 +641,41 @@ function TestQuestionsContent() {
                             </div>
                           )}
                         </div>
+                      ) : selectedQuestions[currentQuestionIndex].type === 'OPEN_ENDED' ? (
+                        // OPEN_ENDED Question
+                        <div className="p-4 bg-gray-100 rounded-lg">
+                          <p className="text-gray-600 mb-2">ღია კითხვა - შეიყვანეთ პასუხი</p>
+                          <textarea
+                            placeholder="შეიყვანეთ თქვენი პასუხი..."
+                            value={userAnswers[selectedQuestions[currentQuestionIndex].id] || ''}
+                            onChange={(e) => handleAnswerChange(selectedQuestions[currentQuestionIndex].id, e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                            rows={4}
+                          />
+                        </div>
+                      ) : selectedQuestions[currentQuestionIndex].imageOptions && selectedQuestions[currentQuestionIndex].imageOptions.length > 0 ? (
+                        // CLOSED_ENDED Question with image options
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {selectedQuestions[currentQuestionIndex].imageOptions.map((imageUrl, index) => (
+                            <label key={index} className="flex flex-col items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                              <input
+                                type="radio"
+                                name={`question_${selectedQuestions[currentQuestionIndex].id}`}
+                                value={imageUrl}
+                                checked={userAnswers[selectedQuestions[currentQuestionIndex].id] === imageUrl}
+                                onChange={(e) => handleAnswerChange(selectedQuestions[currentQuestionIndex].id, e.target.value)}
+                                className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300 mb-2"
+                              />
+                              <img 
+                                src={imageUrl} 
+                                alt={`ვარიანტი ${index + 1}`}
+                                className="w-20 h-20 object-cover rounded border"
+                              />
+                            </label>
+                          ))}
+                        </div>
                       ) : selectedQuestions[currentQuestionIndex].options && selectedQuestions[currentQuestionIndex].options.length > 0 ? (
-                        // CLOSED_ENDED Question with options
+                        // CLOSED_ENDED Question with text options
                         selectedQuestions[currentQuestionIndex].options.map((option, index) => (
                           <label key={index} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                             <input
@@ -597,16 +690,9 @@ function TestQuestionsContent() {
                           </label>
                         ))
                       ) : (
-                        // OPEN_ENDED Question
+                        // Fallback for other question types
                         <div className="p-4 bg-gray-100 rounded-lg">
-                          <p className="text-gray-600">ღია კითხვა - შეიყვანეთ პასუხი</p>
-                          <input
-                            type="text"
-                            placeholder="შეიყვანეთ პასუხი..."
-                            value={userAnswers[selectedQuestions[currentQuestionIndex].id] || ''}
-                            onChange={(e) => handleAnswerChange(selectedQuestions[currentQuestionIndex].id, e.target.value)}
-                            className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
-                          />
+                          <p className="text-gray-600">ამ კითხვის ტიპისთვის პასუხის ვარიანტები არ არის განსაზღვრული</p>
                         </div>
                       )}
                     </div>
