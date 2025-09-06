@@ -50,6 +50,7 @@ interface SubQuestion {
   type: 'CLOSED_ENDED' | 'OPEN_ENDED'
   options?: string[]
   correctAnswer?: string
+  answerTemplate?: string
   points: number
   maxPoints?: number
   isAutoScored: boolean
@@ -320,9 +321,10 @@ function AdminQuestionsContent() {
       type: 'CLOSED_ENDED',
       options: ['', '', '', ''],
       correctAnswer: '',
+      answerTemplate: '',
       points: 1,
       maxPoints: 1,
-      isAutoScored: true,
+      isAutoScored: false,
       image: ''
     }
     
@@ -1332,23 +1334,9 @@ function AdminQuestionsContent() {
                               />
                             </div>
 
-                            {/* Auto-scored toggle */}
-                            <div className="mb-3">
-                              <label className="flex items-center">
-                                <input
-                                  type="checkbox"
-                                  checked={subQuestion.isAutoScored}
-                                  onChange={(e) => handleSubQuestionChange(index, 'isAutoScored', e.target.checked)}
-                                  className="mr-2"
-                                />
-                                <span className="text-sm text-black md:text-[16px] text-[14px]">
-                                  ავტომატური შეფასება
-                                </span>
-                              </label>
-                            </div>
 
                             {/* Options for CLOSED_ENDED questions */}
-                            {subQuestion.type === 'CLOSED_ENDED' && subQuestion.isAutoScored && (
+                            {subQuestion.type === 'CLOSED_ENDED' && (
                               <div className="bg-blue-50 p-3 rounded border border-blue-200">
                                 <div className="flex justify-between items-center mb-3">
                                   <h6 className="text-sm font-medium text-blue-800 md:text-[14px] text-[12px]">
@@ -1410,14 +1398,25 @@ function AdminQuestionsContent() {
                               </div>
                             )}
 
-                            {/* Manual scoring notice for non-auto-scored questions */}
-                            {!subQuestion.isAutoScored && (
-                              <div className="bg-orange-50 p-3 rounded border border-orange-200">
-                                <p className="text-sm text-orange-700 md:text-[12px] text-[10px]">
-                                   ეს კითხვა საჭიროებს ხელით შეფასებას
+                            {/* Answer Template for Open-ended Sub-questions */}
+                            {subQuestion.type === 'OPEN_ENDED' && (
+                              <div className="mt-3">
+                                <label className="block text-sm font-medium text-purple-800 mb-2">
+                                  პასუხის შაბლონი (მასწავლებლებისთვის) *
+                                </label>
+                                <textarea
+                                  value={subQuestion.answerTemplate || ''}
+                                  onChange={(e) => handleSubQuestionChange(index, 'answerTemplate', e.target.value)}
+                                  rows={3}
+                                  className="w-full px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                                  placeholder="შეიყვანეთ პასუხის შაბლონი ან მაგალითი, რომელიც დაეხმარება მასწავლებლებს შეფასებაში..."
+                                />
+                                <p className="text-xs text-purple-600 mt-1">
+                                  ეს შაბლონი მხოლოდ მასწავლებლებს და ადმინებს ჩანს ტესტების შეფასებისას
                                 </p>
                               </div>
                             )}
+
                           </div>
                         ))}
                       </div>
