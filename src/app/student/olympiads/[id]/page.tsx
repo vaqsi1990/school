@@ -13,6 +13,18 @@ interface Question {
   points: number
   image?: string
   imageOptions?: string[]
+  subQuestions?: Array<{
+    id: string
+    text: string
+    type: 'CLOSED_ENDED' | 'OPEN_ENDED'
+    options?: string[]
+    correctAnswer?: string
+    answerTemplate?: string
+    points: number
+    maxPoints?: number
+    isAutoScored: boolean
+    image?: string
+  }>
 }
 
 interface OlympiadEvent {
@@ -530,6 +542,87 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                 rows={4}
                 placeholder="შეიყვანეთ თქვენი პასუხი..."
               />
+            )}
+
+            {(currentQuestion.type === 'TEXT_ANALYSIS' || currentQuestion.type === 'MAP_ANALYSIS') && currentQuestion.subQuestions && (
+              <div className="space-y-4">
+                {/* Main Analysis Input */}
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                  <h4 className="font-semibold text-green-800 mb-2">
+                    {currentQuestion.type === 'TEXT_ANALYSIS' ? 'ტექსტის ანალიზი:' : 'რუკის ანალიზი:'}
+                  </h4>
+                  <p className="text-sm text-green-700 mb-3">
+                    {currentQuestion.type === 'TEXT_ANALYSIS' 
+                      ? 'შეიყვანეთ თქვენი ანალიზი ზემოთ მოცემული ტექსტის საფუძველზე:'
+                      : 'შეიყვანეთ თქვენი ანალიზი ზემოთ მოცემული რუკის საფუძველზე:'
+                    }
+                  </p>
+                  <textarea
+                    value={answers[`${currentQuestion.id}_analysis`] as string || ''}
+                    onChange={(e) => handleAnswerChange(`${currentQuestion.id}_analysis`, e.target.value)}
+                    className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    rows={6}
+                    placeholder={currentQuestion.type === 'TEXT_ANALYSIS' 
+                      ? 'შეიყვანეთ ტექსტის ანალიზი...'
+                      : 'შეიყვანეთ რუკის ანალიზი...'
+                    }
+                  />
+                </div>
+
+                {/* Sub-questions */}
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
+                  <h4 className="font-semibold text-purple-800 mb-2">
+                    {currentQuestion.type === 'TEXT_ANALYSIS' ? 'ქვეკითხვები ტექსტის ანალიზისთვის:' : 'ქვეკითხვები რუკის ანალიზისთვის:'}
+                  </h4>
+                  <p className="text-sm text-purple-700">
+                    ქვემოთ მოცემული ქვეკითხვებისთვის პასუხი გაეცით ზემოთ მოცემული ტექსტის/რუკის საფუძველზე
+                  </p>
+                </div>
+
+                {currentQuestion.subQuestions.map((subQuestion, subIndex) => (
+                  <div key={subQuestion.id} className="border border-gray-200 rounded-lg p-4 bg-white">
+                    <h4 className="font-medium text-gray-900 mb-3">
+                      {subIndex + 1}. {subQuestion.text}
+                    </h4>
+                    
+                    {subQuestion.image && (
+                      <div className="mb-3">
+                        <img 
+                          src={subQuestion.image} 
+                          alt="Sub-question image" 
+                          className="max-w-full h-auto rounded-lg"
+                        />
+                      </div>
+                    )}
+
+                    {subQuestion.type === 'CLOSED_ENDED' && subQuestion.options && subQuestion.options.filter(opt => opt.trim() !== '').length > 0 ? (
+                      <div className="space-y-2">
+                        {subQuestion.options.filter(opt => opt.trim() !== '').map((option, optionIndex) => (
+                          <label key={optionIndex} className="flex items-center">
+                            <input
+                              type="radio"
+                              name={`subquestion-${currentQuestion.id}-${subQuestion.id}`}
+                              value={option}
+                              checked={answers[`${currentQuestion.id}_${subQuestion.id}`] === option}
+                              onChange={(e) => handleAnswerChange(`${currentQuestion.id}_${subQuestion.id}`, e.target.value)}
+                              className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
+                            />
+                            <span className="ml-2 text-gray-900">{option}</span>
+                          </label>
+                        ))}
+                      </div>
+                    ) : (
+                      <textarea
+                        value={answers[`${currentQuestion.id}_${subQuestion.id}`] as string || ''}
+                        onChange={(e) => handleAnswerChange(`${currentQuestion.id}_${subQuestion.id}`, e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                        rows={3}
+                        placeholder="შეიყვანეთ თქვენი პასუხი..."
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>

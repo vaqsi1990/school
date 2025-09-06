@@ -24,6 +24,18 @@ interface Question {
     name: string
     lastname: string
   }
+  subQuestions?: Array<{
+    id: string
+    text: string
+    type: 'CLOSED_ENDED' | 'OPEN_ENDED'
+    options?: string[]
+    correctAnswer?: string
+    answerTemplate?: string
+    points: number
+    maxPoints?: number
+    isAutoScored: boolean
+    image?: string
+  }>
 }
 
 interface QuestionPackage {
@@ -65,6 +77,9 @@ function TestQuestionsContent() {
         const response = await fetch('/api/admin/questions')
         if (response.ok) {
           const data = await response.json()
+          console.log('Fetched questions:', data.questions.length)
+          console.log('TEXT_ANALYSIS questions:', data.questions.filter((q: Question) => q.type === 'TEXT_ANALYSIS'))
+          console.log('MAP_ANALYSIS questions:', data.questions.filter((q: Question) => q.type === 'MAP_ANALYSIS'))
           setAllQuestions(data.questions || [])
           setFilteredQuestions(data.questions || [])
         }
@@ -213,6 +228,7 @@ function TestQuestionsContent() {
       </div>
     )
   }
+console.log(selectedQuestions);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -333,14 +349,14 @@ function TestQuestionsContent() {
                       <button
                         onClick={() => handleSelectRandom(20)}
                         disabled={filteredQuestions.length === 0}
-                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        className="bg-white text-white px-4 py-2 rounded-md  disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                       >
                         შემთხვევითი 20
                       </button>
                       <button
                         onClick={() => handleSelectRandom(50)}
                         disabled={filteredQuestions.length === 0}
-                        className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        className="bg-white text-white px-4 py-2 rounded-md  disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                       >
                         შემთხვევითი 50
                       </button>
@@ -358,13 +374,13 @@ function TestQuestionsContent() {
                               <div className="flex-1">
                                 <div className="flex items-center space-x-2 mb-1">
                                   <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
-                                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                  <span className="text-xs bg-white text-black px-2 py-1 rounded">
                                     {getQuestionTypeLabel(question.type)}
                                   </span>
-                                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                  <span className="text-xs bg-white text-black px-2 py-1 rounded">
                                     {question.subject.name}
                                   </span>
-                                  <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                                  <span className="text-xs bg-white text-black px-2 py-1 rounded">
                                     {question.grade} კლასი
                                   </span>
                                 </div>
@@ -459,18 +475,42 @@ function TestQuestionsContent() {
                       </span>
                     </div>
                     
-                    <h3 className="text-lg font-semibold text-black md:text-[18px] text-[16px] mb-4">
-                      {selectedQuestions[currentQuestionIndex].text}
-                    </h3>
-                    
-                    {selectedQuestions[currentQuestionIndex].image && (
-                      <div className="mb-4">
-                        <img 
-                          src={selectedQuestions[currentQuestionIndex].image} 
-                          alt="კითხვის სურათი" 
-                          className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
-                        />
+                    {(selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' || selectedQuestions[currentQuestionIndex].type === 'MAP_ANALYSIS') ? (
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-black md:text-[18px] text-[16px] mb-4">
+                          {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' ? 'ტექსტი ანალიზისთვის:' : 'რუკის აღწერა ანალიზისთვის:'}
+                        </h3>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                          <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+                            {selectedQuestions[currentQuestionIndex].text}
+                          </p>
+                        </div>
+                        {selectedQuestions[currentQuestionIndex].image && (
+                          <div className="mb-4">
+                            <img 
+                              src={selectedQuestions[currentQuestionIndex].image} 
+                              alt="კითხვის სურათი" 
+                              className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
+                            />
+                          </div>
+                        )}
                       </div>
+                    ) : (
+                      <>
+                        <h3 className="text-lg font-semibold text-black md:text-[18px] text-[16px] mb-4">
+                          {selectedQuestions[currentQuestionIndex].text}
+                        </h3>
+                        
+                        {selectedQuestions[currentQuestionIndex].image && (
+                          <div className="mb-4">
+                            <img 
+                              src={selectedQuestions[currentQuestionIndex].image} 
+                              alt="კითხვის სურათი" 
+                              className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
+                            />
+                          </div>
+                        )}
+                      </>
                     )}
                     
                     <div className="space-y-2">
@@ -516,7 +556,7 @@ function TestQuestionsContent() {
                             rows={4}
                           />
                         </div>
-                      ) : selectedQuestions[currentQuestionIndex].imageOptions && selectedQuestions[currentQuestionIndex].imageOptions.length > 0 ? (
+                      ) : selectedQuestions[currentQuestionIndex].type === 'CLOSED_ENDED' && selectedQuestions[currentQuestionIndex].imageOptions && selectedQuestions[currentQuestionIndex].imageOptions.length > 0 ? (
                         // CLOSED_ENDED Question with image options
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                           {selectedQuestions[currentQuestionIndex].imageOptions.map((imageUrl, index) => (
@@ -537,7 +577,7 @@ function TestQuestionsContent() {
                             </label>
                           ))}
                         </div>
-                      ) : selectedQuestions[currentQuestionIndex].options && selectedQuestions[currentQuestionIndex].options.length > 0 ? (
+                      ) : selectedQuestions[currentQuestionIndex].type === 'CLOSED_ENDED' && selectedQuestions[currentQuestionIndex].options && selectedQuestions[currentQuestionIndex].options.length > 0 ? (
                         // CLOSED_ENDED Question with text options
                         selectedQuestions[currentQuestionIndex].options.map((option, index) => (
                           <label key={index} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
@@ -552,6 +592,89 @@ function TestQuestionsContent() {
                             <span className="ml-3 text-black md:text-[16px] text-[14px]">{option}</span>
                           </label>
                         ))
+                      ) : (selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' || selectedQuestions[currentQuestionIndex].type === 'MAP_ANALYSIS') ? (
+                        // TEXT_ANALYSIS and MAP_ANALYSIS Questions
+                        <div className="space-y-4">
+                          {/* Main Analysis Input */}
+                          <div className="bg-white border border-black rounded-lg p-4 mb-4">
+                            <h4 className="font-semibold text-black mb-2">
+                              {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' ? 'ტექსტის ანალიზი:' : 'რუკის ანალიზი:'}
+                            </h4>
+                            <p className="text-sm text-black mb-3">
+                              {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' 
+                                ? 'შეიყვანეთ თქვენი ანალიზი ზემოთ მოცემული ტექსტის საფუძველზე:'
+                                : 'შეიყვანეთ თქვენი ანალიზი ზემოთ მოცემული რუკის საფუძველზე:'
+                              }
+                            </p>
+                            <textarea
+                              value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_analysis`] || ''}
+                              onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_analysis`, e.target.value)}
+                              className="w-full px-3 py-2 border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                              rows={6}
+                              placeholder={selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' 
+                                ? 'შეიყვანეთ ტექსტის ანალიზი...'
+                                : 'შეიყვანეთ რუკის ანალიზი...'
+                              }
+                            />
+                          </div>
+
+                          {selectedQuestions[currentQuestionIndex].subQuestions && selectedQuestions[currentQuestionIndex].subQuestions.length > 0 ? (
+                            <>
+                              {/* Sub-questions */}
+                              <div className="bg-white border border-black rounded-lg p-4 mb-4">
+                                <h4 className="font-semibold text-black mb-2">
+                                  {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' ? 'ქვეკითხვები ტექსტის ანალიზისთვის:' : 'ქვეკითხვები რუკის ანალიზისთვის:'}
+                                </h4>
+                                <p className="text-sm text-black">
+                                  ქვემოთ მოცემული ქვეკითხვებისთვის პასუხი გაეცით ზემოთ მოცემული ტექსტის/რუკის საფუძველზე
+                                </p>
+                              </div>
+                              {selectedQuestions[currentQuestionIndex].subQuestions.map((subQuestion, subIndex) => (
+                            <div key={subQuestion.id} className="border border-black rounded-lg p-4 bg-white">
+                              <h4 className="font-medium text-gray-900 mb-3">
+                                {subIndex + 1}. {subQuestion.text}
+                              </h4>
+                              
+                              {subQuestion.image && (
+                                <div className="mb-3">
+                                  <img 
+                                    src={subQuestion.image} 
+                                    alt="Sub-question image" 
+                                    className="max-w-full h-auto rounded-lg"
+                                  />
+                                </div>
+                              )}
+
+                              {subQuestion.type === 'CLOSED_ENDED' && subQuestion.options && subQuestion.options.filter(opt => opt.trim() !== '').length > 0 ? (
+                                <div className="space-y-2 bg-white border border-black rounded-lg p-4">
+                                  {subQuestion.options.filter(opt => opt.trim() !== '').map((option, optionIndex) => (
+                                    <label key={optionIndex} className="flex items-center">
+                                      <input
+                                        type="radio"
+                                        name={`subquestion-${selectedQuestions[currentQuestionIndex].id}-${subQuestion.id}`}
+                                        value={option}
+                                        checked={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${subQuestion.id}`] === option}
+                                        onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${subQuestion.id}`, e.target.value)}
+                                        className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
+                                      />
+                                      <span className="ml-2 text-gray-900">{option}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                              ) : (
+                                <textarea
+                                  value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${subQuestion.id}`] || ''}
+                                  onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${subQuestion.id}`, e.target.value)}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                                  rows={3}
+                                  placeholder="შეიყვანეთ თქვენი პასუხი..."
+                                />
+                              )}
+                            </div>
+                              ))}
+                            </>
+                          ) : null}
+                        </div>
                       ) : (
                         // Fallback for other question types
                         <div className="p-4 bg-gray-100 rounded-lg">

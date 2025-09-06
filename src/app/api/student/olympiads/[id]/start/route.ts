@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma'
 interface QuestionWithDetails {
   questionId: string
   question: {
+    id: string
     text: string
     type: string
     options: string[]
@@ -13,6 +14,7 @@ interface QuestionWithDetails {
     points: number
     image: string | null
     imageOptions: string[]
+    content: string | null
   }
 }
 
@@ -131,16 +133,32 @@ export async function POST(
 
     // Get all questions from packages
     const allQuestions = olympiad.packages.flatMap(pkg => 
-      pkg.questions.map(qp => ({
-        id: qp.questionId,
-        question: (qp as QuestionWithDetails).question?.text || '',
-        type: (qp as QuestionWithDetails).question?.type || 'OPEN_ENDED',
-        options: (qp as QuestionWithDetails).question?.options || [],
-        correctAnswer: (qp as QuestionWithDetails).question?.correctAnswer || '',
-        points: (qp as QuestionWithDetails).question?.points || 1,
-        image: (qp as QuestionWithDetails).question?.image || null,
-        imageOptions: (qp as QuestionWithDetails).question?.imageOptions || []
-      }))
+      pkg.questions.map(qp => {
+        const question = (qp as QuestionWithDetails).question
+        let subQuestions = null
+        
+        // Parse sub-questions from content field for TEXT_ANALYSIS and MAP_ANALYSIS questions
+        if ((question?.type === 'TEXT_ANALYSIS' || question?.type === 'MAP_ANALYSIS') && question?.content) {
+          try {
+            subQuestions = JSON.parse(question.content)
+          } catch (error) {
+            console.error('Error parsing sub-questions for question:', question.id, error)
+            subQuestions = []
+          }
+        }
+        
+        return {
+          id: qp.questionId,
+          question: question?.text || '',
+          type: question?.type || 'OPEN_ENDED',
+          options: question?.options || [],
+          correctAnswer: question?.correctAnswer || '',
+          points: question?.points || 1,
+          image: question?.image || null,
+          imageOptions: question?.imageOptions || [],
+          subQuestions: subQuestions
+        }
+      })
     )
 
     // Shuffle questions

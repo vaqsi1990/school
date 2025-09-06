@@ -47,14 +47,19 @@ export async function GET(request: NextRequest) {
     // Parse sub-questions from content field for TEXT_ANALYSIS and MAP_ANALYSIS questions
     const questionsWithSubQuestions = questions.map((question: typeof questions[0]) => {
       if ((question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS') && question.content) {
+        console.log(`Question ${question.id} content:`, question.content)
+        console.log(`Question ${question.id} content type:`, typeof question.content)
+        console.log(`Question ${question.id} content length:`, question.content.length)
         try {
           const subQuestions = JSON.parse(question.content)
+          console.log(`Question ${question.id} parsed subQuestions:`, subQuestions)
           return {
             ...question,
             subQuestions: Array.isArray(subQuestions) ? subQuestions : []
           }
         } catch (error) {
           console.error('Error parsing sub-questions for question:', question.id, error)
+          console.error('Raw content that failed to parse:', question.content)
           return {
             ...question,
             subQuestions: []
@@ -65,6 +70,7 @@ export async function GET(request: NextRequest) {
     })
 
     console.log('=== GET /api/admin/questions SUCCESS ===')
+    console.log('Returning questions with subQuestions:', questionsWithSubQuestions.filter(q => q.type === 'TEXT_ANALYSIS' || q.type === 'MAP_ANALYSIS').map(q => ({ id: q.id, type: q.type, hasSubQuestions: !!(q as any).subQuestions })))
     return NextResponse.json({ questions: questionsWithSubQuestions })
   } catch (error) {
     console.error('=== GET /api/admin/questions ERROR ===')
