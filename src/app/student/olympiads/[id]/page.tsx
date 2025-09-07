@@ -562,13 +562,13 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                   </p>
                 </div>
                 {currentQuestion.image && currentQuestion.image.length > 0 && (
-                  <div className="mb-4 space-y-2">
+                  <div className={`mb-4 flex gap-2 ${currentQuestion.image.length === 2 ? 'flex-row' : 'flex-col'}`}>
                     {currentQuestion.image.map((img, index) => (
                       <img 
                         key={index}
                         src={img} 
                         alt={`კითხვის სურათი ${index + 1}`} 
-                        className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
+                        className={`object-contain rounded-lg border shadow-sm ${currentQuestion.image.length === 2 ? 'flex-1 max-h-96' : 'max-w-full h-auto max-h-96'}`}
                       />
                     ))}
                   </div>

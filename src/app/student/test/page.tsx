@@ -213,13 +213,13 @@ function StudentTestContent() {
             </h2>
             
             {currentQuestion.image && currentQuestion.image.length > 0 && (
-              <div className="mb-4 space-y-2">
+              <div className={`mb-4 flex gap-2 ${currentQuestion.image.length === 2 ? 'flex-row' : 'flex-col'}`}>
                 {currentQuestion.image.map((img, index) => (
                   <img 
                     key={index}
                     src={img} 
                     alt={`Question ${index + 1}`} 
-                    className="w-full max-w-md h-auto rounded-lg border border-gray-300"
+                    className={`rounded-lg border border-gray-300 ${currentQuestion.image?.length === 2 ? 'flex-1 max-h-96 object-contain' : 'w-full max-w-md h-auto'}`}
                   />
                 ))}
               </div>

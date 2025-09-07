@@ -537,13 +537,13 @@ console.log(selectedQuestions);
                           </p>
                         </div>
                         {selectedQuestions[currentQuestionIndex].image && selectedQuestions[currentQuestionIndex].image.length > 0 && (
-                          <div className="mb-4 space-y-2">
+                          <div className={`flex gap-2 ${selectedQuestions[currentQuestionIndex].image.length === 2 ? 'flex-row' : 'flex-col'}`}>
                             {selectedQuestions[currentQuestionIndex].image.map((img, index) => (
                               <img 
                                 key={index}
                                 src={img} 
                                 alt={`კითხვის სურათი ${index + 1}`} 
-                                className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
+                                className={`object-contain rounded-lg border shadow-sm ${selectedQuestions[currentQuestionIndex].image?.length === 2 ? 'flex-1 max-h-96' : 'max-w-full h-auto max-h-96'}`}
                               />
                             ))}
                           </div>
@@ -556,13 +556,13 @@ console.log(selectedQuestions);
                         </h3>
                         
                         {selectedQuestions[currentQuestionIndex].image && selectedQuestions[currentQuestionIndex].image.length > 0 && (
-                          <div className="mb-4 space-y-2">
+                          <div className={`flex gap-2 ${selectedQuestions[currentQuestionIndex].image.length === 2 ? 'flex-row' : 'flex-col'}`}>
                             {selectedQuestions[currentQuestionIndex].image.map((img, index) => (
                               <img 
                                 key={index}
                                 src={img} 
                                 alt={`კითხვის სურათი ${index + 1}`} 
-                                className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
+                                className={`object-contain rounded-lg border shadow-sm ${selectedQuestions[currentQuestionIndex].image?.length === 2 ? 'flex-1 max-h-96' : 'max-w-full h-auto max-h-96'}`}
                               />
                             ))}
                           </div>
