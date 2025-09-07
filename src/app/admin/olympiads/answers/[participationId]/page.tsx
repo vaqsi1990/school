@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { useParams } from 'next/navigation'
+import ImageModal from '@/components/ImageModal'
 
 interface StudentAnswer {
   id: string
@@ -306,7 +307,7 @@ function StudentAnswerDetailContent() {
                     
                     {answer.question.image && (
                       <div className="mb-4">
-                        <img 
+                        <ImageModal 
                           src={answer.question.image} 
                           alt="Question image" 
                           className="max-w-full h-auto rounded-lg"

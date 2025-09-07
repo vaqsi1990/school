@@ -5,6 +5,7 @@ import { AdminOnly } from '@/components/auth/ProtectedRoute'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import ImageUpload from '@/component/CloudinaryUploader'
+import ImageModal from '@/components/ImageModal'
 interface Subject {
   id: string
   name: string
@@ -1494,7 +1495,7 @@ function AdminQuestionsContent() {
                               
                               {imageOption ? (
                                 <div className="relative">
-                                  <img 
+                                  <ImageModal 
                                     src={imageOption} 
                                     alt={`Option ${index + 1}`} 
                                     className="w-full max-w-md h-auto rounded-lg border border-gray-300"

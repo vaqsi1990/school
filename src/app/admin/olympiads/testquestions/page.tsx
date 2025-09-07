@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { AdminOnly } from '@/components/auth/ProtectedRoute'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import ImageModal from '@/components/ImageModal'
 
 interface Question {
   id: string
@@ -436,7 +437,7 @@ console.log(selectedQuestions);
                                 {question.image && question.image.length > 0 && (
                                   <div className="mt-2 space-y-1">
                                     {question.image.map((img, index) => (
-                                      <img 
+                                      <ImageModal 
                                         key={index}
                                         src={img} 
                                         alt={`კითხვის სურათი ${index + 1}`} 
@@ -539,7 +540,7 @@ console.log(selectedQuestions);
                         {selectedQuestions[currentQuestionIndex].image && selectedQuestions[currentQuestionIndex].image.length > 0 && (
                           <div className={`flex gap-2 ${selectedQuestions[currentQuestionIndex].image.length === 2 ? 'flex-row' : 'flex-col'}`}>
                             {selectedQuestions[currentQuestionIndex].image.map((img, index) => (
-                              <img 
+                              <ImageModal 
                                 key={index}
                                 src={img} 
                                 alt={`კითხვის სურათი ${index + 1}`} 
@@ -558,7 +559,7 @@ console.log(selectedQuestions);
                         {selectedQuestions[currentQuestionIndex].image && selectedQuestions[currentQuestionIndex].image.length > 0 && (
                           <div className={`flex gap-2 ${selectedQuestions[currentQuestionIndex].image.length === 2 ? 'flex-row' : 'flex-col'}`}>
                             {selectedQuestions[currentQuestionIndex].image.map((img, index) => (
-                              <img 
+                              <ImageModal 
                                 key={index}
                                 src={img} 
                                 alt={`კითხვის სურათი ${index + 1}`} 
@@ -644,7 +645,7 @@ console.log(selectedQuestions);
                                 onChange={(e) => handleAnswerChange(selectedQuestions[currentQuestionIndex].id, e.target.value)}
                                 className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300 mb-2"
                               />
-                              <img 
+                              <ImageModal 
                                 src={imageUrl} 
                                 alt={`ვარიანტი ${index + 1}`}
                                 className="w-20 h-20 object-cover rounded border"

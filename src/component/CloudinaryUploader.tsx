@@ -5,6 +5,7 @@ import { UploadButton } from "@/utils/uploadthing";
 import { useState } from "react";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
+import ImageModal from "@/components/ImageModal";
 
 type ImageUploadProps = {
   onChange: (urls: string[]) => void;
@@ -38,13 +39,11 @@ const ImageUpload = ({ onChange, value }: ImageUploadProps): React.JSX.Element =
            <h2 className="text-sm font-semibold">ატვირთული სურათები</h2>
            <div className="grid grid-cols-3 gap-2">
              {imageUrls.filter(url => url && url.trim() !== '').map((url, index) => (
-               <Image  
+               <ImageModal  
                  key={index}
                  src={url}
                  alt={`ატვირთული ${index}`}
-                 className="rounded border border-gray-500"
-                 width={120}
-                 height={120}
+                 className="rounded border border-gray-500 w-[120px] h-[120px] object-cover"
                />
              ))}
            </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import ImageModal from '@/components/ImageModal'
 
 interface Question {
   id: string
@@ -564,7 +565,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                 {currentQuestion.image && currentQuestion.image.length > 0 && (
                   <div className={`mb-4 flex gap-2 ${currentQuestion.image.length === 2 ? 'flex-row' : 'flex-col'}`}>
                     {currentQuestion.image.map((img, index) => (
-                      <img 
+                      <ImageModal 
                         key={index}
                         src={img} 
                         alt={`კითხვის სურათი ${index + 1}`} 
@@ -598,7 +599,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                             : 'border-gray-300 hover:border-gray-400'
                         }`}
                       >
-                        <img 
+                        <ImageModal 
                           src={imageOption} 
                           alt={`Option ${index + 1}`} 
                           className="w-full h-auto rounded"

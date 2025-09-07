@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { StudentOnly } from '@/components/auth/ProtectedRoute'
+import ImageModal from '@/components/ImageModal'
 
 interface Question {
   id: string
@@ -215,7 +216,7 @@ function StudentTestContent() {
             {currentQuestion.image && currentQuestion.image.length > 0 && (
               <div className={`mb-4 flex gap-2 ${currentQuestion.image.length === 2 ? 'flex-row' : 'flex-col'}`}>
                 {currentQuestion.image.map((img, index) => (
-                  <img 
+                  <ImageModal 
                     key={index}
                     src={img} 
                     alt={`Question ${index + 1}`} 
@@ -242,7 +243,7 @@ function StudentTestContent() {
                           : 'border-gray-300 hover:border-gray-400'
                       }`}
                     >
-                      <img 
+                      <ImageModal 
                         src={imageOption} 
                         alt={`Option ${index + 1}`} 
                         className="w-full h-auto rounded"

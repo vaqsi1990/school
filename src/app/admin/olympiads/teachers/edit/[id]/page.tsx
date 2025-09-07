@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'react-hot-toast'
 import ImageUpload from '@/component/CloudinaryUploader'
+import ImageModal from '@/components/ImageModal'
 
 interface Subject {
   id: string
@@ -810,7 +811,7 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
                           
                           {imageOption ? (
                             <div className="relative">
-                              <img 
+                              <ImageModal 
                                 src={imageOption} 
                                 alt={`Option ${index + 1}`} 
                                 className="w-full max-w-md h-auto rounded-lg border border-gray-300"

@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { TeacherOnly } from '@/components/auth/ProtectedRoute'
 import Link from 'next/link'
 import ImageUpload from '@/component/CloudinaryUploader'
+import ImageModal from '@/components/ImageModal'
 
 interface Question {
   id: string
@@ -1094,7 +1095,7 @@ function TeacherQuestionsContent() {
                               
                               {imageOption ? (
                                 <div className="relative">
-                                  <img 
+                                  <ImageModal 
                                     src={imageOption} 
                                     alt={`Option ${index + 1}`} 
                                     className="w-full max-w-md h-auto rounded-lg border border-gray-300"
