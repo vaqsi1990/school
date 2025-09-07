@@ -68,6 +68,7 @@ function TestQuestionsContent() {
   const [selectedSubject, setSelectedSubject] = useState<string>('')
   const [selectedGrade, setSelectedGrade] = useState<number | ''>('')
   const [selectedQuestionType, setSelectedQuestionType] = useState<string>('')
+  const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({})
 
   // Fetch all questions
   useEffect(() => {
@@ -114,11 +115,58 @@ function TestQuestionsContent() {
     setFilteredQuestions(filtered)
   }, [allQuestions, selectedSubject, selectedGrade, selectedQuestionType])
 
+  // Function to shuffle array
+  const shuffleArray = (array: string[]) => {
+    const shuffled = [...array]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    return shuffled
+  }
+
+  // Function to create shuffled options for all questions
+  const createShuffledOptions = (questions: Question[]) => {
+    const shuffled: Record<string, string[]> = {}
+    
+    questions.forEach(question => {
+      // Shuffle options for MULTIPLE_CHOICE and CLOSED_ENDED questions
+      if ((question.type === 'MULTIPLE_CHOICE' || question.type === 'CLOSED_ENDED') && question.options) {
+        shuffled[question.id] = shuffleArray(question.options)
+      }
+      
+      // Shuffle image options for CLOSED_ENDED questions
+      if (question.type === 'CLOSED_ENDED' && question.imageOptions) {
+        const filteredImageOptions = question.imageOptions.filter(img => img && img.trim() !== '')
+        if (filteredImageOptions.length > 0) {
+          shuffled[`${question.id}_images`] = shuffleArray(filteredImageOptions)
+        }
+      }
+      
+      // Shuffle TRUE_FALSE options
+      if (question.type === 'TRUE_FALSE') {
+        shuffled[question.id] = shuffleArray(['true', 'false'])
+      }
+
+      // Shuffle MATCHING pairs right side
+      if (question.type === 'MATCHING' && question.matchingPairs) {
+        const indices = question.matchingPairs.map((_, index) => index.toString())
+        shuffled[`${question.id}_matching`] = shuffleArray(indices)
+      }
+    })
+    
+    return shuffled
+  }
+
   const handleQuestionSelect = (questions: Question[]) => {
     setSelectedQuestions(questions)
     setCurrentQuestionIndex(0)
     setUserAnswers({})
     setShowResults(false)
+    
+    // Create shuffled options for selected questions
+    const shuffled = createShuffledOptions(questions)
+    setShuffledOptions(shuffled)
   }
 
   const handleSelectAllFiltered = () => {
@@ -530,11 +578,29 @@ console.log(selectedQuestions);
                                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
                                 >
                                   <option value="">აირჩიეთ...</option>
-                                  {selectedQuestions[currentQuestionIndex].matchingPairs!.map((_, rightIndex) => (
-                                    <option key={rightIndex} value={rightIndex}>
-                                      {selectedQuestions[currentQuestionIndex].matchingPairs![rightIndex].right}
-                                    </option>
-                                  ))}
+                                  {(() => {
+                                    const currentQuestion = selectedQuestions[currentQuestionIndex]
+                                    const shuffledIndices = shuffledOptions[`${currentQuestion.id}_matching`]
+                                    const pairs = currentQuestion.matchingPairs!
+                                    
+                                    if (shuffledIndices) {
+                                      return shuffledIndices.map((shuffledIndex, displayIndex) => {
+                                        const actualIndex = parseInt(shuffledIndex)
+                                        const pair = pairs[actualIndex]
+                                        return (
+                                          <option key={displayIndex} value={actualIndex}>
+                                            {pair.right}
+                                          </option>
+                                        )
+                                      })
+                                    } else {
+                                      return pairs.map((_, rightIndex) => (
+                                        <option key={rightIndex} value={rightIndex}>
+                                          {pairs[rightIndex].right}
+                                        </option>
+                                      ))
+                                    }
+                                  })()}
                                 </select>
                               </div>
                             ))
@@ -556,10 +622,10 @@ console.log(selectedQuestions);
                             rows={4}
                           />
                         </div>
-                      ) : selectedQuestions[currentQuestionIndex].type === 'CLOSED_ENDED' && selectedQuestions[currentQuestionIndex].imageOptions && selectedQuestions[currentQuestionIndex].imageOptions.length > 0 ? (
+                      ) : selectedQuestions[currentQuestionIndex].type === 'CLOSED_ENDED' && selectedQuestions[currentQuestionIndex].imageOptions && selectedQuestions[currentQuestionIndex].imageOptions.filter(img => img && img.trim() !== '').length > 0 ? (
                         // CLOSED_ENDED Question with image options
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                          {selectedQuestions[currentQuestionIndex].imageOptions.map((imageUrl, index) => (
+                          {(shuffledOptions[`${selectedQuestions[currentQuestionIndex].id}_images`] || selectedQuestions[currentQuestionIndex].imageOptions.filter(img => img && img.trim() !== '')).map((imageUrl, index) => (
                             <label key={index} className="flex flex-col items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                               <input
                                 type="radio"
@@ -579,7 +645,7 @@ console.log(selectedQuestions);
                         </div>
                       ) : selectedQuestions[currentQuestionIndex].type === 'CLOSED_ENDED' && selectedQuestions[currentQuestionIndex].options && selectedQuestions[currentQuestionIndex].options.length > 0 ? (
                         // CLOSED_ENDED Question with text options
-                        selectedQuestions[currentQuestionIndex].options.map((option, index) => (
+                        (shuffledOptions[selectedQuestions[currentQuestionIndex].id] || selectedQuestions[currentQuestionIndex].options).map((option, index) => (
                           <label key={index} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                             <input
                               type="radio"

@@ -65,6 +65,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
   const [error, setError] = useState('')
   const [isStarted, setIsStarted] = useState(false)
   const [startTime, setStartTime] = useState<Date | null>(null)
+  const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({})
 
   useEffect(() => {
     fetchOlympiad()
@@ -87,6 +88,14 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
           setQuestions(data.questions || [])
           setAnswers(data.answers || {})
           setCurrentQuestionIndex(data.currentQuestionIndex || 0)
+          
+          // Load shuffled options or create new ones if not exist
+          if (data.shuffledOptions) {
+            setShuffledOptions(data.shuffledOptions)
+          } else if (data.questions) {
+            const shuffled = createShuffledOptions(data.questions)
+            setShuffledOptions(shuffled)
+          }
         } else {
           // Time expired, submit answers
           localStorage.removeItem(`olympiad_${resolvedParams.id}`)
@@ -152,6 +161,11 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
       if (data.resumed) {
         // Olympiad was resumed, use existing start time
         setQuestions(data.questions)
+        
+        // Create shuffled options for all questions
+        const shuffled = createShuffledOptions(data.questions)
+        setShuffledOptions(shuffled)
+        
         setIsStarted(true)
         // We need to get the actual start time from the database
         // For now, we'll use current time minus elapsed time
@@ -161,6 +175,11 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         // New olympiad start
         const startTime = new Date()
         setQuestions(data.questions)
+        
+        // Create shuffled options for all questions
+        const shuffled = createShuffledOptions(data.questions)
+        setShuffledOptions(shuffled)
+        
         setIsStarted(true)
         setStartTime(startTime)
         
@@ -169,6 +188,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
           isStarted: true,
           startTime: startTime.toISOString(),
           questions: data.questions,
+          shuffledOptions: shuffled,
           answers: {},
           currentQuestionIndex: 0
         }
@@ -192,6 +212,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
     if (olympiadData) {
       const data = JSON.parse(olympiadData)
       data.answers = newAnswers
+      data.shuffledOptions = shuffledOptions
       localStorage.setItem(`olympiad_${resolvedParams.id}`, JSON.stringify(data))
     }
   }
@@ -305,6 +326,52 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
       'CLOSED_ENDED': 'დახურული კითხვა'
     }
     return typeLabels[type] || type
+  }
+
+  // Function to shuffle array
+  const shuffleArray = (array: string[]) => {
+    const shuffled = [...array]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    return shuffled
+  }
+
+  // Function to create shuffled options for all questions
+  const createShuffledOptions = (questions: Question[]) => {
+    const shuffled: Record<string, string[]> = {}
+    
+    questions.forEach(question => {
+      // Shuffle options for MULTIPLE_CHOICE and CLOSED_ENDED questions
+      if ((question.type === 'MULTIPLE_CHOICE' || question.type === 'CLOSED_ENDED') && question.options) {
+        shuffled[question.id] = shuffleArray(question.options)
+      }
+      
+      // Shuffle image options for CLOSED_ENDED questions
+      if (question.type === 'CLOSED_ENDED' && question.imageOptions) {
+        const filteredImageOptions = question.imageOptions.filter(img => img && img.trim() !== '')
+        if (filteredImageOptions.length > 0) {
+          shuffled[`${question.id}_images`] = shuffleArray(filteredImageOptions)
+        }
+      }
+      
+      // Shuffle TRUE_FALSE options (სწორი/არასწორი)
+      if (question.type === 'TRUE_FALSE') {
+        shuffled[question.id] = shuffleArray(['true', 'false'])
+      }
+
+      // Handle sub-questions for TEXT_ANALYSIS and MAP_ANALYSIS
+      if (question.subQuestions) {
+        question.subQuestions.forEach(subQuestion => {
+          if (subQuestion.type === 'CLOSED_ENDED' && subQuestion.options) {
+            shuffled[`${question.id}_${subQuestion.id}`] = shuffleArray(subQuestion.options)
+          }
+        })
+      }
+    })
+    
+    return shuffled
   }
 
   if (isLoading) {
@@ -513,48 +580,70 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
 
           {/* Answer Options */}
           <div className="space-y-3">
-            {(currentQuestion.type === 'MULTIPLE_CHOICE' || currentQuestion.type === 'CLOSED_ENDED') && currentQuestion.options && (
-              <div className="space-y-2">
-                {currentQuestion.options.map((option, index) => (
-                  <label key={index} className="flex items-center">
-                    <input
-                      type="radio"
-                      name={`question-${currentQuestion.id}`}
-                      value={option}
-                      checked={answers[currentQuestion.id] === option}
-                      onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                      className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
-                    />
-                    <span className="ml-2 text-gray-900">{option}</span>
-                  </label>
-                ))}
-              </div>
+            {(currentQuestion.type === 'MULTIPLE_CHOICE' || currentQuestion.type === 'CLOSED_ENDED') && (
+              <>
+                {currentQuestion.imageOptions && currentQuestion.imageOptions.filter(img => img && img.trim() !== '').length > 0 ? (
+                  // Image-based options
+                  <div className="grid grid-cols-2 gap-4">
+                    {(shuffledOptions[`${currentQuestion.id}_images`] || currentQuestion.imageOptions.filter(img => img && img.trim() !== '')).map((imageOption, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleAnswerChange(currentQuestion.id, imageOption)}
+                        className={`p-4 border-2 rounded-lg transition-all duration-200 ${
+                          answers[currentQuestion.id] === imageOption
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-300 hover:border-gray-400'
+                        }`}
+                      >
+                        <img 
+                          src={imageOption} 
+                          alt={`Option ${index + 1}`} 
+                          className="w-full h-auto rounded"
+                        />
+                        <div className="mt-2 text-center">
+                          <span className="text-sm font-medium text-gray-700">
+                            სურათი {index + 1}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ) : currentQuestion.options && (
+                  // Text-based options
+                  <div className="space-y-2">
+                    {(shuffledOptions[currentQuestion.id] || currentQuestion.options).map((option, index) => (
+                      <label key={index} className="flex items-center">
+                        <input
+                          type="radio"
+                          name={`question-${currentQuestion.id}`}
+                          value={option}
+                          checked={answers[currentQuestion.id] === option}
+                          onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+                          className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
+                        />
+                        <span className="ml-2 text-gray-900">{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
 
             {currentQuestion.type === 'TRUE_FALSE' && (
               <div className="space-y-2">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name={`question-${currentQuestion.id}`}
-                    value="true"
-                    checked={answers[currentQuestion.id] === 'true'}
-                    onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                    className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
-                  />
-                  <span className="ml-2 text-gray-900">სწორი</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name={`question-${currentQuestion.id}`}
-                    value="false"
-                    checked={answers[currentQuestion.id] === 'false'}
-                    onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                    className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
-                  />
-                  <span className="ml-2 text-gray-900">არასწორი</span>
-                </label>
+                {(shuffledOptions[currentQuestion.id] || ['true', 'false']).map((value, index) => (
+                  <label key={index} className="flex items-center">
+                    <input
+                      type="radio"
+                      name={`question-${currentQuestion.id}`}
+                      value={value}
+                      checked={answers[currentQuestion.id] === value}
+                      onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
+                      className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
+                    />
+                    <span className="ml-2 text-gray-900">{value === 'true' ? 'სწორი' : 'არასწორი'}</span>
+                  </label>
+                ))}
               </div>
             )}
 
@@ -621,7 +710,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
 
                     {subQuestion.type === 'CLOSED_ENDED' && subQuestion.options && subQuestion.options.filter(opt => opt.trim() !== '').length > 0 ? (
                       <div className="space-y-2">
-                        {subQuestion.options.filter(opt => opt.trim() !== '').map((option, optionIndex) => (
+                        {(shuffledOptions[`${currentQuestion.id}_${subQuestion.id}`] || subQuestion.options.filter(opt => opt.trim() !== '')).map((option, optionIndex) => (
                           <label key={optionIndex} className="flex items-center">
                             <input
                               type="radio"

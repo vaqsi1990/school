@@ -26,6 +26,56 @@ function StudentTestContent() {
   const [answers, setAnswers] = useState<Record<string, string | Record<string, string>>>({})
   const [loading, setLoading] = useState(true)
   const [submitted, setSubmitted] = useState(false)
+  const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({})
+
+  // Function to shuffle array
+  const shuffleArray = (array: string[]) => {
+    const shuffled = [...array]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    return shuffled
+  }
+
+  // Function to shuffle matching pairs right side
+  const shuffleMatchingPairs = (pairs: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>) => {
+    const rightSide = pairs.map(pair => ({ right: pair.right, rightImage: pair.rightImage }))
+    const shuffledRightSide = [...rightSide]
+    for (let i = shuffledRightSide.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledRightSide[i], shuffledRightSide[j]] = [shuffledRightSide[j], shuffledRightSide[i]]
+    }
+    return shuffledRightSide
+  }
+
+  // Function to create shuffled options for all questions
+  const createShuffledOptions = (questions: Question[]) => {
+    const shuffled: Record<string, string[]> = {}
+    
+    questions.forEach(question => {
+      // Shuffle options for CLOSED_ENDED questions
+      if (question.type === 'CLOSED_ENDED' && question.options) {
+        shuffled[question.id] = shuffleArray(question.options)
+      }
+      
+      // Shuffle image options for CLOSED_ENDED questions
+      if (question.type === 'CLOSED_ENDED' && question.imageOptions) {
+        const filteredImageOptions = question.imageOptions.filter(img => img && img.trim() !== '')
+        if (filteredImageOptions.length > 0) {
+          shuffled[`${question.id}_images`] = shuffleArray(filteredImageOptions)
+        }
+      }
+
+      // Shuffle matching pairs right side
+      if (question.type === 'MATCHING' && question.matchingPairs) {
+        const shuffledRightSide = shuffleMatchingPairs(question.matchingPairs)
+        shuffled[`${question.id}_matching`] = shuffledRightSide.map((_, index) => index.toString())
+      }
+    })
+    
+    return shuffled
+  }
 
   useEffect(() => {
     fetchQuestions()
@@ -38,6 +88,12 @@ function StudentTestContent() {
       if (response.ok) {
         const data = await response.json()
         setQuestions(data.questions)
+        
+        // Create shuffled options for all questions
+        if (data.questions) {
+          const shuffled = createShuffledOptions(data.questions)
+          setShuffledOptions(shuffled)
+        }
       }
     } catch (error) {
       console.error('Error fetching questions:', error)
@@ -170,38 +226,36 @@ function StudentTestContent() {
           {/* Answer Options */}
           {currentQuestion.type === 'CLOSED_ENDED' && (
             <div className="space-y-3">
-              {currentQuestion.imageOptions && currentQuestion.imageOptions.length > 0 ? (
+              {currentQuestion.imageOptions && currentQuestion.imageOptions.filter(img => img && img.trim() !== '').length > 0 ? (
                 // Image-based options
                 <div className="grid grid-cols-2 gap-4">
-                  {currentQuestion.imageOptions.map((imageOption, index) => (
-                    imageOption && (
-                      <button
-                        key={index}
-                        onClick={() => handleAnswer(currentQuestion.id, imageOption)}
-                        className={`p-4 border-2 rounded-lg transition-all duration-200 ${
-                          currentAnswer === imageOption
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-300 hover:border-gray-400'
-                        }`}
-                      >
-                        <img 
-                          src={imageOption} 
-                          alt={`Option ${index + 1}`} 
-                          className="w-full h-auto rounded"
-                        />
-                        <div className="mt-2 text-center">
-                          <span className="text-sm font-medium text-gray-700">
-                            სურათი {index + 1}
-                          </span>
-                        </div>
-                      </button>
-                    )
+                  {(shuffledOptions[`${currentQuestion.id}_images`] || currentQuestion.imageOptions.filter(img => img && img.trim() !== '')).map((imageOption, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleAnswer(currentQuestion.id, imageOption)}
+                      className={`p-4 border-2 rounded-lg transition-all duration-200 ${
+                        currentAnswer === imageOption
+                          ? 'border-blue-500 bg-blue-50'
+                          : 'border-gray-300 hover:border-gray-400'
+                      }`}
+                    >
+                      <img 
+                        src={imageOption} 
+                        alt={`Option ${index + 1}`} 
+                        className="w-full h-auto rounded"
+                      />
+                      <div className="mt-2 text-center">
+                        <span className="text-sm font-medium text-gray-700">
+                          სურათი {index + 1}
+                        </span>
+                      </div>
+                    </button>
                   ))}
                 </div>
               ) : (
                 // Text-based options
                 <div className="space-y-3">
-                  {currentQuestion.options.map((option, index) => (
+                  {(shuffledOptions[currentQuestion.id] || currentQuestion.options).map((option, index) => (
                     <button
                       key={index}
                       onClick={() => handleAnswer(currentQuestion.id, option)}
@@ -244,14 +298,34 @@ function StudentTestContent() {
                 {/* Right Column */}
                 <div className="space-y-3">
                   <h3 className="font-semibold text-gray-900 mb-4">მარჯვენა სვეტი</h3>
-                  {currentQuestion.matchingPairs?.map((pair, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                      <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                        {index + 1}:
-                      </span>
-                      <span className="text-gray-900">{pair.right}</span>
-                    </div>
-                  ))}
+                  {currentQuestion.matchingPairs && (() => {
+                    const shuffledIndices = shuffledOptions[`${currentQuestion.id}_matching`]
+                    const pairs = currentQuestion.matchingPairs
+                    
+                    if (shuffledIndices) {
+                      return shuffledIndices.map((shuffledIndex, displayIndex) => {
+                        const actualIndex = parseInt(shuffledIndex)
+                        const pair = pairs[actualIndex]
+                        return (
+                          <div key={displayIndex} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                              {displayIndex + 1}:
+                            </span>
+                            <span className="text-gray-900">{pair.right}</span>
+                          </div>
+                        )
+                      })
+                    } else {
+                      return pairs.map((pair, index) => (
+                        <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                          <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                            {index + 1}:
+                          </span>
+                          <span className="text-gray-900">{pair.right}</span>
+                        </div>
+                      ))
+                    }
+                  })()}
                 </div>
               </div>
 
@@ -274,11 +348,22 @@ function StudentTestContent() {
                         className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         <option value="">აირჩიეთ...</option>
-                        {currentQuestion.matchingPairs?.map((_, rightIndex) => (
-                          <option key={rightIndex} value={rightIndex + 1}>
-                            {rightIndex + 1}
-                          </option>
-                        ))}
+                        {(() => {
+                          const shuffledIndices = shuffledOptions[`${currentQuestion.id}_matching`]
+                          if (shuffledIndices) {
+                            return shuffledIndices.map((_, displayIndex) => (
+                              <option key={displayIndex} value={displayIndex + 1}>
+                                {displayIndex + 1}
+                              </option>
+                            ))
+                          } else {
+                            return currentQuestion.matchingPairs?.map((_, rightIndex) => (
+                              <option key={rightIndex} value={rightIndex + 1}>
+                                {rightIndex + 1}
+                              </option>
+                            ))
+                          }
+                        })()}
                       </select>
                       <span className="text-gray-500">→</span>
                       <span className="text-sm text-gray-600">
