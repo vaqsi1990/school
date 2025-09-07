@@ -80,6 +80,31 @@ function StudentTestContent() {
 
   useEffect(() => {
     fetchQuestions()
+    
+    // Disable right-click context menu during test
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault()
+    }
+    
+    // Disable common keyboard shortcuts
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Disable Ctrl+C, Ctrl+A, Ctrl+V, Ctrl+X, F12, Ctrl+Shift+I
+      if (
+        (e.ctrlKey && (e.key === 'c' || e.key === 'a' || e.key === 'v' || e.key === 'x')) ||
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && e.key === 'I')
+      ) {
+        e.preventDefault()
+      }
+    }
+    
+    document.addEventListener('contextmenu', handleContextMenu)
+    document.addEventListener('keydown', handleKeyDown)
+    
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
   }, [])
 
   const fetchQuestions = async () => {
@@ -186,7 +211,7 @@ function StudentTestContent() {
   const currentAnswer = answers[currentQuestion.id] || (currentQuestion.type === 'MATCHING' ? {} : '')
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-8 select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Progress Bar */}
         <div className="mb-8">

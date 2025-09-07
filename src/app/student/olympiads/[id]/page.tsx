@@ -71,6 +71,31 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
   useEffect(() => {
     fetchOlympiad()
     checkOlympiadStatus()
+    
+    // Disable right-click context menu during test
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault()
+    }
+    
+    // Disable common keyboard shortcuts
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Disable Ctrl+C, Ctrl+A, Ctrl+V, Ctrl+X, F12, Ctrl+Shift+I
+      if (
+        (e.ctrlKey && (e.key === 'c' || e.key === 'a' || e.key === 'v' || e.key === 'x')) ||
+        e.key === 'F12' ||
+        (e.ctrlKey && e.shiftKey && e.key === 'I')
+      ) {
+        e.preventDefault()
+      }
+    }
+    
+    document.addEventListener('contextmenu', handleContextMenu)
+    document.addEventListener('keydown', handleKeyDown)
+    
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
   }, [resolvedParams.id])
 
   const checkOlympiadStatus = () => {
@@ -517,7 +542,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-6 select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}>
       <div className="max-w-4xl mx-auto">
         {/* Header with Timer */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
