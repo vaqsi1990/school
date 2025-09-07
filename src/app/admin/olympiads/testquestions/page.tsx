@@ -460,7 +460,7 @@ console.log(selectedQuestions);
                                 </div>
                                 <p className="text-sm text-gray-700 line-clamp-2">{question.text}</p>
                                 {question.image && question.image.length > 0 && (
-                                  <div className="mt-2 space-y-1">
+                                  <div className="mt-2 flex gap-1 flex-wrap">
                                     {question.image.map((img, index) => (
                                       <ImageModal 
                                         key={index}
@@ -563,13 +563,19 @@ console.log(selectedQuestions);
                           </p>
                         </div>
                         {selectedQuestions[currentQuestionIndex].image && selectedQuestions[currentQuestionIndex].image.length > 0 && (
-                          <div className={`flex gap-2 ${selectedQuestions[currentQuestionIndex].image.length === 2 ? 'flex-row' : 'flex-col'}`}>
+                          <div className={`flex gap-2 ${selectedQuestions[currentQuestionIndex].image.length === 2 ? 'flex-row' : 'flex-wrap'}`}>
                             {selectedQuestions[currentQuestionIndex].image.map((img, index) => (
                               <ImageModal 
                                 key={index}
                                 src={img} 
                                 alt={`კითხვის სურათი ${index + 1}`} 
-                                className={`object-contain rounded-lg border shadow-sm ${selectedQuestions[currentQuestionIndex].image?.length === 2 ? 'flex-1 max-h-96' : 'max-w-full h-auto max-h-96'}`}
+                                className={`object-contain rounded-lg border shadow-sm ${
+                                  (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 2 
+                                    ? 'flex-1 max-h-96' 
+                                    : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) <= 4 
+                                      ? 'w-[calc(33.333%-8px)] max-h-96' 
+                                      : 'w-[calc(25%-6px)] max-h-80'
+                                }`}
                               />
                             ))}
                           </div>
@@ -582,13 +588,19 @@ console.log(selectedQuestions);
                         </h3>
                         
                         {selectedQuestions[currentQuestionIndex].image && selectedQuestions[currentQuestionIndex].image.length > 0 && (
-                          <div className={`flex gap-2 ${selectedQuestions[currentQuestionIndex].image.length === 2 ? 'flex-row' : 'flex-col'}`}>
+                          <div className={`flex gap-2 ${selectedQuestions[currentQuestionIndex].image.length === 2 ? 'flex-row' : 'flex-wrap'}`}>
                             {selectedQuestions[currentQuestionIndex].image.map((img, index) => (
                               <ImageModal 
                                 key={index}
                                 src={img} 
                                 alt={`კითხვის სურათი ${index + 1}`} 
-                                className={`object-contain rounded-lg border shadow-sm ${selectedQuestions[currentQuestionIndex].image?.length === 2 ? 'flex-1 max-h-96' : 'max-w-full h-auto max-h-96'}`}
+                                className={`object-contain rounded-lg border shadow-sm ${
+                                  (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 2 
+                                    ? 'flex-1 max-h-96' 
+                                    : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) <= 4 
+                                      ? 'w-[calc(33.333%-8px)] max-h-96' 
+                                      : 'w-[calc(25%-6px)] max-h-80'
+                                }`}
                               />
                             ))}
                           </div>
