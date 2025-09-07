@@ -569,7 +569,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                         key={index}
                         src={img} 
                         alt={`კითხვის სურათი ${index + 1}`} 
-                        className={`object-contain rounded-lg border shadow-sm ${currentQuestion.image.length === 2 ? 'flex-1 max-h-96' : 'max-w-full h-auto max-h-96'}`}
+                        className={`object-contain rounded-lg border shadow-sm ${currentQuestion.image?.length === 2 ? 'flex-1 max-h-96' : 'max-w-full h-auto max-h-96'}`}
                       />
                     ))}
                   </div>
