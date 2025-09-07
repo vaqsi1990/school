@@ -12,7 +12,7 @@ interface Question {
   imageOptions?: string[]
   correctAnswer?: string
   points: number
-  image?: string
+  image?: string[]
   subjectId: string
   grade: number
   round: number
@@ -212,13 +212,16 @@ function StudentTestContent() {
               {currentQuestion.text}
             </h2>
             
-            {currentQuestion.image && (
-              <div className="mb-4">
-                <img 
-                  src={currentQuestion.image} 
-                  alt="Question" 
-                  className="w-full max-w-md h-auto rounded-lg border border-gray-300"
-                />
+            {currentQuestion.image && currentQuestion.image.length > 0 && (
+              <div className="mb-4 space-y-2">
+                {currentQuestion.image.map((img, index) => (
+                  <img 
+                    key={index}
+                    src={img} 
+                    alt={`Question ${index + 1}`} 
+                    className="w-full max-w-md h-auto rounded-lg border border-gray-300"
+                  />
+                ))}
               </div>
             )}
           </div>

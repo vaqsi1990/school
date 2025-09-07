@@ -20,7 +20,7 @@ interface Question {
   answerTemplate?: string
   points: number
   maxPoints?: number
-  image?: string
+  image?: string[]
   matchingPairs?: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
   subjectId: string
   subject?: {
@@ -94,7 +94,7 @@ function AdminQuestionsContent() {
     answerTemplate: string
     points: number
     maxPoints: number
-    image: string
+    image: string[]
     matchingPairs: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
     subjectId: string
     chapterName: string
@@ -113,7 +113,7 @@ function AdminQuestionsContent() {
     answerTemplate: '',
     points: 1,
     maxPoints: 1,
-    image: '',
+    image: [],
     matchingPairs: [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
     subjectId: '',
     chapterName: '',
@@ -123,8 +123,7 @@ function AdminQuestionsContent() {
     isAutoScored: false,
     subQuestions: []
   })
- console.log('questions', questions);
- console.log('subjects', subjects);
+
  
   useEffect(() => {
     if (user) {
@@ -176,7 +175,7 @@ function AdminQuestionsContent() {
       answerTemplate: question.answerTemplate || '',
       points: question.points,
       maxPoints: question.maxPoints || question.points,
-      image: question.image || '',
+      image: question.image || [],
       matchingPairs: question.matchingPairs?.map(pair => ({
         left: pair.left,
         leftImage: pair.leftImage,
@@ -543,7 +542,7 @@ function AdminQuestionsContent() {
       answerTemplate: '',
       points: 1,
       maxPoints: 1,
-      image: '',
+      image: [],
       matchingPairs: [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
       subjectId: '',
       chapterName: '',
@@ -724,7 +723,8 @@ function AdminQuestionsContent() {
       </div>
     )
   }
-
+ console.log(questions);
+ 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow">
@@ -969,7 +969,7 @@ function AdminQuestionsContent() {
                              return question.text
                            })()}
                          </div>
-                         {question.image && (
+                         {question.image && question.image.length > 0 && (
                            <div className="text-xs text-gray-500 mt-1"> სურათი არის</div>
                          )}
                        </div>
@@ -1206,8 +1206,8 @@ function AdminQuestionsContent() {
                       სურათის URL (არასავალდებულო)
                     </label>
                     <ImageUpload
-                      onChange={(urls) => setFormData(prev => ({ ...prev, image: urls[0] || '' }))}
-                      value={formData.image ? [formData.image] : []}
+                      onChange={(urls) => setFormData(prev => ({ ...prev, image: urls }))}
+                      value={formData.image}
                     />
                   </div>
 

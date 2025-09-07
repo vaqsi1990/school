@@ -12,7 +12,7 @@ interface QuestionWithDetails {
     options: string[]
     correctAnswer: string | null
     points: number
-    image: string | null
+    image: string[]
     imageOptions: string[]
     content: string | null
   }
@@ -106,7 +106,7 @@ export async function POST(
           options: (qp as QuestionWithDetails).question?.options || [],
           correctAnswer: (qp as QuestionWithDetails).question?.correctAnswer || '',
           points: (qp as QuestionWithDetails).question?.points || 1,
-          image: (qp as QuestionWithDetails).question?.image || null,
+          image: (qp as QuestionWithDetails).question?.image || [],
           imageOptions: (qp as QuestionWithDetails).question?.imageOptions || []
         }))
       )
@@ -154,7 +154,7 @@ export async function POST(
           options: question?.options || [],
           correctAnswer: question?.correctAnswer || '',
           points: question?.points || 1,
-          image: question?.image || null,
+          image: question?.image || [],
           imageOptions: question?.imageOptions || [],
           subQuestions: subQuestions
         }

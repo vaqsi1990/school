@@ -42,8 +42,6 @@ export async function GET() {
       },
       include: {
         subject: true,
-        chapter: true,
-        paragraph: true,
         createdByTeacher: {
           select: {
             name: true,
@@ -150,6 +148,8 @@ export async function POST(request: NextRequest) {
       text,
       type,
       options,
+      imageOptions,
+      useImageOptions,
       correctAnswer,
       points,
       subjectId,
@@ -295,7 +295,7 @@ export async function POST(request: NextRequest) {
           answerTemplate: answerTemplate || null,
           points: pointsNum,
           maxPoints: maxPoints ? parseFloat(maxPoints) : null,
-          image: image || null,
+          image: image || [],
           matchingPairs: matchingPairs || null,
           subjectId,
           chapterId: null, // Keep as null since we're using text fields now

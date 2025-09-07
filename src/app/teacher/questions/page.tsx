@@ -25,7 +25,7 @@ interface Question {
   correctAnswer?: string
   points?: number
   maxPoints?: number
-  image?: string
+  image?: string[]
   matchingPairs?: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
   isAutoScored?: boolean
   subQuestions?: Array<{
@@ -38,7 +38,7 @@ interface Question {
     points: number
     maxPoints?: number
     isAutoScored: boolean
-    image?: string
+    image?: string[]
   }>
 }
 
@@ -77,7 +77,7 @@ function TeacherQuestionsContent() {
     answerTemplate: string
     points: number
     maxPoints: number
-    image: string
+    image: string[]
     matchingPairs: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
     grade: number
     round: number
@@ -92,7 +92,7 @@ function TeacherQuestionsContent() {
       points: number
       maxPoints?: number
       isAutoScored: boolean
-      image?: string
+      image?: string[]
     }>
     chapterName: string
     paragraphName: string
@@ -106,7 +106,7 @@ function TeacherQuestionsContent() {
     answerTemplate: '',
     points: 1,
     maxPoints: 1,
-    image: '',
+    image: [],
     matchingPairs: [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
     grade: 7,
     round: 1,
@@ -177,7 +177,7 @@ function TeacherQuestionsContent() {
           answerTemplate: '',
           points: 1,
           maxPoints: 1,
-          image: '',
+          image: [],
           matchingPairs: [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
           grade: 7,
           round: 1,
@@ -227,7 +227,7 @@ function TeacherQuestionsContent() {
           answerTemplate: '',
           points: 1,
           maxPoints: 1,
-          image: '',
+          image: [],
           matchingPairs: [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
           grade: 7,
           round: 1,
@@ -293,7 +293,7 @@ function TeacherQuestionsContent() {
       answerTemplate: '',
       points: questionToEdit.points || 1,
       maxPoints: questionToEdit.maxPoints || 1,
-      image: questionToEdit.image || '',
+      image: questionToEdit.image || [],
       matchingPairs: questionToEdit.matchingPairs || [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
       grade: questionToEdit.grade,
       round: questionToEdit.round,
@@ -437,7 +437,7 @@ function TeacherQuestionsContent() {
       points: 1,
       maxPoints: 1,
       isAutoScored: false,
-      image: ''
+      image: []
     }
     
     setFormData(prev => ({
@@ -647,7 +647,7 @@ function TeacherQuestionsContent() {
       answerTemplate: '',
       points: 1,
       maxPoints: 1,
-      image: '',
+      image: [],
       matchingPairs: [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
       grade: 7,
       round: 1,
@@ -1027,8 +1027,8 @@ function TeacherQuestionsContent() {
                    სურათის URL (არასავალდებულო)
                  </label>
                  <ImageUpload
-                   onChange={(urls) => setFormData(prev => ({ ...prev, image: urls[0] || '' }))}
-                   value={formData.image ? [formData.image] : []}
+                   onChange={(urls) => setFormData(prev => ({ ...prev, image: urls }))}
+                   value={formData.image}
                  />
                </div>
 

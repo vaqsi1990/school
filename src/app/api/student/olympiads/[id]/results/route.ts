@@ -11,7 +11,7 @@ interface QuestionWithDetails {
     options: string[]
     correctAnswer: string | null
     points: number
-    image: string | null
+    image: string[]
     imageOptions: string[]
   }
 }

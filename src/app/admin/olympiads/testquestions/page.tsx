@@ -14,7 +14,7 @@ interface Question {
   explanation: string | null
   points: number
   matchingPairs: Array<{left: string, right: string}> | null
-  image: string | null
+  image: string[] | null
   imageOptions: string[]
   subject: {
     name: string
@@ -433,13 +433,16 @@ console.log(selectedQuestions);
                                   </span>
                                 </div>
                                 <p className="text-sm text-gray-700 line-clamp-2">{question.text}</p>
-                                {question.image && (
-                                  <div className="mt-2">
-                                    <img 
-                                      src={question.image} 
-                                      alt="კითხვის სურათი" 
-                                      className="w-16 h-16 object-cover rounded border"
-                                    />
+                                {question.image && question.image.length > 0 && (
+                                  <div className="mt-2 space-y-1">
+                                    {question.image.map((img, index) => (
+                                      <img 
+                                        key={index}
+                                        src={img} 
+                                        alt={`კითხვის სურათი ${index + 1}`} 
+                                        className="w-16 h-16 object-cover rounded border"
+                                      />
+                                    ))}
                                   </div>
                                 )}
                               </div>
@@ -533,13 +536,16 @@ console.log(selectedQuestions);
                             {selectedQuestions[currentQuestionIndex].text}
                           </p>
                         </div>
-                        {selectedQuestions[currentQuestionIndex].image && (
-                          <div className="mb-4">
-                            <img 
-                              src={selectedQuestions[currentQuestionIndex].image} 
-                              alt="კითხვის სურათი" 
-                              className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
-                            />
+                        {selectedQuestions[currentQuestionIndex].image && selectedQuestions[currentQuestionIndex].image.length > 0 && (
+                          <div className="mb-4 space-y-2">
+                            {selectedQuestions[currentQuestionIndex].image.map((img, index) => (
+                              <img 
+                                key={index}
+                                src={img} 
+                                alt={`კითხვის სურათი ${index + 1}`} 
+                                className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
+                              />
+                            ))}
                           </div>
                         )}
                       </div>
@@ -549,13 +555,16 @@ console.log(selectedQuestions);
                           {selectedQuestions[currentQuestionIndex].text}
                         </h3>
                         
-                        {selectedQuestions[currentQuestionIndex].image && (
-                          <div className="mb-4">
-                            <img 
-                              src={selectedQuestions[currentQuestionIndex].image} 
-                              alt="კითხვის სურათი" 
-                              className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
-                            />
+                        {selectedQuestions[currentQuestionIndex].image && selectedQuestions[currentQuestionIndex].image.length > 0 && (
+                          <div className="mb-4 space-y-2">
+                            {selectedQuestions[currentQuestionIndex].image.map((img, index) => (
+                              <img 
+                                key={index}
+                                src={img} 
+                                alt={`კითხვის სურათი ${index + 1}`} 
+                                className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
+                              />
+                            ))}
                           </div>
                         )}
                       </>

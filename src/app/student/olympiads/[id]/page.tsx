@@ -11,7 +11,7 @@ interface Question {
   options?: string[]
   correctAnswer?: string
   points: number
-  image?: string
+  image?: string[]
   imageOptions?: string[]
   subQuestions?: Array<{
     id: string
@@ -561,13 +561,16 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                     {currentQuestion.question}
                   </p>
                 </div>
-                {currentQuestion.image && (
-                  <div className="mb-4">
-                    <img 
-                      src={currentQuestion.image} 
-                      alt="კითხვის სურათი" 
-                      className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
-                    />
+                {currentQuestion.image && currentQuestion.image.length > 0 && (
+                  <div className="mb-4 space-y-2">
+                    {currentQuestion.image.map((img, index) => (
+                      <img 
+                        key={index}
+                        src={img} 
+                        alt={`კითხვის სურათი ${index + 1}`} 
+                        className="max-w-full h-auto max-h-96 object-contain rounded-lg border shadow-sm"
+                      />
+                    ))}
                   </div>
                 )}
               </div>
