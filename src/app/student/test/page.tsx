@@ -28,6 +28,7 @@ function StudentTestContent() {
   const [loading, setLoading] = useState(true)
   const [submitted, setSubmitted] = useState(false)
   const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({})
+  const [answeredQuestions, setAnsweredQuestions] = useState<Set<string>>(new Set())
 
   // Function to shuffle array
   const shuffleArray = (array: string[]) => {
@@ -129,6 +130,12 @@ function StudentTestContent() {
   }
 
   const handleAnswer = (questionId: string, answer: string | Record<string, string>) => {
+    // Check if this question is already answered (locked)
+    const currentQuestionId = questions[currentQuestionIndex]?.id
+    if (answeredQuestions.has(currentQuestionId)) {
+      return // Don't allow changes to locked questions
+    }
+    
     setAnswers(prev => ({
       ...prev,
       [questionId]: answer
@@ -137,6 +144,10 @@ function StudentTestContent() {
 
   const handleNext = () => {
     if (currentQuestionIndex < questions.length - 1) {
+      // Mark current question as answered
+      const currentQuestionId = questions[currentQuestionIndex].id
+      setAnsweredQuestions(prev => new Set([...prev, currentQuestionId]))
+      
       setCurrentQuestionIndex(prev => prev + 1)
     }
   }
@@ -234,9 +245,16 @@ function StudentTestContent() {
         {/* Question Card */}
         <div className="bg-white shadow rounded-lg p-6 mb-8">
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              {currentQuestion.text}
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-900">
+                {currentQuestion.text}
+              </h2>
+              {answeredQuestions.has(currentQuestion.id) && (
+                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                  ნაპასუხი
+                </span>
+              )}
+            </div>
             
             {currentQuestion.image && currentQuestion.image.length > 0 && (
               <div className={`mb-4 flex gap-2 ${currentQuestion.image.length === 1 ? 'justify-center' : currentQuestion.image.length === 2 ? 'flex-row' : 'flex-wrap'}`}>
@@ -270,10 +288,15 @@ function StudentTestContent() {
                     <button
                       key={index}
                       onClick={() => handleAnswer(currentQuestion.id, imageOption)}
+                      disabled={answeredQuestions.has(currentQuestion.id)}
                       className={`p-4 border-2 rounded-lg transition-all duration-200 ${
                         currentAnswer === imageOption
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-300 hover:border-gray-400'
+                      } ${
+                        answeredQuestions.has(currentQuestion.id) 
+                          ? 'cursor-not-allowed opacity-60' 
+                          : ''
                       }`}
                     >
                       <ImageModal 
@@ -296,10 +319,15 @@ function StudentTestContent() {
                     <button
                       key={index}
                       onClick={() => handleAnswer(currentQuestion.id, option)}
+                      disabled={answeredQuestions.has(currentQuestion.id)}
                       className={`w-full p-4 text-left border-2 rounded-lg transition-all duration-200 ${
                         currentAnswer === option
                           ? 'border-blue-500 bg-blue-50'
                           : 'border-gray-300 hover:border-gray-400'
+                      } ${
+                        answeredQuestions.has(currentQuestion.id) 
+                          ? 'cursor-not-allowed opacity-60' 
+                          : ''
                       }`}
                     >
                       <span className="font-medium text-gray-900">
@@ -382,7 +410,12 @@ function StudentTestContent() {
                           newAnswer[`${String.fromCharCode(65 + index)}`] = e.target.value
                           handleAnswer(currentQuestion.id, newAnswer)
                         }}
-                        className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        disabled={answeredQuestions.has(currentQuestion.id)}
+                        className={`px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                          answeredQuestions.has(currentQuestion.id) 
+                            ? 'bg-gray-100 cursor-not-allowed opacity-60' 
+                            : ''
+                        }`}
                       >
                         <option value="">აირჩიეთ...</option>
                         {(() => {
@@ -422,7 +455,12 @@ function StudentTestContent() {
                 value={currentAnswer as string}
                 onChange={(e) => handleAnswer(currentQuestion.id, e.target.value)}
                 placeholder="შეიყვანეთ თქვენი პასუხი..."
-                className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={answeredQuestions.has(currentQuestion.id)}
+                className={`w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  answeredQuestions.has(currentQuestion.id) 
+                    ? 'bg-gray-100 cursor-not-allowed opacity-60' 
+                    : ''
+                }`}
                 rows={4}
               />
             </div>

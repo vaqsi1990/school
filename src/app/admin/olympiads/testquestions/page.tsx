@@ -70,6 +70,7 @@ function TestQuestionsContent() {
   const [selectedGrade, setSelectedGrade] = useState<number | ''>('')
   const [selectedQuestionType, setSelectedQuestionType] = useState<string>('')
   const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({})
+  const [answeredQuestions, setAnsweredQuestions] = useState<Set<string>>(new Set())
 
   // Fetch all questions
   useEffect(() => {
@@ -189,6 +190,7 @@ function TestQuestionsContent() {
     setCurrentQuestionIndex(0)
     setUserAnswers({})
     setShowResults(false)
+    setAnsweredQuestions(new Set())
     
     // Create shuffled options for selected questions
     const shuffled = createShuffledOptions(questions)
@@ -206,6 +208,12 @@ function TestQuestionsContent() {
   }
 
   const handleAnswerChange = (questionId: string, answer: string) => {
+    // Check if this question is already answered (locked)
+    const currentQuestionId = selectedQuestions[currentQuestionIndex]?.id
+    if (answeredQuestions.has(currentQuestionId)) {
+      return // Don't allow changes to locked questions
+    }
+    
     setUserAnswers(prev => ({
       ...prev,
       [questionId]: answer
@@ -214,6 +222,10 @@ function TestQuestionsContent() {
 
   const nextQuestion = () => {
     if (currentQuestionIndex < selectedQuestions.length - 1) {
+      // Mark current question as answered
+      const currentQuestionId = selectedQuestions[currentQuestionIndex].id
+      setAnsweredQuestions(prev => new Set([...prev, currentQuestionId]))
+      
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     }
   }
@@ -233,6 +245,7 @@ function TestQuestionsContent() {
     setCurrentQuestionIndex(0)
     setUserAnswers({})
     setShowResults(false)
+    setAnsweredQuestions(new Set())
   }
 
   const getAvailableSubjects = () => {
@@ -547,9 +560,16 @@ function TestQuestionsContent() {
                       <span className="text-sm text-gray-500">
                         {getQuestionTypeLabel(selectedQuestions[currentQuestionIndex].type)}
                       </span>
-                      <span className="text-sm text-gray-500">
-                        {selectedQuestions[currentQuestionIndex].points} ქულა
-                      </span>
+                      <div className="flex items-center space-x-2">
+                        {answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) && (
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                            ნაპასუხი
+                          </span>
+                        )}
+                        <span className="text-sm text-gray-500">
+                          {selectedQuestions[currentQuestionIndex].points} ქულა
+                        </span>
+                      </div>
                     </div>
                     
                     {(selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' || selectedQuestions[currentQuestionIndex].type === 'MAP_ANALYSIS') ? (
@@ -624,7 +644,12 @@ function TestQuestionsContent() {
                                 <select
                                   value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${index}`] || ''}
                                   onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${index}`, e.target.value)}
-                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                                  disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
+                                  className={`flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] ${
+                                    answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
+                                      ? 'bg-gray-100 cursor-not-allowed opacity-60' 
+                                      : ''
+                                  }`}
                                 >
                                   <option value="">აირჩიეთ...</option>
                                   {(() => {
@@ -667,7 +692,12 @@ function TestQuestionsContent() {
                             placeholder="შეიყვანეთ თქვენი პასუხი..."
                             value={userAnswers[selectedQuestions[currentQuestionIndex].id] || ''}
                             onChange={(e) => handleAnswerChange(selectedQuestions[currentQuestionIndex].id, e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                            disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] ${
+                              answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
+                                ? 'bg-gray-100 cursor-not-allowed opacity-60' 
+                                : ''
+                            }`}
                             rows={4}
                           />
                         </div>
@@ -682,7 +712,12 @@ function TestQuestionsContent() {
                                 value={imageUrl}
                                 checked={userAnswers[selectedQuestions[currentQuestionIndex].id] === imageUrl}
                                 onChange={(e) => handleAnswerChange(selectedQuestions[currentQuestionIndex].id, e.target.value)}
-                                className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300 mb-2"
+                                disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
+                                className={`h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300 mb-2 ${
+                                  answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
+                                    ? 'cursor-not-allowed opacity-60' 
+                                    : ''
+                                }`}
                               />
                               <ImageModal 
                                 src={imageUrl} 
@@ -702,7 +737,12 @@ function TestQuestionsContent() {
                               value={option}
                               checked={userAnswers[selectedQuestions[currentQuestionIndex].id] === option}
                               onChange={(e) => handleAnswerChange(selectedQuestions[currentQuestionIndex].id, e.target.value)}
-                              className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
+                              disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
+                              className={`h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300 ${
+                                answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
+                                  ? 'cursor-not-allowed opacity-60' 
+                                  : ''
+                              }`}
                             />
                             <span className="ml-3 text-black md:text-[16px] text-[14px]">{option}</span>
                           </label>
@@ -724,7 +764,12 @@ function TestQuestionsContent() {
                             <textarea
                               value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_analysis`] || ''}
                               onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_analysis`, e.target.value)}
-                              className="w-full px-3 py-2 border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+                              disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
+                              className={`w-full px-3 py-2 border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black ${
+                                answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
+                                  ? 'bg-gray-100 cursor-not-allowed opacity-60' 
+                                  : ''
+                              }`}
                               rows={6}
                               placeholder={selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' 
                                 ? 'შეიყვანეთ ტექსტის ანალიზი...'
@@ -770,7 +815,12 @@ function TestQuestionsContent() {
                                         value={option}
                                         checked={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${subQuestion.id}`] === option}
                                         onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${subQuestion.id}`, e.target.value)}
-                                        className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
+                                        disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
+                                        className={`h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300 ${
+                                          answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
+                                            ? 'cursor-not-allowed opacity-60' 
+                                            : ''
+                                        }`}
                                       />
                                       <span className="ml-2 text-gray-900">{option}</span>
                                     </label>
@@ -780,7 +830,12 @@ function TestQuestionsContent() {
                                 <textarea
                                   value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${subQuestion.id}`] || ''}
                                   onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${subQuestion.id}`, e.target.value)}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                                  disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
+                                  className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] ${
+                                    answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
+                                      ? 'bg-gray-100 cursor-not-allowed opacity-60' 
+                                      : ''
+                                  }`}
                                   rows={3}
                                   placeholder="შეიყვანეთ თქვენი პასუხი..."
                                 />

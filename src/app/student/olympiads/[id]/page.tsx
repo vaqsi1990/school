@@ -67,6 +67,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
   const [isStarted, setIsStarted] = useState(false)
   const [startTime, setStartTime] = useState<Date | null>(null)
   const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({})
+  const [answeredQuestions, setAnsweredQuestions] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     fetchOlympiad()
@@ -227,6 +228,12 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
   }
 
   const handleAnswerChange = (questionId: string, answer: string | string[]) => {
+    // Check if this question is already answered (locked)
+    const currentQuestionId = questions[currentQuestionIndex]?.id
+    if (answeredQuestions.has(currentQuestionId)) {
+      return // Don't allow changes to locked questions
+    }
+    
     const newAnswers = {
       ...answers,
       [questionId]: answer
@@ -245,6 +252,10 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
+      // Mark current question as answered
+      const currentQuestionId = questions[currentQuestionIndex].id
+      setAnsweredQuestions(prev => new Set([...prev, currentQuestionId]))
+      
       const newIndex = currentQuestionIndex + 1
       setCurrentQuestionIndex(newIndex)
       
@@ -573,9 +584,16 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         {/* Question */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
-              კითხვა {currentQuestionIndex + 1}
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">
+                კითხვა {currentQuestionIndex + 1}
+              </h2>
+              {answeredQuestions.has(currentQuestion.id) && (
+                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                  ნაპასუხი
+                </span>
+              )}
+            </div>
             
             {(currentQuestion.type === 'TEXT_ANALYSIS' || currentQuestion.type === 'MAP_ANALYSIS') ? (
               <div className="mb-4">
@@ -626,10 +644,15 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                       <button
                         key={index}
                         onClick={() => handleAnswerChange(currentQuestion.id, imageOption)}
+                        disabled={answeredQuestions.has(currentQuestion.id)}
                         className={`p-4 border-2 rounded-lg transition-all duration-200 ${
                           answers[currentQuestion.id] === imageOption
                             ? 'border-blue-500 bg-blue-50'
                             : 'border-gray-300 hover:border-gray-400'
+                        } ${
+                          answeredQuestions.has(currentQuestion.id) 
+                            ? 'cursor-not-allowed opacity-60' 
+                            : ''
                         }`}
                       >
                         <ImageModal 
