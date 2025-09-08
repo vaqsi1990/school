@@ -43,7 +43,7 @@ export default function ImageModal({ src, alt, className = '' }: ImageModalProps
             <img
               src={src}
               alt={alt}
-              className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             />
           </div>

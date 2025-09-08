@@ -257,7 +257,15 @@ function StudentTestContent() {
             </div>
             
             {currentQuestion.image && currentQuestion.image.length > 0 && (
-              <div className={`mb-4 flex gap-2 ${currentQuestion.image.length === 1 ? 'justify-center' : currentQuestion.image.length === 2 ? 'flex-row' : 'flex-wrap'}`}>
+              <div className={`mb-4 flex gap-2 ${
+                currentQuestion.image.length === 1 
+                  ? 'justify-center' 
+                  : currentQuestion.image.length === 2 
+                    ? 'flex-row' 
+                    : currentQuestion.image.length === 4
+                      ? 'flex-wrap'
+                      : 'flex-wrap'
+              }`}>
                 {currentQuestion.image.map((img, index) => (
                   <ImageModal 
                     key={index}
@@ -268,9 +276,11 @@ function StudentTestContent() {
                         ? 'w-full max-w-4xl max-h-96' 
                         : (currentQuestion.image?.length ?? 0) === 2 
                           ? 'flex-1 max-h-96' 
-                          : (currentQuestion.image?.length ?? 0) > 2
-                            ? 'w-[calc(33.333%-8px)] max-h-[40rem]' 
-                            : 'w-[calc(25%-6px)] max-h-80'
+                      : (currentQuestion.image?.length ?? 0) === 4
+                        ? 'w-[calc(50%-4px)] max-h-[40rem]'
+                        : (currentQuestion.image?.length ?? 0) > 4
+                          ? 'w-[calc(50%-4px)] max-h-[40rem]' 
+                          : 'w-[calc(50%-4px)] max-h-[40rem]'
                     }`}
                   />
                 ))}

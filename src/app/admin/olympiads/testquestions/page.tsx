@@ -583,18 +583,30 @@ function TestQuestionsContent() {
                           </p>
                         </div>
                         {selectedQuestions[currentQuestionIndex].image && selectedQuestions[currentQuestionIndex].image.length > 0 && (
-                          <div className={`flex gap-2 ${selectedQuestions[currentQuestionIndex].image.length === 2 ? 'flex-row' : 'flex-wrap'}`}>
+                          <div className={`flex gap-2 ${
+                            selectedQuestions[currentQuestionIndex].image.length === 1 
+                              ? 'justify-center' 
+                              : selectedQuestions[currentQuestionIndex].image.length === 2 
+                                ? 'flex-row' 
+                                : selectedQuestions[currentQuestionIndex].image.length === 4
+                                  ? 'flex-wrap'
+                                  : 'flex-wrap'
+                          }`}>
                             {selectedQuestions[currentQuestionIndex].image.map((img, index) => (
                               <ImageModal 
                                 key={index}
                                 src={img} 
                                 alt={`კითხვის სურათი ${index + 1}`} 
                                 className={`object-contain rounded-lg border shadow-sm ${
-                                  (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 2 
-                                    ? 'flex-1 max-h-96' 
-                                    : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) <= 4 
-                                      ? 'w-[calc(33.333%-8px)] max-h-96' 
-                                      : 'w-[calc(25%-6px)] max-h-80'
+                                  (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 1
+                                    ? 'w-full max-w-4xl max-h-96' 
+                                    : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 2 
+                                      ? 'flex-1 max-h-96' 
+                                      : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 4
+                                        ? 'w-[calc(50%-4px)] max-h-[40rem]'
+                                        : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) > 4
+                                          ? 'w-[calc(50%-4px)] max-h-[40rem]' 
+                                          : 'w-[calc(50%-4px)] max-h-[40rem]'
                                 }`}
                               />
                             ))}
@@ -608,7 +620,15 @@ function TestQuestionsContent() {
                         </h3>
                         
                         {selectedQuestions[currentQuestionIndex].image && selectedQuestions[currentQuestionIndex].image.length > 0 && (
-                          <div className={`flex gap-2 ${selectedQuestions[currentQuestionIndex].image.length === 1 ? 'justify-center' : selectedQuestions[currentQuestionIndex].image.length === 2 ? 'flex-row' : 'flex-wrap'}`}>
+                          <div className={`flex gap-2 ${
+                            selectedQuestions[currentQuestionIndex].image.length === 1 
+                              ? 'justify-center' 
+                              : selectedQuestions[currentQuestionIndex].image.length === 2 
+                                ? 'flex-row' 
+                                : selectedQuestions[currentQuestionIndex].image.length === 4
+                                  ? 'flex-wrap'
+                                  : 'flex-wrap'
+                          }`}>
                             {selectedQuestions[currentQuestionIndex].image.map((img, index) => (
                               <ImageModal 
                                 key={index}
@@ -619,9 +639,11 @@ function TestQuestionsContent() {
                                     ? 'w-full max-w-4xl max-h-96' 
                                     : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 2 
                                       ? 'flex-1 max-h-96' 
-                                      : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) > 2
-                                        ? 'w-[calc(33.333%-8px)] max-h-[40rem]' 
-                                        : 'w-[calc(25%-6px)] max-h-80'
+                                      : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 4
+                                        ? 'w-[calc(50%-4px)] max-h-[40rem]'
+                                        : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) > 4
+                                          ? 'w-[calc(50%-4px)] max-h-[40rem]' 
+                                          : 'w-[calc(50%-4px)] max-h-[40rem]'
                                 }`}
                               />
                             ))}
