@@ -511,14 +511,146 @@ function TestQuestionsContent() {
             </div>
             
             <div className="p-6">
-              <div className="text-center py-12">
-                <div className="inline-block bg-green-100 rounded-full p-8">
-                  <div className="text-2xl font-bold text-green-600 mb-2">
-                    ტესტირება დასრულებულია
+              {/* Test Statistics */}
+              {(() => {
+                const totalQuestions = selectedQuestions.length
+                const correctAnswers = selectedQuestions.filter(q => {
+                  const userAnswer = userAnswers[q.id]
+                  return q.correctAnswer && userAnswer === q.correctAnswer
+                }).length
+                const totalScore = selectedQuestions.reduce((sum, q) => {
+                  const userAnswer = userAnswers[q.id]
+                  const isCorrect = q.correctAnswer && userAnswer === q.correctAnswer
+                  return sum + (isCorrect ? q.points : 0)
+                }, 0)
+                const maxScore = selectedQuestions.reduce((sum, q) => sum + q.points, 0)
+                const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0
+                
+                return (
+                  <div className="mb-8">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-blue-600">{totalScore}</div>
+                        <div className="text-sm text-blue-700">მიღებული ქულა</div>
+                        <div className="text-xs text-blue-600">მაქსიმუმი: {maxScore}</div>
+                      </div>
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-green-600">{correctAnswers}</div>
+                        <div className="text-sm text-green-700">სწორი პასუხი</div>
+                        <div className="text-xs text-green-600">სულ: {totalQuestions}</div>
+                      </div>
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-purple-600">{percentage}%</div>
+                        <div className="text-sm text-purple-700">შედეგი</div>
+                        <div className="text-xs text-purple-600">პროცენტი</div>
+                      </div>
+                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
+                        <div className="text-2xl font-bold text-orange-600">{totalQuestions - correctAnswers}</div>
+                        <div className="text-sm text-orange-700">არასწორი</div>
+                        <div className="text-xs text-orange-600">პასუხი</div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-center py-4">
+                      <div className="inline-block bg-green-100 rounded-full p-6">
+                        <div className="text-xl font-bold text-green-600 mb-2">
+                          {totalScore} / {maxScore} ქულა
+                        </div>
+                        <div className="text-sm text-green-600">
+                          {correctAnswers} / {totalQuestions} სწორი პასუხი
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-green-600">
-                    ყველა კითხვა გადახედილია
-                  </div>
+                )
+              })()}
+              
+              {/* Questions Review */}
+              <div className="mt-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">კითხვების გადახედვა</h3>
+                <div className="space-y-4">
+                  {selectedQuestions.map((question, index) => {
+                    const userAnswer = userAnswers[question.id]
+                    const isCorrect = question.correctAnswer && userAnswer === question.correctAnswer
+                    
+                    return (
+                      <div key={question.id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <h4 className="text-lg font-medium text-gray-900">
+                            კითხვა {index + 1}: {question.text}
+                          </h4>
+                          <div className="flex items-center space-x-2">
+                            {isCorrect ? (
+                              <span className="text-green-600 text-sm font-medium">✓ სწორი</span>
+                            ) : (
+                              <span className="text-red-600 text-sm font-medium">✗ არასწორი</span>
+                            )}
+                            <span className="text-sm text-gray-500">{question.points} ქულა</span>
+                          </div>
+                        </div>
+                        
+                        {question.type === 'CLOSED_ENDED' && question.options && (
+                          <div className="mb-3">
+                            <div className="text-sm font-medium text-gray-700 mb-2">პასუხის ვარიანტები:</div>
+                            <div className="space-y-1">
+                              {question.options.map((option, optIndex) => (
+                                <div key={optIndex} className={`p-2 rounded ${
+                                  option === question.correctAnswer 
+                                    ? 'bg-green-100 text-green-800 border border-green-300' 
+                                    : option === userAnswer && option !== question.correctAnswer
+                                      ? 'bg-red-100 text-red-800 border border-red-300'
+                                      : 'bg-gray-50 text-gray-700'
+                                }`}>
+                                  {String.fromCharCode(65 + optIndex)}) {option}
+                                  {option === question.correctAnswer && ' ✓ სწორი პასუხი'}
+                                  {option === userAnswer && option !== question.correctAnswer && ' ✗ თქვენი პასუხი'}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {question.type === 'MATCHING' && question.matchingPairs && (
+                          <div className="mb-3">
+                            <div className="text-sm font-medium text-gray-700 mb-2">შესაბამისობა:</div>
+                            <div className="text-sm text-gray-600">
+                              სწორი პასუხი: {question.correctAnswer}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {question.type === 'OPEN_ENDED' && (
+                          <div className="mb-3">
+                            <div className="text-sm font-medium text-gray-700 mb-2">ღია კითხვა:</div>
+                            <div className="text-sm text-gray-600">
+                              თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {question.type === 'TEXT_ANALYSIS' && (
+                          <div className="mb-3">
+                            <div className="text-sm font-medium text-gray-700 mb-2">ტექსტის ანალიზი:</div>
+                            <div className="text-sm text-gray-600">
+                              თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {question.type === 'MAP_ANALYSIS' && (
+                          <div className="mb-3">
+                            <div className="text-sm font-medium text-gray-700 mb-2">რუკის ანალიზი:</div>
+                            <div className="text-sm text-gray-600">
+                              თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
               

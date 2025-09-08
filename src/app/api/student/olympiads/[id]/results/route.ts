@@ -57,20 +57,49 @@ export async function GET(
       return NextResponse.json({ error: 'Participation not found' }, { status: 404 })
     }
 
-    // Calculate total questions and max score
-    const totalQuestions = olympiad.packages.reduce((total, pkg) => {
-      return total + pkg.questions.length
-    }, 0)
+    // Get all questions from packages
+    const allQuestions = olympiad.packages.flatMap(pkg => 
+      pkg.questions.map(qp => qp.question)
+    )
 
-    const maxScore = olympiad.packages.reduce((total, pkg) => {
-      return total + pkg.questions.reduce((pkgTotal, qp) => {
-        return pkgTotal + ((qp as QuestionWithDetails).question?.points || 1)
-      }, 0)
+    // Calculate total questions and max score
+    const totalQuestions = allQuestions.length
+
+    const maxScore = allQuestions.reduce((total, question) => {
+      return total + (question.points || 1)
     }, 0)
 
     // Get actual score from participation
     const score = participation.totalScore || 0
     const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0
+
+    // Get student answers for each question
+    const studentAnswers = await prisma.studentAnswer.findMany({
+      where: {
+        studentId: studentId,
+        olympiadId: olympiad.id
+      },
+      include: {
+        question: true
+      }
+    })
+
+    // Create questions array with student answers
+    const questionsWithAnswers = allQuestions.map(question => {
+      const studentAnswer = studentAnswers.find(sa => sa.questionId === question.id)
+      return {
+        id: question.id,
+        text: question.text,
+        type: question.type,
+        options: question.options,
+        correctAnswer: question.correctAnswer,
+        studentAnswer: studentAnswer?.answer || '',
+        isCorrect: studentAnswer?.isCorrect || false,
+        points: studentAnswer?.points || 0,
+        image: question.image,
+        imageOptions: question.imageOptions
+      }
+    })
 
     const result = {
       id: olympiad.id,
@@ -84,7 +113,8 @@ export async function GET(
       percentage,
       status: participation.status,
       startTime: participation.startTime,
-      endTime: participation.endTime
+      endTime: participation.endTime,
+      questions: questionsWithAnswers
     }
 
     return NextResponse.json(result)

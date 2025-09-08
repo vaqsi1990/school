@@ -61,10 +61,19 @@ export async function POST(
     let totalScore = 0
     let correctAnswers = 0
     let totalQuestions = 0
+    let hasManualGradingQuestions = false
 
     const allQuestions = olympiad.packages.flatMap(pkg => 
       pkg.questions.map(qp => qp.question)
     )
+
+    // Check if there are any questions that require manual grading
+    for (const question of allQuestions) {
+      if (question.type === 'OPEN_ENDED' || question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS') {
+        hasManualGradingQuestions = true
+        break
+      }
+    }
 
     // Save individual answers to StudentAnswer table
     const savedAnswers = []
@@ -76,12 +85,11 @@ export async function POST(
         let isCorrect = false
         let points = 0
         
-        if (question.type === 'MATCHING' || question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS' || question.type === 'CLOSED_ENDED') {
+        if (question.type === 'MATCHING' || question.type === 'CLOSED_ENDED') {
           isCorrect = studentAnswer === question.correctAnswer
           points = isCorrect ? question.points : 0
-        } else if (question.type === 'OPEN_ENDED') {
-          // For open-ended questions, we'll need manual review
-          // For now, we'll give partial credit
+        } else if (question.type === 'OPEN_ENDED' || question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS') {
+          // For manual grading questions, we'll need manual review
           isCorrect = studentAnswer.trim().length > 0
           points = 0 // Will be scored manually later
         }
@@ -122,7 +130,10 @@ export async function POST(
       correctAnswers,
       totalQuestions,
       percentage: Math.round((correctAnswers / totalQuestions) * 100),
-      redirectUrl: `/student/olympiads/${resolvedParams.id}/results?score=${totalScore}`
+      hasManualGradingQuestions,
+      redirectUrl: hasManualGradingQuestions 
+        ? `/student/olympiads/${resolvedParams.id}/results?score=${totalScore}&manual=true`
+        : `/student/olympiads/${resolvedParams.id}/results?score=${totalScore}&auto=true`
     })
   } catch (error) {
     console.error('Error submitting answers:', error)
