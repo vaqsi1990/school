@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, use } from 'react'
 import Link from 'next/link'
+import ImageModal from '@/components/ImageModal'
 
 interface QuestionResult {
   id: string
@@ -253,6 +254,36 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                             {String.fromCharCode(65 + optIndex)}) {option}
                             {option === question.correctAnswer && ' ✓ სწორი პასუხი'}
                             {option === question.studentAnswer && option !== question.correctAnswer && ' ✗ თქვენი პასუხი'}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {question.type === 'CLOSED_ENDED' && question.imageOptions && question.imageOptions.filter(img => img && img.trim() !== '').length > 0 && (
+                    <div className="mb-3">
+                      <div className="text-sm font-medium text-gray-700 mb-2">სურათის ვარიანტები:</div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {question.imageOptions.filter(img => img && img.trim() !== '').map((imageUrl, imgIndex) => (
+                          <div key={imgIndex} className={`p-2 rounded border-2 ${
+                            imageUrl === question.correctAnswer 
+                              ? 'bg-green-100 border-green-300' 
+                              : imageUrl === question.studentAnswer && imageUrl !== question.correctAnswer
+                                ? 'bg-red-100 border-red-300'
+                                : 'bg-gray-50 border-gray-200'
+                          }`}>
+                            <ImageModal
+                              src={imageUrl}
+                              alt={`ვარიანტი ${String.fromCharCode(65 + imgIndex)}`}
+                              className="w-full h-24 object-cover rounded"
+                            />
+                            <div className="text-center mt-1">
+                              <span className="text-xs font-medium">
+                                {String.fromCharCode(65 + imgIndex)}
+                                {imageUrl === question.correctAnswer && ' ✓ სწორი'}
+                                {imageUrl === question.studentAnswer && imageUrl !== question.correctAnswer && ' ✗ თქვენი'}
+                              </span>
+                            </div>
                           </div>
                         ))}
                       </div>

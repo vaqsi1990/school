@@ -131,8 +131,7 @@ function StudentTestContent() {
 
   const handleAnswer = (questionId: string, answer: string | Record<string, string>) => {
     // Check if this question is already answered (locked)
-    const currentQuestionId = questions[currentQuestionIndex]?.id
-    if (answeredQuestions.has(currentQuestionId)) {
+    if (answeredQuestions.has(questionId)) {
       return // Don't allow changes to locked questions
     }
     
@@ -312,7 +311,7 @@ function StudentTestContent() {
                       <ImageModal 
                         src={imageOption} 
                         alt={`Option ${index + 1}`} 
-                        className="w-full h-auto rounded"
+                        className="w-full h-full object-cover rounded"
                       />
                       <div className="mt-2 text-center">
                         <span className="text-sm font-medium text-gray-700">

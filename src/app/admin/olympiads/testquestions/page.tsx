@@ -209,8 +209,7 @@ function TestQuestionsContent() {
 
   const handleAnswerChange = (questionId: string, answer: string) => {
     // Check if this question is already answered (locked)
-    const currentQuestionId = selectedQuestions[currentQuestionIndex]?.id
-    if (answeredQuestions.has(currentQuestionId)) {
+    if (answeredQuestions.has(questionId)) {
       return // Don't allow changes to locked questions
     }
     
@@ -610,6 +609,36 @@ function TestQuestionsContent() {
                           </div>
                         )}
                         
+                        {question.type === 'CLOSED_ENDED' && question.imageOptions && question.imageOptions.filter(img => img && img.trim() !== '').length > 0 && (
+                          <div className="mb-3">
+                            <div className="text-sm font-medium text-gray-700 mb-2">სურათის ვარიანტები:</div>
+                            <div className="grid grid-cols-2 gap-4">
+                              {question.imageOptions.filter(img => img && img.trim() !== '').map((imageUrl, imgIndex) => (
+                                <div key={imgIndex} className={`p-2 rounded border-2 ${
+                                  imageUrl === question.correctAnswer 
+                                    ? 'bg-green-100 border-green-300' 
+                                    : imageUrl === userAnswer && imageUrl !== question.correctAnswer
+                                      ? 'bg-red-100 border-red-300'
+                                      : 'bg-gray-50 border-gray-200'
+                                }`}>
+                                  <ImageModal
+                                    src={imageUrl}
+                                    alt={`ვარიანტი ${String.fromCharCode(65 + imgIndex)}`}
+                                    className="w-full h-34 object-cover rounded"
+                                  />
+                                  <div className="text-center mt-1">
+                                    <span className="text-xs font-medium">
+                                      {String.fromCharCode(65 + imgIndex)}
+                                      {imageUrl === question.correctAnswer && ' ✓ სწორი'}
+                                      {imageUrl === userAnswer && imageUrl !== question.correctAnswer && ' ✗ თქვენი'}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
                         {question.type === 'MATCHING' && question.matchingPairs && (
                           <div className="mb-3">
                             <div className="text-sm font-medium text-gray-700 mb-2">შესაბამისობა:</div>
@@ -857,9 +886,13 @@ function TestQuestionsContent() {
                         </div>
                       ) : selectedQuestions[currentQuestionIndex].type === 'CLOSED_ENDED' && selectedQuestions[currentQuestionIndex].imageOptions && selectedQuestions[currentQuestionIndex].imageOptions.filter(img => img && img.trim() !== '').length > 0 ? (
                         // CLOSED_ENDED Question with image options
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                           {(shuffledOptions[`${selectedQuestions[currentQuestionIndex].id}_images`] || selectedQuestions[currentQuestionIndex].imageOptions.filter(img => img && img.trim() !== '')).map((imageUrl, index) => (
-                            <label key={index} className="flex flex-col items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                            <label key={index} className={`flex flex-col items-center p-3 border border-gray-200 rounded-lg ${
+                              answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)
+                                ? 'bg-gray-100 cursor-not-allowed opacity-60'
+                                : 'hover:bg-gray-50 cursor-pointer'
+                            }`}>
                               <input
                                 type="radio"
                                 name={`question_${selectedQuestions[currentQuestionIndex].id}`}
@@ -867,7 +900,7 @@ function TestQuestionsContent() {
                                 checked={userAnswers[selectedQuestions[currentQuestionIndex].id] === imageUrl}
                                 onChange={(e) => handleAnswerChange(selectedQuestions[currentQuestionIndex].id, e.target.value)}
                                 disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
-                                className={`h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300 mb-2 ${
+                                className={`h-4 w-4 text-black focus:ring-[#034e64] border-gray-300 mb-2 ${
                                   answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
                                     ? 'cursor-not-allowed opacity-60' 
                                     : ''
@@ -876,7 +909,7 @@ function TestQuestionsContent() {
                               <ImageModal 
                                 src={imageUrl} 
                                 alt={`ვარიანტი ${index + 1}`}
-                                className="w-20 h-20 object-cover rounded border"
+                                className="w-full h-full object-cover rounded border"
                               />
                             </label>
                           ))}
@@ -884,7 +917,11 @@ function TestQuestionsContent() {
                       ) : selectedQuestions[currentQuestionIndex].type === 'CLOSED_ENDED' && selectedQuestions[currentQuestionIndex].options && selectedQuestions[currentQuestionIndex].options.length > 0 ? (
                         // CLOSED_ENDED Question with text options
                         (shuffledOptions[selectedQuestions[currentQuestionIndex].id] || selectedQuestions[currentQuestionIndex].options).map((option, index) => (
-                          <label key={index} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                          <label key={index} className={`flex items-center p-3 border border-gray-200 rounded-lg ${
+                            answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)
+                              ? 'bg-gray-100 cursor-not-allowed opacity-60'
+                              : 'hover:bg-gray-50 cursor-pointer'
+                          }`}>
                             <input
                               type="radio"
                               name={`question_${selectedQuestions[currentQuestionIndex].id}`}
