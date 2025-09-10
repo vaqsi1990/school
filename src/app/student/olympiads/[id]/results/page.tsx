@@ -17,8 +17,8 @@ interface QuestionResult {
   image?: string[]
   imageOptions?: string[]
   matchingPairs?: Array<{ left: string, right: string }>
-  leftSide?: any
-  rightSide?: any
+  leftSide?: Array<{ left: string }>
+  rightSide?: Array<{ right: string }>
 }
 
 interface OlympiadResult {

@@ -15,9 +15,9 @@ interface QuestionWithDetails {
     image: string[]
     imageOptions: string[]
     content: string | null
-    matchingPairs: any
-    leftSide: any
-    rightSide: any
+    matchingPairs: Array<{left: string, right: string}> | null
+    leftSide: Array<{left: string}> | null
+    rightSide: Array<{right: string}> | null
   }
 }
 
