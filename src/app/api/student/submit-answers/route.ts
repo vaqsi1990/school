@@ -54,8 +54,16 @@ export async function POST(request: NextRequest) {
               studentAnswerString = String(answer)
             }
             
-            isCorrect = studentAnswerString === question.correctAnswer
-            points = isCorrect ? question.points : 0
+                        console.log('MATCHING QUESTION DEBUG (submit-answers):', {
+                          questionId: question.id,
+                          questionText: question.text,
+                          studentAnswerString,
+                          correctAnswer: question.correctAnswer,
+                          comparison: studentAnswerString === question.correctAnswer
+                        })
+                        
+                        isCorrect = studentAnswerString === question.correctAnswer
+                        points = isCorrect ? question.points : 0
           } else if (question.type === 'CLOSED_ENDED') {
             isCorrect = answer === question.correctAnswer
             points = isCorrect ? question.points : 0
