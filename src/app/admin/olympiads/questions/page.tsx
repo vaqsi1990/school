@@ -453,8 +453,8 @@ function AdminQuestionsContent() {
       type: type as 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED',
       isAutoScored,
       maxPoints: isAutoScored ? prev.points : prev.maxPoints,
-      // For MATCHING questions, set correctAnswer to "matching"
-      correctAnswer: type === 'MATCHING' ? 'matching' : prev.correctAnswer,
+      // For MATCHING questions, clear correctAnswer to allow manual input
+      correctAnswer: type === 'MATCHING' ? '' : prev.correctAnswer,
       // Clear sub-questions if switching away from TEXT_ANALYSIS or MAP_ANALYSIS
       subQuestions: (type === 'TEXT_ANALYSIS' || type === 'MAP_ANALYSIS') ? prev.subQuestions : []
     }))
@@ -487,6 +487,80 @@ function AdminQuestionsContent() {
         if (!formData.leftSide || formData.leftSide.length === 0 || !formData.rightSide || formData.rightSide.length === 0) {
           alert('შესაბამისობის კითხვებს უნდა ჰქონდეთ მინიმუმ ერთი მარცხენა და ერთი მარჯვენა მნიშვნელობა')
           return
+        }
+    
+        if (!formData.correctAnswer || formData.correctAnswer.trim() === '') {
+          alert('შესაბამისობის კითხვებს უნდა ჰქონდეთ სწორი პასუხი')
+          return
+        }
+        
+        const pairs = formData.correctAnswer.split(',').filter(pair => pair.trim() !== '')
+        const leftCount = formData.leftSide.length
+        const rightCount = formData.rightSide.length
+        
+        // Allow partial answers - not all left items need to have answers
+        if (pairs.length === 0) {
+          alert('სწორი პასუხი უნდა შეიცავდეს მინიმუმ ერთ წყვილს. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან')
+          return
+        }
+        
+        // Allow duplicate right side answers (multiple left items can match to same right item)
+        // This is valid for matching questions where multiple left items can have the same right answer
+        
+        // Validate that all pairs have correct format
+        for (let i = 0; i < pairs.length; i++) {
+          const pair = pairs[i].trim()
+          
+          // Check if pair contains colon
+          if (!pair.includes(':')) {
+            alert(`წყვილი ${i + 1} არასწორი ფორმატისაა. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან\n\nმიმდინარე: "${pair}"`)
+            return
+          }
+          
+          const parts = pair.split(':')
+          if (parts.length !== 2) {
+            alert(`წყვილი ${i + 1} არასწორი ფორმატისაა. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან\n\nმიმდინარე: "${pair}"`)
+            return
+          }
+          
+          const leftPart = parts[0].trim()
+          const rightPart = parts[1].trim()
+          
+          if (!leftPart || !rightPart) {
+            alert(`წყვილი ${i + 1} არასწორი ფორმატისაა. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან\n\nმიმდინარე: "${pair}"`)
+            return
+          }
+          
+          // Check if left part is a valid Georgian letter (ა, ბ, გ, etc.)
+          const georgianLetterCode = leftPart.charCodeAt(0)
+          if (georgianLetterCode < 4304 || georgianLetterCode > 4336) {
+            alert(`წყვილი ${i + 1}: მარცხენა მხარე უნდა იყოს ქართული ასო. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან\n\nმიმდინარე: "${leftPart}"`)
+            return
+          }
+          
+          // Check if right part is a valid number
+          const rightAnswer = parseInt(rightPart)
+          if (isNaN(rightAnswer) || rightAnswer < 1 || rightAnswer > rightCount) {
+            alert(`წყვილი ${i + 1}: მარჯვენა პასუხი უნდა იყოს 1-დან ${rightCount}-მდე. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან\n\nმიმდინარე: "${rightPart}"`)
+            return
+          }
+        }
+        
+        // Check for duplicate left side letters (each left item should only appear once in correct answer)
+        const leftLetters = pairs.map(pair => pair.split(':')[0].trim()).filter(letter => letter)
+        const uniqueLeftLetters = new Set(leftLetters)
+        if (leftLetters.length !== uniqueLeftLetters.size) {
+          alert('მარცხენა მხარეებში არ უნდა იყოს გამეორებული ასოები სწორ პასუხში. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან')
+          return
+        }
+        
+        // Check if all left letters are valid Georgian letters
+        for (const letter of leftLetters) {
+          const georgianLetterCode = letter.charCodeAt(0)
+          if (georgianLetterCode < 4304 || georgianLetterCode > 4336) {
+            alert(`მარცხენა მხარე "${letter}" არ არის ვალიდური ქართული ასო. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან`)
+            return
+          }
         }
         
         // Validate left side items
@@ -560,9 +634,9 @@ function AdminQuestionsContent() {
         }
       }
 
-      // Validate auto-scored questions
+      // Validate auto-scored questions (MATCHING validation is handled above)
       if (formData.isAutoScored && !formData.correctAnswer && formData.type !== 'MATCHING') {
-        alert('ავტომატურად შეფასებულ კითხვებს უნდა ჰქონდეთ სწორი პასუხი (გარდა შესაბამისობის კითხვებისა)')
+        alert('ავტომატურად შეფასებულ კითხვებს უნდა ჰქონდეთ სწორი პასუხი')
         return
       }
 
@@ -1032,9 +1106,9 @@ function AdminQuestionsContent() {
                   <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     კლასი
                   </th>
-                 
-                  
-                 
+                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
+                    სწორი პასუხი
+                  </th>
                   <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     მოქმედებები
                   </th>
@@ -1095,7 +1169,34 @@ function AdminQuestionsContent() {
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       {question.grade}
                     </td>
-                   
+                    <td className="px-6 py-4 whitespace-nowrap text-black md:text-[14px] text-[12px]">
+                      {question.type === 'MATCHING' ? (
+                        <div className="max-w-xs">
+                          <div className="text-xs text-gray-600 mb-1">შესაბამისობა:</div>
+                          <div className="text-xs font-mono bg-gray-100 p-1 rounded">
+                            {question.correctAnswer || 'არ არის მითითებული'}
+                          </div>
+                        </div>
+                      ) : question.type === 'CLOSED_ENDED' ? (
+                        <div className="max-w-xs">
+                          <div className="text-xs text-gray-600 mb-1">სწორი პასუხი:</div>
+                          <div className="text-xs font-medium">
+                            {question.correctAnswer || 'არ არის მითითებული'}
+                          </div>
+                        </div>
+                      ) : question.type === 'OPEN_ENDED' ? (
+                        <div className="max-w-xs">
+                          <div className="text-xs text-gray-600 mb-1">შაბლონი:</div>
+                          <div className="text-xs">
+                            {question.answerTemplate ? '✅ არის' : '❌ არ არის'}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-xs text-gray-500">
+                          {question.isAutoScored ? 'ავტომატური' : 'ხელით'}
+                        </div>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       <div className="flex space-x-2">
                         <button
@@ -1943,13 +2044,62 @@ function AdminQuestionsContent() {
                       სწორი პასუხი *
                     </label>
                     {formData.type === 'MATCHING' ? (
-                      <div className="space-y-2">
-                        <p className="text-sm text-gray-600">შესაბამისობის წყვილები ავტომატურად გაითვლება სწორად</p>
-                        <input
-                          type="hidden"
-                          name="correctAnswer"
-                          value="matching"
-                        />
+                      <div className="space-y-4">
+                        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                          <h5 className="font-medium text-blue-800 mb-3">სწორი პასუხის მითითება შესაბამისობისთვის:</h5>
+                          <p className="text-sm text-blue-700 mb-3">
+                            აირჩიეთ თითოეული მარცხენა მხარისთვის შესაბამისი მარჯვენა პასუხი
+                            <br />
+                            <span className="text-xs text-blue-600">
+                              💡 შეიძლება გამეორებული პასუხები (მაგ: "ა" და "ბ" ორივე შეიძლება ჰქონდეს პასუხი "1")
+                              <br />
+                              💡 შეიძლება ნებისმიერი წყვილი
+                            </span>
+                          </p>
+                          <div className="space-y-3">
+                            {formData.leftSide.map((leftItem, index) => (
+                              <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
+                                <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                                  {String.fromCharCode(4304 + index)}:
+                                </span>
+                                <span className="text-gray-900 flex-1">
+                                  {leftItem.left || `მარცხენა ${index + 1}`}
+                                </span>
+                                <span className="text-gray-500">→</span>
+                                <select
+                                  value={formData.correctAnswer?.split(',').find(pair => pair.includes(String.fromCharCode(4304 + index)))?.split(':')[1] || ''}
+                                  onChange={(e) => {
+                                    const currentAnswer = formData.correctAnswer || ''
+                                    const pairs = currentAnswer ? currentAnswer.split(',').filter(pair => !pair.includes(String.fromCharCode(4304 + index))) : []
+                                    if (e.target.value) {
+                                      pairs.push(`${String.fromCharCode(4304 + index)}:${e.target.value}`)
+                                    }
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      correctAnswer: pairs.join(',')
+                                    }))
+                                  }}
+                                  className="px-3 py-2 border border-gray-300 rounded text-sm min-w-[120px]"
+                                >
+                                  <option value="">აირჩიეთ პასუხი</option>
+                                  {formData.rightSide.map((_, rightIndex) => (
+                                    <option key={rightIndex} value={rightIndex + 1}>
+                                      {rightIndex + 1}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-4 p-3 bg-white rounded border">
+                            <label className="block text-xs font-medium text-gray-600 mb-2">
+                              სწორი პასუხი (ავტომატური):
+                            </label>
+                            <div className="text-sm font-mono bg-gray-50 p-2 rounded border">
+                              {formData.correctAnswer || 'ჯერ არ არის არჩეული'}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     ) : (
                       <input

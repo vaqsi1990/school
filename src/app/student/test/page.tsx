@@ -18,6 +18,8 @@ interface Question {
   grade: number
   round: number
   matchingPairs?: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
+  leftSide?: Array<{ left: string, leftImage?: string }>
+  rightSide?: Array<{ right: string, rightImage?: string }>
 }
 
 function StudentTestContent() {
@@ -41,8 +43,8 @@ function StudentTestContent() {
   }
 
   // Function to shuffle matching pairs right side
-  const shuffleMatchingPairs = (pairs: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>) => {
-    const rightSide = pairs.map(pair => ({ right: pair.right, rightImage: pair.rightImage }))
+  const shuffleMatchingPairs = (items: Array<{ left?: string, leftImage?: string, right?: string, rightImage?: string }>) => {
+    const rightSide = items.map(item => ({ right: item.right, rightImage: item.rightImage }))
     const shuffledRightSide = [...rightSide]
     for (let i = shuffledRightSide.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -70,8 +72,9 @@ function StudentTestContent() {
       }
 
       // Shuffle matching pairs right side
-      if (question.type === 'MATCHING' && question.matchingPairs) {
-        const shuffledRightSide = shuffleMatchingPairs(question.matchingPairs)
+      if (question.type === 'MATCHING' && (question.matchingPairs || question.rightSide)) {
+        const rightItems = question.rightSide || question.matchingPairs!
+        const shuffledRightSide = shuffleMatchingPairs(rightItems)
         shuffled[`${question.id}_matching`] = shuffledRightSide.map((_, index) => index.toString())
       }
     })
@@ -359,12 +362,14 @@ function StudentTestContent() {
                 {/* Left Column */}
                 <div className="space-y-3">
                   <h3 className="font-semibold text-gray-900 mb-4">მარცხენა სვეტი</h3>
-                  {currentQuestion.matchingPairs?.map((pair, index) => (
+                  {(currentQuestion.leftSide || currentQuestion.matchingPairs)?.map((item, index) => (
                     <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                       <span className="text-sm font-medium text-gray-600 min-w-[30px]">
                         {String.fromCharCode(4304 + index)}:
                       </span>
-                      <span className="text-gray-900">{pair.left}</span>
+                      <span className="text-gray-900">
+                        {currentQuestion.leftSide ? item.left : item.left}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -372,33 +377,38 @@ function StudentTestContent() {
                 {/* Right Column */}
                 <div className="space-y-3">
                   <h3 className="font-semibold text-gray-900 mb-4">მარჯვენა სვეტი</h3>
-                  {currentQuestion.matchingPairs && (() => {
+                  {(currentQuestion.rightSide || currentQuestion.matchingPairs) && (() => {
                     const shuffledIndices = shuffledOptions[`${currentQuestion.id}_matching`]
-                    const pairs = currentQuestion.matchingPairs
+                    const rightItems = currentQuestion.rightSide || currentQuestion.matchingPairs
                     
-                    if (shuffledIndices) {
+                    if (shuffledIndices && rightItems) {
                       return shuffledIndices.map((shuffledIndex, displayIndex) => {
                         const actualIndex = parseInt(shuffledIndex)
-                        const pair = pairs[actualIndex]
+                        const item = rightItems[actualIndex]
                         return (
                           <div key={displayIndex} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                             <span className="text-sm font-medium text-gray-600 min-w-[30px]">
                               {displayIndex + 1}:
                             </span>
-                            <span className="text-gray-900">{pair.right}</span>
+                            <span className="text-gray-900">
+                              {currentQuestion.rightSide ? item.right : item.right}
+                            </span>
                           </div>
                         )
                       })
-                    } else {
-                      return pairs.map((pair, index) => (
+                    } else if (rightItems) {
+                      return rightItems.map((item, index) => (
                         <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                           <span className="text-sm font-medium text-gray-600 min-w-[30px]">
                             {index + 1}:
                           </span>
-                          <span className="text-gray-900">{pair.right}</span>
+                          <span className="text-gray-900">
+                            {currentQuestion.rightSide ? item.right : item.right}
+                          </span>
                         </div>
                       ))
                     }
+                    return null
                   })()}
                 </div>
               </div>
@@ -406,14 +416,17 @@ function StudentTestContent() {
               {/* Matching Interface */}
               <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                 <h4 className="font-medium text-gray-900 mb-3">შესაბამისობა:</h4>
-                <div className="flex flex-wrap gap-4">
-                  {currentQuestion.matchingPairs?.map((pair, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <span className="text-sm font-medium text-gray-600">
+                <div className="space-y-3">
+                  {(currentQuestion.leftSide || currentQuestion.matchingPairs)?.map((item, index) => (
+                    <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
+                      <span className="text-sm font-medium text-gray-600 min-w-[30px]">
                         {String.fromCharCode(4304 + index)}:
                       </span>
-                      <input
-                        type="text"
+                      <span className="text-gray-900 flex-1">
+                        {currentQuestion.leftSide ? item.left : item.left}
+                      </span>
+                      <span className="text-gray-500">→</span>
+                      <select
                         value={(currentAnswer as Record<string, string>)[`${String.fromCharCode(4304 + index)}`] || ''}
                         onChange={(e) => {
                           const newAnswer = { ...(currentAnswer as Record<string, string>) }
@@ -421,13 +434,19 @@ function StudentTestContent() {
                           handleAnswer(currentQuestion.id, newAnswer)
                         }}
                         disabled={answeredQuestions.has(currentQuestion.id)}
-                        placeholder="შეიყვანეთ ნომერი..."
-                        className={`px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-16 text-center text-sm ${
+                        className={`px-3 py-2 border border-gray-300 rounded text-sm min-w-[120px] ${
                           answeredQuestions.has(currentQuestion.id) 
                             ? 'bg-gray-100 cursor-not-allowed opacity-60' 
                             : ''
                         }`}
-                      />
+                      >
+                        <option value="">აირჩიეთ პასუხი</option>
+                        {(currentQuestion.rightSide || currentQuestion.matchingPairs)?.map((_, rightIndex) => (
+                          <option key={rightIndex} value={rightIndex + 1}>
+                            {rightIndex + 1}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   ))}
                 </div>

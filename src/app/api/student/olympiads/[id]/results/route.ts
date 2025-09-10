@@ -97,7 +97,10 @@ export async function GET(
         isCorrect: studentAnswer?.isCorrect || false,
         points: studentAnswer?.points || 0,
         image: question.image,
-        imageOptions: question.imageOptions
+        imageOptions: question.imageOptions,
+        matchingPairs: question.matchingPairs,
+        leftSide: question.leftSide,
+        rightSide: question.rightSide
       }
     })
 

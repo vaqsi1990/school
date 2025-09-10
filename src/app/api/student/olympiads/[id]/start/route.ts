@@ -15,6 +15,9 @@ interface QuestionWithDetails {
     image: string[]
     imageOptions: string[]
     content: string | null
+    matchingPairs: any
+    leftSide: any
+    rightSide: any
   }
 }
 
@@ -107,7 +110,10 @@ export async function POST(
           correctAnswer: (qp as QuestionWithDetails).question?.correctAnswer || '',
           points: (qp as QuestionWithDetails).question?.points || 1,
           image: (qp as QuestionWithDetails).question?.image || [],
-          imageOptions: (qp as QuestionWithDetails).question?.imageOptions || []
+          imageOptions: (qp as QuestionWithDetails).question?.imageOptions || [],
+          matchingPairs: (qp as QuestionWithDetails).question?.matchingPairs || null,
+          leftSide: (qp as QuestionWithDetails).question?.leftSide || null,
+          rightSide: (qp as QuestionWithDetails).question?.rightSide || null
         }))
       )
       
@@ -156,6 +162,9 @@ export async function POST(
           points: question?.points || 1,
           image: question?.image || [],
           imageOptions: question?.imageOptions || [],
+          matchingPairs: question?.matchingPairs || null,
+          leftSide: question?.leftSide || null,
+          rightSide: question?.rightSide || null,
           subQuestions: subQuestions
         }
       })

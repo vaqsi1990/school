@@ -15,6 +15,8 @@ interface Question {
   explanation: string | null
   points: number
   matchingPairs: Array<{left: string, right: string}> | null
+  leftSide: Array<{left: string}> | null
+  rightSide: Array<{right: string}> | null
   image: string[] | null
   imageOptions: string[]
   subject: {
@@ -80,9 +82,6 @@ function TestQuestionsContent() {
         const response = await fetch('/api/admin/questions')
         if (response.ok) {
           const data = await response.json()
-          console.log('Fetched questions:', data.questions.length)
-          console.log('TEXT_ANALYSIS questions:', data.questions.filter((q: Question) => q.type === 'TEXT_ANALYSIS'))
-          console.log('MAP_ANALYSIS questions:', data.questions.filter((q: Question) => q.type === 'MAP_ANALYSIS'))
           setAllQuestions(data.questions || [])
           setFilteredQuestions(data.questions || [])
         }
@@ -97,30 +96,6 @@ function TestQuestionsContent() {
       fetchQuestions()
     }
     
-    // Disable right-click context menu during test
-    const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault()
-    }
-    
-    // Disable common keyboard shortcuts
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Disable Ctrl+C, Ctrl+A, Ctrl+V, Ctrl+X, F12, Ctrl+Shift+I
-      if (
-        (e.ctrlKey && (e.key === 'c' || e.key === 'a' || e.key === 'v' || e.key === 'x')) ||
-        e.key === 'F12' ||
-        (e.ctrlKey && e.shiftKey && e.key === 'I')
-      ) {
-        e.preventDefault()
-      }
-    }
-    
-    document.addEventListener('contextmenu', handleContextMenu)
-    document.addEventListener('keydown', handleKeyDown)
-    
-    return () => {
-      document.removeEventListener('contextmenu', handleContextMenu)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
   }, [user])
 
   // Filter questions based on selected criteria
@@ -176,8 +151,9 @@ function TestQuestionsContent() {
       }
 
       // Shuffle MATCHING pairs right side
-      if (question.type === 'MATCHING' && question.matchingPairs) {
-        const indices = question.matchingPairs.map((_, index) => index.toString())
+      if (question.type === 'MATCHING' && (question.matchingPairs || question.rightSide)) {
+        const rightItems = question.rightSide || question.matchingPairs!
+        const indices = rightItems.map((_, index) => index.toString())
         shuffled[`${question.id}_matching`] = shuffleArray(indices)
       }
     })
@@ -265,19 +241,20 @@ function TestQuestionsContent() {
     
     selectedQuestions.forEach(question => {
       if (question.type === 'MATCHING') {
-        // For MATCHING questions, check each pair
-        if (question.matchingPairs && question.matchingPairs.length > 0) {
-          let pairCorrect = 0
-          question.matchingPairs.forEach((_, pairIndex) => {
-            const userAnswerKey = `${question.id}_${pairIndex}`
+        // For MATCHING questions, convert user answers to string format and compare with correctAnswer
+        const leftItems = question.leftSide || question.matchingPairs
+        if (leftItems && leftItems.length > 0) {
+          const pairs: string[] = []
+          leftItems.forEach((_, pairIndex) => {
+            const userAnswerKey = `${question.id}_${String.fromCharCode(4304 + pairIndex)}`
             const userAnswerValue = userAnswers[userAnswerKey]
-            const correctAnswerIndex = pairIndex // For matching, correct answer is usually the same index
-            if (userAnswerValue === correctAnswerIndex.toString()) {
-              pairCorrect++
+            if (userAnswerValue) {
+              pairs.push(`${String.fromCharCode(4304 + pairIndex)}:${userAnswerValue}`)
             }
           })
-          // Count as correct if all pairs are correct
-          if (pairCorrect === question.matchingPairs.length) {
+          const userAnswerString = pairs.join(',')
+          
+          if (question.correctAnswer && userAnswerString === question.correctAnswer) {
             correct++
           }
         }
@@ -317,7 +294,7 @@ function TestQuestionsContent() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 select-none" >
+    <div className="min-h-screen bg-gray-50" >
       <div className="bg-white shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
@@ -639,7 +616,7 @@ function TestQuestionsContent() {
                           </div>
                         )}
                         
-                        {question.type === 'MATCHING' && question.matchingPairs && (
+                        {question.type === 'MATCHING' && (question.matchingPairs || question.leftSide) && (
                           <div className="mb-3">
                             <div className="text-sm font-medium text-gray-700 mb-2">შესაბამისობა:</div>
                             <div className="text-sm text-gray-600">
@@ -825,12 +802,14 @@ function TestQuestionsContent() {
                             {/* Left Column */}
                             <div className="space-y-3">
                               <h3 className="font-semibold text-gray-900 mb-4">მარცხენა სვეტი</h3>
-                              {selectedQuestions[currentQuestionIndex].matchingPairs?.map((pair, index) => (
+                              {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
                                 <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                                   <span className="text-sm font-medium text-gray-600 min-w-[30px]">
                                     {String.fromCharCode(4304 + index)}:
                                   </span>
-                                  <span className="text-gray-900">{pair.left}</span>
+                                  <span className="text-gray-900">
+                                    {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
+                                  </span>
                                 </div>
                               ))}
                             </div>
@@ -838,30 +817,34 @@ function TestQuestionsContent() {
                             {/* Right Column */}
                             <div className="space-y-3">
                               <h3 className="font-semibold text-gray-900 mb-4">მარჯვენა სვეტი</h3>
-                              {selectedQuestions[currentQuestionIndex].matchingPairs && (() => {
+                              {(selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs) && (() => {
                                 const shuffledIndices = shuffledOptions[`${selectedQuestions[currentQuestionIndex].id}_matching`]
-                                const pairs = selectedQuestions[currentQuestionIndex].matchingPairs!
+                                const rightItems = selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs!
                                 
                                 if (shuffledIndices) {
                                   return shuffledIndices.map((shuffledIndex, displayIndex) => {
                                     const actualIndex = parseInt(shuffledIndex)
-                                    const pair = pairs[actualIndex]
+                                    const item = rightItems[actualIndex]
                                     return (
                                       <div key={displayIndex} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                                         <span className="text-sm font-medium text-gray-600 min-w-[30px]">
                                           {displayIndex + 1}:
                                         </span>
-                                        <span className="text-gray-900">{pair.right}</span>
+                                        <span className="text-gray-900">
+                                          {selectedQuestions[currentQuestionIndex].rightSide ? item.right : item.right}
+                                        </span>
                                       </div>
                                     )
                                   })
                                 } else {
-                                  return pairs.map((pair, index) => (
+                                  return rightItems.map((item, index) => (
                                     <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                                       <span className="text-sm font-medium text-gray-600 min-w-[30px]">
                                         {index + 1}:
                                       </span>
-                                      <span className="text-gray-900">{pair.right}</span>
+                                      <span className="text-gray-900">
+                                        {selectedQuestions[currentQuestionIndex].rightSide ? item.right : item.right}
+                                      </span>
                                     </div>
                                   ))
                                 }
@@ -872,24 +855,33 @@ function TestQuestionsContent() {
                           {/* Matching Interface */}
                           <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                             <h4 className="font-medium text-gray-900 mb-3">შესაბამისობა:</h4>
-                            <div className="flex flex-wrap gap-4">
-                              {selectedQuestions[currentQuestionIndex].matchingPairs?.map((pair, index) => (
-                                <div key={index} className="flex items-center space-x-2">
-                                  <span className="text-sm font-medium text-gray-600">
+                            <div className="space-y-3">
+                              {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
+                                <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
+                                  <span className="text-sm font-medium text-gray-600 min-w-[30px]">
                                     {String.fromCharCode(4304 + index)}:
                                   </span>
-                                  <input
-                                    type="text"
+                                  <span className="text-gray-900 flex-1">
+                                    {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
+                                  </span>
+                                  <span className="text-gray-500">→</span>
+                                  <select
                                     value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${String.fromCharCode(4304 + index)}`] || ''}
                                     onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${String.fromCharCode(4304 + index)}`, e.target.value)}
                                     disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
-                                    placeholder="შეიყვანეთ ნომერი..."
-                                    className={`px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-16 text-center text-sm ${
+                                    className={`px-3 py-2 border border-gray-300 rounded text-sm min-w-[120px] ${
                                       answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
                                         ? 'bg-gray-100 cursor-not-allowed opacity-60' 
                                         : ''
                                     }`}
-                                  />
+                                  >
+                                    <option value="">აირჩიეთ პასუხი</option>
+                                    {(selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((_, rightIndex) => (
+                                      <option key={rightIndex} value={rightIndex + 1}>
+                                        {rightIndex + 1}
+                                      </option>
+                                    ))}
+                                  </select>
                                 </div>
                               ))}
                             </div>

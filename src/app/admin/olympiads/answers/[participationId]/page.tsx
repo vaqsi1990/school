@@ -26,6 +26,8 @@ interface StudentAnswer {
     maxPoints?: number
     image?: string
     matchingPairs?: Array<{ left: string, right: string }>
+    leftSide?: Array<{ left: string }>
+    rightSide?: Array<{ right: string }>
     subQuestions?: Array<{
       id: string
       text: string
@@ -328,15 +330,20 @@ function StudentAnswerDetailContent() {
                       </div>
                     )}
 
-                    {answer.question.type === 'MATCHING' && answer.question.matchingPairs && (
+                    {answer.question.type === 'MATCHING' && (answer.question.matchingPairs || answer.question.leftSide) && (
                       <div className="mb-4">
                         <h5 className="font-medium text-gray-900 mb-2">შესაბამისობის წყვილები:</h5>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {answer.question.matchingPairs.map((pair, pairIndex) => (
+                          {(answer.question.leftSide || answer.question.matchingPairs)?.map((item, pairIndex) => (
                             <div key={pairIndex} className="flex items-center space-x-2">
-                              <span className="text-gray-700">{pair.left}</span>
+                              <span className="text-gray-700">
+                                {answer.question.leftSide ? item.left : item.left}
+                              </span>
                               <span className="text-gray-400">→</span>
-                              <span className="text-gray-700">{pair.right}</span>
+                              <span className="text-gray-700">
+                                {answer.question.rightSide ? answer.question.rightSide[pairIndex]?.right : 
+                                 answer.question.matchingPairs ? answer.question.matchingPairs[pairIndex]?.right : ''}
+                              </span>
                             </div>
                           ))}
                         </div>

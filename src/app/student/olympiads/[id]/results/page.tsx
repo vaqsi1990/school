@@ -16,6 +16,9 @@ interface QuestionResult {
   points: number
   image?: string[]
   imageOptions?: string[]
+  matchingPairs?: Array<{ left: string, right: string }>
+  leftSide?: any
+  rightSide?: any
 }
 
 interface OlympiadResult {
@@ -300,6 +303,43 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                       <div className="text-sm text-gray-600">
                         თქვენი პასუხი: {question.studentAnswer}
                       </div>
+                      
+                      {(question.matchingPairs || question.leftSide) && (
+                        <div className="mt-4">
+                          <div className="text-sm font-medium text-gray-700 mb-3">კითხვის შინაარსი:</div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Left Column */}
+                            <div className="space-y-2">
+                              <h4 className="font-semibold text-gray-900 text-sm">მარცხენა სვეტი</h4>
+                              {(question.leftSide || question.matchingPairs)?.map((item, index) => (
+                                <div key={index} className="flex items-center space-x-2 p-2 bg-gray-50 rounded text-sm">
+                                  <span className="text-gray-600 min-w-[20px]">
+                                    {String.fromCharCode(4304 + index)}:
+                                  </span>
+                                  <span className="text-gray-900">
+                                    {question.leftSide ? item.left : item.left}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Right Column */}
+                            <div className="space-y-2">
+                              <h4 className="font-semibold text-gray-900 text-sm">მარჯვენა სვეტი</h4>
+                              {(question.rightSide || question.matchingPairs)?.map((item, index) => (
+                                <div key={index} className="flex items-center space-x-2 p-2 bg-gray-50 rounded text-sm">
+                                  <span className="text-gray-600 min-w-[20px]">
+                                    {index + 1}:
+                                  </span>
+                                  <span className="text-gray-900">
+                                    {question.rightSide ? item.right : item.right}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                   

@@ -85,7 +85,24 @@ export async function POST(
         let isCorrect = false
         let points = 0
         
-        if (question.type === 'MATCHING' || question.type === 'CLOSED_ENDED') {
+        if (question.type === 'MATCHING') {
+          // For MATCHING questions, convert student answer object to string format
+          let studentAnswerString = ''
+          if (typeof studentAnswer === 'object' && !Array.isArray(studentAnswer)) {
+            const pairs = []
+            for (const [key, value] of Object.entries(studentAnswer)) {
+              if (value) {
+                pairs.push(`${key}:${value}`)
+              }
+            }
+            studentAnswerString = pairs.join(',')
+          } else {
+            studentAnswerString = String(studentAnswer)
+          }
+          
+          isCorrect = studentAnswerString === question.correctAnswer
+          points = isCorrect ? question.points : 0
+        } else if (question.type === 'CLOSED_ENDED') {
           isCorrect = studentAnswer === question.correctAnswer
           points = isCorrect ? question.points : 0
         } else if (question.type === 'OPEN_ENDED' || question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS') {
@@ -99,7 +116,7 @@ export async function POST(
           data: {
             studentId: student.id,
             questionId: question.id,
-            answer: studentAnswer,
+            answer: typeof studentAnswer === 'object' ? JSON.stringify(studentAnswer) : String(studentAnswer),
             isCorrect: isCorrect,
             points: points,
             olympiadId: olympiad.id // Add olympiad reference
