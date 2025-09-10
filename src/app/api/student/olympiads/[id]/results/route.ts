@@ -107,6 +107,7 @@ export async function GET(
       description: olympiad.description,
       startDate: olympiad.startDate,
       endDate: olympiad.endDate,
+      showDetailedReview: olympiad.showDetailedReview,
       totalQuestions,
       score,
       maxScore,

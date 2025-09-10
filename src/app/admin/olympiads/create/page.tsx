@@ -34,6 +34,7 @@ interface OlympiadFormData {
   registrationDeadline: string
   maxParticipants: number
   isActive: boolean
+  showDetailedReview: boolean
   subjects: string[]
   grades: number[]
   rounds: number
@@ -60,6 +61,7 @@ function CreateOlympiadContent() {
     registrationDeadline: '',
     maxParticipants: 100,
     isActive: true,
+    showDetailedReview: false,
     subjects: [],
     grades: [7, 8, 9, 10, 11, 12],
     rounds: 3,
@@ -321,6 +323,7 @@ function CreateOlympiadContent() {
       registrationDeadline: '',
       maxParticipants: 100,
       isActive: true,
+      showDetailedReview: false,
       subjects: [],
       grades: [7, 8, 9, 10, 11, 12],
       rounds: 3,
@@ -557,6 +560,22 @@ function CreateOlympiadContent() {
                 <label className="ml-2 block text-sm text-black md:text-[18px] text-[16px]">
                   ოლიმპიადა არის აქტიური
                 </label>
+              </div>
+
+              <div className="flex items-center h-full">
+                <input
+                  type="checkbox"
+                  name="showDetailedReview"
+                  checked={formData.showDetailedReview}
+                  onChange={handleInputChange}
+                  className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300 rounded"
+                />
+                <label className="ml-2 block text-sm text-black md:text-[18px] text-[16px]">
+                  დეტალური გადახედვის ჩართვა
+                </label>
+                <p className="ml-2 text-xs text-gray-500">
+                  თუ ჩართულია, მოსწავლეები ნახავენ კითხვების დეტალურ გადახედვას შედეგების გვერდზე
+                </p>
               </div>
             </div>
 

@@ -24,6 +24,7 @@ interface OlympiadResult {
   description: string
   startDate: string
   endDate: string
+  showDetailedReview: boolean
   totalQuestions: number
   score: number
   maxScore: number
@@ -218,8 +219,8 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
 
-        {/* Questions Review - Only show for auto-graded results */}
-        {!isManualGrading && olympiad.questions && olympiad.questions.length > 0 && (
+        {/* Questions Review - Only show for auto-graded results and when detailed review is enabled */}
+        {!isManualGrading && olympiad.showDetailedReview && olympiad.questions && olympiad.questions.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <h3 className="text-xl font-semibold text-gray-900 mb-4">კითხვების გადახედვა</h3>
             <div className="space-y-4">

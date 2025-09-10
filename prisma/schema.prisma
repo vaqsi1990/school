@@ -288,26 +288,27 @@ model QuestionPackageQuestion {
 }
 
 model Olympiad {
-  id               String             @id @default(cuid())
-  name             String
-  description      String?
-  subjectId        String
-  createdBy        String?
-  managedBy        String?
-  startDate        DateTime
-  endDate          DateTime
-  isActive         Boolean            @default(false)
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  grade            Int
-  maxParticipants  Int?
-  manualScores     ManualScore[]
-  questions        OlympiadQuestion[]
-  createdByTeacher Teacher?           @relation("CreatedOlympiads", fields: [createdBy], references: [id])
-  managedByAdmin   Admin?             @relation("ManagedOlympiads", fields: [managedBy], references: [id])
-  subject          Subject            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-  rounds           Round[]
-  participations   StudentOlympiad[]
+  id                 String             @id @default(cuid())
+  name               String
+  description        String?
+  subjectId          String
+  createdBy          String?
+  managedBy          String?
+  startDate          DateTime
+  endDate            DateTime
+  isActive           Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  grade              Int
+  maxParticipants    Int?
+  showDetailedReview Boolean            @default(false)
+  manualScores       ManualScore[]
+  questions          OlympiadQuestion[]
+  createdByTeacher   Teacher?           @relation("CreatedOlympiads", fields: [createdBy], references: [id])
+  managedByAdmin     Admin?             @relation("ManagedOlympiads", fields: [managedBy], references: [id])
+  subject            Subject            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  rounds             Round[]
+  participations     StudentOlympiad[]
 
   @@unique([subjectId, grade, name])
   @@map("olympiads")
@@ -323,6 +324,7 @@ model OlympiadEvent {
   registrationDeadline   DateTime
   maxParticipants        Int
   isActive               Boolean                @default(true)
+  showDetailedReview     Boolean                @default(false)
   rounds                 Int                    @default(3)
   subjects               String[]
   grades                 Int[]
