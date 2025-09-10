@@ -23,6 +23,8 @@ interface Question {
   maxPoints?: number
   image?: string[]
   matchingPairs?: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
+  leftSide?: Array<{ left: string, leftImage?: string }>
+  rightSide?: Array<{ right: string, rightImage?: string }>
   subjectId: string
   subject?: {
     id: string
@@ -97,6 +99,8 @@ function AdminQuestionsContent() {
     maxPoints: number
     image: string[]
     matchingPairs: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
+    leftSide: Array<{ left: string, leftImage?: string }>
+    rightSide: Array<{ right: string, rightImage?: string }>
     subjectId: string
     chapterName: string
     paragraphName: string
@@ -116,6 +120,8 @@ function AdminQuestionsContent() {
     maxPoints: 1,
     image: [],
     matchingPairs: [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
+    leftSide: [{ left: '', leftImage: undefined}],
+    rightSide: [{ right: '', rightImage: undefined}],
     subjectId: '',
     chapterName: '',
     paragraphName: '',
@@ -183,6 +189,8 @@ function AdminQuestionsContent() {
         right: pair.right,
         rightImage: pair.rightImage
       })) || [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
+      leftSide: question.leftSide || [{ left: '', leftImage: undefined}],
+      rightSide: question.rightSide || [{ right: '', rightImage: undefined}],
       subjectId: question.subjectId,
       chapterName: question.chapterName || '',
       paragraphName: question.paragraphName || '',
@@ -296,10 +304,36 @@ function AdminQuestionsContent() {
     }))
   }
 
-  const handleAddMatchingPair = () => {
+  // მარცხენა მხარის ცვლილება
+  const handleLeftSideChange = (index: number, field: 'left' | 'leftImage', value: string) => {
+    setFormData(prev => {
+      const updated = [...prev.leftSide]
+      updated[index] = { ...updated[index], [field]: value }
+      return { ...prev, leftSide: updated }
+    })
+  }
+ 
+  // მარჯვენა მხარის ცვლილება
+  const handleRightSideChange = (index: number, field: 'right' | 'rightImage', value: string) => {
+    setFormData(prev => {
+      const updated = [...prev.rightSide]
+      updated[index] = { ...updated[index], [field]: value }
+      return { ...prev, rightSide: updated }
+    })
+  }
+
+ 
+  const handleAddLeftSide = () => {
     setFormData(prev => ({
       ...prev,
-      matchingPairs: [...prev.matchingPairs, { left: '', leftImage: undefined, right: '', rightImage: undefined }]
+      leftSide: [...prev.leftSide, { left: '', leftImage: undefined }]
+    }))
+  }
+
+  const handleAddRightSide = () => {
+    setFormData(prev => ({
+      ...prev,
+      rightSide: [...prev.rightSide, { right: '', rightImage: undefined }]
     }))
   }
 
@@ -309,6 +343,26 @@ function AdminQuestionsContent() {
       setFormData(prev => ({
         ...prev,
         matchingPairs: newPairs
+      }))
+    }
+  }
+
+  const handleRemoveLeftSide = () => {
+    if (formData.leftSide.length > 1) {
+      const newLeftSide = formData.leftSide.filter((_, index) => index !== formData.leftSide.length - 1)
+      setFormData(prev => ({
+        ...prev,
+        leftSide: newLeftSide
+      }))
+    }
+  }
+
+  const handleRemoveRightSide = () => {
+    if (formData.rightSide.length > 1) {
+      const newRightSide = formData.rightSide.filter((_, index) => index !== formData.rightSide.length - 1)
+      setFormData(prev => ({
+        ...prev,
+        rightSide: newRightSide
       }))
     }
   }
@@ -430,17 +484,53 @@ function AdminQuestionsContent() {
 
       // Validate MATCHING questions
       if (formData.type === 'MATCHING') {
-        if (!formData.matchingPairs || formData.matchingPairs.length === 0) {
-          alert('შესაბამისობის კითხვებს უნდა ჰქონდეთ მინიმუმ ერთი წყვილი')
+        if (!formData.leftSide || formData.leftSide.length === 0 || !formData.rightSide || formData.rightSide.length === 0) {
+          alert('შესაბამისობის კითხვებს უნდა ჰქონდეთ მინიმუმ ერთი მარცხენა და ერთი მარჯვენა მნიშვნელობა')
           return
         }
         
-        for (let i = 0; i < formData.matchingPairs.length; i++) {
-          const pair = formData.matchingPairs[i]
-          if (!pair.left.trim() || !pair.right.trim()) {
-            alert(`შესაბამისობის წყვილი ${i + 1} უნდა ჰქონდეს მარცხენა და მარჯვენა მნიშვნელობები`)
+        // Validate left side items
+        const leftValues = new Set()
+        console.log('Validating left side items:', formData.leftSide)
+        for (let i = 0; i < formData.leftSide.length; i++) {
+          const leftPair = formData.leftSide[i]
+          console.log(`Left side item ${i + 1}:`, leftPair)
+          if (!leftPair.left.trim() && !leftPair.leftImage) {
+            alert(`მარცხენა მხარე ${i + 1} უნდა ჰქონდეს ტექსტი ან სურათი`)
             return
           }
+          
+          // Check for duplicates in left side
+          const leftValue = leftPair.left.trim() || leftPair.leftImage
+          console.log(`Left side value ${i + 1}:`, leftValue)
+          console.log('Current left values:', Array.from(leftValues))
+          if (leftValues.has(leftValue)) {
+            alert(`მარცხენა მხარე ${i + 1} არ უნდა იყოს ერთნაირი სხვა მარცხენა მხარეებთან`)
+            return
+          }
+          leftValues.add(leftValue)
+        }
+        
+        // Validate right side items
+        const rightValues = new Set()
+        console.log('Validating right side items:', formData.rightSide)
+        for (let i = 0; i < formData.rightSide.length; i++) {
+          const rightPair = formData.rightSide[i]
+          console.log(`Right side item ${i + 1}:`, rightPair)
+          if (!rightPair.right.trim() && !rightPair.rightImage) {
+            alert(`მარჯვენა მხარე ${i + 1} უნდა ჰქონდეს ტექსტი ან სურათი`)
+            return
+          }
+          
+          // Check for duplicates in right side
+          const rightValue = rightPair.right.trim() || rightPair.rightImage
+          console.log(`Right side value ${i + 1}:`, rightValue)
+          console.log('Current right values:', Array.from(rightValues))
+          if (rightValues.has(rightValue)) {
+            alert(`მარჯვენა მხარე ${i + 1} არ უნდა იყოს ერთნაირი სხვა მარჯვენა მხარეებთან`)
+            return
+          }
+          rightValues.add(rightValue)
         }
       }
 
@@ -545,6 +635,8 @@ function AdminQuestionsContent() {
       maxPoints: 1,
       image: [],
       matchingPairs: [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
+      leftSide: [{ left: '', leftImage: undefined}],
+      rightSide: [{ right: '', rightImage: undefined}],
       subjectId: '',
       chapterName: '',
       paragraphName: '',
@@ -1599,36 +1691,42 @@ function AdminQuestionsContent() {
 
                 {formData.type === 'MATCHING' && (
                   <div className=" pt-6 bg-green-50 p-4 rounded-lg">
-                    <div className="flex justify-between items-center mb-4">
-                      <h4 className="text-lg font-bold text-black md:text-[18px] text-[16px]">
-                        შესაბამისობის წყვილები (6 ან ნებისმიერი რაოდენობა)
+                    <div className="mb-4">
+                      <h4 className="text-lg font-bold text-black md:text-[18px] text-[16px] mb-4">
+                        შესაბამისობის მარცხენა და მარჯვენა მხარეები (შეიძლება იყოს სხვადასხვა რაოდენობა)
                        </h4>
-                       <button
-                         type="button"
-                         onClick={handleAddMatchingPair}
-                         className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-[16px] font-medium"
-                       >
-                         წყვილის დამატება
-                       </button>
+                       <div className="mb-2 text-sm text-gray-600">
+                         Left Side Count: {formData.leftSide.length} | Right Side Count: {formData.rightSide.length}
+                       </div>
+                       <div className="flex gap-3">
+                         <button
+                           type="button"
+                           onClick={handleAddLeftSide}
+                           className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-[16px] font-medium"
+                         >
+                           მარცხენა მხარის დამატება
+                         </button>
+                         <button
+                           type="button"
+                           onClick={handleAddRightSide}
+                           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-[16px] font-medium"
+                         >
+                           მარჯვენა მხარის დამატება
+                         </button>
+                       </div>
                      </div>
 
-                     <div className="space-y-3">
-                       {formData.matchingPairs.map((pair, index) => (
-                         <div key={index} className="bg-white p-4 rounded border">
-                           <div className="flex items-center space-x-3 mb-3">
-                             <span className="text-sm font-medium text-gray-600 min-w-[60px]">
-                               {String.fromCharCode(65 + index)}:
-                             </span>
-                             <span className="text-gray-500">→</span>
-                           </div>
-                           
-                           {/* Left Side */}
-                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                             <div>
-                               <label className="block text-sm font-medium text-gray-700 mb-2">
-                                 მარცხენა მხარე
-                               </label>
-                               <div className="space-y-2">
+                     <div className="space-y-6">
+                       {/* Left Side Items */}
+                       <div className="bg-white p-4 rounded border">
+                         <h4 className="text-lg font-semibold text-gray-900 mb-4">მარცხენა მხარე</h4>
+                         <div className="space-y-3">
+                           {formData.leftSide.map((pair, index) => (
+                             <div key={index} className="flex items-center space-x-3">
+                               <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                                 {String.fromCharCode(4304 + index)}:
+                               </span>
+                               <div className="flex-1">
                                  {pair.leftImage ? (
                                    <div className="relative">
                                      <img 
@@ -1638,7 +1736,7 @@ function AdminQuestionsContent() {
                                      />
                                      <button
                                        type="button"
-                                       onClick={() => handleMatchingPairChange(index, 'leftImage', '')}
+                                       onClick={() => handleLeftSideChange(index, 'leftImage', '')}
                                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
                                      >
                                        ×
@@ -1649,7 +1747,7 @@ function AdminQuestionsContent() {
                                      <input
                                        type="text"
                                        value={pair.left}
-                                       onChange={(e) => handleMatchingPairChange(index, 'left', e.target.value)}
+                                       onChange={(e) => handleLeftSideChange(index, 'left', e.target.value)}
                                        placeholder="ტექსტი ან სურათი..."
                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 md:text-[16px] text-[14px]"
                                      />
@@ -1657,20 +1755,27 @@ function AdminQuestionsContent() {
                                        <span className="text-xs text-gray-500">ან</span>
                                      </div>
                                      <ImageUpload
-                                       onChange={(urls) => handleMatchingPairChange(index, 'leftImage', urls[0] || '')}
+                                       onChange={(urls) => handleLeftSideChange(index, 'leftImage', urls[0] || '')}
                                        value={pair.leftImage ? [pair.leftImage] : []}
                                      />
                                    </div>
                                  )}
                                </div>
                              </div>
-                             
-                             {/* Right Side */}
-                             <div>
-                               <label className="block text-sm font-medium text-gray-700 mb-2">
-                                 მარჯვენა მხარე
-                               </label>
-                               <div className="space-y-2">
+                           ))}
+                         </div>
+                       </div>
+
+                       {/* Right Side Items */}
+                       <div className="bg-white p-4 rounded border">
+                         <h4 className="text-lg font-semibold text-gray-900 mb-4">მარჯვენა მხარე</h4>
+                         <div className="space-y-3">
+                           {formData.rightSide.map((pair, index) => (
+                             <div key={index} className="flex items-center space-x-3">
+                               <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                                 {index + 1}:
+                               </span>
+                               <div className="flex-1">
                                  {pair.rightImage ? (
                                    <div className="relative">
                                      <img 
@@ -1680,7 +1785,7 @@ function AdminQuestionsContent() {
                                      />
                                      <button
                                        type="button"
-                                       onClick={() => handleMatchingPairChange(index, 'rightImage', '')}
+                                       onClick={() => handleRightSideChange(index, 'rightImage', '')}
                                        className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
                                      >
                                        ×
@@ -1691,7 +1796,7 @@ function AdminQuestionsContent() {
                                      <input
                                        type="text"
                                        value={pair.right}
-                                       onChange={(e) => handleMatchingPairChange(index, 'right', e.target.value)}
+                                       onChange={(e) => handleRightSideChange(index, 'right', e.target.value)}
                                        placeholder="ტექსტი ან სურათი..."
                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 md:text-[16px] text-[14px]"
                                      />
@@ -1699,33 +1804,41 @@ function AdminQuestionsContent() {
                                        <span className="text-xs text-gray-500">ან</span>
                                      </div>
                                      <ImageUpload
-                                       onChange={(urls) => handleMatchingPairChange(index, 'rightImage', urls[0] || '')}
+                                       onChange={(urls) => handleRightSideChange(index, 'rightImage', urls[0] || '')}
                                        value={pair.rightImage ? [pair.rightImage] : []}
                                      />
                                    </div>
                                  )}
                                </div>
                              </div>
-                           </div>
-                           
-                           {/* Remove Button */}
-                           <div className="flex justify-end">
-                             <button
-                               type="button"
-                               onClick={() => handleRemoveMatchingPair(index)}
-                               disabled={formData.matchingPairs.length <= 1}
-                               className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-sm font-medium"
-                             >
-                               წაშლა
-                             </button>
-                           </div>
+                           ))}
                          </div>
-                       ))}
+                       </div>
+                     </div>
+
+                     {/* Remove Buttons */}
+                     <div className="flex justify-end gap-3">
+                       <button
+                         type="button"
+                         onClick={handleRemoveLeftSide}
+                         disabled={formData.leftSide.length <= 1}
+                         className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-sm font-medium"
+                       >
+                         მარცხენა მხარის წაშლა
+                       </button>
+                       <button
+                         type="button"
+                         onClick={handleRemoveRightSide}
+                         disabled={formData.rightSide.length <= 1}
+                         className="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white px-3 py-1 rounded text-sm font-medium"
+                       >
+                         მარჯვენა მხარის წაშლა
+                       </button>
                      </div>
 
                      <div className="mt-4 p-3 bg-green-100 rounded text-sm border-l-4 border-green-400">
                        <p className="font-medium text-green-800">💡 მნიშვნელოვანი:</p>
-                       <p className="text-green-700">შეიყვანეთ შესაბამისობის წყვილები (მაგ: A→1, B→2, C→3, D→4, E→5, F→6)</p>
+                       <p className="text-green-700">მარცხენა და მარჯვენა მხარეები შეიძლება იყოს სხვადასხვა რაოდენობა. ყოველი ელემენტი უნდა იყოს უნიკალური (არ უნდა იყოს ერთნაირი სხვა ელემენტებთან).</p>
                      </div>
 
                      {/* Correct Answer Display for MATCHING */}
@@ -1746,9 +1859,10 @@ function AdminQuestionsContent() {
                          </p>
                          <div className="bg-white p-2 rounded border">
                            <code className="text-green-800 font-mono text-sm">
-                             {formData.matchingPairs.map((pair, index) => 
-                               `${String.fromCharCode(65 + index)} → ${pair.right || '?'}`
-                             ).join(', ')}
+                             {formData.leftSide.map((leftPair, index) => {
+                               const rightPair = formData.rightSide[index]
+                               return `${String.fromCharCode(4304 + index)} → ${rightPair?.right || '?'}`
+                             }).join(', ')}
                            </code>
                          </div>
                          <p className="text-xs text-green-600 mt-2">
@@ -1760,8 +1874,11 @@ function AdminQuestionsContent() {
                            <button
                              type="button"
                              onClick={() => {
-                               const pairs = formData.matchingPairs
-                                 .map((pair, index) => `${String.fromCharCode(65 + index)} → ${pair.right}`)
+                               const pairs = formData.leftSide
+                                 .map((leftPair, index) => {
+                                   const rightPair = formData.rightSide[index]
+                                   return `${String.fromCharCode(4304 + index)} → ${rightPair?.right || '?'}`
+                                 })
                                  .filter(pair => pair.includes('→') && !pair.includes('→ ?'))
                                  .join('\n')
                                
@@ -1787,9 +1904,9 @@ function AdminQuestionsContent() {
                        <p className="font-medium text-yellow-800">📊 ქულების გამოთვლა:</p>
                        <p className="text-yellow-700">ქულები გამოითვლება პროპორციულად სწორი პასუხების რაოდენობისა</p>
                        <div className="mt-2 text-xs text-yellow-600">
-                         <p>• {formData.matchingPairs.length} სწორი = {formData.points} ქულა (100%)</p>
-                         <p>• {Math.ceil(formData.matchingPairs.length / 2)} სწორი = {Math.ceil(formData.points / 2)} ქულა (50%)</p>
-                         <p>• 1 სწორი = 1 ქულა ({(1 / formData.matchingPairs.length * 100).toFixed(1)}%)</p>
+                         <p>• {Math.min(formData.leftSide.length, formData.rightSide.length)} სწორი = {formData.points} ქულა (100%)</p>
+                         <p>• {Math.ceil(Math.min(formData.leftSide.length, formData.rightSide.length) / 2)} სწორი = {Math.ceil(formData.points / 2)} ქულა (50%)</p>
+                         <p>• 1 სწორი = 1 ქულა ({(1 / Math.min(formData.leftSide.length, formData.rightSide.length) * 100).toFixed(1)}%)</p>
                        </div>
                      </div>
                    </div>

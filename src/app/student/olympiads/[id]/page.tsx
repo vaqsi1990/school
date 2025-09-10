@@ -14,6 +14,7 @@ interface Question {
   points: number
   image?: string[]
   imageOptions?: string[]
+  matchingPairs?: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>
   subQuestions?: Array<{
     id: string
     text: string
@@ -59,7 +60,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
   const [olympiad, setOlympiad] = useState<OlympiadEvent | null>(null)
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [answers, setAnswers] = useState<Record<string, string | string[]>>({})
+  const [answers, setAnswers] = useState<Record<string, string | string[] | Record<string, string>>>({})
   const [timeLeft, setTimeLeft] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -227,7 +228,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
     }
   }
 
-  const handleAnswerChange = (questionId: string, answer: string | string[]) => {
+  const handleAnswerChange = (questionId: string, answer: string | string[] | Record<string, string>) => {
     // Check if this question is already answered (locked)
     if (answeredQuestions.has(questionId)) {
       return // Don't allow changes to locked questions
@@ -374,6 +375,17 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
     return shuffled
   }
 
+  // Function to shuffle matching pairs right side
+  const shuffleMatchingPairs = (pairs: Array<{ left: string, leftImage?: string, right: string, rightImage?: string }>) => {
+    const rightSide = pairs.map(pair => ({ right: pair.right, rightImage: pair.rightImage }))
+    const shuffledRightSide = [...rightSide]
+    for (let i = shuffledRightSide.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledRightSide[i], shuffledRightSide[j]] = [shuffledRightSide[j], shuffledRightSide[i]]
+    }
+    return shuffledRightSide
+  }
+
   // Function to create shuffled options for all questions
   const createShuffledOptions = (questions: Question[]) => {
     const shuffled: Record<string, string[]> = {}
@@ -395,6 +407,12 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
       // Shuffle TRUE_FALSE options (სწორი/არასწორი)
       if (question.type === 'TRUE_FALSE') {
         shuffled[question.id] = shuffleArray(['true', 'false'])
+      }
+
+      // Shuffle matching pairs right side
+      if (question.type === 'MATCHING' && question.matchingPairs) {
+        const shuffledRightSide = shuffleMatchingPairs(question.matchingPairs)
+        shuffled[`${question.id}_matching`] = shuffledRightSide.map((_, index) => index.toString())
       }
 
       // Handle sub-questions for TEXT_ANALYSIS and MAP_ANALYSIS
@@ -724,6 +742,93 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                 rows={4}
                 placeholder="შეიყვანეთ თქვენი პასუხი..."
               />
+            )}
+
+            {currentQuestion.type === 'MATCHING' && (
+              <div className="space-y-6">
+                <div className="text-sm text-gray-600 mb-4">
+                  შეაერთეთ მარცხენა სვეტის ელემენტები მარჯვენა სვეტის შესაბამის ელემენტებთან
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Left Column */}
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-gray-900 mb-4">მარცხენა სვეტი</h3>
+                    {currentQuestion.matchingPairs?.map((pair, index) => (
+                      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                          {String.fromCharCode(4304 + index)}:
+                        </span>
+                        <span className="text-gray-900">{pair.left}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Right Column */}
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-gray-900 mb-4">მარჯვენა სვეტი</h3>
+                    {currentQuestion.matchingPairs && (() => {
+                      const shuffledIndices = shuffledOptions[`${currentQuestion.id}_matching`]
+                      const pairs = currentQuestion.matchingPairs
+                      
+                      if (shuffledIndices) {
+                        return shuffledIndices.map((shuffledIndex, displayIndex) => {
+                          const actualIndex = parseInt(shuffledIndex)
+                          const pair = pairs[actualIndex]
+                          return (
+                            <div key={displayIndex} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                              <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                                {displayIndex + 1}:
+                              </span>
+                              <span className="text-gray-900">{pair.right}</span>
+                            </div>
+                          )
+                        })
+                      } else {
+                        return pairs.map((pair, index) => (
+                          <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                            <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                              {index + 1}:
+                            </span>
+                            <span className="text-gray-900">{pair.right}</span>
+                          </div>
+                        ))
+                      }
+                    })()}
+                  </div>
+                </div>
+
+                {/* Matching Interface */}
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                  <h4 className="font-medium text-gray-900 mb-3">შესაბამისობა:</h4>
+                  <div className="flex flex-wrap gap-4">
+                    {currentQuestion.matchingPairs?.map((pair, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <span className="text-sm font-medium text-gray-600">
+                          {String.fromCharCode(4304 + index)}:
+                        </span>
+                        <input
+                          type="text"
+                          value={typeof answers[currentQuestion.id] === 'object' && !Array.isArray(answers[currentQuestion.id]) ? (answers[currentQuestion.id] as Record<string, string>)?.[`${String.fromCharCode(4304 + index)}`] || '' : ''}
+                          onChange={(e) => {
+                            const currentAnswer = typeof answers[currentQuestion.id] === 'object' && !Array.isArray(answers[currentQuestion.id]) ? answers[currentQuestion.id] as Record<string, string> : {}
+                            const newAnswer = { ...currentAnswer }
+                            newAnswer[`${String.fromCharCode(4304 + index)}`] = e.target.value
+                            handleAnswerChange(currentQuestion.id, newAnswer)
+                          }}
+                          disabled={answeredQuestions.has(currentQuestion.id)}
+                          placeholder="შეიყვანეთ ნომერი..."
+                          className={`px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-16 text-center text-sm ${
+                            answeredQuestions.has(currentQuestion.id) 
+                              ? 'bg-gray-100 cursor-not-allowed opacity-60' 
+                              : ''
+                          }`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
 
             {(currentQuestion.type === 'TEXT_ANALYSIS' || currentQuestion.type === 'MAP_ANALYSIS') && currentQuestion.subQuestions && (

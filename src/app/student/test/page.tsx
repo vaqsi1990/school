@@ -362,7 +362,7 @@ function StudentTestContent() {
                   {currentQuestion.matchingPairs?.map((pair, index) => (
                     <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                       <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                        {String.fromCharCode(65 + index)}:
+                        {String.fromCharCode(4304 + index)}:
                       </span>
                       <span className="text-gray-900">{pair.left}</span>
                     </div>
@@ -406,51 +406,28 @@ function StudentTestContent() {
               {/* Matching Interface */}
               <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                 <h4 className="font-medium text-gray-900 mb-3">შესაბამისობა:</h4>
-                <div className="space-y-3">
+                <div className="flex flex-wrap gap-4">
                   {currentQuestion.matchingPairs?.map((pair, index) => (
-                    <div key={index} className="flex items-center space-x-4">
-                      <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                        {String.fromCharCode(65 + index)}:
+                    <div key={index} className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-gray-600">
+                        {String.fromCharCode(4304 + index)}:
                       </span>
-                      <select
-                        value={(currentAnswer as Record<string, string>)[`${String.fromCharCode(65 + index)}`] || ''}
+                      <input
+                        type="text"
+                        value={(currentAnswer as Record<string, string>)[`${String.fromCharCode(4304 + index)}`] || ''}
                         onChange={(e) => {
                           const newAnswer = { ...(currentAnswer as Record<string, string>) }
-                          newAnswer[`${String.fromCharCode(65 + index)}`] = e.target.value
+                          newAnswer[`${String.fromCharCode(4304 + index)}`] = e.target.value
                           handleAnswer(currentQuestion.id, newAnswer)
                         }}
                         disabled={answeredQuestions.has(currentQuestion.id)}
-                        className={`px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        placeholder="შეიყვანეთ ნომერი..."
+                        className={`px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-16 text-center text-sm ${
                           answeredQuestions.has(currentQuestion.id) 
                             ? 'bg-gray-100 cursor-not-allowed opacity-60' 
                             : ''
                         }`}
-                      >
-                        <option value="">აირჩიეთ...</option>
-                        {(() => {
-                          const shuffledIndices = shuffledOptions[`${currentQuestion.id}_matching`]
-                          if (shuffledIndices) {
-                            return shuffledIndices.map((_, displayIndex) => (
-                              <option key={displayIndex} value={displayIndex + 1}>
-                                {displayIndex + 1}
-                              </option>
-                            ))
-                          } else {
-                            return currentQuestion.matchingPairs?.map((_, rightIndex) => (
-                              <option key={rightIndex} value={rightIndex + 1}>
-                                {rightIndex + 1}
-                              </option>
-                            ))
-                          }
-                        })()}
-                      </select>
-                      <span className="text-gray-500">→</span>
-                      <span className="text-sm text-gray-600">
-                        {(currentAnswer as Record<string, string>)[`${String.fromCharCode(65 + index)}`] ? 
-                          `${(currentAnswer as Record<string, string>)[`${String.fromCharCode(65 + index)}`]}` : 
-                          'შეარჩიეთ'
-                        }
-                      </span>
+                      />
                     </div>
                   ))}
                 </div>

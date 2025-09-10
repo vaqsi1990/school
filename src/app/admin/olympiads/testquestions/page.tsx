@@ -816,56 +816,84 @@ function TestQuestionsContent() {
                     <div className="space-y-2">
                       {selectedQuestions[currentQuestionIndex].type === 'MATCHING' ? (
                         // MATCHING Question
-                        <div className="space-y-4">
-                          {selectedQuestions[currentQuestionIndex].matchingPairs && selectedQuestions[currentQuestionIndex].matchingPairs!.length > 0 ? (
-                            selectedQuestions[currentQuestionIndex].matchingPairs!.map((pair, index) => (
-                              <div key={index} className="flex items-center space-x-4 p-3 border border-gray-200 rounded-lg">
-                                <div className="flex-1 text-sm font-medium text-gray-700">
-                                  {pair.left}
+                        <div className="space-y-6">
+                          <div className="text-sm text-gray-600 mb-4">
+                            შეაერთეთ მარცხენა სვეტის ელემენტები მარჯვენა სვეტის შესაბამის ელემენტებთან
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {/* Left Column */}
+                            <div className="space-y-3">
+                              <h3 className="font-semibold text-gray-900 mb-4">მარცხენა სვეტი</h3>
+                              {selectedQuestions[currentQuestionIndex].matchingPairs?.map((pair, index) => (
+                                <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                  <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                                    {String.fromCharCode(4304 + index)}:
+                                  </span>
+                                  <span className="text-gray-900">{pair.left}</span>
                                 </div>
-                                <div className="text-gray-400">→</div>
-                                <select
-                                  value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${index}`] || ''}
-                                  onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${index}`, e.target.value)}
-                                  disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
-                                  className={`flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] ${
-                                    answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
-                                      ? 'bg-gray-100 cursor-not-allowed opacity-60' 
-                                      : ''
-                                  }`}
-                                >
-                                  <option value="">აირჩიეთ...</option>
-                                  {(() => {
-                                    const currentQuestion = selectedQuestions[currentQuestionIndex]
-                                    const shuffledIndices = shuffledOptions[`${currentQuestion.id}_matching`]
-                                    const pairs = currentQuestion.matchingPairs!
-                                    
-                                    if (shuffledIndices) {
-                                      return shuffledIndices.map((shuffledIndex, displayIndex) => {
-                                        const actualIndex = parseInt(shuffledIndex)
-                                        const pair = pairs[actualIndex]
-                                        return (
-                                          <option key={displayIndex} value={actualIndex}>
-                                            {pair.right}
-                                          </option>
-                                        )
-                                      })
-                                    } else {
-                                      return pairs.map((_, rightIndex) => (
-                                        <option key={rightIndex} value={rightIndex}>
-                                          {pairs[rightIndex].right}
-                                        </option>
-                                      ))
-                                    }
-                                  })()}
-                                </select>
-                              </div>
-                            ))
-                          ) : (
-                            <div className="p-4 bg-gray-100 rounded-lg">
-                              <p className="text-gray-600">ამ შესაბამისობის კითხვას არ აქვს წყვილები</p>
+                              ))}
                             </div>
-                          )}
+
+                            {/* Right Column */}
+                            <div className="space-y-3">
+                              <h3 className="font-semibold text-gray-900 mb-4">მარჯვენა სვეტი</h3>
+                              {selectedQuestions[currentQuestionIndex].matchingPairs && (() => {
+                                const shuffledIndices = shuffledOptions[`${selectedQuestions[currentQuestionIndex].id}_matching`]
+                                const pairs = selectedQuestions[currentQuestionIndex].matchingPairs!
+                                
+                                if (shuffledIndices) {
+                                  return shuffledIndices.map((shuffledIndex, displayIndex) => {
+                                    const actualIndex = parseInt(shuffledIndex)
+                                    const pair = pairs[actualIndex]
+                                    return (
+                                      <div key={displayIndex} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                        <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                                          {displayIndex + 1}:
+                                        </span>
+                                        <span className="text-gray-900">{pair.right}</span>
+                                      </div>
+                                    )
+                                  })
+                                } else {
+                                  return pairs.map((pair, index) => (
+                                    <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                      <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                                        {index + 1}:
+                                      </span>
+                                      <span className="text-gray-900">{pair.right}</span>
+                                    </div>
+                                  ))
+                                }
+                              })()}
+                            </div>
+                          </div>
+
+                          {/* Matching Interface */}
+                          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                            <h4 className="font-medium text-gray-900 mb-3">შესაბამისობა:</h4>
+                            <div className="flex flex-wrap gap-4">
+                              {selectedQuestions[currentQuestionIndex].matchingPairs?.map((pair, index) => (
+                                <div key={index} className="flex items-center space-x-2">
+                                  <span className="text-sm font-medium text-gray-600">
+                                    {String.fromCharCode(4304 + index)}:
+                                  </span>
+                                  <input
+                                    type="text"
+                                    value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${String.fromCharCode(4304 + index)}`] || ''}
+                                    onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${String.fromCharCode(4304 + index)}`, e.target.value)}
+                                    disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
+                                    placeholder="შეიყვანეთ ნომერი..."
+                                    className={`px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-16 text-center text-sm ${
+                                      answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
+                                        ? 'bg-gray-100 cursor-not-allowed opacity-60' 
+                                        : ''
+                                    }`}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       ) : selectedQuestions[currentQuestionIndex].type === 'OPEN_ENDED' ? (
                         // OPEN_ENDED Question

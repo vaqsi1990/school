@@ -222,6 +222,8 @@ model Question {
   content           String?
   isAutoScored      Boolean                   @default(true)
   matchingPairs     Json?
+  leftSide          Json?
+  rightSide         Json?
   maxPoints         Int?
   paragraphName     String?
   rubric            String?

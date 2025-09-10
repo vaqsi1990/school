@@ -135,6 +135,8 @@ export async function POST(request: NextRequest) {
       maxPoints,
       image,
       matchingPairs,
+      leftSide,
+      rightSide,
       subjectId,
       chapterName,
       paragraphName,
@@ -157,6 +159,8 @@ export async function POST(request: NextRequest) {
       round,
       isAutoScored,
       matchingPairs,
+      leftSide,
+      rightSide,
       subQuestions
     })
 
@@ -227,25 +231,101 @@ export async function POST(request: NextRequest) {
     // Validate matching questions
     if (type === 'MATCHING') {
       console.log('Validating MATCHING question with pairs:', matchingPairs)
-      if (!matchingPairs || !Array.isArray(matchingPairs) || matchingPairs.length < 1) {
-        const errorMsg = 'Matching questions must have at least one pair'
+      console.log('Validating MATCHING question with leftSide:', leftSide)
+      console.log('Validating MATCHING question with rightSide:', rightSide)
+      
+      // Check if we have the new structure (leftSide/rightSide) or old structure (matchingPairs)
+      if (leftSide && rightSide) {
+        // New structure validation
+        if (!Array.isArray(leftSide) || leftSide.length < 1) {
+          const errorMsg = 'Matching questions must have at least one left side item'
+          console.log('Validation failed:', errorMsg)
+          return NextResponse.json({ error: errorMsg }, { status: 400 })
+        }
+        
+        if (!Array.isArray(rightSide) || rightSide.length < 1) {
+          const errorMsg = 'Matching questions must have at least one right side item'
+          console.log('Validation failed:', errorMsg)
+          return NextResponse.json({ error: errorMsg }, { status: 400 })
+        }
+        
+        // Validate left side items
+        const leftValues = new Set()
+        for (let i = 0; i < leftSide.length; i++) {
+          const leftItem = leftSide[i]
+          if (!leftItem || typeof leftItem !== 'object') {
+            const errorMsg = `Left side item ${i + 1} must be a valid object`
+            console.log('Validation failed:', errorMsg)
+            return NextResponse.json({ error: errorMsg }, { status: 400 })
+          }
+          
+          if (!leftItem.left?.trim() && !leftItem.leftImage) {
+            const errorMsg = `Left side item ${i + 1} must have text or image`
+            console.log('Validation failed:', errorMsg)
+            return NextResponse.json({ error: errorMsg }, { status: 400 })
+          }
+          
+          // Check for duplicates in left side
+          const leftValue = leftItem.left?.trim() || leftItem.leftImage
+          if (leftValues.has(leftValue)) {
+            const errorMsg = `Left side item ${i + 1} cannot be duplicate of another left side item`
+            console.log('Validation failed:', errorMsg)
+            return NextResponse.json({ error: errorMsg }, { status: 400 })
+          }
+          leftValues.add(leftValue)
+        }
+        
+        // Validate right side items
+        const rightValues = new Set()
+        for (let i = 0; i < rightSide.length; i++) {
+          const rightItem = rightSide[i]
+          if (!rightItem || typeof rightItem !== 'object') {
+            const errorMsg = `Right side item ${i + 1} must be a valid object`
+            console.log('Validation failed:', errorMsg)
+            return NextResponse.json({ error: errorMsg }, { status: 400 })
+          }
+          
+          if (!rightItem.right?.trim() && !rightItem.rightImage) {
+            const errorMsg = `Right side item ${i + 1} must have text or image`
+            console.log('Validation failed:', errorMsg)
+            return NextResponse.json({ error: errorMsg }, { status: 400 })
+          }
+          
+          // Check for duplicates in right side
+          const rightValue = rightItem.right?.trim() || rightItem.rightImage
+          if (rightValues.has(rightValue)) {
+            const errorMsg = `Right side item ${i + 1} cannot be duplicate of another right side item`
+            console.log('Validation failed:', errorMsg)
+            return NextResponse.json({ error: errorMsg }, { status: 400 })
+          }
+          rightValues.add(rightValue)
+        }
+      } else if (matchingPairs) {
+        // Old structure validation (for backward compatibility)
+        if (!Array.isArray(matchingPairs) || matchingPairs.length < 1) {
+          const errorMsg = 'Matching questions must have at least one pair'
+          console.log('Validation failed:', errorMsg)
+          return NextResponse.json({ error: errorMsg }, { status: 400 })
+        }
+        
+        // Validate each pair has left and right values
+        for (let i = 0; i < matchingPairs.length; i++) {
+          const pair = matchingPairs[i]
+          if (!pair || typeof pair !== 'object' || !pair.left || !pair.right) {
+            const errorMsg = `Matching pair ${i + 1} must have both left and right values`
+            console.log('Validation failed:', errorMsg)
+            return NextResponse.json({ error: errorMsg }, { status: 400 })
+          }
+          if (!pair.left.trim() || !pair.right.trim()) {
+            const errorMsg = `Matching pair ${i + 1} left and right values cannot be empty`
+            console.log('Validation failed:', errorMsg)
+            return NextResponse.json({ error: errorMsg }, { status: 400 })
+          }
+        }
+      } else {
+        const errorMsg = 'Matching questions must have either matchingPairs or leftSide/rightSide data'
         console.log('Validation failed:', errorMsg)
         return NextResponse.json({ error: errorMsg }, { status: 400 })
-      }
-      
-      // Validate each pair has left and right values
-      for (let i = 0; i < matchingPairs.length; i++) {
-        const pair = matchingPairs[i]
-        if (!pair || typeof pair !== 'object' || !pair.left || !pair.right) {
-          const errorMsg = `Matching pair ${i + 1} must have both left and right values`
-          console.log('Validation failed:', errorMsg)
-          return NextResponse.json({ error: errorMsg }, { status: 400 })
-        }
-        if (!pair.left.trim() || !pair.right.trim()) {
-          const errorMsg = `Matching pair ${i + 1} left and right values cannot be empty`
-          console.log('Validation failed:', errorMsg)
-          return NextResponse.json({ error: errorMsg }, { status: 400 })
-        }
       }
     }
 
@@ -297,6 +377,8 @@ export async function POST(request: NextRequest) {
           maxPoints: maxPoints ? parseFloat(maxPoints) : null,
           image: image || [],
           matchingPairs: matchingPairs || null,
+          leftSide: leftSide || null,
+          rightSide: rightSide || null,
           subjectId,
           chapterId: null, // Keep as null since we're using text fields now
           paragraphId: null, // Keep as null since we're using text fields now
