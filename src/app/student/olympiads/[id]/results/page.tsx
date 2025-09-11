@@ -302,7 +302,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                         სწორი პასუხი: {question.correctAnswer ? question.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'არ არის მითითებული'}
                       </div>
                       <div className="text-sm text-gray-600">
-                        თქვენი პასუხი: {convertStudentAnswerToDisplayFormat(question.studentAnswer, question.matchingPairs, question.leftSide, question.rightSide)}
+                        თქვენი პასუხი: {question.studentAnswer ? convertStudentAnswerToDisplayFormat(question.studentAnswer, question.matchingPairs, question.leftSide, question.rightSide) : 'პასუხი არ მოცემულა'}
                       </div>
                       
                       {(question.matchingPairs || question.leftSide) && (
