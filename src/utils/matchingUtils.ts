@@ -49,7 +49,7 @@ export function generateCorrectAnswerFromSides(leftSide: string[], rightSide: st
  * Student answers for matching questions are stored as:
  * { "ა": "1", "ბ": "2", "გ": "3" } where keys are Georgian letters and values are indices
  */
-export function convertStudentAnswerToString(studentAnswer: any, matchingPairs?: MatchingPair[], leftSide?: Array<{left: string}>, rightSide?: Array<{right: string}>): string {
+export function convertStudentAnswerToString(studentAnswer: string | Record<string, string>, matchingPairs?: MatchingPair[], leftSide?: Array<{left: string}>, rightSide?: Array<{right: string}>): string {
   if (typeof studentAnswer === 'string') {
     return studentAnswer;
   }
@@ -103,7 +103,7 @@ export function convertStudentAnswerToString(studentAnswer: any, matchingPairs?:
  * Converts student answer object to a readable display format
  * Shows the actual text pairs instead of Georgian letters and numbers
  */
-export function convertStudentAnswerToDisplayFormat(studentAnswer: any, matchingPairs?: MatchingPair[], leftSide?: Array<{left: string}>, rightSide?: Array<{right: string}>): string {
+export function convertStudentAnswerToDisplayFormat(studentAnswer: string | Record<string, string>, matchingPairs?: MatchingPair[], leftSide?: Array<{left: string}>, rightSide?: Array<{right: string}>): string {
   if (typeof studentAnswer === 'string') {
     return studentAnswer;
   }
