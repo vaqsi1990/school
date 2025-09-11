@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { PrismaClient } from '@prisma/client'
+import { generateCorrectAnswerFromPairs } from '@/utils/matchingUtils'
 
 const prisma = new PrismaClient()
 
@@ -147,6 +148,14 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Calculate correctAnswer for matching questions
+    let finalCorrectAnswer = '';
+    if (type === 'CLOSED_ENDED') {
+      finalCorrectAnswer = useImageOptions ? correctAnswer : (options[correctAnswer] || '');
+    } else if (type === 'MATCHING' && matchingPairs) {
+      finalCorrectAnswer = generateCorrectAnswerFromPairs(matchingPairs);
+    }
+
     // Create the question with PENDING status (even for verified teachers)
     const question = await prisma.question.create({
       data: {
@@ -159,7 +168,7 @@ export async function POST(request: NextRequest) {
         createdByType: 'TEACHER',
         status: 'PENDING',
         options: type === 'CLOSED_ENDED' ? (useImageOptions ? [] : options) : [],
-        correctAnswer: type === 'CLOSED_ENDED' ? (useImageOptions ? correctAnswer : (options[correctAnswer] || '')) : '',
+        correctAnswer: finalCorrectAnswer,
         matchingPairs: matchingPairs ? matchingPairs : null,
         image: image || null,
         imageOptions: imageOptions || [],

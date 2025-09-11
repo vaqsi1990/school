@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { useParams } from 'next/navigation'
 import ImageModal from '@/components/ImageModal'
+import { convertStudentAnswerToDisplayFormat } from '@/utils/matchingUtils'
 
 interface StudentAnswer {
   id: string
@@ -368,7 +369,12 @@ function StudentAnswerDetailContent() {
 
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h5 className="font-medium text-gray-900 mb-2">სტუდენტის პასუხი:</h5>
-                  <p className="text-gray-700 mb-2">{answer.answer}</p>
+                  <p className="text-gray-700 mb-2">
+                    {answer.question.type === 'MATCHING' 
+                      ? convertStudentAnswerToDisplayFormat(answer.answer, answer.question.matchingPairs, answer.question.leftSide, answer.question.rightSide)
+                      : answer.answer
+                    }
+                  </p>
                   <p className="text-sm text-gray-500">
                     პასუხის თარიღი: {formatDate(answer.answeredAt)}
                   </p>

@@ -3,6 +3,19 @@ const fs = require('fs')
 
 const prisma = new PrismaClient()
 
+// Utility function to generate correct answer from matching pairs
+function generateCorrectAnswerFromPairs(matchingPairs) {
+  if (!matchingPairs || !Array.isArray(matchingPairs)) {
+    return '';
+  }
+  
+  const pairs = matchingPairs
+    .filter(pair => pair && pair.left && pair.right)
+    .map(pair => `${pair.left}:${pair.right}`);
+  
+  return pairs.join(',');
+}
+
 async function addMatchingQuestions() {
   try {
     console.log('Reading sample matching questions...')
@@ -12,6 +25,10 @@ async function addMatchingQuestions() {
     
     for (const questionData of questionsData) {
       console.log(`Adding question: ${questionData.text}`)
+      
+      // Generate correct answer from matching pairs
+      const correctAnswer = generateCorrectAnswerFromPairs(questionData.matchingPairs)
+      console.log(`Generated correct answer: ${correctAnswer}`)
       
       const question = await prisma.question.create({
         data: {
@@ -27,7 +44,7 @@ async function addMatchingQuestions() {
           createdByType: 'ADMIN',
           status: 'ACTIVE',
           options: [], // Empty for matching questions
-          correctAnswer: null, // Will be calculated from matching pairs
+          correctAnswer: correctAnswer, // Now properly calculated from matching pairs
           image: null,
           imageOptions: []
         }

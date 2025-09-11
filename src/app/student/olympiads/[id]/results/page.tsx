@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState, use } from 'react'
 import Link from 'next/link'
 import ImageModal from '@/components/ImageModal'
+import { convertStudentAnswerToDisplayFormat } from '@/utils/matchingUtils'
 
 interface QuestionResult {
   id: string
@@ -298,10 +299,10 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                     <div className="mb-3">
                       <div className="text-sm font-medium text-gray-700 mb-2">შესაბამისობა:</div>
                       <div className="text-sm text-gray-600">
-                        სწორი პასუხი: {question.correctAnswer}
+                        სწორი პასუხი: {question.correctAnswer ? question.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'არ არის მითითებული'}
                       </div>
                       <div className="text-sm text-gray-600">
-                        თქვენი პასუხი: {question.studentAnswer}
+                        თქვენი პასუხი: {convertStudentAnswerToDisplayFormat(question.studentAnswer, question.matchingPairs, question.leftSide, question.rightSide)}
                       </div>
                       
                       {(question.matchingPairs || question.leftSide) && (

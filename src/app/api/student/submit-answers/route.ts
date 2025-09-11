@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { convertStudentAnswerToString } from '@/utils/matchingUtils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,18 +42,7 @@ export async function POST(request: NextRequest) {
         if (question) {
           if (question.type === 'MATCHING') {
             // For MATCHING questions, convert student answer object to string format
-            let studentAnswerString = ''
-            if (typeof answer === 'object' && !Array.isArray(answer)) {
-              const pairs = []
-              for (const [key, value] of Object.entries(answer)) {
-                if (value) {
-                  pairs.push(`${key}:${value}`)
-                }
-              }
-              studentAnswerString = pairs.join(',')
-            } else {
-              studentAnswerString = String(answer)
-            }
+            const studentAnswerString = convertStudentAnswerToString(answer, question.matchingPairs, question.leftSide, question.rightSide)
             
                         console.log('MATCHING QUESTION DEBUG (submit-answers):', {
                           questionId: question.id,

@@ -5,6 +5,7 @@ import { AdminOnly } from '@/components/auth/ProtectedRoute'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import ImageModal from '@/components/ImageModal'
+import { convertStudentAnswerToDisplayFormat } from '@/utils/matchingUtils'
 
 interface Question {
   id: string
@@ -245,11 +246,15 @@ function TestQuestionsContent() {
         const leftItems = question.leftSide || question.matchingPairs
         if (leftItems && leftItems.length > 0) {
           const pairs: string[] = []
-          leftItems.forEach((_, pairIndex) => {
-            const userAnswerKey = `${question.id}_${String.fromCharCode(4304 + pairIndex)}`
+          leftItems.forEach((leftItem, pairIndex) => {
+            const userAnswerKey = `${question.id}_${pairIndex}`
             const userAnswerValue = userAnswers[userAnswerKey]
-            if (userAnswerValue) {
-              pairs.push(`${String.fromCharCode(4304 + pairIndex)}:${userAnswerValue}`)
+            if (userAnswerValue && leftItem.left) {
+              // Convert the number to actual text content from right side
+              const rightIndex = parseInt(userAnswerValue) - 1
+              const rightItem = question.rightSide?.[rightIndex]
+              const rightText = rightItem?.right || userAnswerValue
+              pairs.push(`${leftItem.left}:${rightText}`)
             }
           })
           const userAnswerString = pairs.join(',')
@@ -491,12 +496,58 @@ function TestQuestionsContent() {
               {(() => {
                 const totalQuestions = selectedQuestions.length
                 const correctAnswers = selectedQuestions.filter(q => {
-                  const userAnswer = userAnswers[q.id]
-                  return q.correctAnswer && userAnswer === q.correctAnswer
+                  if (q.type === 'MATCHING') {
+                    // For matching questions, construct the answer from individual parts
+                    const leftItems = q.leftSide || q.matchingPairs
+                    if (leftItems && leftItems.length > 0) {
+                      const pairs: string[] = []
+                      leftItems.forEach((leftItem, pairIndex) => {
+                        const userAnswerKey = `${q.id}_${pairIndex}`
+                        const userAnswerValue = userAnswers[userAnswerKey]
+                        if (userAnswerValue && leftItem.left) {
+                          // Convert the number to actual text content from right side
+                          const rightIndex = parseInt(userAnswerValue) - 1
+                          const rightItem = q.rightSide?.[rightIndex]
+                          const rightText = rightItem?.right || userAnswerValue
+                          pairs.push(`${leftItem.left}:${rightText}`)
+                        }
+                      })
+                      const userAnswerString = pairs.join(',')
+                      return !!(q.correctAnswer && userAnswerString === q.correctAnswer)
+                    }
+                    return false
+                  } else {
+                    // For other question types
+                    const userAnswer = userAnswers[q.id]
+                    return !!(q.correctAnswer && userAnswer === q.correctAnswer)
+                  }
                 }).length
                 const totalScore = selectedQuestions.reduce((sum, q) => {
-                  const userAnswer = userAnswers[q.id]
-                  const isCorrect = q.correctAnswer && userAnswer === q.correctAnswer
+                  let isCorrect = false
+                  if (q.type === 'MATCHING') {
+                    // For matching questions, construct the answer from individual parts
+                    const leftItems = q.leftSide || q.matchingPairs
+                    if (leftItems && leftItems.length > 0) {
+                      const pairs: string[] = []
+                      leftItems.forEach((leftItem, pairIndex) => {
+                        const userAnswerKey = `${q.id}_${pairIndex}`
+                        const userAnswerValue = userAnswers[userAnswerKey]
+                        if (userAnswerValue && leftItem.left) {
+                          // Convert the number to actual text content from right side
+                          const rightIndex = parseInt(userAnswerValue) - 1
+                          const rightItem = q.rightSide?.[rightIndex]
+                          const rightText = rightItem?.right || userAnswerValue
+                          pairs.push(`${leftItem.left}:${rightText}`)
+                        }
+                      })
+                      const userAnswerString = pairs.join(',')
+                      isCorrect = !!(q.correctAnswer && userAnswerString === q.correctAnswer)
+                    }
+                  } else {
+                    // For other question types
+                    const userAnswer = userAnswers[q.id]
+                    isCorrect = !!(q.correctAnswer && userAnswer === q.correctAnswer)
+                  }
                   return sum + (isCorrect ? q.points : 0)
                 }, 0)
                 const maxScore = selectedQuestions.reduce((sum, q) => sum + q.points, 0)
@@ -546,8 +597,30 @@ function TestQuestionsContent() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">კითხვების გადახედვა</h3>
                 <div className="space-y-4">
                   {selectedQuestions.map((question, index) => {
-                    const userAnswer = userAnswers[question.id]
-                    const isCorrect = question.correctAnswer && userAnswer === question.correctAnswer
+                    // For matching questions, we need to construct the answer from individual parts
+                    let userAnswer = userAnswers[question.id]
+                    let isCorrect = question.correctAnswer && userAnswer === question.correctAnswer
+                    
+                    if (question.type === 'MATCHING') {
+                      // Construct the answer from individual answers
+                      const leftItems = question.leftSide || question.matchingPairs
+                      if (leftItems && leftItems.length > 0) {
+                        const pairs: string[] = []
+                        leftItems.forEach((leftItem, pairIndex) => {
+                          const userAnswerKey = `${question.id}_${pairIndex}`
+                          const userAnswerValue = userAnswers[userAnswerKey]
+                          if (userAnswerValue && leftItem.left) {
+                            // Convert the number to actual text content from right side
+                            const rightIndex = parseInt(userAnswerValue) - 1
+                            const rightItem = question.rightSide?.[rightIndex]
+                            const rightText = rightItem?.right || userAnswerValue
+                            pairs.push(`${leftItem.left}:${rightText}`)
+                          }
+                        })
+                        userAnswer = pairs.join(',')
+                        isCorrect = question.correctAnswer && userAnswer === question.correctAnswer
+                      }
+                    }
                     
                     return (
                       <div key={question.id} className="border border-gray-200 rounded-lg p-4">
@@ -620,10 +693,10 @@ function TestQuestionsContent() {
                           <div className="mb-3">
                             <div className="text-sm font-medium text-gray-700 mb-2">შესაბამისობა:</div>
                             <div className="text-sm text-gray-600">
-                              სწორი პასუხი: {question.correctAnswer}
+                              სწორი პასუხი: {question.correctAnswer ? question.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'არ არის მითითებული'}
                             </div>
                             <div className="text-sm text-gray-600">
-                              თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
+                              თქვენი პასუხი: {userAnswer ? userAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'პასუხი არ მოცემულა'}
                             </div>
                           </div>
                         )}
@@ -859,15 +932,15 @@ function TestQuestionsContent() {
                               {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
                                 <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
                                   <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                                    {String.fromCharCode(4304 + index)}:
+                                    {index + 1}:
                                   </span>
                                   <span className="text-gray-900 flex-1">
                                     {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
                                   </span>
                                   <span className="text-gray-500">→</span>
                                   <select
-                                    value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${String.fromCharCode(4304 + index)}`] || ''}
-                                    onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${String.fromCharCode(4304 + index)}`, e.target.value)}
+                                    value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${index}`] || ''}
+                                    onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${index}`, e.target.value)}
                                     disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
                                     className={`px-3 py-2 border border-gray-300 rounded text-sm min-w-[120px] ${
                                       answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
@@ -876,9 +949,9 @@ function TestQuestionsContent() {
                                     }`}
                                   >
                                     <option value="">აირჩიეთ პასუხი</option>
-                                    {(selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((_, rightIndex) => (
+                                    {(selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((rightItem, rightIndex) => (
                                       <option key={rightIndex} value={rightIndex + 1}>
-                                        {rightIndex + 1}
+                                        {rightItem.right || `მარჯვენა ${rightIndex + 1}`}
                                       </option>
                                     ))}
                                   </select>

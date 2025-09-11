@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { generateCorrectAnswerFromPairs, generateCorrectAnswerFromSides } from '@/utils/matchingUtils'
 
 interface SubQuestion {
   id: string
@@ -363,6 +364,17 @@ export async function POST(request: NextRequest) {
 
     console.log('All validations passed, creating question...')
 
+    // Calculate correctAnswer for matching questions
+    let finalCorrectAnswer = correctAnswer || null;
+    if (type === 'MATCHING') {
+      if (leftSide && rightSide) {
+        finalCorrectAnswer = generateCorrectAnswerFromSides(leftSide, rightSide);
+      } else if (matchingPairs) {
+        finalCorrectAnswer = generateCorrectAnswerFromPairs(matchingPairs);
+      }
+      console.log('Generated correctAnswer for matching question:', finalCorrectAnswer);
+    }
+
     try {
       // Create new question with ACTIVE status
       const question = await prisma.question.create({
@@ -371,7 +383,7 @@ export async function POST(request: NextRequest) {
           type,
           options: useImageOptions ? [] : (options || []),
           imageOptions: useImageOptions ? (imageOptions || []) : [],
-          correctAnswer: correctAnswer || null,
+          correctAnswer: finalCorrectAnswer,
           answerTemplate: answerTemplate || null,
           points: pointsNum,
           maxPoints: maxPoints ? parseFloat(maxPoints) : null,

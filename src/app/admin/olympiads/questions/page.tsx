@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import ImageUpload from '@/component/CloudinaryUploader'
 import ImageModal from '@/components/ImageModal'
+import { convertStudentAnswerToDisplayFormat } from '@/utils/matchingUtils'
 interface Subject {
   id: string
   name: string
@@ -531,17 +532,17 @@ function AdminQuestionsContent() {
             return
           }
           
-          // Check if left part is a valid Georgian letter (ა, ბ, გ, etc.)
-          const georgianLetterCode = leftPart.charCodeAt(0)
-          if (georgianLetterCode < 4304 || georgianLetterCode > 4336) {
-            alert(`წყვილი ${i + 1}: მარცხენა მხარე უნდა იყოს ქართული ასო. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან\n\nმიმდინარე: "${leftPart}"`)
+          // Check if left part exists in the left side options
+          const leftExists = formData.leftSide.some(leftItem => leftItem.left === leftPart)
+          if (!leftExists) {
+            alert(`წყვილი ${i + 1}: მარცხენა მხარე "${leftPart}" არ არსებობს მარცხენა მხარის ვარიანტებში. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან`)
             return
           }
           
-          // Check if right part is a valid number
-          const rightAnswer = parseInt(rightPart)
-          if (isNaN(rightAnswer) || rightAnswer < 1 || rightAnswer > rightCount) {
-            alert(`წყვილი ${i + 1}: მარჯვენა პასუხი უნდა იყოს 1-დან ${rightCount}-მდე. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან\n\nმიმდინარე: "${rightPart}"`)
+          // Check if right part exists in the right side options
+          const rightExists = formData.rightSide.some(rightItem => rightItem.right === rightPart)
+          if (!rightExists) {
+            alert(`წყვილი ${i + 1}: მარჯვენა პასუხი "${rightPart}" არ არსებობს მარჯვენა მხარის ვარიანტებში. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან`)
             return
           }
         }
@@ -647,6 +648,12 @@ function AdminQuestionsContent() {
       const method = editingQuestion ? 'PUT' : 'POST'
 
     
+
+      console.log('Submitting form data:', formData)
+      console.log('Form data type:', formData.type)
+      console.log('Form data leftSide:', formData.leftSide)
+      console.log('Form data rightSide:', formData.rightSide)
+      console.log('Form data correctAnswer:', formData.correctAnswer)
 
       const response = await fetch(url, {
         method,
@@ -1174,7 +1181,7 @@ function AdminQuestionsContent() {
                         <div className="max-w-xs">
                           <div className="text-xs text-gray-600 mb-1">შესაბამისობა:</div>
                           <div className="text-xs font-mono bg-gray-100 p-1 rounded">
-                            {question.correctAnswer || 'არ არის მითითებული'}
+                            {question.correctAnswer ? question.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'არ არის მითითებული'}
                           </div>
                         </div>
                       ) : question.type === 'CLOSED_ENDED' ? (
@@ -2067,12 +2074,26 @@ function AdminQuestionsContent() {
                                 </span>
                                 <span className="text-gray-500">→</span>
                                 <select
-                                  value={formData.correctAnswer?.split(',').find(pair => pair.includes(String.fromCharCode(4304 + index)))?.split(':')[1] || ''}
+                                  value={(() => {
+                                    const leftText = formData.leftSide[index]?.left
+                                    if (!leftText || !formData.correctAnswer) return ''
+                                    const pair = formData.correctAnswer.split(',').find(p => p.startsWith(leftText + ':'))
+                                    if (pair) {
+                                      const rightText = pair.split(':')[1]
+                                      const rightIndex = formData.rightSide.findIndex(right => right.right === rightText)
+                                      return rightIndex >= 0 ? (rightIndex + 1).toString() : ''
+                                    }
+                                    return ''
+                                  })()}
                                   onChange={(e) => {
                                     const currentAnswer = formData.correctAnswer || ''
-                                    const pairs = currentAnswer ? currentAnswer.split(',').filter(pair => !pair.includes(String.fromCharCode(4304 + index))) : []
+                                    const leftText = formData.leftSide[index]?.left
+                                    const pairs = currentAnswer ? currentAnswer.split(',').filter(pair => !pair.startsWith(leftText + ':')) : []
                                     if (e.target.value) {
-                                      pairs.push(`${String.fromCharCode(4304 + index)}:${e.target.value}`)
+                                      const rightText = formData.rightSide[parseInt(e.target.value) - 1]?.right
+                                      if (leftText && rightText) {
+                                        pairs.push(`${leftText}:${rightText}`)
+                                      }
                                     }
                                     setFormData(prev => ({
                                       ...prev,
@@ -2082,9 +2103,9 @@ function AdminQuestionsContent() {
                                   className="px-3 py-2 border border-gray-300 rounded text-sm min-w-[120px]"
                                 >
                                   <option value="">აირჩიეთ პასუხი</option>
-                                  {formData.rightSide.map((_, rightIndex) => (
+                                  {formData.rightSide.map((rightItem, rightIndex) => (
                                     <option key={rightIndex} value={rightIndex + 1}>
-                                      {rightIndex + 1}
+                                      {rightItem.right || `მარჯვენა ${rightIndex + 1}`}
                                     </option>
                                   ))}
                                 </select>
@@ -2096,7 +2117,7 @@ function AdminQuestionsContent() {
                               სწორი პასუხი (ავტომატური):
                             </label>
                             <div className="text-sm font-mono bg-gray-50 p-2 rounded border">
-                              {formData.correctAnswer || 'ჯერ არ არის არჩეული'}
+                              {formData.correctAnswer ? formData.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'ჯერ არ არის არჩეული'}
                             </div>
                           </div>
                         </div>
