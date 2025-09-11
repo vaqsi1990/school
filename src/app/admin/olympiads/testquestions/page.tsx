@@ -904,29 +904,30 @@ function TestQuestionsContent() {
                           </div>
 
                           {/* Matching Interface */}
-                          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                            <h4 className="font-medium text-gray-900 mb-3">შესაბამისობა:</h4>
-                            <div className="space-y-3">
+                          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+                            <h4 className="font-medium text-gray-900 mb-2 text-sm">შესაბამისობა:</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                               {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
-                                <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
-                                  <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                                    {index + 1}:
-                                  </span>
-                                  <span className="text-gray-900 flex-1">
+                                <>
+
+                                <div key={index} className="flex flex-col   p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors shadow-sm min-h-[100px] text-xs">
+                                  <div className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mb-2">
+                                    {index + 1}
+                                  </div>
+                                  <span className="text-gray-900 text-center mb-3 leading-tight px-1">
                                     {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
                                   </span>
-                                  <span className="text-gray-500">→</span>
                                   <select
                                     value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${index}`] || ''}
                                     onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${index}`, e.target.value)}
                                     disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
-                                    className={`px-3 py-2 border border-gray-300 rounded text-sm min-w-[120px] ${
+                                    className={`px-3 py-2 border-2 border-gray-300 rounded-lg text-xs font-medium min-w-[80px] text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                       answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
                                         ? 'bg-gray-100 cursor-not-allowed opacity-60' 
-                                        : ''
+                                        : 'bg-white hover:border-blue-400'
                                     }`}
                                   >
-                                    <option value="">აირჩიეთ პასუხი</option>
+                                    <option value="">აირჩიეთ</option>
                                     {(selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((rightItem, rightIndex) => (
                                       <option key={rightIndex} value={rightIndex + 1}>
                                         {rightIndex + 1}
@@ -934,6 +935,7 @@ function TestQuestionsContent() {
                                     ))}
                                   </select>
                                 </div>
+                                </>
                               ))}
                             </div>
                           </div>
@@ -1017,7 +1019,7 @@ function TestQuestionsContent() {
                             <h4 className="font-semibold text-black mb-2">
                               {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' ? 'ტექსტის ანალიზი:' : 'რუკის ანალიზი:'}
                             </h4>
-                            <p className="text-sm text-black mb-3">
+                            <p className="text- text-black mb-3">
                               {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' 
                                 ? 'შეიყვანეთ თქვენი ანალიზი ზემოთ მოცემული ტექსტის საფუძველზე:'
                                 : 'შეიყვანეთ თქვენი ანალიზი ზემოთ მოცემული რუკის საფუძველზე:'
