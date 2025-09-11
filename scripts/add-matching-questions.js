@@ -36,7 +36,9 @@ async function addMatchingQuestions() {
           type: questionData.type,
           matchingPairs: questionData.matchingPairs,
           points: questionData.points,
-          subjectId: questionData.subjectId,
+          subject: {
+            connect: { id: questionData.subjectId }
+          },
           grade: questionData.grade,
           round: questionData.round,
           chapterName: questionData.chapterName,
@@ -45,7 +47,7 @@ async function addMatchingQuestions() {
           status: 'ACTIVE',
           options: [], // Empty for matching questions
           correctAnswer: correctAnswer, // Now properly calculated from matching pairs
-          image: null,
+          image: [],
           imageOptions: []
         }
       })

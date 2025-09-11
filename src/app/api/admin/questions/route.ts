@@ -63,7 +63,10 @@ export async function GET() {
     console.log(`Found ${questions.length} questions`)
 
     // Parse sub-questions from content field for TEXT_ANALYSIS and MAP_ANALYSIS questions
+    // Parse leftSide and rightSide for MATCHING questions
     const questionsWithSubQuestions = questions.map((question: typeof questions[0]) => {
+      let parsedQuestion: any = { ...question }
+      
       if ((question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS') && question.content) {
         console.log(`Question ${question.id} content:`, question.content)
         console.log(`Question ${question.id} content type:`, typeof question.content)
@@ -71,20 +74,37 @@ export async function GET() {
         try {
           const subQuestions = JSON.parse(question.content)
           console.log(`Question ${question.id} parsed subQuestions:`, subQuestions)
-          return {
-            ...question,
+          parsedQuestion = {
+            ...parsedQuestion,
             subQuestions: Array.isArray(subQuestions) ? subQuestions : []
           }
         } catch (error) {
           console.error('Error parsing sub-questions for question:', question.id, error)
           console.error('Raw content that failed to parse:', question.content)
-          return {
-            ...question,
+          parsedQuestion = {
+            ...parsedQuestion,
             subQuestions: []
           }
         }
       }
-      return question
+      
+      if (question.type === 'MATCHING') {
+        try {
+          if (question.leftSide && typeof question.leftSide === 'string') {
+            parsedQuestion.leftSide = JSON.parse(question.leftSide)
+          }
+          if (question.rightSide && typeof question.rightSide === 'string') {
+            parsedQuestion.rightSide = JSON.parse(question.rightSide)
+          }
+          if (question.matchingPairs && typeof question.matchingPairs === 'string') {
+            parsedQuestion.matchingPairs = JSON.parse(question.matchingPairs)
+          }
+        } catch (error) {
+          console.error('Error parsing matching question data for question:', question.id, error)
+        }
+      }
+      
+      return parsedQuestion
     })
 
     console.log('=== GET /api/admin/questions SUCCESS ===')

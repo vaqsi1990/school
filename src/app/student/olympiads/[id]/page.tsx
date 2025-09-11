@@ -411,11 +411,11 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         shuffled[question.id] = shuffleArray(['true', 'false'])
       }
 
-      // Shuffle matching pairs right side
+      // Keep matching pairs right side in original order (no shuffling)
       if (question.type === 'MATCHING' && (question.matchingPairs || question.rightSide)) {
         const rightItems = question.rightSide || question.matchingPairs!
-        const shuffledRightSide = shuffleMatchingPairs(rightItems)
-        shuffled[`${question.id}_matching`] = shuffledRightSide.map((_, index) => index.toString())
+        // Keep original order - no shuffling
+        shuffled[`${question.id}_matching`] = rightItems.map((_, index) => index.toString())
       }
 
       // Handle sub-questions for TEXT_ANALYSIS and MAP_ANALYSIS
@@ -772,39 +772,16 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                   {/* Right Column */}
                   <div className="space-y-3">
                     <h3 className="font-semibold text-gray-900 mb-4">მარჯვენა სვეტი</h3>
-                    {(currentQuestion.rightSide || currentQuestion.matchingPairs) && (() => {
-                      const shuffledIndices = shuffledOptions[`${currentQuestion.id}_matching`]
-                      const rightItems = currentQuestion.rightSide || currentQuestion.matchingPairs
-                      
-                      if (shuffledIndices && rightItems) {
-                        return shuffledIndices.map((shuffledIndex, displayIndex) => {
-                          const actualIndex = parseInt(shuffledIndex)
-                          const item = rightItems[actualIndex]
-                          return (
-                            <div key={displayIndex} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                              <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                                {displayIndex + 1}:
-                              </span>
-                              <span className="text-gray-900">
-                                {currentQuestion.rightSide ? item.right : item.right}
-                              </span>
-                            </div>
-                          )
-                        })
-                      } else if (rightItems) {
-                        return rightItems.map((item, index) => (
-                          <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                            <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                              {index + 1}:
-                            </span>
-                            <span className="text-gray-900">
-                              {currentQuestion.rightSide ? item.right : item.right}
-                            </span>
-                          </div>
-                        ))
-                      }
-                      return null
-                    })()}
+                    {(currentQuestion.rightSide || currentQuestion.matchingPairs)?.map((item, index) => (
+                      <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                          {index + 1}:
+                        </span>
+                        <span className="text-gray-900">
+                          {currentQuestion.rightSide ? item.right : item.right}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 

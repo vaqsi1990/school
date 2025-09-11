@@ -151,11 +151,11 @@ function TestQuestionsContent() {
         shuffled[question.id] = shuffleArray(['true', 'false'])
       }
 
-      // Shuffle MATCHING pairs right side
+      // Keep MATCHING pairs right side in original order (no shuffling)
       if (question.type === 'MATCHING' && (question.matchingPairs || question.rightSide)) {
         const rightItems = question.rightSide || question.matchingPairs!
-        const indices = rightItems.map((_, index) => index.toString())
-        shuffled[`${question.id}_matching`] = shuffleArray(indices)
+        // Keep original order - no shuffling
+        shuffled[`${question.id}_matching`] = rightItems.map((_, index) => index.toString())
       }
     })
     
@@ -890,38 +890,16 @@ function TestQuestionsContent() {
                             {/* Right Column */}
                             <div className="space-y-3">
                               <h3 className="font-semibold text-gray-900 mb-4">მარჯვენა სვეტი</h3>
-                              {(selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs) && (() => {
-                                const shuffledIndices = shuffledOptions[`${selectedQuestions[currentQuestionIndex].id}_matching`]
-                                const rightItems = selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs!
-                                
-                                if (shuffledIndices) {
-                                  return shuffledIndices.map((shuffledIndex, displayIndex) => {
-                                    const actualIndex = parseInt(shuffledIndex)
-                                    const item = rightItems[actualIndex]
-                                    return (
-                                      <div key={displayIndex} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                                        <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                                          {displayIndex + 1}:
-                                        </span>
-                                        <span className="text-gray-900">
-                                          {selectedQuestions[currentQuestionIndex].rightSide ? item.right : item.right}
-                                        </span>
-                                      </div>
-                                    )
-                                  })
-                                } else {
-                                  return rightItems.map((item, index) => (
-                                    <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                                      <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                                        {index + 1}:
-                                      </span>
-                                      <span className="text-gray-900">
-                                        {selectedQuestions[currentQuestionIndex].rightSide ? item.right : item.right}
-                                      </span>
-                                    </div>
-                                  ))
-                                }
-                              })()}
+                              {(selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
+                                <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                  <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                                    {index + 1}:
+                                  </span>
+                                  <span className="text-gray-900">
+                                    {selectedQuestions[currentQuestionIndex].rightSide ? item.right : item.right}
+                                  </span>
+                                </div>
+                              ))}
                             </div>
                           </div>
 
@@ -951,7 +929,7 @@ function TestQuestionsContent() {
                                     <option value="">აირჩიეთ პასუხი</option>
                                     {(selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((rightItem, rightIndex) => (
                                       <option key={rightIndex} value={rightIndex + 1}>
-                                        {rightItem.right || `მარჯვენა ${rightIndex + 1}`}
+                                        {rightIndex + 1}
                                       </option>
                                     ))}
                                   </select>

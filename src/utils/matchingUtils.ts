@@ -27,15 +27,18 @@ export function generateCorrectAnswerFromPairs(matchingPairs: MatchingPair[]): s
  * Generates a correct answer string from leftSide and rightSide arrays
  * Format: "left1:right1,left2:right2,..."
  */
-export function generateCorrectAnswerFromSides(leftSide: string[], rightSide: string[]): string {
+export function generateCorrectAnswerFromSides(leftSide: Array<{left: string, leftImage?: string}>, rightSide: Array<{right: string, rightImage?: string}>): string {
   if (!leftSide || !rightSide || !Array.isArray(leftSide) || !Array.isArray(rightSide)) {
     return '';
   }
   
   const pairs = leftSide
-    .map((left, index) => {
-      const right = rightSide[index];
-      return right ? `${left}:${right}` : null;
+    .map((leftItem, index) => {
+      const rightItem = rightSide[index];
+      if (leftItem?.left && rightItem?.right) {
+        return `${leftItem.left}:${rightItem.right}`;
+      }
+      return null;
     })
     .filter(pair => pair !== null);
   

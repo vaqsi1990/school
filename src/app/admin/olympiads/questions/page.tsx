@@ -1200,7 +1200,13 @@ function AdminQuestionsContent() {
                         <div className="max-w-xs">
                           <div className="text-xs text-gray-600 mb-1">შესაბამისობა:</div>
                           <div className="text-xs font-mono bg-gray-100 p-1 rounded">
-                            {question.correctAnswer ? question.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'არ არის მითითებული'}
+                            {question.correctAnswer ? 
+                              (typeof question.correctAnswer === 'string' ? 
+                                question.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 
+                                JSON.stringify(question.correctAnswer)
+                              ) : 
+                              'არ არის მითითებული'
+                            }
                           </div>
                         </div>
                       ) : question.type === 'CLOSED_ENDED' ? (
@@ -2105,7 +2111,7 @@ function AdminQuestionsContent() {
                             {formData.leftSide.map((leftItem, index) => (
                               <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
                                 <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                                  {String.fromCharCode(4304 + index)}:
+                                  {index + 1}:
                                 </span>
                                 <span className="text-gray-900 flex-1">
                                   {leftItem.left || `მარცხენა ${index + 1}`}
@@ -2143,7 +2149,7 @@ function AdminQuestionsContent() {
                                   <option value="">აირჩიეთ პასუხი</option>
                                   {formData.rightSide.map((rightItem, rightIndex) => (
                                     <option key={rightIndex} value={rightIndex + 1}>
-                                      {rightItem.right || `მარჯვენა ${rightIndex + 1}`}
+                                      {rightIndex + 1}
                                     </option>
                                   ))}
                                 </select>
