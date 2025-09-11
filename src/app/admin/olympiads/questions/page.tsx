@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import ImageUpload from '@/component/CloudinaryUploader'
 import ImageModal from '@/components/ImageModal'
-import { convertStudentAnswerToDisplayFormat } from '@/utils/matchingUtils'
+
 interface Subject {
   id: string
   name: string
