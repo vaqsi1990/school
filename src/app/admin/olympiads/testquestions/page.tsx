@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import ImageModal from '@/components/ImageModal'
 import { convertStudentAnswerToDisplayFormat } from '@/utils/matchingUtils'
+import { numberToGeorgianLetter, numberToGeorgianQuestionNumber, numberToGeorgianOptionLabel } from '@/utils/georgianLetters'
 
 interface Question {
   id: string
@@ -626,7 +627,7 @@ function TestQuestionsContent() {
                       <div key={question.id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
                           <h4 className="text-lg font-medium text-gray-900">
-                            კითხვა {index + 1}: {question.text}
+                            კითხვა {numberToGeorgianLetter(index)}: {question.text}
                           </h4>
                           <div className="flex items-center space-x-2">
                             {isCorrect ? (
@@ -650,7 +651,7 @@ function TestQuestionsContent() {
                                       ? 'bg-red-100 text-red-800 border border-red-300'
                                       : 'bg-gray-50 text-gray-700'
                                 }`}>
-                                  {String.fromCharCode(65 + optIndex)}) {option}
+                                  {numberToGeorgianOptionLabel(optIndex)} {option}
                                   {option === question.correctAnswer && ' ✓ სწორი პასუხი'}
                                   {option === userAnswer && option !== question.correctAnswer && ' ✗ თქვენი პასუხი'}
                                 </div>
@@ -673,12 +674,12 @@ function TestQuestionsContent() {
                                 }`}>
                                   <ImageModal
                                     src={imageUrl}
-                                    alt={`ვარიანტი ${String.fromCharCode(65 + imgIndex)}`}
+                                    alt={`ვარიანტი ${numberToGeorgianLetter(imgIndex)}`}
                                     className="w-full h-34 object-cover rounded"
                                   />
                                   <div className="text-center mt-1">
                                     <span className="text-xs font-medium">
-                                      {String.fromCharCode(65 + imgIndex)}
+                                      {numberToGeorgianLetter(imgIndex)}
                                       {imageUrl === question.correctAnswer && ' ✓ სწორი'}
                                       {imageUrl === userAnswer && imageUrl !== question.correctAnswer && ' ✗ თქვენი'}
                                     </span>
@@ -712,7 +713,6 @@ function TestQuestionsContent() {
                         
                         {question.type === 'TEXT_ANALYSIS' && (
                           <div className="mb-3">
-                            <div className="text-sm font-medium text-gray-700 mb-2">ტექსტის ანალიზი:</div>
                             <div className="text-sm text-gray-600">
                               თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
                             </div>
@@ -721,7 +721,6 @@ function TestQuestionsContent() {
                         
                         {question.type === 'MAP_ANALYSIS' && (
                           <div className="mb-3">
-                            <div className="text-sm font-medium text-gray-700 mb-2">რუკის ანალიზი:</div>
                             <div className="text-sm text-gray-600">
                               თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
                             </div>
@@ -758,7 +757,7 @@ function TestQuestionsContent() {
                   ტესტი
                 </h2>
                 <div className="text-sm text-gray-500">
-                  კითხვა {currentQuestionIndex + 1} / {selectedQuestions.length}
+                  კითხვა {numberToGeorgianLetter(currentQuestionIndex)} / {selectedQuestions.length}
                 </div>
               </div>
             </div>
@@ -878,7 +877,7 @@ function TestQuestionsContent() {
                               {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
                                 <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                                   <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                                    {String.fromCharCode(4304 + index)}:
+                                    {numberToGeorgianQuestionNumber(index)}
                                   </span>
                                   <span className="text-gray-900">
                                     {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
@@ -908,12 +907,11 @@ function TestQuestionsContent() {
                             <h4 className="font-medium text-gray-900 mb-2 text-sm">შესაბამისობა:</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                               {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
+                                <div key={index}>
                                 <>
-
+          
                                 <div key={index} className="flex flex-col   p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors shadow-sm min-h-[100px] text-xs">
-                                  <div className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold mb-2">
-                                    {index + 1}
-                                  </div>
+                                  
                                   <span className="text-gray-900 text-center mb-3 leading-tight px-1">
                                     {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
                                   </span>
@@ -936,6 +934,7 @@ function TestQuestionsContent() {
                                   </select>
                                 </div>
                                 </>
+                                </div>
                               ))}
                             </div>
                           </div>
@@ -1015,39 +1014,14 @@ function TestQuestionsContent() {
                         // TEXT_ANALYSIS and MAP_ANALYSIS Questions
                         <div className="space-y-4">
                           {/* Main Analysis Input */}
-                          <div className="bg-white border border-black rounded-lg p-4 mb-4">
-                            <h4 className="font-semibold text-black mb-2">
-                              {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' ? 'ტექსტის ანალიზი:' : 'რუკის ანალიზი:'}
-                            </h4>
-                            <p className="text- text-black mb-3">
-                              {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' 
-                                ? 'შეიყვანეთ თქვენი ანალიზი ზემოთ მოცემული ტექსტის საფუძველზე:'
-                                : 'შეიყვანეთ თქვენი ანალიზი ზემოთ მოცემული რუკის საფუძველზე:'
-                              }
-                            </p>
-                            <textarea
-                              value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_analysis`] || ''}
-                              onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_analysis`, e.target.value)}
-                              disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
-                              className={`w-full px-3 py-2 border border-black rounded-md focus:outline-none focus:ring-2 focus:ring-black ${
-                                answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
-                                  ? 'bg-gray-100 cursor-not-allowed opacity-60' 
-                                  : ''
-                              }`}
-                              rows={6}
-                              placeholder={selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' 
-                                ? 'შეიყვანეთ ტექსტის ანალიზი...'
-                                : 'შეიყვანეთ რუკის ანალიზი...'
-                              }
-                            />
-                          </div>
+                         
 
                           {selectedQuestions[currentQuestionIndex].subQuestions && selectedQuestions[currentQuestionIndex].subQuestions.length > 0 ? (
                             <>
                               {/* Sub-questions */}
                               <div className="bg-white border border-black rounded-lg p-4 mb-4">
                                 <h4 className="font-semibold text-black mb-2">
-                                  {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' ? 'ქვეკითხვები ტექსტის ანალიზისთვის:' : 'ქვეკითხვები რუკის ანალიზისთვის:'}
+                                  {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' ? 'ქვეკითხვები ტექსტის ანალიზისთვის:' : 'ქვეკითხვები ანალიზისთვის:'}
                                 </h4>
                                 <p className="text-sm text-black">
                                   ქვემოთ მოცემული ქვეკითხვებისთვის პასუხი გაეცით ზემოთ მოცემული ტექსტის/რუკის საფუძველზე
@@ -1140,7 +1114,7 @@ function TestQuestionsContent() {
                               : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                           }`}
                         >
-                          {index + 1}
+                          {numberToGeorgianLetter(index)}
                         </button>
                       ))}
                     </div>

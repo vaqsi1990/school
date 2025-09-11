@@ -8,6 +8,7 @@ import { toast } from 'react-hot-toast'
 import { useParams } from 'next/navigation'
 import ImageModal from '@/components/ImageModal'
 import { convertStudentAnswerToDisplayFormat } from '@/utils/matchingUtils'
+import { numberToGeorgianLetter, numberToGeorgianQuestionNumber, numberToGeorgianOptionLabel } from '@/utils/georgianLetters'
 
 interface StudentAnswer {
   id: string
@@ -304,7 +305,7 @@ function StudentAnswerDetailContent() {
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <h4 className="text-lg font-medium text-gray-900 mb-2">
-                      კითხვა {index + 1}: {getQuestionTypeLabel(answer.question.type)}
+                      კითხვა {numberToGeorgianLetter(index)}: {getQuestionTypeLabel(answer.question.type)}
                     </h4>
                     <p className="text-gray-700 mb-4">{answer.question.text}</p>
                     
@@ -324,7 +325,7 @@ function StudentAnswerDetailContent() {
                         <ul className="list-disc list-inside space-y-1">
                           {answer.question.options.map((option, optIndex) => (
                             <li key={optIndex} className="text-gray-700">
-                              {String.fromCharCode(65 + optIndex)}) {option}
+                              {numberToGeorgianOptionLabel(optIndex)} {option}
                             </li>
                           ))}
                         </ul>

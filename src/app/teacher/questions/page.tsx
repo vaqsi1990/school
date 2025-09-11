@@ -6,6 +6,7 @@ import { TeacherOnly } from '@/components/auth/ProtectedRoute'
 import Link from 'next/link'
 import ImageUpload from '@/component/CloudinaryUploader'
 import ImageModal from '@/components/ImageModal'
+import { numberToGeorgianLetter, numberToGeorgianQuestionNumber, numberToGeorgianOptionLabel } from '@/utils/georgianLetters'
 
 interface Question {
   id: string
@@ -629,21 +630,21 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
         for (let i = 0; i < formData.subQuestions.length; i++) {
           const sq = formData.subQuestions[i]
           if (!sq.text.trim()) {
-            alert(`ქვეკითხვა ${i + 1} უნდა ჰქონდეს ტექსტი`)
+            alert(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს ტექსტი`)
             return
           }
           if (sq.points < 1 || sq.points > 10) {
-            alert(`ქვეკითხვა ${i + 1} უნდა ჰქონდეს ქულები 1-დან 10-მდე`)
+            alert(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს ქულები 1-დან 10-მდე`)
             return
           }
           
           if (sq.type === 'CLOSED_ENDED' && sq.isAutoScored) {
             if (!sq.options || sq.options.filter(opt => opt.trim()).length < 2) {
-              alert(`ქვეკითხვა ${i + 1} უნდა ჰქონდეს მინიმუმ 2 პასუხის ვარიანტი ავტომატური შეფასებისთვის`)
+              alert(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს მინიმუმ 2 პასუხის ვარიანტი ავტომატური შეფასებისთვის`)
               return
             }
             if (!sq.correctAnswer || sq.correctAnswer.trim() === '') {
-              alert(`ქვეკითხვა ${i + 1} უნდა ჰქონდეს სწორი პასუხი ავტომატური შეფასებისთვის`)
+              alert(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს სწორი პასუხი ავტომატური შეფასებისთვის`)
               return
             }
           }
@@ -1499,7 +1500,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                        <div key={subQuestion.id} className="bg-white p-4 rounded-lg border border-purple-200">
                          <div className="flex justify-between items-center mb-3">
                            <h5 className="text-md font-semibold text-black md:text-[16px] text-[14px]">
-                             ქვეკითხვა {index + 1}
+                             ქვეკითხვა {numberToGeorgianLetter(index)}
                            </h5>
                            <button
                              type="button"

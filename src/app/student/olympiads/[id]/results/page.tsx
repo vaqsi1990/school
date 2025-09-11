@@ -5,6 +5,7 @@ import { useEffect, useState, use } from 'react'
 import Link from 'next/link'
 import ImageModal from '@/components/ImageModal'
 import { convertStudentAnswerToDisplayFormat } from '@/utils/matchingUtils'
+import { numberToGeorgianLetter, numberToGeorgianQuestionNumber, numberToGeorgianOptionLabel } from '@/utils/georgianLetters'
 
 interface QuestionResult {
   id: string
@@ -232,7 +233,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                 <div key={question.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="text-lg font-medium text-gray-900">
-                      კითხვა {index + 1}: {question.text}
+                      კითხვა {numberToGeorgianLetter(index)}: {question.text}
                     </h4>
                     <div className="flex items-center space-x-2">
                       {question.isCorrect ? (
@@ -256,7 +257,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                                 ? 'bg-red-100 text-red-800 border border-red-300'
                                 : 'bg-gray-50 text-gray-700'
                           }`}>
-                            {String.fromCharCode(65 + optIndex)}) {option}
+                            {numberToGeorgianOptionLabel(optIndex)} {option}
                             {option === question.correctAnswer && ' ✓ სწორი პასუხი'}
                             {option === question.studentAnswer && option !== question.correctAnswer && ' ✗ თქვენი პასუხი'}
                           </div>
@@ -279,12 +280,12 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                           }`}>
                             <ImageModal
                               src={imageUrl}
-                              alt={`ვარიანტი ${String.fromCharCode(65 + imgIndex)}`}
+                              alt={`ვარიანტი ${numberToGeorgianLetter(imgIndex)}`}
                               className="w-full h-24 object-cover rounded"
                             />
                             <div className="text-center mt-1">
                               <span className="text-xs font-medium">
-                                {String.fromCharCode(65 + imgIndex)}
+                                {numberToGeorgianLetter(imgIndex)}
                                 {imageUrl === question.correctAnswer && ' ✓ სწორი'}
                                 {imageUrl === question.studentAnswer && imageUrl !== question.correctAnswer && ' ✗ თქვენი'}
                               </span>

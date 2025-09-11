@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { StudentOnly } from '@/components/auth/ProtectedRoute'
 import ImageModal from '@/components/ImageModal'
+import { numberToGeorgianLetter, numberToGeorgianQuestionNumber, numberToGeorgianOptionLabel } from '@/utils/georgianLetters'
 
 interface Question {
   id: string
@@ -230,7 +231,7 @@ function StudentTestContent() {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-gray-700">
-              კითხვა {currentQuestionIndex + 1} / {questions.length}
+              კითხვა {numberToGeorgianLetter(currentQuestionIndex)} / {questions.length}
             </span>
             <span className="text-sm text-gray-500">
               {Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}%
@@ -343,7 +344,7 @@ function StudentTestContent() {
                       }`}
                     >
                       <span className="font-medium text-gray-900">
-                        {String.fromCharCode(65 + index)}. {option}
+                        {numberToGeorgianOptionLabel(index)} {option}
                       </span>
                     </button>
                   ))}

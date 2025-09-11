@@ -4,6 +4,7 @@ import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ImageModal from '@/components/ImageModal'
+import { numberToGeorgianLetter, numberToGeorgianQuestionNumber, numberToGeorgianOptionLabel } from '@/utils/georgianLetters'
 
 interface Question {
   id: string
@@ -582,7 +583,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
               <h1 className="text-black md:text-[24px] text-[20px] font-bold">
                 {olympiad.name}
               </h1>
-              <p className="text-gray-600">კითხვა {currentQuestionIndex + 1} / {questions.length}</p>
+              <p className="text-gray-600">კითხვა {numberToGeorgianLetter(currentQuestionIndex)} / {questions.length}</p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-red-600">
@@ -606,7 +607,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
-                კითხვა {currentQuestionIndex + 1}
+                კითხვა {numberToGeorgianLetter(currentQuestionIndex)}
               </h2>
               {answeredQuestions.has(currentQuestion.id) && (
                 <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
@@ -830,32 +831,12 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
             {(currentQuestion.type === 'TEXT_ANALYSIS' || currentQuestion.type === 'MAP_ANALYSIS') && currentQuestion.subQuestions && (
               <div className="space-y-4">
                 {/* Main Analysis Input */}
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                  <h4 className="font-semibold text-green-800 mb-2">
-                    {currentQuestion.type === 'TEXT_ANALYSIS' ? 'ტექსტის ანალიზი:' : 'რუკის ანალიზი:'}
-                  </h4>
-                  <p className="text-sm text-green-700 mb-3">
-                    {currentQuestion.type === 'TEXT_ANALYSIS' 
-                      ? 'შეიყვანეთ თქვენი ანალიზი ზემოთ მოცემული ტექსტის საფუძველზე:'
-                      : 'შეიყვანეთ თქვენი ანალიზი ზემოთ მოცემული რუკის საფუძველზე:'
-                    }
-                  </p>
-                  <textarea
-                    value={answers[`${currentQuestion.id}_analysis`] as string || ''}
-                    onChange={(e) => handleAnswerChange(`${currentQuestion.id}_analysis`, e.target.value)}
-                    className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    rows={6}
-                    placeholder={currentQuestion.type === 'TEXT_ANALYSIS' 
-                      ? 'შეიყვანეთ ტექსტის ანალიზი...'
-                      : 'შეიყვანეთ რუკის ანალიზი...'
-                    }
-                  />
-                </div>
+              
 
                 {/* Sub-questions */}
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
                   <h4 className="font-semibold text-purple-800 mb-2">
-                    {currentQuestion.type === 'TEXT_ANALYSIS' ? 'ქვეკითხვები ტექსტის ანალიზისთვის:' : 'ქვეკითხვები რუკის ანალიზისთვის:'}
+                    {currentQuestion.type === 'TEXT_ANALYSIS' ? 'ქვეკითხვები ტექსტის ანალიზისთვის:' : 'ქვეკითხვები ანალიზისთვის:'}
                   </h4>
                   <p className="text-sm text-purple-700">
                     ქვემოთ მოცემული ქვეკითხვებისთვის პასუხი გაეცით ზემოთ მოცემული ტექსტის/რუკის საფუძველზე
