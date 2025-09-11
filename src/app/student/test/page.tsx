@@ -398,10 +398,10 @@ function StudentTestContent() {
                   {(currentQuestion.leftSide || currentQuestion.matchingPairs)?.map((item, index) => (
                     <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
                     
-                      <span className="text-gray-900 flex-1">
+                      <span className="className='text-black text-[16px]'  flex-1">
                       {numberToGeorgianQuestionNumber(index)}
                       </span>
-                      <span className="text-gray-500">→</span>
+                   
                       <select
                         value={(currentAnswer as Record<string, string>)[`${String.fromCharCode(4304 + index)}`] || ''}
                         onChange={(e) => {

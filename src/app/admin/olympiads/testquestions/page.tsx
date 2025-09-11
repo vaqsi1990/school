@@ -912,22 +912,22 @@ function TestQuestionsContent() {
           
                                 <div key={index} className="flex flex-col   p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors shadow-sm min-h-[100px] text-xs">
                                   
-                                  <span className="text-black-900 text-center mb-3 leading-tight px-1">
+                                  <span className="text-black-900 text-[16px] text-center mb-3 leading-tight px-1">
                                   {numberToGeorgianQuestionNumber(index)}
                                   </span>
                                   <select
                                     value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${index}`] || ''}
                                     onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${index}`, e.target.value)}
                                     disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
-                                    className={`px-3 py-2 border-2 border-gray-300 rounded-lg text-xs font-medium min-w-[80px] text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                                    className={`px-3 text-[16px] py-2 border-2 border-gray-300 rounded-lg text-xs font-medium min-w-[80px] text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                                       answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
                                         ? 'bg-gray-100 cursor-not-allowed opacity-60' 
                                         : 'bg-white hover:border-blue-400'
                                     }`}
                                   >
-                                    <option value="">აირჩიეთ</option>
+                                    <option className='text-black text-[16px]' value="">აირჩიეთ</option>
                                     {(selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((rightItem, rightIndex) => (
-                                      <option key={rightIndex} value={rightIndex + 1}>
+                                      <option className='text-black text-[16px]' key={rightIndex} value={rightIndex + 1}>
                                         {rightIndex + 1}
                                       </option>
                                     ))}
