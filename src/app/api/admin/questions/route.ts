@@ -65,7 +65,23 @@ export async function GET() {
     // Parse sub-questions from content field for TEXT_ANALYSIS and MAP_ANALYSIS questions
     // Parse leftSide and rightSide for MATCHING questions
     const questionsWithSubQuestions = questions.map((question: typeof questions[0]) => {
-      let parsedQuestion: any = { ...question }
+      let parsedQuestion: typeof question & { 
+        subQuestions?: Array<{
+          id: string
+          text: string
+          type: 'CLOSED_ENDED' | 'OPEN_ENDED'
+          options?: string[]
+          correctAnswer?: string
+          answerTemplate?: string
+          points: number
+          maxPoints?: number
+          isAutoScored: boolean
+          image?: string
+        }>, 
+        leftSide?: unknown, 
+        rightSide?: unknown, 
+        matchingPairs?: unknown 
+      } = { ...question }
       
       if ((question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS') && question.content) {
         console.log(`Question ${question.id} content:`, question.content)
