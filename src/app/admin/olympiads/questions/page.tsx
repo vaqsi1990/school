@@ -373,7 +373,7 @@ function AdminQuestionsContent() {
     const newSubQuestion: SubQuestion = {
       id: `temp-${Date.now()}`,
       text: '',
-      type: 'CLOSED_ENDED',
+      type: formData.type === 'OPEN_ENDED' ? 'OPEN_ENDED' : 'CLOSED_ENDED',
       options: ['', '', '', ''],
       correctAnswer: '',
       answerTemplate: '',
@@ -456,8 +456,8 @@ function AdminQuestionsContent() {
       maxPoints: isAutoScored ? prev.points : prev.maxPoints,
       // For MATCHING questions, clear correctAnswer to allow manual input
       correctAnswer: type === 'MATCHING' ? '' : prev.correctAnswer,
-      // Clear sub-questions if switching away from TEXT_ANALYSIS or MAP_ANALYSIS
-      subQuestions: (type === 'TEXT_ANALYSIS' || type === 'MAP_ANALYSIS') ? prev.subQuestions : []
+      // Clear sub-questions if switching away from TEXT_ANALYSIS, MAP_ANALYSIS, or OPEN_ENDED
+      subQuestions: (type === 'TEXT_ANALYSIS' || type === 'MAP_ANALYSIS' || type === 'OPEN_ENDED') ? prev.subQuestions : []
     }))
   }
 
@@ -481,6 +481,17 @@ function AdminQuestionsContent() {
           (!formData.subQuestions || formData.subQuestions.length === 0)) {
         alert('ტექსტის ანალიზის და რუკის ანალიზის კითხვებს უნდა ჰქონდეთ მინიმუმ ერთი ქვეკითხვა')
         return
+      }
+
+      // Validate OPEN_ENDED questions - they need either sub-questions OR an answer template
+      if (formData.type === 'OPEN_ENDED') {
+        const hasSubQuestions = formData.subQuestions && formData.subQuestions.length > 0
+        const hasAnswerTemplate = formData.answerTemplate && formData.answerTemplate.trim() !== ''
+        
+        if (!hasSubQuestions && !hasAnswerTemplate) {
+          alert('ღია კითხვებს უნდა ჰქონდეთ ან ქვეკითხვები ან პასუხის შაბლონი')
+          return
+        }
       }
 
       // Validate MATCHING questions
@@ -629,6 +640,14 @@ function AdminQuestionsContent() {
             }
             if (!sq.correctAnswer || sq.correctAnswer.trim() === '') {
               alert(`ქვეკითხვა ${i + 1} უნდა ჰქონდეს სწორი პასუხი ავტომატური შეფასებისთვის`)
+              return
+            }
+          }
+          
+          // For OPEN_ENDED sub-questions, validate answer template
+          if (sq.type === 'OPEN_ENDED') {
+            if (!sq.answerTemplate || sq.answerTemplate.trim() === '') {
+              alert(`ქვეკითხვა ${i + 1} (ღია კითხვა) უნდა ჰქონდეს პასუხის შაბლონი`)
               return
             }
           }
@@ -1412,8 +1431,8 @@ function AdminQuestionsContent() {
                     />
                   </div>
 
-                  {/* Sub-questions Section for TEXT_ANALYSIS and MAP_ANALYSIS */}
-                  {(formData.type === 'TEXT_ANALYSIS' || formData.type === 'MAP_ANALYSIS') && (
+                  {/* Sub-questions Section for TEXT_ANALYSIS, MAP_ANALYSIS, and OPEN_ENDED */}
+                  {(formData.type === 'TEXT_ANALYSIS' || formData.type === 'MAP_ANALYSIS' || formData.type === 'OPEN_ENDED') && (
                     <div className="md:col-span-2 pt-6 bg-purple-50 p-4 rounded-lg">
                       {/* Helpful notice */}
                       <div className="mb-4 p-3 bg-blue-100 border border-blue-300 rounded-lg">
@@ -1421,12 +1440,25 @@ function AdminQuestionsContent() {
                           <span className="text-blue-600 text-lg">💡</span>
                           <div>
                             <p className="text-sm font-medium text-blue-800 md:text-[14px] text-[12px]">
-                              {formData.type === 'TEXT_ANALYSIS' ? 'ტექსტის ანალიზის' : 'რუკის ანალიზის'} კითხვისთვის საჭიროა:
+                              {formData.type === 'TEXT_ANALYSIS' ? 'ტექსტის ანალიზის' : 
+                               formData.type === 'MAP_ANALYSIS' ? 'რუკის ანალიზის' : 
+                               'ღია კითხვის'} კითხვისთვის საჭიროა:
                             </p>
                             <ul className="text-xs text-blue-700 mt-1 list-disc list-inside space-y-1">
-                              <li>მინიმუმ ერთი ქვეკითხვა</li>
-                              <li>თითოეულ ქვეკითხვას უნდა ჰქონდეს ტექსტი და ქულები</li>
-                              <li>დახურული კითხვებისთვის - პასუხის ვარიანტები და სწორი პასუხი</li>
+                              {formData.type === 'OPEN_ENDED' ? (
+                                <>
+                                  <li>ღია კითხვებს შეუძლია ჰქონდეთ ქვეკითხვები ან მარტო პასუხის შაბლონი</li>
+                                  <li>თუ ქვეკითხვებს დაამატებთ, პასუხის შაბლონი ავტომატურად დაიმალება</li>
+                                  <li>ღია კითხვების ქვეკითხვები მხოლოდ ღია კითხვებია</li>
+                                  <li>თითოეულ ქვეკითხვას უნდა ჰქონდეს ტექსტი, ქულები და პასუხის შაბლონი</li>
+                                </>
+                              ) : (
+                                <>
+                                  <li>მინიმუმ ერთი ქვეკითხვა</li>
+                                  <li>თითოეულ ქვეკითხვას უნდა ჰქონდეს ტექსტი და ქულები</li>
+                                  <li>დახურული კითხვებისთვის - პასუხის ვარიანტები და სწორი პასუხი</li>
+                                </>
+                              )}
                             </ul>
                           </div>
                         </div>
@@ -1471,8 +1503,14 @@ function AdminQuestionsContent() {
                                 onChange={(e) => handleSubQuestionChange(index, 'type', e.target.value)}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
                               >
-                                <option value="CLOSED_ENDED">1. დახურული კითხვა</option>
-                                <option value="OPEN_ENDED">2. ღია კითხვა</option>
+                                {formData.type === 'OPEN_ENDED' ? (
+                                  <option value="OPEN_ENDED">ღია კითხვა</option>
+                                ) : (
+                                  <>
+                                    <option value="CLOSED_ENDED">1. დახურული კითხვა</option>
+                                    <option value="OPEN_ENDED">2. ღია კითხვა</option>
+                                  </>
+                                )}
                               </select>
                             </div>
 
@@ -2136,15 +2174,15 @@ function AdminQuestionsContent() {
                   </div>
                 )}
 
-                {/* Answer Template for Open-ended Questions */}
-                {formData.type === 'OPEN_ENDED' && (
+                {/* Answer Template for Open-ended Questions (only when no sub-questions) */}
+                {formData.type === 'OPEN_ENDED' && (!formData.subQuestions || formData.subQuestions.length === 0) && (
                   <div className="mt-4">
                     <label className="block text-sm font-medium text-purple-800 mb-2">
                       პასუხის შაბლონი (მასწავლებლებისთვის) *
                     </label>
                     <textarea
                       name="answerTemplate"
-                      required
+                      required={formData.type === 'OPEN_ENDED' && (!formData.subQuestions || formData.subQuestions.length === 0)}
                       value={formData.answerTemplate}
                       onChange={handleInputChange}
                       rows={4}
