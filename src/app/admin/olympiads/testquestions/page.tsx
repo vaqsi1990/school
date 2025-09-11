@@ -879,7 +879,7 @@ function TestQuestionsContent() {
                                   <span className="text-[16px] font-medium text-black-600 min-w-[30px]">
                                     {numberToGeorgianQuestionNumber(index)}
                                   </span>
-                                  <span className="text-black-900">
+                                  <span className="text-black">
                                     {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
                                   </span>
                                 </div>
@@ -913,7 +913,7 @@ function TestQuestionsContent() {
                                 <div key={index} className="flex flex-col   p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors shadow-sm min-h-[100px] text-xs">
                                   
                                   <span className="text-black-900 text-center mb-3 leading-tight px-1">
-                                    {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
+                                  {numberToGeorgianQuestionNumber(index)}
                                   </span>
                                   <select
                                     value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${index}`] || ''}

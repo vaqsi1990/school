@@ -397,11 +397,9 @@ function StudentTestContent() {
                 <div className="space-y-3">
                   {(currentQuestion.leftSide || currentQuestion.matchingPairs)?.map((item, index) => (
                     <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
-                      <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                        {String.fromCharCode(4304 + index)}:
-                      </span>
+                    
                       <span className="text-gray-900 flex-1">
-                        {currentQuestion.leftSide ? item.left : item.left}
+                      {numberToGeorgianQuestionNumber(index)}
                       </span>
                       <span className="text-gray-500">→</span>
                       <select
