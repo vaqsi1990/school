@@ -335,7 +335,7 @@ function TestQuestionsContent() {
             <div className="p-6">
               {allQuestions.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500 md:text-[18px] text-[16px]">კითხვები ვერ მოიძებნა</p>
+                  <p className="text-black-500 md:text-[18px] text-[16px]">კითხვები ვერ მოიძებნა</p>
                   <Link
                     href="/admin/olympiads/questions"
                     className="inline-block mt-4 bg-[#034e64] text-white px-4 py-2 rounded-md hover:bg-[#023a4d]"
@@ -350,7 +350,7 @@ function TestQuestionsContent() {
                     <h3 className="text-lg font-semibold text-black mb-4">ფილტრები</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">საგანი</label>
+                        <label className="block text-[16px] font-medium text-black-700 mb-2">საგანი</label>
                         <select
                           value={selectedSubject}
                           onChange={(e) => setSelectedSubject(e.target.value)}
@@ -364,7 +364,7 @@ function TestQuestionsContent() {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">კლასი</label>
+                        <label className="block text-[16px] font-medium text-black-700 mb-2">კლასი</label>
                         <select
                           value={selectedGrade}
                           onChange={(e) => setSelectedGrade(e.target.value ? parseInt(e.target.value) : '')}
@@ -378,7 +378,7 @@ function TestQuestionsContent() {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">კითხვის ტიპი</label>
+                        <label className="block text-[16px] font-medium text-black-700 mb-2">კითხვის ტიპი</label>
                         <select
                           value={selectedQuestionType}
                           onChange={(e) => setSelectedQuestionType(e.target.value)}
@@ -392,7 +392,7 @@ function TestQuestionsContent() {
                       </div>
                     </div>
                     
-                    <div className="mt-4 text-sm text-gray-600">
+                    <div className="mt-4 text-[16px] text-black-600">
                       ნაპოვნია {filteredQuestions.length} კითხვა {allQuestions.length}-დან
                     </div>
                   </div>
@@ -442,7 +442,7 @@ function TestQuestionsContent() {
                             <div className="flex justify-between items-start">
                               <div className="flex-1">
                                 <div className="flex items-center space-x-2 mb-1">
-                                  <span className="text-sm font-medium text-gray-500">#{index + 1}</span>
+                                  <span className="text-[16px] font-medium text-black-500">#{index + 1}</span>
                                   <span className="text-xs bg-white text-black px-2 py-1 rounded">
                                     {getQuestionTypeLabel(question.type)}
                                   </span>
@@ -453,7 +453,7 @@ function TestQuestionsContent() {
                                     {question.grade} კლასი
                                   </span>
                                 </div>
-                                <p className="text-sm text-gray-700 line-clamp-2">{question.text}</p>
+                                <p className="text-[16px] text-black-700 line-clamp-2">{question.text}</p>
                                 {question.image && question.image.length > 0 && (
                                   <div className="mt-2 flex gap-1 flex-wrap">
                                     {question.image.map((img, index) => (
@@ -469,7 +469,7 @@ function TestQuestionsContent() {
                               </div>
                               <button
                                 onClick={() => handleQuestionSelect([question])}
-                                className="ml-3 bg-[#034e64] text-white px-3 py-1 rounded text-sm hover:bg-[#023a4d] transition-colors"
+                                className="ml-3 bg-[#034e64] text-white px-3 py-1 rounded text-[16px] hover:bg-[#023a4d] transition-colors"
                               >
                                 ტესტი
                               </button>
@@ -559,22 +559,22 @@ function TestQuestionsContent() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
                         <div className="text-2xl font-bold text-blue-600">{totalScore}</div>
-                        <div className="text-sm text-blue-700">მიღებული ქულა</div>
+                        <div className="text-[16px] text-blue-700">მიღებული ქულა</div>
                         <div className="text-xs text-blue-600">მაქსიმუმი: {maxScore}</div>
                       </div>
                       <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
                         <div className="text-2xl font-bold text-green-600">{correctAnswers}</div>
-                        <div className="text-sm text-green-700">სწორი პასუხი</div>
+                        <div className="text-[16px] text-green-700">სწორი პასუხი</div>
                         <div className="text-xs text-green-600">სულ: {totalQuestions}</div>
                       </div>
                       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
                         <div className="text-2xl font-bold text-purple-600">{percentage}%</div>
-                        <div className="text-sm text-purple-700">შედეგი</div>
+                        <div className="text-[16px] text-purple-700">შედეგი</div>
                         <div className="text-xs text-purple-600">პროცენტი</div>
                       </div>
                       <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
                         <div className="text-2xl font-bold text-orange-600">{totalQuestions - correctAnswers}</div>
-                        <div className="text-sm text-orange-700">არასწორი</div>
+                        <div className="text-[16px] text-orange-700">არასწორი</div>
                         <div className="text-xs text-orange-600">პასუხი</div>
                       </div>
                     </div>
@@ -584,7 +584,7 @@ function TestQuestionsContent() {
                         <div className="text-xl font-bold text-green-600 mb-2">
                           {totalScore} / {maxScore} ქულა
                         </div>
-                        <div className="text-sm text-green-600">
+                        <div className="text-[16px] text-green-600">
                           {correctAnswers} / {totalQuestions} სწორი პასუხი
                         </div>
                       </div>
@@ -595,7 +595,7 @@ function TestQuestionsContent() {
               
               {/* Questions Review */}
               <div className="mt-8">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">კითხვების გადახედვა</h3>
+                <h3 className="text-lg font-semibold text-black-900 mb-4">კითხვების გადახედვა</h3>
                 <div className="space-y-4">
                   {selectedQuestions.map((question, index) => {
                     // For matching questions, we need to construct the answer from individual parts
@@ -626,22 +626,22 @@ function TestQuestionsContent() {
                     return (
                       <div key={question.id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="text-lg font-medium text-gray-900">
+                          <h4 className="text-lg font-medium text-black-900">
                             კითხვა {numberToGeorgianLetter(index)}: {question.text}
                           </h4>
                           <div className="flex items-center space-x-2">
                             {isCorrect ? (
-                              <span className="text-green-600 text-sm font-medium">✓ სწორი</span>
+                              <span className="text-green-600 text-[16px] font-medium">✓ სწორი</span>
                             ) : (
-                              <span className="text-red-600 text-sm font-medium">✗ არასწორი</span>
+                              <span className="text-red-600 text-[16px] font-medium">✗ არასწორი</span>
                             )}
-                            <span className="text-sm text-gray-500">{question.points} ქულა</span>
+                            <span className="text-[16px] text-black-500">{question.points} ქულა</span>
                           </div>
                         </div>
                         
                         {question.type === 'CLOSED_ENDED' && question.options && (
                           <div className="mb-3">
-                            <div className="text-sm font-medium text-gray-700 mb-2">პასუხის ვარიანტები:</div>
+                            <div className="text-[16px] font-medium text-black-700 mb-2">პასუხის ვარიანტები:</div>
                             <div className="space-y-1">
                               {question.options.map((option, optIndex) => (
                                 <div key={optIndex} className={`p-2 rounded ${
@@ -649,7 +649,7 @@ function TestQuestionsContent() {
                                     ? 'bg-green-100 text-green-800 border border-green-300' 
                                     : option === userAnswer && option !== question.correctAnswer
                                       ? 'bg-red-100 text-red-800 border border-red-300'
-                                      : 'bg-gray-50 text-gray-700'
+                                      : 'bg-gray-50 text-black-700'
                                 }`}>
                                   {numberToGeorgianOptionLabel(optIndex)} {option}
                                   {option === question.correctAnswer && ' ✓ სწორი პასუხი'}
@@ -662,7 +662,7 @@ function TestQuestionsContent() {
                         
                         {question.type === 'CLOSED_ENDED' && question.imageOptions && question.imageOptions.filter(img => img && img.trim() !== '').length > 0 && (
                           <div className="mb-3">
-                            <div className="text-sm font-medium text-gray-700 mb-2">სურათის ვარიანტები:</div>
+                            <div className="text-[16px] font-medium text-black-700 mb-2">სურათის ვარიანტები:</div>
                             <div className="grid grid-cols-2 gap-4">
                               {question.imageOptions.filter(img => img && img.trim() !== '').map((imageUrl, imgIndex) => (
                                 <div key={imgIndex} className={`p-2 rounded border-2 ${
@@ -692,11 +692,11 @@ function TestQuestionsContent() {
                         
                         {question.type === 'MATCHING' && (question.matchingPairs || question.leftSide) && (
                           <div className="mb-3">
-                            <div className="text-sm font-medium text-gray-700 mb-2">შესაბამისობა:</div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-[16px] font-medium text-black-700 mb-2">შესაბამისობა:</div>
+                            <div className="text-[16px] text-black-600">
                               სწორი პასუხი: {question.correctAnswer ? question.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'არ არის მითითებული'}
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-[16px] text-black-600">
                               თქვენი პასუხი: {userAnswer ? userAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'პასუხი არ მოცემულა'}
                             </div>
                           </div>
@@ -704,8 +704,8 @@ function TestQuestionsContent() {
                         
                         {question.type === 'OPEN_ENDED' && (
                           <div className="mb-3">
-                            <div className="text-sm font-medium text-gray-700 mb-2">ღია კითხვა:</div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-[16px] font-medium text-black-700 mb-2">ღია კითხვა:</div>
+                            <div className="text-[16px] text-black-600">
                               თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
                             </div>
                           </div>
@@ -713,7 +713,7 @@ function TestQuestionsContent() {
                         
                         {question.type === 'TEXT_ANALYSIS' && (
                           <div className="mb-3">
-                            <div className="text-sm text-gray-600">
+                            <div className="text-[16px] text-black-600">
                               თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
                             </div>
                           </div>
@@ -721,7 +721,7 @@ function TestQuestionsContent() {
                         
                         {question.type === 'MAP_ANALYSIS' && (
                           <div className="mb-3">
-                            <div className="text-sm text-gray-600">
+                            <div className="text-[16px] text-black-600">
                               თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
                             </div>
                           </div>
@@ -756,7 +756,7 @@ function TestQuestionsContent() {
                 <h2 className="text-xl font-semibold text-black md:text-[22px] text-[18px]">
                   ტესტი
                 </h2>
-                <div className="text-sm text-gray-500">
+                <div className="text-[16px] text-black-500">
                   კითხვა {numberToGeorgianLetter(currentQuestionIndex)} / {selectedQuestions.length}
                 </div>
               </div>
@@ -767,7 +767,7 @@ function TestQuestionsContent() {
                 <>
                   <div className="mb-6">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-gray-500">
+                      <span className="text-[16px] text-black-500">
                         {getQuestionTypeLabel(selectedQuestions[currentQuestionIndex].type)}
                       </span>
                       <div className="flex items-center space-x-2">
@@ -776,7 +776,7 @@ function TestQuestionsContent() {
                             ნაპასუხი
                           </span>
                         )}
-                        <span className="text-sm text-gray-500">
+                        <span className="text-[16px] text-black-500">
                           {selectedQuestions[currentQuestionIndex].points} ქულა
                         </span>
                       </div>
@@ -788,7 +788,7 @@ function TestQuestionsContent() {
                           {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' ? 'ტექსტი ანალიზისთვის:' : 'რუკის აღწერა ანალიზისთვის:'}
                         </h3>
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                          <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+                          <p className="text-black-800 whitespace-pre-wrap leading-relaxed">
                             {selectedQuestions[currentQuestionIndex].text}
                           </p>
                         </div>
@@ -866,20 +866,20 @@ function TestQuestionsContent() {
                       {selectedQuestions[currentQuestionIndex].type === 'MATCHING' ? (
                         // MATCHING Question
                         <div className="space-y-6">
-                          <div className="text-sm text-gray-600 mb-4">
+                          <div className="text-[16px] text-black-600 mb-4">
                             შეაერთეთ მარცხენა სვეტის ელემენტები მარჯვენა სვეტის შესაბამის ელემენტებთან
                           </div>
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {/* Left Column */}
                             <div className="space-y-3">
-                              <h3 className="font-semibold text-gray-900 mb-4">მარცხენა სვეტი</h3>
+                              <h3 className="font-semibold text-black-900 mb-4">მარცხენა სვეტი</h3>
                               {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
                                 <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                                  <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                                  <span className="text-[16px] font-medium text-black-600 min-w-[30px]">
                                     {numberToGeorgianQuestionNumber(index)}
                                   </span>
-                                  <span className="text-gray-900">
+                                  <span className="text-black-900">
                                     {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
                                   </span>
                                 </div>
@@ -888,13 +888,13 @@ function TestQuestionsContent() {
 
                             {/* Right Column */}
                             <div className="space-y-3">
-                              <h3 className="font-semibold text-gray-900 mb-4">მარჯვენა სვეტი</h3>
+                              <h3 className="font-semibold text-black-900 mb-4">მარჯვენა სვეტი</h3>
                               {(selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
                                 <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                                  <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                                  <span className="text-[16px] font-medium text-black-600 min-w-[30px]">
                                     {index + 1}:
                                   </span>
-                                  <span className="text-gray-900">
+                                  <span className="text-black-900">
                                     {selectedQuestions[currentQuestionIndex].rightSide ? item.right : item.right}
                                   </span>
                                 </div>
@@ -904,7 +904,7 @@ function TestQuestionsContent() {
 
                           {/* Matching Interface */}
                           <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                            <h4 className="font-medium text-gray-900 mb-2 text-sm">შესაბამისობა:</h4>
+                            <h4 className="font-medium text-black-900 mb-2 text-[16px]">შესაბამისობა:</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                               {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
                                 <div key={index}>
@@ -912,7 +912,7 @@ function TestQuestionsContent() {
           
                                 <div key={index} className="flex flex-col   p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors shadow-sm min-h-[100px] text-xs">
                                   
-                                  <span className="text-gray-900 text-center mb-3 leading-tight px-1">
+                                  <span className="text-black-900 text-center mb-3 leading-tight px-1">
                                     {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
                                   </span>
                                   <select
@@ -942,7 +942,7 @@ function TestQuestionsContent() {
                       ) : selectedQuestions[currentQuestionIndex].type === 'OPEN_ENDED' ? (
                         // OPEN_ENDED Question
                         <div className="p-4 bg-gray-100 rounded-lg">
-                          <p className="text-gray-600 mb-2">ღია კითხვა - შეიყვანეთ პასუხი</p>
+                          <p className="text-black-600 mb-2">ღია კითხვა - შეიყვანეთ პასუხი</p>
                           <textarea
                             placeholder="შეიყვანეთ თქვენი პასუხი..."
                             value={userAnswers[selectedQuestions[currentQuestionIndex].id] || ''}
@@ -1023,13 +1023,13 @@ function TestQuestionsContent() {
                                 <h4 className="font-semibold text-black mb-2">
                                   {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' ? 'ქვეკითხვები ტექსტის ანალიზისთვის:' : 'ქვეკითხვები ანალიზისთვის:'}
                                 </h4>
-                                <p className="text-sm text-black">
+                                <p className="text-[16px] text-black">
                                   ქვემოთ მოცემული ქვეკითხვებისთვის პასუხი გაეცით ზემოთ მოცემული ტექსტის/რუკის საფუძველზე
                                 </p>
                               </div>
                               {selectedQuestions[currentQuestionIndex].subQuestions.map((subQuestion, subIndex) => (
                             <div key={subQuestion.id} className="border border-black rounded-lg p-4 bg-white">
-                              <h4 className="font-medium text-gray-900 mb-3">
+                              <h4 className="font-medium text-black-900 mb-3">
                                 {subIndex + 1}. {subQuestion.text}
                               </h4>
                               
@@ -1060,7 +1060,7 @@ function TestQuestionsContent() {
                                             : ''
                                         }`}
                                       />
-                                      <span className="ml-2 text-gray-900">{option}</span>
+                                      <span className="ml-2 text-black-900">{option}</span>
                                     </label>
                                   ))}
                                 </div>
@@ -1086,7 +1086,7 @@ function TestQuestionsContent() {
                       ) : (
                         // Fallback for other question types
                         <div className="p-4 bg-gray-100 rounded-lg">
-                          <p className="text-gray-600">ამ კითხვის ტიპისთვის პასუხის ვარიანტები არ არის განსაზღვრული</p>
+                          <p className="text-black-600">ამ კითხვის ტიპისთვის პასუხის ვარიანტები არ არის განსაზღვრული</p>
                         </div>
                       )}
                     </div>
@@ -1106,12 +1106,12 @@ function TestQuestionsContent() {
                         <button
                           key={index}
                           onClick={() => setCurrentQuestionIndex(index)}
-                          className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
+                          className={`w-8 h-8 rounded-full text-[16px] font-medium transition-colors ${
                             index === currentQuestionIndex
                               ? 'bg-[#034e64] text-white'
                               : userAnswers[selectedQuestions[index].id]
                               ? 'bg-green-500 text-white'
-                              : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                              : 'bg-gray-200 text-black-600 hover:bg-gray-300'
                           }`}
                         >
                           {numberToGeorgianLetter(index)}

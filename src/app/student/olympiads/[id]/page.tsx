@@ -452,7 +452,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
       <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">ოლიმპიადა ვერ მოიძებნა</h1>
+            <h1 className="text-2xl font-bold text-black-900 mb-4">ოლიმპიადა ვერ მოიძებნა</h1>
             <Link
               href="/student/olympiads"
               className="bg-[#034e64] text-white px-4 py-2 rounded-md"
@@ -499,7 +499,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-red-800">{error}</p>
+                  <p className="text-[16px] text-red-800">{error}</p>
                 </div>
               </div>
             </div>
@@ -509,7 +509,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">ოლიმპიადის ინფორმაცია</h2>
+                <h2 className="text-lg font-semibold text-black-900 mb-4">ოლიმპიადის ინფორმაცია</h2>
                 <div className="space-y-2">
                   <p><strong>აღწერა:</strong> {olympiad.description}</p>
                   <p><strong>დაწყება:</strong> {formatDateTime(olympiad.startDate)}</p>
@@ -521,7 +521,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                 </div>
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">კითხვების ინფორმაცია</h2>
+                <h2 className="text-lg font-semibold text-black-900 mb-4">კითხვების ინფორმაცია</h2>
                 <div className="space-y-2">
                   <p><strong>პაკეტების რაოდენობა:</strong> {olympiad.packages.length}</p>
                   <p><strong>კითხვების ტიპები:</strong></p>
@@ -549,7 +549,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
               </button>
             ) : (
               <div className="text-center">
-                <p className="text-gray-600 mb-4">
+                <p className="text-black-600 mb-4">
                   {now < startDate 
                     ? `ოლიმპიადა დაიწყება ${formatDateTime(olympiad.startDate)}-ზე`
                     : `ოლიმპიადა დასრულდა ${formatDateTime(olympiad.endDate)}-ზე`
@@ -583,13 +583,13 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
               <h1 className="text-black md:text-[24px] text-[20px] font-bold">
                 {olympiad.name}
               </h1>
-              <p className="text-gray-600">კითხვა {numberToGeorgianLetter(currentQuestionIndex)} / {questions.length}</p>
+              <p className="text-black-600">კითხვა {numberToGeorgianLetter(currentQuestionIndex)} / {questions.length}</p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-red-600">
                 {formatTime(timeLeft)}
               </div>
-              <p className="text-sm text-gray-600">დარჩენილი დრო</p>
+              <p className="text-[16px] text-black-600">დარჩენილი დრო</p>
             </div>
           </div>
           <div className="mt-4">
@@ -606,7 +606,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">
+              <h2 className="text-lg font-semibold text-black-900">
                 კითხვა {numberToGeorgianLetter(currentQuestionIndex)}
               </h2>
               {answeredQuestions.has(currentQuestion.id) && (
@@ -622,7 +622,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                   {currentQuestion.type === 'TEXT_ANALYSIS' ? 'ტექსტი ანალიზისთვის:' : 'რუკის აღწერა ანალიზისთვის:'}
                 </h3>
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <p className="text-gray-800 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-black-800 whitespace-pre-wrap leading-relaxed">
                     {currentQuestion.question}
                   </p>
                 </div>
@@ -658,10 +658,10 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                 )}
               </div>
             ) : (
-              <p className="text-gray-700 mb-4">{currentQuestion.question}</p>
+              <p className="text-black-700 mb-4">{currentQuestion.question}</p>
             )}
             
-            <p className="text-sm text-gray-500">ქულები: {currentQuestion.points}</p>
+            <p className="text-[16px] text-black-500">ქულები: {currentQuestion.points}</p>
           </div>
 
           {/* Answer Options */}
@@ -692,7 +692,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                           className="w-full h-full object-cover rounded"
                         />
                         <div className="mt-2 text-center">
-                          <span className="text-sm font-medium text-gray-700">
+                          <span className="text-[16px] font-medium text-black-700">
                             სურათი {index + 1}
                           </span>
                         </div>
@@ -712,7 +712,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                           onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
                           className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
                         />
-                        <span className="ml-2 text-gray-900">{option}</span>
+                        <span className="ml-2 text-black-900">{option}</span>
                       </label>
                     ))}
                   </div>
@@ -732,7 +732,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                       onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
                       className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
                     />
-                    <span className="ml-2 text-gray-900">{value === 'true' ? 'სწორი' : 'არასწორი'}</span>
+                    <span className="ml-2 text-black-900">{value === 'true' ? 'სწორი' : 'არასწორი'}</span>
                   </label>
                 ))}
               </div>
@@ -750,20 +750,20 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
 
             {currentQuestion.type === 'MATCHING' && (
               <div className="space-y-6">
-                <div className="text-sm text-gray-600 mb-4">
+                <div className="text-[16px] text-black-600 mb-4">
                   შეაერთეთ მარცხენა სვეტის ელემენტები მარჯვენა სვეტის შესაბამის ელემენტებთან
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* Left Column */}
                   <div className="space-y-3">
-                    <h3 className="font-semibold text-gray-900 mb-4">მარცხენა სვეტი</h3>
+                    <h3 className="font-semibold text-black-900 mb-4">მარცხენა სვეტი</h3>
                     {(currentQuestion.leftSide || currentQuestion.matchingPairs)?.map((item, index) => (
                       <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                        <span className="text-[16px] font-medium text-black-600 min-w-[30px]">
                           {String.fromCharCode(4304 + index)}:
                         </span>
-                        <span className="text-gray-900">
+                        <span className="text-black-900">
                           {currentQuestion.leftSide ? item.left : item.left}
                         </span>
                       </div>
@@ -772,13 +772,13 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
 
                   {/* Right Column */}
                   <div className="space-y-3">
-                    <h3 className="font-semibold text-gray-900 mb-4">მარჯვენა სვეტი</h3>
+                    <h3 className="font-semibold text-black mb-4">მარჯვენა სვეტი</h3>
                     {(currentQuestion.rightSide || currentQuestion.matchingPairs)?.map((item, index) => (
                       <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                        <span className="text-[16px] font-medium text-black-600 min-w-[30px]">
                           {index + 1}:
                         </span>
-                        <span className="text-gray-900">
+                        <span className="text-black-900">
                           {currentQuestion.rightSide ? item.right : item.right}
                         </span>
                       </div>
@@ -788,17 +788,17 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
 
                 {/* Matching Interface */}
                 <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                  <h4 className="font-medium text-gray-900 mb-3">შესაბამისობა:</h4>
+                  <h4 className="font-medium text-black-900 mb-3">შესაბამისობა:</h4>
                   <div className="space-y-3">
                     {(currentQuestion.leftSide || currentQuestion.matchingPairs)?.map((item, index) => (
                       <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
-                        <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                        <span className="text-[16px] font-medium text-black-600 min-w-[30px]">
                           {String.fromCharCode(4304 + index)}:
                         </span>
-                        <span className="text-gray-900 flex-1">
+                        <span className="text-black-900 flex-1">
                           {currentQuestion.leftSide ? item.left : item.left}
                         </span>
-                        <span className="text-gray-500">→</span>
+                        <span className="text-black-500">→</span>
                         <select
                           value={typeof answers[currentQuestion.id] === 'object' && !Array.isArray(answers[currentQuestion.id]) ? (answers[currentQuestion.id] as Record<string, string>)?.[`${String.fromCharCode(4304 + index)}`] || '' : ''}
                           onChange={(e) => {
@@ -808,15 +808,15 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                             handleAnswerChange(currentQuestion.id, newAnswer)
                           }}
                           disabled={answeredQuestions.has(currentQuestion.id)}
-                          className={`px-3 py-2 border border-gray-300 rounded text-sm min-w-[120px] ${
+                          className={`px-3 py-2 border border-gray-300 rounded text-[16px] min-w-[120px] ${
                             answeredQuestions.has(currentQuestion.id) 
                               ? 'bg-gray-100 cursor-not-allowed opacity-60' 
                               : ''
                           }`}
                         >
-                          <option value="">აირჩიეთ პასუხი</option>
+                          <option className='text-black' value="">აირჩიეთ პასუხი</option>
                           {(currentQuestion.rightSide || currentQuestion.matchingPairs)?.map((_, rightIndex) => (
-                            <option key={rightIndex} value={rightIndex + 1}>
+                            <option className='text-black' key={rightIndex} value={rightIndex + 1}>
                               {rightIndex + 1}
                             </option>
                           ))}
@@ -838,14 +838,14 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                   <h4 className="font-semibold text-purple-800 mb-2">
                     {currentQuestion.type === 'TEXT_ANALYSIS' ? 'ქვეკითხვები ტექსტის ანალიზისთვის:' : 'ქვეკითხვები ანალიზისთვის:'}
                   </h4>
-                  <p className="text-sm text-purple-700">
+                  <p className="text-[16px] text-purple-700">
                     ქვემოთ მოცემული ქვეკითხვებისთვის პასუხი გაეცით ზემოთ მოცემული ტექსტის/რუკის საფუძველზე
                   </p>
                 </div>
 
                 {currentQuestion.subQuestions.map((subQuestion, subIndex) => (
                   <div key={subQuestion.id} className="border border-gray-200 rounded-lg p-4 bg-white">
-                    <h4 className="font-medium text-gray-900 mb-3">
+                    <h4 className="font-medium text-black-900 mb-3">
                       {subIndex + 1}. {subQuestion.text}
                     </h4>
                     
@@ -871,7 +871,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                               onChange={(e) => handleAnswerChange(`${currentQuestion.id}_${subQuestion.id}`, e.target.value)}
                               className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
                             />
-                            <span className="ml-2 text-gray-900">{option}</span>
+                            <span className="ml-2 text-black-900">{option}</span>
                           </label>
                         ))}
                       </div>
