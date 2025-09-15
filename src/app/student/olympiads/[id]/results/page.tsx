@@ -281,7 +281,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                             <ImageModal
                               src={imageUrl}
                               alt={`ვარიანტი ${numberToGeorgianLetter(imgIndex)}`}
-                              className="w-full h-24 object-cover rounded"
+                              className="w-full h-24 sm:h-28 md:h-32 object-cover rounded"
                             />
                             <div className="text-center mt-1">
                               <span className="text-xs font-medium">

@@ -815,7 +815,7 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
                               <ImageModal 
                                 src={imageOption} 
                                 alt={`Option ${index + 1}`} 
-                                className="w-full max-w-md h-auto rounded-lg border border-gray-300"
+                                className="w-full max-w-full sm:max-w-md h-auto rounded-lg border border-gray-300"
                               />
                               <button
                                 type="button"

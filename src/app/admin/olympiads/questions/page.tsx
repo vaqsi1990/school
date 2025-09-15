@@ -1511,7 +1511,7 @@ function AdminQuestionsContent() {
                                     <img 
                                       src={subQuestion.image} 
                                       alt="Sub-question image" 
-                                      className="w-full max-w-md h-auto rounded-lg border border-gray-300"
+                                      className="w-full max-w-full sm:max-w-md h-auto rounded-lg border border-gray-300"
                                     />
                                     <button
                                       type="button"
@@ -1596,11 +1596,11 @@ function AdminQuestionsContent() {
                                   <select
                                     value={subQuestion.correctAnswer}
                                     onChange={(e) => handleSubQuestionChange(index, 'correctAnswer', e.target.value)}
-                                    className="w-full px-2 py-1 text-black placeholder:text-black border border-blue-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    className="w-full text-black placeholder:text-black px-2 py-1 text-black placeholder:text-black border border-blue-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                                   >
-                                    <option value="">აირჩიეთ სწორი პასუხი</option>
+                                    <option className="text-black" value="">აირჩიეთ სწორი პასუხი</option>
                                     {(subQuestion.options || ['', '', '', '']).map((option, optionIndex) => (
-                                      <option key={optionIndex} value={option}>
+                                      <option className="text-black" key={optionIndex} value={option}>
                                         {option || `ვარიანტი ${optionIndex + 1}`}
                                       </option>
                                     ))}
@@ -1619,7 +1619,7 @@ function AdminQuestionsContent() {
                                   value={subQuestion.answerTemplate || ''}
                                   onChange={(e) => handleSubQuestionChange(index, 'answerTemplate', e.target.value)}
                                   rows={3}
-                                  className="w-full px-3 py-2 text-black placeholder:text-black border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                                  className="w-full text-black placeholder:text-black px-3 py-2 text-black placeholder:text-black border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
                                   placeholder="შეიყვანეთ პასუხის შაბლონი ან მაგალითი, რომელიც დაეხმარება მასწავლებლებს შეფასებაში..."
                                 />
                                 <p className="text-xs text-purple-600 mt-1">
@@ -1708,7 +1708,7 @@ function AdminQuestionsContent() {
                                   <ImageModal 
                                     src={imageOption} 
                                     alt={`Option ${index + 1}`} 
-                                    className="w-full max-w-md h-auto rounded-lg border border-gray-300"
+                                    className="w-full max-w-full sm:max-w-md h-auto rounded-lg border border-gray-300"
                                   />
                                   <button
                                     type="button"
@@ -1743,11 +1743,11 @@ function AdminQuestionsContent() {
                             required
                             value={formData.correctAnswer}
                             onChange={handleInputChange}
-                            className="w-full px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-[16px] text-[14px]"
+                            className="w-full text-black placeholder:text-black px-3 py-2 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 md:text-[16px] text-[14px]"
                           >
-                            <option value="">აირჩიეთ სწორი სურათი</option>
+                            <option className="text-black" value="">აირჩიეთ სწორი სურათი</option>
                             {formData.imageOptions.map((imageOption, index) => (
-                              <option key={index} value={imageOption}>
+                              <option className="text-black" key={index} value={imageOption}>
                                 {imageOption ? `სურათი ${index + 1}` : `სურათი ${index + 1} (არ არის ატვირთული)`}
                               </option>
                             ))}
@@ -1867,7 +1867,7 @@ function AdminQuestionsContent() {
                                        value={pair.left}
                                        onChange={(e) => handleLeftSideChange(index, 'left', e.target.value)}
                                        placeholder="ტექსტი ან სურათი..."
-                                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 md:text-[16px] text-[14px]"
+                                       className="w-full px-3 text-black placeholder:text-black py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 md:text-[16px] text-[14px]"
                                      />
                                      <div className="text-center">
                                        <span className="text-xs text-gray-500">ან</span>
@@ -1916,7 +1916,7 @@ function AdminQuestionsContent() {
                                        value={pair.right}
                                        onChange={(e) => handleRightSideChange(index, 'right', e.target.value)}
                                        placeholder="ტექსტი ან სურათი..."
-                                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 md:text-[16px] text-[14px]"
+                                       className="w-full px-3 text-black placeholder:text-black py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 md:text-[16px] text-[14px]"
                                      />
                                      <div className="text-center">
                                        <span className="text-xs text-gray-500">ან</span>
@@ -2042,11 +2042,11 @@ function AdminQuestionsContent() {
                       required
                       value={formData.correctAnswer}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                      className="w-full text-black placeholder:text-black px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                     >
-                      <option value="">აირჩიეთ სწორი პასუხი</option>
+                      <option className="text-black" value="">აირჩიეთ სწორი პასუხი</option>
                       {formData.options.map((option, index) => (
-                        <option key={index} value={option}>
+                        <option className="text-black" key={index} value={option}>
                           {option || `ვარიანტი ${index + 1}`}
                         </option>
                       ))}
@@ -2110,11 +2110,11 @@ function AdminQuestionsContent() {
                                       correctAnswer: pairs.join(',')
                                     }))
                                   }}
-                                  className="px-3 py-2 border border-gray-300 rounded text-sm min-w-[120px]"
+                                  className="px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded text-sm min-w-[120px]"
                                 >
-                                  <option value="">აირჩიეთ პასუხი</option>
+                                  <option className="text-black" value="">აირჩიეთ პასუხი</option>
                                   {formData.rightSide.map((rightItem, rightIndex) => (
-                                    <option key={rightIndex} value={rightIndex + 1}>
+                                    <option className="text-black" key={rightIndex} value={rightIndex + 1}>
                                       {rightIndex + 1}
                                     </option>
                                   ))}
@@ -2123,10 +2123,10 @@ function AdminQuestionsContent() {
                             ))}
                           </div>
                           <div className="mt-4 p-3 bg-white rounded border">
-                            <label className="block text-xs font-medium text-gray-600 mb-2">
+                            <label className="block  font-medium text-black md:text-[16px] text-[14px] text-gray-600 mb-2">
                               სწორი პასუხი (ავტომატური):
                             </label>
-                            <div className="text-sm font-mono bg-gray-50 p-2 rounded border">
+                            <div className="text-black placeholder:text-black md:text-[16px] text-[14px] font-mono bg-gray-50 p-2 rounded border">
                               {formData.correctAnswer ? formData.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'ჯერ არ არის არჩეული'}
                             </div>
                           </div>
@@ -2139,7 +2139,7 @@ function AdminQuestionsContent() {
                         required
                         value={formData.correctAnswer}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                        className="w-full text-black placeholder:text-black px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                         placeholder="შეიყვანეთ სწორი პასუხი..."
                       />
                     )}
@@ -2158,7 +2158,7 @@ function AdminQuestionsContent() {
                       value={formData.answerTemplate}
                       onChange={handleInputChange}
                       rows={4}
-                      className="w-full px-3 py-2 text-black placeholder:text-black border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                      className="w-full text-black placeholder:text-black px-3 py-2 text-black placeholder:text-black border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
                       placeholder="შეიყვანეთ პასუხის შაბლონი ან მაგალითი, რომელიც დაეხმარება მასწავლებლებს შეფასებაში..."
                     />
                     <p className="text-xs text-purple-600 mt-1">

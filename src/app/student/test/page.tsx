@@ -276,14 +276,14 @@ function StudentTestContent() {
                     alt={`Question ${index + 1}`} 
                     className={`rounded-lg border border-gray-300 object-contain ${
                       (currentQuestion.image?.length ?? 0) === 1
-                        ? 'w-full max-w-4xl max-h-96' 
+                        ? 'w-full max-w-full sm:max-w-4xl max-h-80 sm:max-h-96' 
                         : (currentQuestion.image?.length ?? 0) === 2 
-                          ? 'flex-1 max-h-96' 
+                          ? 'flex-1 max-h-80 sm:max-h-96' 
                       : (currentQuestion.image?.length ?? 0) === 4
-                        ? 'w-[calc(50%-4px)] max-h-[40rem]'
+                        ? 'w-full sm:w-[calc(50%-4px)] max-h-80 sm:max-h-96'
                         : (currentQuestion.image?.length ?? 0) > 4
-                          ? 'w-[calc(50%-4px)] max-h-[40rem]' 
-                          : 'w-[calc(50%-4px)] max-h-[40rem]'
+                          ? 'w-full sm:w-[calc(50%-4px)] max-h-80 sm:max-h-96' 
+                          : 'w-full sm:w-[calc(50%-4px)] max-h-80 sm:max-h-96'
                     }`}
                   />
                 ))}

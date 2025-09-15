@@ -335,7 +335,7 @@ function TestQuestionsContent() {
             <div className="p-6">
               {allQuestions.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-black-500 md:text-[18px] text-[16px]">კითხვები ვერ მოიძებნა</p>
+                  <p className="text-black md:text-[18px] text-[16px]">კითხვები ვერ მოიძებნა</p>
                   <Link
                     href="/admin/olympiads/questions"
                     className="inline-block mt-4 bg-[#034e64] text-white px-4 py-2 rounded-md hover:bg-[#023a4d]"
@@ -350,49 +350,49 @@ function TestQuestionsContent() {
                     <h3 className="text-lg font-semibold text-black mb-4">ფილტრები</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-[16px] font-medium text-black-700 mb-2">საგანი</label>
+                        <label className="block text-[16px] font-medium text-black mb-2">საგანი</label>
                         <select
                           value={selectedSubject}
                           onChange={(e) => setSelectedSubject(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black placeholder:text-black"
                         >
-                          <option value="">ყველა საგანი</option>
+                          <option className="text-black" value="">ყველა საგანი</option>
                           {getAvailableSubjects().map(subject => (
-                            <option key={subject} value={subject}>{subject}</option>
+                            <option className="text-black" key={subject} value={subject}>{subject}</option>
                           ))}
                         </select>
                       </div>
                       
                       <div>
-                        <label className="block text-[16px] font-medium text-black-700 mb-2">კლასი</label>
+                        <label className="block text-[16px] font-medium text-black mb-2">კლასი</label>
                         <select
                           value={selectedGrade}
                           onChange={(e) => setSelectedGrade(e.target.value ? parseInt(e.target.value) : '')}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black placeholder:text-black"
                         >
-                          <option value="">ყველა კლასი</option>
+                          <option className="text-black" value="">ყველა კლასი</option>
                           {getAvailableGrades().map(grade => (
-                            <option key={grade} value={grade}>{grade} კლასი</option>
+                            <option className="text-black" key={grade} value={grade}>{grade} კლასი</option>
                           ))}
                         </select>
                       </div>
                       
                       <div>
-                        <label className="block text-[16px] font-medium text-black-700 mb-2">კითხვის ტიპი</label>
+                        <label className="block text-[16px] font-medium text-black mb-2">კითხვის ტიპი</label>
                         <select
                           value={selectedQuestionType}
                           onChange={(e) => setSelectedQuestionType(e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black placeholder:text-black"
                         >
-                          <option value="">ყველა ტიპი</option>
+                          <option className="text-black" value="">ყველა ტიპი</option>
                           {getAvailableQuestionTypes().map(type => (
-                            <option key={type} value={type}>{getQuestionTypeLabel(type)}</option>
+                            <option className="text-black" key={type} value={type}>{getQuestionTypeLabel(type)}</option>
                           ))}
                         </select>
                       </div>
                     </div>
                     
-                    <div className="mt-4 text-[16px] text-black-600">
+                    <div className="mt-4 text-[16px] text-black">
                       ნაპოვნია {filteredQuestions.length} კითხვა {allQuestions.length}-დან
                     </div>
                   </div>
@@ -418,14 +418,14 @@ function TestQuestionsContent() {
                       <button
                         onClick={() => handleSelectRandom(20)}
                         disabled={filteredQuestions.length === 0}
-                        className="bg-white text-white px-4 py-2 rounded-md  disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        className="bg-white text-black px-4 py-2 rounded-md  disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                       >
                         შემთხვევითი 20
                       </button>
                       <button
                         onClick={() => handleSelectRandom(50)}
                         disabled={filteredQuestions.length === 0}
-                        className="bg-white text-white px-4 py-2 rounded-md  disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        className="bg-white text-black px-4 py-2 rounded-md  disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                       >
                         შემთხვევითი 50
                       </button>
@@ -442,7 +442,7 @@ function TestQuestionsContent() {
                             <div className="flex justify-between items-start">
                               <div className="flex-1">
                                 <div className="flex items-center space-x-2 mb-1">
-                                  <span className="text-[16px] font-medium text-black-500">#{index + 1}</span>
+                                  <span className="text-[16px] font-medium text-black">#{index + 1}</span>
                                   <span className="text-xs bg-white text-black px-2 py-1 rounded">
                                     {getQuestionTypeLabel(question.type)}
                                   </span>
@@ -453,7 +453,7 @@ function TestQuestionsContent() {
                                     {question.grade} კლასი
                                   </span>
                                 </div>
-                                <p className="text-[16px] text-black-700 line-clamp-2">{question.text}</p>
+                                <p className="text-[16px] text-black line-clamp-2">{question.text}</p>
                                 {question.image && question.image.length > 0 && (
                                   <div className="mt-2 flex gap-1 flex-wrap">
                                     {question.image.map((img, index) => (
@@ -461,7 +461,7 @@ function TestQuestionsContent() {
                                         key={index}
                                         src={img} 
                                         alt={`კითხვის სურათი ${index + 1}`} 
-                                        className="w-16 h-16 object-cover rounded border"
+                                        className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 object-cover rounded border"
                                       />
                                     ))}
                                   </div>
@@ -558,33 +558,33 @@ function TestQuestionsContent() {
                   <div className="mb-8">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-blue-600">{totalScore}</div>
-                        <div className="text-[16px] text-blue-700">მიღებული ქულა</div>
-                        <div className="text-xs text-blue-600">მაქსიმუმი: {maxScore}</div>
+                        <div className="text-2xl font-bold text-black">{totalScore}</div>
+                        <div className="text-[16px] text-black">მიღებული ქულა</div>
+                        <div className="text-xs text-black">მაქსიმუმი: {maxScore}</div>
                       </div>
                       <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-green-600">{correctAnswers}</div>
-                        <div className="text-[16px] text-green-700">სწორი პასუხი</div>
-                        <div className="text-xs text-green-600">სულ: {totalQuestions}</div>
+                        <div className="text-2xl font-bold text-black">{correctAnswers}</div>
+                        <div className="text-[16px] text-black">სწორი პასუხი</div>
+                        <div className="text-xs text-black">სულ: {totalQuestions}</div>
                       </div>
                       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-purple-600">{percentage}%</div>
-                        <div className="text-[16px] text-purple-700">შედეგი</div>
-                        <div className="text-xs text-purple-600">პროცენტი</div>
+                        <div className="text-2xl font-bold text-black">{percentage}%</div>
+                        <div className="text-[16px] text-black">შედეგი</div>
+                        <div className="text-xs text-black">პროცენტი</div>
                       </div>
                       <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold text-orange-600">{totalQuestions - correctAnswers}</div>
-                        <div className="text-[16px] text-orange-700">არასწორი</div>
-                        <div className="text-xs text-orange-600">პასუხი</div>
+                        <div className="text-2xl font-bold text-black">{totalQuestions - correctAnswers}</div>
+                        <div className="text-[16px] text-black">არასწორი</div>
+                        <div className="text-xs text-black">პასუხი</div>
                       </div>
                     </div>
                     
                     <div className="text-center py-4">
                       <div className="inline-block bg-green-100 rounded-full p-6">
-                        <div className="text-xl font-bold text-green-600 mb-2">
+                        <div className="text-xl font-bold text-black mb-2">
                           {totalScore} / {maxScore} ქულა
                         </div>
-                        <div className="text-[16px] text-green-600">
+                        <div className="text-[16px] text-black">
                           {correctAnswers} / {totalQuestions} სწორი პასუხი
                         </div>
                       </div>
@@ -595,7 +595,7 @@ function TestQuestionsContent() {
               
               {/* Questions Review */}
               <div className="mt-8">
-                <h3 className="text-lg font-semibold text-black-900 mb-4">კითხვების გადახედვა</h3>
+                <h3 className="text-lg font-semibold text-black mb-4">კითხვების გადახედვა</h3>
                 <div className="space-y-4">
                   {selectedQuestions.map((question, index) => {
                     // For matching questions, we need to construct the answer from individual parts
@@ -626,30 +626,30 @@ function TestQuestionsContent() {
                     return (
                       <div key={question.id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="text-lg font-medium text-black-900">
+                          <h4 className="text-lg font-medium text-black">
                             კითხვა {numberToGeorgianLetter(index)}: {question.text}
                           </h4>
                           <div className="flex items-center space-x-2">
                             {isCorrect ? (
-                              <span className="text-green-600 text-[16px] font-medium">✓ სწორი</span>
+                              <span className="text-black text-[16px] font-medium">✓ სწორი</span>
                             ) : (
-                              <span className="text-red-600 text-[16px] font-medium">✗ არასწორი</span>
+                              <span className="text-black text-[16px] font-medium">✗ არასწორი</span>
                             )}
-                            <span className="text-[16px] text-black-500">{question.points} ქულა</span>
+                            <span className="text-[16px] text-black">{question.points} ქულა</span>
                           </div>
                         </div>
                         
                         {question.type === 'CLOSED_ENDED' && question.options && (
                           <div className="mb-3">
-                            <div className="text-[16px] font-medium text-black-700 mb-2">პასუხის ვარიანტები:</div>
+                            <div className="text-[16px] font-medium text-black mb-2">პასუხის ვარიანტები:</div>
                             <div className="space-y-1">
                               {question.options.map((option, optIndex) => (
                                 <div key={optIndex} className={`p-2 rounded ${
                                   option === question.correctAnswer 
-                                    ? 'bg-green-100 text-green-800 border border-green-300' 
+                                    ? 'bg-green-100 text-black border border-green-300' 
                                     : option === userAnswer && option !== question.correctAnswer
-                                      ? 'bg-red-100 text-red-800 border border-red-300'
-                                      : 'bg-gray-50 text-black-700'
+                                      ? 'bg-red-100 text-black border border-red-300'
+                                      : 'bg-gray-50 text-black'
                                 }`}>
                                   {numberToGeorgianOptionLabel(optIndex)} {option}
                                   {option === question.correctAnswer && ' ✓ სწორი პასუხი'}
@@ -662,7 +662,7 @@ function TestQuestionsContent() {
                         
                         {question.type === 'CLOSED_ENDED' && question.imageOptions && question.imageOptions.filter(img => img && img.trim() !== '').length > 0 && (
                           <div className="mb-3">
-                            <div className="text-[16px] font-medium text-black-700 mb-2">სურათის ვარიანტები:</div>
+                            <div className="text-[16px] font-medium text-black mb-2">სურათის ვარიანტები:</div>
                             <div className="grid grid-cols-2 gap-4">
                               {question.imageOptions.filter(img => img && img.trim() !== '').map((imageUrl, imgIndex) => (
                                 <div key={imgIndex} className={`p-2 rounded border-2 ${
@@ -675,7 +675,7 @@ function TestQuestionsContent() {
                                   <ImageModal
                                     src={imageUrl}
                                     alt={`ვარიანტი ${numberToGeorgianLetter(imgIndex)}`}
-                                    className="w-full h-34 object-cover rounded"
+                                    className="w-full h-32 sm:h-36 md:h-40 object-cover rounded"
                                   />
                                   <div className="text-center mt-1">
                                     <span className="text-xs font-medium">
@@ -692,11 +692,11 @@ function TestQuestionsContent() {
                         
                         {question.type === 'MATCHING' && (question.matchingPairs || question.leftSide) && (
                           <div className="mb-3">
-                            <div className="text-[16px] font-medium text-black-700 mb-2">შესაბამისობა:</div>
-                            <div className="text-[16px] text-black-600">
+                            <div className="text-[16px] font-medium text-black mb-2">შესაბამისობა:</div>
+                            <div className="text-[16px] text-black">
                               სწორი პასუხი: {question.correctAnswer ? question.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'არ არის მითითებული'}
                             </div>
-                            <div className="text-[16px] text-black-600">
+                            <div className="text-[16px] text-black">
                               თქვენი პასუხი: {userAnswer ? userAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'პასუხი არ მოცემულა'}
                             </div>
                           </div>
@@ -704,8 +704,8 @@ function TestQuestionsContent() {
                         
                         {question.type === 'OPEN_ENDED' && (
                           <div className="mb-3">
-                            <div className="text-[16px] font-medium text-black-700 mb-2">ღია კითხვა:</div>
-                            <div className="text-[16px] text-black-600">
+                            <div className="text-[16px] font-medium text-black mb-2">ღია კითხვა:</div>
+                            <div className="text-[16px] text-black">
                               თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
                             </div>
                           </div>
@@ -713,7 +713,7 @@ function TestQuestionsContent() {
                         
                         {question.type === 'TEXT_ANALYSIS' && (
                           <div className="mb-3">
-                            <div className="text-[16px] text-black-600">
+                            <div className="text-[16px] text-black">
                               თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
                             </div>
                           </div>
@@ -721,7 +721,7 @@ function TestQuestionsContent() {
                         
                         {question.type === 'MAP_ANALYSIS' && (
                           <div className="mb-3">
-                            <div className="text-[16px] text-black-600">
+                            <div className="text-[16px] text-black">
                               თქვენი პასუხი: {userAnswer || 'პასუხი არ მოცემულა'}
                             </div>
                           </div>
@@ -756,7 +756,7 @@ function TestQuestionsContent() {
                 <h2 className="text-xl font-semibold text-black md:text-[22px] text-[18px]">
                   ტესტი
                 </h2>
-                <div className="text-[16px] text-black-500">
+                <div className="text-[16px] text-black">
                   კითხვა {numberToGeorgianLetter(currentQuestionIndex)} / {selectedQuestions.length}
                 </div>
               </div>
@@ -767,16 +767,16 @@ function TestQuestionsContent() {
                 <>
                   <div className="mb-6">
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-[16px] text-black-500">
+                      <span className="text-[16px] text-black">
                         {getQuestionTypeLabel(selectedQuestions[currentQuestionIndex].type)}
                       </span>
                       <div className="flex items-center space-x-2">
                         {answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) && (
-                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                          <span className="text-xs bg-green-100 text-black px-2 py-1 rounded-full">
                             ნაპასუხი
                           </span>
                         )}
-                        <span className="text-[16px] text-black-500">
+                        <span className="text-[16px] text-black">
                           {selectedQuestions[currentQuestionIndex].points} ქულა
                         </span>
                       </div>
@@ -788,7 +788,7 @@ function TestQuestionsContent() {
                           {selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' ? 'ტექსტი ანალიზისთვის:' : 'რუკის აღწერა ანალიზისთვის:'}
                         </h3>
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                          <p className="text-black-800 whitespace-pre-wrap leading-relaxed">
+                          <p className="text-black whitespace-pre-wrap leading-relaxed">
                             {selectedQuestions[currentQuestionIndex].text}
                           </p>
                         </div>
@@ -809,14 +809,14 @@ function TestQuestionsContent() {
                                 alt={`კითხვის სურათი ${index + 1}`} 
                                 className={`object-contain rounded-lg border shadow-sm ${
                                   (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 1
-                                    ? 'w-full max-w-4xl max-h-96' 
+                                    ? 'w-full max-w-full sm:max-w-4xl max-h-80 sm:max-h-96' 
                                     : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 2 
-                                      ? 'flex-1 max-h-96' 
+                                      ? 'flex-1 max-h-80 sm:max-h-96' 
                                       : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 4
-                                        ? 'w-[calc(50%-4px)] max-h-[40rem]'
+                                        ? 'w-full sm:w-[calc(50%-4px)] max-h-80 sm:max-h-96'
                                         : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) > 4
-                                          ? 'w-[calc(50%-4px)] max-h-[40rem]' 
-                                          : 'w-[calc(50%-4px)] max-h-[40rem]'
+                                          ? 'w-full sm:w-[calc(50%-4px)] max-h-80 sm:max-h-96' 
+                                          : 'w-full sm:w-[calc(50%-4px)] max-h-80 sm:max-h-96'
                                 }`}
                               />
                             ))}
@@ -846,14 +846,14 @@ function TestQuestionsContent() {
                                 alt={`კითხვის სურათი ${index + 1}`} 
                                 className={`object-contain rounded-lg border shadow-sm ${
                                   (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 1
-                                    ? 'w-full max-w-4xl max-h-96' 
+                                    ? 'w-full max-w-full sm:max-w-4xl max-h-80 sm:max-h-96' 
                                     : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 2 
-                                      ? 'flex-1 max-h-96' 
+                                      ? 'flex-1 max-h-80 sm:max-h-96' 
                                       : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) === 4
-                                        ? 'w-[calc(50%-4px)] max-h-[40rem]'
+                                        ? 'w-full sm:w-[calc(50%-4px)] max-h-80 sm:max-h-96'
                                         : (selectedQuestions[currentQuestionIndex].image?.length ?? 0) > 4
-                                          ? 'w-[calc(50%-4px)] max-h-[40rem]' 
-                                          : 'w-[calc(50%-4px)] max-h-[40rem]'
+                                          ? 'w-full sm:w-[calc(50%-4px)] max-h-80 sm:max-h-96' 
+                                          : 'w-full sm:w-[calc(50%-4px)] max-h-80 sm:max-h-96'
                                 }`}
                               />
                             ))}
@@ -866,17 +866,17 @@ function TestQuestionsContent() {
                       {selectedQuestions[currentQuestionIndex].type === 'MATCHING' ? (
                         // MATCHING Question
                         <div className="space-y-6">
-                          <div className="text-[16px] text-black-600 mb-4">
+                          <div className="text-[16px] text-black mb-4">
                             შეაერთეთ მარცხენა სვეტის ელემენტები მარჯვენა სვეტის შესაბამის ელემენტებთან
                           </div>
                           
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {/* Left Column */}
                             <div className="space-y-3">
-                              <h3 className="font-semibold text-black-900 mb-4">მარცხენა სვეტი</h3>
+                              <h3 className="font-semibold text-black mb-4">მარცხენა სვეტი</h3>
                               {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
                                 <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                                  <span className="text-[16px] font-medium text-black-600 min-w-[30px]">
+                                  <span className="text-[16px] font-medium text-black min-w-[30px]">
                                     {numberToGeorgianQuestionNumber(index)}
                                   </span>
                                   <span className="text-black">
@@ -888,13 +888,13 @@ function TestQuestionsContent() {
 
                             {/* Right Column */}
                             <div className="space-y-3">
-                              <h3 className="font-semibold text-black-900 mb-4">მარჯვენა სვეტი</h3>
+                              <h3 className="font-semibold text-black mb-4">მარჯვენა სვეტი</h3>
                               {(selectedQuestions[currentQuestionIndex].rightSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
                                 <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                                  <span className="text-[16px] font-medium text-black-600 min-w-[30px]">
+                                  <span className="text-[16px] font-medium text-black min-w-[30px]">
                                     {index + 1}:
                                   </span>
-                                  <span className="text-black-900">
+                                  <span className="text-black">
                                     {selectedQuestions[currentQuestionIndex].rightSide ? item.right : item.right}
                                   </span>
                                 </div>
@@ -904,7 +904,7 @@ function TestQuestionsContent() {
 
                           {/* Matching Interface */}
                           <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                            <h4 className="font-medium text-black-900 mb-2 text-[16px]">შესაბამისობა:</h4>
+                            <h4 className="font-medium text-black mb-2 text-[16px]">შესაბამისობა:</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                               {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
                                 <div key={index}>
@@ -912,14 +912,14 @@ function TestQuestionsContent() {
           
                                 <div key={index} className="flex flex-col   p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors shadow-sm min-h-[100px] text-xs">
                                   
-                                  <span className="text-black-900 text-[16px] text-center mb-3 leading-tight px-1">
+                                  <span className="text-black text-[16px] text-center mb-3 leading-tight px-1">
                                   {numberToGeorgianQuestionNumber(index)}
                                   </span>
                                   <select
                                     value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${index}`] || ''}
                                     onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${index}`, e.target.value)}
                                     disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
-                                    className={`px-3 text-[16px] py-2 border-2 border-gray-300 rounded-lg text-xs font-medium min-w-[80px] text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                                    className={`px-3 text-[16px] py-2 border-2 border-gray-300 rounded-lg text-xs font-medium min-w-[80px] text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder:text-black ${
                                       answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
                                         ? 'bg-gray-100 cursor-not-allowed opacity-60' 
                                         : 'bg-white hover:border-blue-400'
@@ -942,13 +942,13 @@ function TestQuestionsContent() {
                       ) : selectedQuestions[currentQuestionIndex].type === 'OPEN_ENDED' ? (
                         // OPEN_ENDED Question
                         <div className="p-4 bg-gray-100 rounded-lg">
-                          <p className="text-black-600 mb-2">ღია კითხვა - შეიყვანეთ პასუხი</p>
+                          <p className="text-black mb-2">ღია კითხვა - შეიყვანეთ პასუხი</p>
                           <textarea
                             placeholder="შეიყვანეთ თქვენი პასუხი..."
                             value={userAnswers[selectedQuestions[currentQuestionIndex].id] || ''}
                             onChange={(e) => handleAnswerChange(selectedQuestions[currentQuestionIndex].id, e.target.value)}
                             disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
-                            className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] ${
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black placeholder:text-black ${
                               answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
                                 ? 'bg-gray-100 cursor-not-allowed opacity-60' 
                                 : ''
@@ -981,7 +981,7 @@ function TestQuestionsContent() {
                               <ImageModal 
                                 src={imageUrl} 
                                 alt={`ვარიანტი ${index + 1}`}
-                                className="w-full h-full object-cover rounded border"
+                                className="w-full h-32 sm:h-36 md:h-40 object-cover rounded border"
                               />
                             </label>
                           ))}
@@ -1029,7 +1029,7 @@ function TestQuestionsContent() {
                               </div>
                               {selectedQuestions[currentQuestionIndex].subQuestions.map((subQuestion, subIndex) => (
                             <div key={subQuestion.id} className="border border-black rounded-lg p-4 bg-white">
-                              <h4 className="font-medium text-black-900 mb-3">
+                              <h4 className="font-medium text-black mb-3">
                                 {subIndex + 1}. {subQuestion.text}
                               </h4>
                               
@@ -1038,7 +1038,7 @@ function TestQuestionsContent() {
                                   <img 
                                     src={subQuestion.image} 
                                     alt="Sub-question image" 
-                                    className="max-w-full h-auto rounded-lg"
+                                    className="w-full max-w-full h-auto rounded-lg"
                                   />
                                 </div>
                               )}
@@ -1060,7 +1060,7 @@ function TestQuestionsContent() {
                                             : ''
                                         }`}
                                       />
-                                      <span className="ml-2 text-black-900">{option}</span>
+                                      <span className="ml-2 text-black">{option}</span>
                                     </label>
                                   ))}
                                 </div>
@@ -1069,7 +1069,7 @@ function TestQuestionsContent() {
                                   value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${subQuestion.id}`] || ''}
                                   onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${subQuestion.id}`, e.target.value)}
                                   disabled={answeredQuestions.has(selectedQuestions[currentQuestionIndex].id)}
-                                  className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] ${
+                                  className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black placeholder:text-black ${
                                     answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) 
                                       ? 'bg-gray-100 cursor-not-allowed opacity-60' 
                                       : ''
@@ -1086,7 +1086,7 @@ function TestQuestionsContent() {
                       ) : (
                         // Fallback for other question types
                         <div className="p-4 bg-gray-100 rounded-lg">
-                          <p className="text-black-600">ამ კითხვის ტიპისთვის პასუხის ვარიანტები არ არის განსაზღვრული</p>
+                          <p className="text-black">ამ კითხვის ტიპისთვის პასუხის ვარიანტები არ არის განსაზღვრული</p>
                         </div>
                       )}
                     </div>
@@ -1111,7 +1111,7 @@ function TestQuestionsContent() {
                               ? 'bg-[#034e64] text-white'
                               : userAnswers[selectedQuestions[index].id]
                               ? 'bg-green-500 text-white'
-                              : 'bg-gray-200 text-black-600 hover:bg-gray-300'
+                              : 'bg-gray-200 text-black hover:bg-gray-300'
                           }`}
                         >
                           {numberToGeorgianLetter(index)}

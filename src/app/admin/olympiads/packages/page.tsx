@@ -639,11 +639,11 @@ function AdminPackagesContent() {
                  <select
                    value={questionEditForm.correctAnswer || ''}
                    onChange={(e) => setQuestionEditForm({ ...questionEditForm, correctAnswer: e.target.value })}
-                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black md:text-[18px] text-[16px]"
+                   className="w-full text-black placeholder:text-black px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black md:text-[18px] text-[16px]"
                  >
-                   <option value="">აირჩიეთ სწორი პასუხი</option>
+                   <option className="text-black" value="">აირჩიეთ სწორი პასუხი</option>
                    {questionEditForm.options.map((option, index) => (
-                     option && <option key={index} value={option}>{option}</option>
+                     option && <option className="text-black" key={index} value={option}>{option}</option>
                    ))}
                  </select>
                </div>

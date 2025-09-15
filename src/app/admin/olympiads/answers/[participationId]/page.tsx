@@ -314,7 +314,7 @@ function StudentAnswerDetailContent() {
                         <ImageModal 
                           src={answer.question.image} 
                           alt="Question image" 
-                          className="max-w-full h-auto rounded-lg"
+                          className="w-full max-w-full h-auto rounded-lg"
                         />
                       </div>
                     )}
