@@ -710,7 +710,7 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
                     <div key={subQuestion.id} className="bg-white p-4 rounded-lg border border-purple-200">
                       <div className="flex justify-between items-center mb-3">
                         <h5 className="text-md font-semibold text-black md:text-[16px] text-[14px]">
-                          ქვეკითხვა {numberToGeorgianLetter(index)}
+                          ქვეკითხვა {index + 1}
                         </h5>
                         <button
                           type="button"
