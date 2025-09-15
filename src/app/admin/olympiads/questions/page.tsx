@@ -1133,9 +1133,7 @@ function AdminQuestionsContent() {
                   <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     კლასი
                   </th>
-                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
-                    სწორი პასუხი
-                  </th>
+                 
                   <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     მოქმედებები
                   </th>
@@ -1196,40 +1194,7 @@ function AdminQuestionsContent() {
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       {question.grade}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-black md:text-[14px] text-[12px]">
-                      {question.type === 'MATCHING' ? (
-                        <div className="max-w-xs">
-                          <div className="text-xs text-gray-600 mb-1">შესაბამისობა:</div>
-                          <div className="text-xs font-mono bg-gray-100 p-1 rounded">
-                            {question.correctAnswer ? 
-                              (typeof question.correctAnswer === 'string' ? 
-                                question.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 
-                                JSON.stringify(question.correctAnswer)
-                              ) : 
-                              'არ არის მითითებული'
-                            }
-                          </div>
-                        </div>
-                      ) : question.type === 'CLOSED_ENDED' ? (
-                        <div className="max-w-xs">
-                          <div className="text-xs text-gray-600 mb-1">სწორი პასუხი:</div>
-                          <div className="text-xs font-medium">
-                            {question.correctAnswer || 'არ არის მითითებული'}
-                          </div>
-                        </div>
-                      ) : question.type === 'OPEN_ENDED' ? (
-                        <div className="max-w-xs">
-                          <div className="text-xs text-gray-600 mb-1">შაბლონი:</div>
-                          <div className="text-xs">
-                            {question.answerTemplate ? '✅ არის' : '❌ არ არის'}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-xs text-gray-500">
-                          {question.isAutoScored ? 'ავტომატური' : 'ხელით'}
-                        </div>
-                      )}
-                    </td>
+                  
                     <td className="px-6 py-4 whitespace-nowrap  text-black md:text-[16px] text-[16px]">
                       <div className="flex space-x-2">
                         <button
@@ -1508,7 +1473,7 @@ function AdminQuestionsContent() {
                               <select
                                 value={subQuestion.type}
                                 onChange={(e) => handleSubQuestionChange(index, 'type', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                                className="w-full text-black placeholder:text-black px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
                               >
                                 {formData.type === 'OPEN_ENDED' ? (
                                   <option value="OPEN_ENDED">ღია კითხვა</option>
@@ -1531,7 +1496,7 @@ function AdminQuestionsContent() {
                                 onChange={(e) => handleSubQuestionChange(index, 'text', e.target.value)}
                                 placeholder="შეიყვანეთ ქვეკითხვის ტექსტი..."
                                 rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                                className="w-full px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
                               />
                             </div>
 
@@ -1576,7 +1541,7 @@ function AdminQuestionsContent() {
                                 onChange={(e) => handleSubQuestionChange(index, 'points', parseInt(e.target.value))}
                                 min="1"
                                 max="10"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                                className="w-full px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
                               />
                             </div>
 
@@ -1631,7 +1596,7 @@ function AdminQuestionsContent() {
                                   <select
                                     value={subQuestion.correctAnswer}
                                     onChange={(e) => handleSubQuestionChange(index, 'correctAnswer', e.target.value)}
-                                    className="w-full px-2 py-1 border border-blue-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    className="w-full px-2 py-1 text-black placeholder:text-black border border-blue-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                                   >
                                     <option value="">აირჩიეთ სწორი პასუხი</option>
                                     {(subQuestion.options || ['', '', '', '']).map((option, optionIndex) => (
@@ -1654,7 +1619,7 @@ function AdminQuestionsContent() {
                                   value={subQuestion.answerTemplate || ''}
                                   onChange={(e) => handleSubQuestionChange(index, 'answerTemplate', e.target.value)}
                                   rows={3}
-                                  className="w-full px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                                  className="w-full px-3 py-2 text-black placeholder:text-black border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
                                   placeholder="შეიყვანეთ პასუხის შაბლონი ან მაგალითი, რომელიც დაეხმარება მასწავლებლებს შეფასებაში..."
                                 />
                                 <p className="text-xs text-purple-600 mt-1">
@@ -2184,7 +2149,7 @@ function AdminQuestionsContent() {
                 {/* Answer Template for Open-ended Questions (only when no sub-questions) */}
                 {formData.type === 'OPEN_ENDED' && (!formData.subQuestions || formData.subQuestions.length === 0) && (
                   <div className="mt-4">
-                    <label className="block text-sm font-medium text-purple-800 mb-2">
+                    <label className="block text-black md:text-[18px] text-[16px] font-medium text-purple-800 mb-2">
                       პასუხის შაბლონი (მასწავლებლებისთვის) *
                     </label>
                     <textarea
@@ -2193,7 +2158,7 @@ function AdminQuestionsContent() {
                       value={formData.answerTemplate}
                       onChange={handleInputChange}
                       rows={4}
-                      className="w-full px-3 py-2 border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
+                      className="w-full px-3 py-2 text-black placeholder:text-black border border-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
                       placeholder="შეიყვანეთ პასუხის შაბლონი ან მაგალითი, რომელიც დაეხმარება მასწავლებლებს შეფასებაში..."
                     />
                     <p className="text-xs text-purple-600 mt-1">

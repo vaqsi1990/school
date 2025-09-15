@@ -163,7 +163,7 @@ export default function SignInPage() {
                 </Link>
               </p>
             </div>
-            <div className='mt-6  md:text-[18px] text-[16px] text-center'>
+            <div className='mt-6 text-black md:text-[18px] text-[16px] text-center'>
               <h1> დაგავიწყდა პაროლი?  
                 <Link href='/auth/reset-password' className='font-medium text-black hover:underline transition-all duration-300 md:text-[20px] text-[18px]'>
                   აღადგინეთ
