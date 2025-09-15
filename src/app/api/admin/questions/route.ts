@@ -83,7 +83,7 @@ export async function GET() {
         matchingPairs?: unknown 
       } = { ...question }
       
-      if ((question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS') && question.content) {
+      if ((question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS' || question.type === 'OPEN_ENDED') && question.content) {
         console.log(`Question ${question.id} content:`, question.content)
         console.log(`Question ${question.id} content type:`, typeof question.content)
         console.log(`Question ${question.id} content length:`, question.content.length)
@@ -124,7 +124,7 @@ export async function GET() {
     })
 
     console.log('=== GET /api/admin/questions SUCCESS ===')
-    console.log('Returning questions with subQuestions:', questionsWithSubQuestions.filter(q => q.type === 'TEXT_ANALYSIS' || q.type === 'MAP_ANALYSIS').map(q => ({ id: q.id, type: q.type, hasSubQuestions: !!(q as QuestionWithSubQuestions).subQuestions })))
+    console.log('Returning questions with subQuestions:', questionsWithSubQuestions.filter(q => q.type === 'TEXT_ANALYSIS' || q.type === 'MAP_ANALYSIS' || q.type === 'OPEN_ENDED').map(q => ({ id: q.id, type: q.type, hasSubQuestions: !!(q as QuestionWithSubQuestions).subQuestions })))
     return NextResponse.json({ questions: questionsWithSubQuestions })
   } catch (error) {
     console.error('=== GET /api/admin/questions ERROR ===')
@@ -221,8 +221,8 @@ export async function POST(request: NextRequest) {
     const gradeNum = parseInt(grade.toString())
     const roundNum = parseInt(round.toString())
     
-    if (isNaN(pointsNum) || pointsNum < 1 || pointsNum > 10) {
-      const errorMsg = 'Points must be a number between 1 and 10'
+    if (isNaN(pointsNum) || pointsNum < 1) {
+      const errorMsg = 'Points must be a number greater than 0'
       console.log('Validation failed:', errorMsg)
       return NextResponse.json({ error: errorMsg }, { status: 400 })
     }
@@ -377,8 +377,8 @@ export async function POST(request: NextRequest) {
     if (subQuestions && subQuestions.length > 0) {
       for (let i = 0; i < subQuestions.length; i++) {
         const sq = subQuestions[i]
-        if (!sq.text || !sq.points || sq.points < 1 || sq.points > 10) {
-          const errorMsg = `Sub-question ${i + 1} must have text and valid points (1-10)`
+        if (!sq.text || !sq.points || sq.points < 1) {
+          const errorMsg = `Sub-question ${i + 1} must have text and valid points (greater than 0)`
           console.log('Validation failed:', errorMsg)
           return NextResponse.json({ error: errorMsg }, { status: 400 })
         }

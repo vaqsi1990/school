@@ -633,8 +633,8 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
             alert(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს ტექსტი`)
             return
           }
-          if (sq.points < 1 || sq.points > 10) {
-            alert(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს ქულები 1-დან 10-მდე`)
+          if (sq.points < 1) {
+            alert(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს მინიმუმ 1 ქულა`)
             return
           }
           
@@ -1027,7 +1027,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                   </label>
                   <select
                     value={formData.grade}
-                    onChange={(e) => setFormData(prev => ({ ...prev, grade: parseInt(e.target.value) }))}
+                    onChange={(e) => setFormData(prev => ({ ...prev, grade: parseInt(e.target.value) || 0 }))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md md:text-[20px] text-[18px] focus:outline-none focus:ring-2 focus:ring-[#034e64]"
                     required
                   >
@@ -1045,9 +1045,8 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                      name="points"
                      required
                      min="1"
-                     max="10"
                      value={formData.points}
-                     onChange={(e) => setFormData(prev => ({ ...prev, points: parseInt(e.target.value) }))}
+                     onChange={(e) => setFormData(prev => ({ ...prev, points: parseInt(e.target.value) || 1 }))}
                      className="w-full px-3 py-2 border border-gray-300 rounded-md md:text-[20px] text-[18px] focus:outline-none focus:ring-2 focus:ring-[#034e64]"
                    />
                  </div>
@@ -1057,7 +1056,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                    </label>
                    <select
                      value={formData.round}
-                     onChange={(e) => setFormData(prev => ({ ...prev, round: parseInt(e.target.value) }))}
+                     onChange={(e) => setFormData(prev => ({ ...prev, round: parseInt(e.target.value) || 1 }))}
                      className="w-full px-3 py-2 border border-gray-300 rounded-md md:text-[20px] text-[18px] focus:outline-none focus:ring-2 focus:ring-[#034e64]"
                      required
                    >
@@ -1548,9 +1547,8 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                            <input
                              type="number"
                              value={subQuestion.points}
-                             onChange={(e) => handleSubQuestionChange(index, 'points', parseInt(e.target.value))}
+                             onChange={(e) => handleSubQuestionChange(index, 'points', parseInt(e.target.value) || 1)}
                              min="1"
-                             max="10"
                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
                            />
                          </div>
@@ -1662,7 +1660,6 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                    </label>
                    <textarea
                      name="answerTemplate"
-                     required
                      value={formData.answerTemplate}
                      onChange={handleInputChange}
                      rows={4}

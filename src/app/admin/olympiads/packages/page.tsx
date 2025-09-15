@@ -562,7 +562,7 @@ function AdminPackagesContent() {
                    </label>
                                        <select
                       value={questionEditForm.grade}
-                      onChange={(e) => setQuestionEditForm({ ...questionEditForm, grade: parseInt(e.target.value) })}
+                      onChange={(e) => setQuestionEditForm({ ...questionEditForm, grade: parseInt(e.target.value) || 0 })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black md:text-[18px] text-[16px]"
                     >
                       {[7, 8, 9, 10, 11, 12].map(grade => (
@@ -577,7 +577,7 @@ function AdminPackagesContent() {
                    </label>
                    <select
                      value={questionEditForm.round}
-                     onChange={(e) => setQuestionEditForm({ ...questionEditForm, round: parseInt(e.target.value) })}
+                     onChange={(e) => setQuestionEditForm({ ...questionEditForm, round: parseInt(e.target.value) || 1 })}
                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black md:text-[18px] text-[16px]"
                    >
                      {[1, 2, 3].map(round => (

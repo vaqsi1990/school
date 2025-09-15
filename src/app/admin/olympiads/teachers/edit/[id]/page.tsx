@@ -389,8 +389,8 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
             toast.error(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს ტექსტი`)
             return
           }
-          if (sq.points < 1 || sq.points > 10) {
-            toast.error(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს ქულები 1-დან 10-მდე`)
+          if (sq.points < 1) {
+            toast.error(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს მინიმუმ 1 ქულა`)
             return
           }
           
@@ -564,7 +564,6 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
                   name="points"
                   required
                   min="1"
-                  max="10"
                   value={formData.points}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 md:text-[18px] text-[16px]"
@@ -742,9 +741,8 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
                           <input
                             type="number"
                             value={subQuestion.points}
-                            onChange={(e) => handleSubQuestionChange(index, 'points', parseInt(e.target.value))}
+                            onChange={(e) => handleSubQuestionChange(index, 'points', parseInt(e.target.value) || 1)}
                             min="1"
-                            max="10"
                             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
                           />
                         </div>

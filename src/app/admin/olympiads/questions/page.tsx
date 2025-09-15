@@ -484,13 +484,12 @@ function AdminQuestionsContent() {
         return
       }
 
-      // Validate OPEN_ENDED questions - they need either sub-questions OR an answer template
+      // Validate OPEN_ENDED questions - they need sub-questions
       if (formData.type === 'OPEN_ENDED') {
         const hasSubQuestions = formData.subQuestions && formData.subQuestions.length > 0
-        const hasAnswerTemplate = formData.answerTemplate && formData.answerTemplate.trim() !== ''
         
-        if (!hasSubQuestions && !hasAnswerTemplate) {
-          alert('ღია კითხვებს უნდა ჰქონდეთ ან ქვეკითხვები ან პასუხის შაბლონი')
+        if (!hasSubQuestions) {
+          alert('ღია კითხვებს უნდა ჰქონდეთ ქვეკითხვები')
           return
         }
       }
@@ -629,8 +628,8 @@ function AdminQuestionsContent() {
             alert(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს ტექსტი`)
             return
           }
-          if (sq.points < 1 || sq.points > 10) {
-            alert(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს ქულები 1-დან 10-მდე`)
+          if (sq.points < 1) {
+            alert(`ქვეკითხვა ${numberToGeorgianLetter(i)} უნდა ჰქონდეს მინიმუმ 1 ქულა`)
             return
           }
           
@@ -645,13 +644,8 @@ function AdminQuestionsContent() {
             }
           }
           
-          // For OPEN_ENDED sub-questions, validate answer template
-          if (sq.type === 'OPEN_ENDED') {
-            if (!sq.answerTemplate || sq.answerTemplate.trim() === '') {
-              alert(`ქვეკითხვა ${numberToGeorgianLetter(i)} (ღია კითხვა) უნდა ჰქონდეს პასუხის შაბლონი`)
-              return
-            }
-          }
+          // For OPEN_ENDED sub-questions, answer template is optional
+          // No validation needed for answer template
         }
       }
 
@@ -1295,7 +1289,6 @@ function AdminQuestionsContent() {
                       name="points"
                       required
                       min="1"
-                      max="10"
                       value={formData.points}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
@@ -1538,9 +1531,8 @@ function AdminQuestionsContent() {
                               <input
                                 type="number"
                                 value={subQuestion.points}
-                                onChange={(e) => handleSubQuestionChange(index, 'points', parseInt(e.target.value))}
+                                onChange={(e) => handleSubQuestionChange(index, 'points', parseInt(e.target.value) || 1)}
                                 min="1"
-                                max="10"
                                 className="w-full px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 md:text-[16px] text-[14px]"
                               />
                             </div>

@@ -64,9 +64,9 @@ export async function PUT(
     if (subQuestions && subQuestions.length > 0) {
       for (let i = 0; i < subQuestions.length; i++) {
         const sq = subQuestions[i]
-        if (!sq.text || !sq.points || sq.points < 1 || sq.points > 10) {
+        if (!sq.text || !sq.points || sq.points < 1) {
           return NextResponse.json(
-            { error: `Sub-question ${i + 1} must have text and valid points (1-10)` },
+            { error: `Sub-question ${i + 1} must have text and valid points (greater than 0)` },
             { status: 400 }
           )
         }

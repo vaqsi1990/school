@@ -367,7 +367,7 @@ function TestQuestionsContent() {
                         <label className="block text-[16px] font-medium text-black mb-2">კლასი</label>
                         <select
                           value={selectedGrade}
-                          onChange={(e) => setSelectedGrade(e.target.value ? parseInt(e.target.value) : '')}
+                          onChange={(e) => setSelectedGrade(e.target.value ? parseInt(e.target.value) || '' : '')}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black placeholder:text-black"
                         >
                           <option className="text-black" value="">ყველა კლასი</option>
