@@ -232,11 +232,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
   }
 
   const handleAnswerChange = (questionId: string, answer: string | string[] | Record<string, string>) => {
-    // Check if this question is already answered (locked)
-    if (answeredQuestions.has(questionId)) {
-      return // Don't allow changes to locked questions
-    }
-    
+    // Allow changes to any question - no locking based on answeredQuestions
     const newAnswers = {
       ...answers,
       [questionId]: answer
@@ -255,9 +251,18 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      // Mark current question as answered
+      // Only mark current question as answered if it has an answer
       const currentQuestionId = questions[currentQuestionIndex].id
-      setAnsweredQuestions(prev => new Set([...prev, currentQuestionId]))
+      const currentAnswer = answers[currentQuestionId]
+      const hasAnswer = currentAnswer && (
+        typeof currentAnswer === 'string' ? currentAnswer.trim() !== '' :
+        Array.isArray(currentAnswer) ? currentAnswer.length > 0 :
+        typeof currentAnswer === 'object' ? Object.keys(currentAnswer).length > 0 : false
+      )
+      
+      if (hasAnswer) {
+        setAnsweredQuestions(prev => new Set([...prev, currentQuestionId]))
+      }
       
       const newIndex = currentQuestionIndex + 1
       setCurrentQuestionIndex(newIndex)

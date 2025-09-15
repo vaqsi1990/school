@@ -186,11 +186,7 @@ function TestQuestionsContent() {
   }
 
   const handleAnswerChange = (questionId: string, answer: string) => {
-    // Check if this question is already answered (locked)
-    if (answeredQuestions.has(questionId)) {
-      return // Don't allow changes to locked questions
-    }
-    
+    // Allow changes to any question - no locking based on answeredQuestions
     setUserAnswers(prev => ({
       ...prev,
       [questionId]: answer
@@ -199,9 +195,13 @@ function TestQuestionsContent() {
 
   const nextQuestion = () => {
     if (currentQuestionIndex < selectedQuestions.length - 1) {
-      // Mark current question as answered
+      // Only mark current question as answered if it has an answer
       const currentQuestionId = selectedQuestions[currentQuestionIndex].id
-      setAnsweredQuestions(prev => new Set([...prev, currentQuestionId]))
+      const hasAnswer = userAnswers[currentQuestionId] && userAnswers[currentQuestionId].trim() !== ''
+      
+      if (hasAnswer) {
+        setAnsweredQuestions(prev => new Set([...prev, currentQuestionId]))
+      }
       
       setCurrentQuestionIndex(currentQuestionIndex + 1)
     }
@@ -627,7 +627,7 @@ function TestQuestionsContent() {
                       <div key={question.id} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex justify-between items-start mb-2">
                           <h4 className="text-lg font-medium text-black">
-                            კითხვა {numberToGeorgianLetter(index)}: {question.text}
+                            კითხვა {index + 1}: {question.text}
                           </h4>
                           <div className="flex items-center space-x-2">
                             {isCorrect ? (
@@ -674,7 +674,7 @@ function TestQuestionsContent() {
                                 }`}>
                                   <ImageModal
                                     src={imageUrl}
-                                    alt={`ვარიანტი ${numberToGeorgianLetter(imgIndex)}`}
+                                    alt={`ვარიანტი ${imgIndex + 1}`}
                                     className="w-full h-32 sm:h-36 md:h-40 object-cover rounded"
                                   />
                                   <div className="text-center mt-1">
@@ -757,7 +757,7 @@ function TestQuestionsContent() {
                   ტესტი
                 </h2>
                 <div className="text-[16px] text-black">
-                  კითხვა {numberToGeorgianLetter(currentQuestionIndex)} / {selectedQuestions.length}
+                  კითხვა {currentQuestionIndex + 1} 
                 </div>
               </div>
             </div>
@@ -768,7 +768,7 @@ function TestQuestionsContent() {
                   <div className="mb-6">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-[16px] text-black">
-                        {getQuestionTypeLabel(selectedQuestions[currentQuestionIndex].type)}
+                       {currentQuestionIndex + 1}
                       </span>
                       <div className="flex items-center space-x-2">
                         {answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) && (
@@ -877,7 +877,7 @@ function TestQuestionsContent() {
                               {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
                                 <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                                   <span className="text-[16px] font-medium text-black min-w-[30px]">
-                                    {numberToGeorgianQuestionNumber(index)}
+                                  {currentQuestionIndex + 1}
                                   </span>
                                   <span className="text-black">
                                     {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
@@ -1114,7 +1114,7 @@ function TestQuestionsContent() {
                               : 'bg-gray-200 text-black hover:bg-gray-300'
                           }`}
                         >
-                          {numberToGeorgianLetter(index)}
+                         {index + 1}
                         </button>
                       ))}
                     </div>
