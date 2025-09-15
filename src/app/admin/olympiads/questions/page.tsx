@@ -484,15 +484,8 @@ function AdminQuestionsContent() {
         return
       }
 
-      // Validate OPEN_ENDED questions - they need sub-questions
-      if (formData.type === 'OPEN_ENDED') {
-        const hasSubQuestions = formData.subQuestions && formData.subQuestions.length > 0
-        
-        if (!hasSubQuestions) {
-          alert('ღია კითხვებს უნდა ჰქონდეთ ქვეკითხვები')
-          return
-        }
-      }
+      // Validate OPEN_ENDED questions - sub-questions are optional
+      // No validation needed for OPEN_ENDED questions - they can exist without sub-questions
 
       // Validate MATCHING questions
       if (formData.type === 'MATCHING') {
@@ -2146,7 +2139,7 @@ function AdminQuestionsContent() {
                     </label>
                     <textarea
                       name="answerTemplate"
-                      required={formData.type === 'OPEN_ENDED' && (!formData.subQuestions || formData.subQuestions.length === 0)}
+                     
                       value={formData.answerTemplate}
                       onChange={handleInputChange}
                       rows={4}
