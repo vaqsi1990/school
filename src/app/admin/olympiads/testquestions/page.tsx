@@ -905,16 +905,14 @@ function TestQuestionsContent() {
                           {/* Matching Interface */}
                           <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                             <h4 className="font-medium text-black mb-2 text-[16px]">შესაბამისობა:</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                            <div className="flex flex-wrap gap-2">
                               {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
-                                <div key={index}>
-                                <>
-          
-                                <div key={index} className="flex flex-col   p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors shadow-sm min-h-[100px] text-xs">
+                                <div key={index} className="flex flex-row items-center p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors shadow-sm min-h-[60px] text-xs gap-3">
                                   
-                                  <span className="text-black text-[16px] text-center mb-3 leading-tight px-1">
-                                  {numberToGeorgianQuestionNumber(index)}
+                                  <span className="text-black text-[16px] font-bold min-w-[30px] text-center">
+                                    {numberToGeorgianQuestionNumber(index)}
                                   </span>
+                                  
                                   <select
                                     value={userAnswers[`${selectedQuestions[currentQuestionIndex].id}_${index}`] || ''}
                                     onChange={(e) => handleAnswerChange(`${selectedQuestions[currentQuestionIndex].id}_${index}`, e.target.value)}
@@ -932,8 +930,6 @@ function TestQuestionsContent() {
                                       </option>
                                     ))}
                                   </select>
-                                </div>
-                                </>
                                 </div>
                               ))}
                             </div>

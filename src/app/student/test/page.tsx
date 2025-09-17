@@ -398,13 +398,13 @@ function StudentTestContent() {
 
               {/* Matching Interface */}
               <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-                <h4 className="font-medium text-gray-900 mb-3">შესაბამისობა:</h4>
-                <div className="space-y-3">
+                <h4 className="font-medium text-black mb-2 text-[16px]">შესაბამისობა:</h4>
+                <div className="flex flex-wrap gap-2">
                   {(currentQuestion.leftSide || currentQuestion.matchingPairs)?.map((item, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
+                    <div key={index} className="flex flex-row items-center p-3 bg-white rounded-lg border-2 border-gray-200 hover:border-blue-300 transition-colors shadow-sm min-h-[60px] text-xs gap-3">
                     
-                      <span className="className='text-black text-[16px]'  flex-1">
-                      {numberToGeorgianQuestionNumber(index)}
+                      <span className="text-black text-[16px] font-bold min-w-[30px] text-center">
+                        {numberToGeorgianQuestionNumber(index)}
                       </span>
                    
                       <select
@@ -415,15 +415,15 @@ function StudentTestContent() {
                           handleAnswer(currentQuestion.id, newAnswer)
                         }}
                         disabled={answeredQuestions.has(currentQuestion.id)}
-                        className={`px-3 py-2 border border-gray-300 rounded text-sm min-w-[120px] ${
+                        className={`px-3 text-[16px] py-2 border-2 border-gray-300 rounded-lg text-xs font-medium min-w-[80px] text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder:text-black ${
                           answeredQuestions.has(currentQuestion.id) 
                             ? 'bg-gray-100 cursor-not-allowed opacity-60' 
-                            : ''
+                            : 'bg-white hover:border-blue-400'
                         }`}
                       >
-                        <option value="">აირჩიეთ პასუხი</option>
+                        <option className='text-black text-[16px]' value="">აირჩიეთ</option>
                         {(currentQuestion.rightSide || currentQuestion.matchingPairs)?.map((_, rightIndex) => (
-                          <option key={rightIndex} value={rightIndex + 1}>
+                          <option className='text-black text-[16px]' key={rightIndex} value={rightIndex + 1}>
                             {rightIndex + 1}
                           </option>
                         ))}
