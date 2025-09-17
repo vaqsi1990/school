@@ -965,7 +965,7 @@ function AdminQuestionsContent() {
                    placeholder="მოძებნა: კითხვა, საგანი, მასწავლებელი, სკოლა, თავი (მაგ: 2), პარაგრაფი (მაგ: 1.2), კლასი (მაგ: 10 კლასი), რაუნდი (მაგ: 1 რაუნდი), ქულები, ტიპი..."
                    value={searchTerm}
                    onChange={(e) => setSearchTerm(e.target.value)}
-                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                   className="w-full md:text-[16px] text-[14px] text-black placeholder:text-black px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
                  />
                  {searchTerm && (
                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">
@@ -979,7 +979,7 @@ function AdminQuestionsContent() {
               <select
                 value={selectedSubject || ''}
                 onChange={(e) => setSelectedSubject(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                className="w-full md:text-[16px] text-[14px] text-black placeholder:text-black px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
               >
                 <option value="">ყველა საგანი</option>
                 {subjects.map(subject => (
@@ -991,7 +991,7 @@ function AdminQuestionsContent() {
               <select
                 value={selectedGrade || ''}
                 onChange={(e) => setSelectedGrade(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                className="w-full md:text-[16px] text-[14px] text-black placeholder:text-black px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
               >
                 <option value="">ყველა კლასი</option>
                 {[7, 8, 9, 10, 11, 12].map(grade => (
@@ -1003,7 +1003,7 @@ function AdminQuestionsContent() {
               <select
                 value={selectedRound || ''}
                 onChange={(e) => setSelectedRound(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
+                className="w-full md:text-[16px] text-[14px] text-black placeholder:text-black px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2  md:text-[18px] text-[16px]"
               >
                 <option value="">ყველა რაუნდი</option>
                 {[1, 2, 3].map(round => (
@@ -1643,7 +1643,7 @@ function AdminQuestionsContent() {
                           type="checkbox"
                           checked={formData.useImageOptions}
                           onChange={(e) => setFormData(prev => ({ ...prev, useImageOptions: e.target.checked }))}
-                          className="h-4 w-4 text-blue-600 border-gray-300 rounded"
+                          className="h-4 w-4 md:text-[16px] text-[14px] text-black placeholder:text-black border-gray-300 rounded"
                         />
                         <span className="text-black md:text-[16px] text-[14px] font-medium">
                           გამოიყენეთ სურათები პასუხის ვარიანტებად
