@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 const Why = () => {
   return (
-    <div className="py-16 bg-gray-50">
+    <div className=" md:py-16 py-0 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">რატომ ვარჩევთ ჩვენ?</h2>
@@ -26,10 +26,8 @@ const Why = () => {
                 />
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">ხარისხიანი მასალა</h3>
-            <p className="text-gray-600">
-              ყველა კითხვა მომზადებულია გამოცდილი პედაგოგების მიერ და შეესაბამება სასწავლო სტანდარტებს
-            </p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">სასკოლო პროგრამა</h3>
+           
           </div>
 
           {/* Dashboard Icon */}
@@ -45,10 +43,8 @@ const Why = () => {
                 />
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">მარტივი მართვა</h3>
-            <p className="text-gray-600">
-              დაშბორდი საშუალებას გაძლევთ მარტივად მართოთ ოლიმპიადები და თვალყურს ადევნოთ შედეგებს
-            </p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">ხელმისაწვდომი ფასი</h3>
+           
           </div>
 
           {/* Mission Icon */}
@@ -64,10 +60,8 @@ const Why = () => {
                 />
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">განათლების მისია</h3>
-            <p className="text-gray-600">
-              ჩვენი მიზანია ხარისხიანი განათლების ხელმისაწვდომობა ყველასთვის და სწავლის პროცესის გაუმჯობესება
-            </p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">გამარჯვების დიდი შანსი</h3>
+            
           </div>
 
           {/* Prize Icon */}
@@ -83,10 +77,8 @@ const Why = () => {
                 />
               </div>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-3">ღირსეული ჯილდოები</h3>
-            <p className="text-gray-600">
-              საუკეთესო მონაწილეები იღებენ ღირსეულ ჯილდოებს და სერტიფიკატებს, რაც მოტივაციას აძლევს შემდგომ სწავლას
-            </p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">მრავალფეროვანი პრიზები</h3>
+            
           </div>
         </div>
       </div>

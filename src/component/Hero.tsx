@@ -9,7 +9,7 @@ const Hero: React.FC = () => {
     <section className="relative h-[80vh] bg-gray-50 text-white overflow-hidden">
       {/* Content */}
       <div className="relative mx-auto max-w-7xl  flex items-center h-full">
-        <div className="flex items-center justify-between w-full">
+        <div className="flex  flex-col md:flex-row  md:mt-0 text-center md:text-left px-4 items-center justify-between w-full">
           {/* Text Content - Left Side */}
           <div className="max-w-2xl text-black z-10">
             <h1 className="text-[20px] md:text-[30px] font-extrabold mb-6">
@@ -31,13 +31,13 @@ const Hero: React.FC = () => {
           </div>
 
           {/* Image - Right Side */}
-          <div className="relative w-[100%] h-full flex items-center justify-center">
-            <div className="relative w-full h-[80vh] rounded-2xl overflow-hidden ">
+          <div className="relative  md:w-[100%] md:h-[80vh] h-[30vh] w-[80%] h-full flex items-center justify-center">
+            <div className="relative w-full md:h-[80vh] h-[30vh] rounded-2xl overflow-hidden ">
               <Image
                 src="/hero/hero.png"
                 alt="Online Olympiad"
                 fill
-                className="object-cover object-center"
+                className="md:object-cover object-contain object-center"
                 priority
               />
               {/* Subtle overlay for better integration */}
