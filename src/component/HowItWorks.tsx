@@ -38,7 +38,7 @@ const HowItWorks: React.FC = () => {
   ]
 
   return (
-    <section className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-gray-50 to-blue-50">
+    <section className=" pb-15 bg-gray-50">
       <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-16">

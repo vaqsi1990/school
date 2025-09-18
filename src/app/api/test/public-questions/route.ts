@@ -22,8 +22,8 @@ export async function GET(request: NextRequest) {
     const subjectMapping: Record<string, string> = {
       'history': 'ისტორია',
       'geography': 'გეოგრაფია', 
-      'georgian': 'ქართული ენა',
-      'biology': 'ბიოლოგია'
+      'georgian': 'ქართული ენა და ლიტერატურა',
+ 
     }
 
     const subjectName = subjectMapping[subjectId]

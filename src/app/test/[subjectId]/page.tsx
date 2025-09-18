@@ -43,8 +43,7 @@ const TestSubjectPage = () => {
   const subjectMapping: Record<string, string> = {
     'history': 'ისტორია',
     'geography': 'გეოგრაფია',
-    'georgian': 'ქართული ენა',
-    'biology': 'ბიოლოგია'
+    'georgian': 'ქართული ენა და ლიტერატურა'
   }
 
   const subjectName = subjectMapping[subjectId]
