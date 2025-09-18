@@ -49,14 +49,7 @@ const Hero: React.FC = () => {
                 დარეგისტრირდი ახლა
               </Link>
             </motion.div>
-            <motion.p 
-              className="md:text-[20px] text-[18px] text-red-500"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-            >
-              უკვე დარეგისტრირებულია 2500 მოსწავლე
-            </motion.p>
+         
           </motion.div>
 
           {/* Image - Right Side */}
