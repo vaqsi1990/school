@@ -39,6 +39,7 @@ interface Question {
   grade: number
   round: number
   isAutoScored: boolean
+  isPublic: boolean
   createdAt: string
   subQuestions?: SubQuestion[] // Add this field
   createdByTeacher?: {
@@ -113,6 +114,7 @@ function AdminQuestionsContent() {
     grade: number
     round: number
     isAutoScored: boolean
+    isPublic: boolean
     subQuestions: SubQuestion[]
   }>({
     text: '',
@@ -134,6 +136,7 @@ function AdminQuestionsContent() {
     grade: 7,
     round: 1,
     isAutoScored: false,
+    isPublic: false,
     subQuestions: []
   })
 
@@ -203,6 +206,7 @@ function AdminQuestionsContent() {
       grade: question.grade,
       round: question.round,
       isAutoScored: question.isAutoScored,
+      isPublic: question.isPublic || false,
       subQuestions: question.subQuestions || []
     })
     setShowAddForm(true)
@@ -735,6 +739,7 @@ function AdminQuestionsContent() {
       grade: 7,
       round: 1,
       isAutoScored: false,
+      isPublic: false,
       subQuestions: []
     })
     setEditingQuestion(null)
@@ -1154,7 +1159,7 @@ function AdminQuestionsContent() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {currentQuestions.map((question) => (
-                  <tr key={question.id} className="hover:bg-gray-50">
+                  <tr key={question.id} className={`hover:bg-gray-50 ${question.isPublic ? 'bg-green-50 border-l-4 border-green-500' : ''}`}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <input
                         type="checkbox"
@@ -1176,6 +1181,9 @@ function AdminQuestionsContent() {
                          </div>
                          {question.image && question.image.length > 0 && (
                            <div className="text-xs text-gray-500 mt-1"> სურათი არის</div>
+                         )}
+                         {question.isPublic && (
+                           <div className="text-xs text-green-600 mt-1 font-medium bg-green-100 px-2 py-1 rounded-full">🌐 საჯარო</div>
                          )}
                        </div>
                      </td>
@@ -1222,6 +1230,11 @@ function AdminQuestionsContent() {
                         >
                           წაშლა
                         </button>
+                        {question.isPublic && (
+                          <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
+                            🌐 საჯარო
+                          </span>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -2260,6 +2273,24 @@ function AdminQuestionsContent() {
                     </p>
                   </div>
                 )}
+
+                {/* Public Test Question */}
+                <div className="pt-6">
+                  <label className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={formData.isPublic}
+                      onChange={(e) => setFormData(prev => ({ ...prev, isPublic: e.target.checked }))}
+                      className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <span className="text-lg font-medium text-black">
+                      გამოჩნდეს საჯარო ტესტებში
+                    </span>
+                  </label>
+                  <p className="text-gray-600 text-sm mt-2 ml-8">
+                    თუ მონიშნულია, ეს კითხვა გამოჩნდება ყველასთვის ღია ტესტების გვერდზე
+                  </p>
+                </div>
 
                 {/* Manual Scoring Notice */}
                 {!formData.isAutoScored && (

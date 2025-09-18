@@ -221,6 +221,7 @@ model Question {
   chapterName       String?
   content           String?
   isAutoScored      Boolean                   @default(true)
+  isPublic          Boolean                   @default(false)  // For public test questions
   matchingPairs     Json?
   leftSide          Json?
   rightSide         Json?

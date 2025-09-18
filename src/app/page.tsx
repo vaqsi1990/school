@@ -1,6 +1,7 @@
 import Hero from '@/component/Hero'
 import HowItWorks from '@/component/HowItWorks'
 import Why from '@/component/Why'
+import TestQuestionsForAll from '@/component/TestQuestionsForAll'
 
 
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
   <>
   <Hero />
   <Why />
+  <TestQuestionsForAll />
   <HowItWorks />
   </>
   )
