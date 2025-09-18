@@ -1,16 +1,23 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import Image from 'next/image'
-import { motion } from 'framer-motion'
 import TestModal from './TestModal'
 
-interface Subject {
+interface Question {
   id: string
-  name: string
-  description?: string
-  image: string
+  text: string
+  type: string
+  options: string[]
+  correctAnswer?: string
+  points: number
+  image: string[]
+  content?: string
+  matchingPairs?: Record<string, string>
+  leftSide?: string[]
+  rightSide?: string[]
+  imageOptions?: string[]
+  subject: string
+  grade: number
 }
 
 interface TestPageModalProps {
@@ -20,10 +27,8 @@ interface TestPageModalProps {
 }
 
 const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectId }) => {
-  const router = useRouter()
-  const [subjects, setSubjects] = useState<Subject[]>([])
   const [selectedGrade, setSelectedGrade] = useState('')
-  const [questions, setQuestions] = useState<any[]>([])
+  const [questions, setQuestions] = useState<Question[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({})
   const [showResults, setShowResults] = useState(false)
@@ -43,15 +48,6 @@ const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectI
   }
 
   const subjectName = subjectMapping[subjectId]
-
-  useEffect(() => {
-    const predefinedSubjects = [
-      { id: 'history', name: 'ისტორია', image: '/test/ისტორია.jpg' },
-      { id: 'geography', name: 'გეოგრაფია', image: '/test/გეოგრაფია.jpg' },
-      { id: 'georgian', name: 'ქართული ენა და ლიტერატურა', image: '/test/ქართული.jpg' }
-    ]
-    setSubjects(predefinedSubjects)
-  }, [])
 
   const startTest = async () => {
     if (!selectedGrade) {
