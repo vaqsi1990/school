@@ -35,7 +35,20 @@ const TestQuestionsForAll = () => {
   }
 
   return (
-    <div className="bg-gray-50 md:py-16 py-5 ">
+    <div 
+      className="md:py-16 py-5 relative"
+      style={{
+        backgroundImage: 'url(/test/bgimage.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
+      {/* Overlay for better text readability */}
+      <div className="absolute inset-0 bg-black/50 bg-opacity-30"></div>
+      
+      {/* Content */}
+      <div className="relative z-10">
       <div className="max-w-7xl mx-auto px-4">
         <motion.div 
           className="text-center mb-4"
@@ -45,7 +58,7 @@ const TestQuestionsForAll = () => {
           viewport={{ once: true }}
         >
           <motion.h1 
-            className="text-4xl font-bold text-black mb-4"
+            className="text-4xl font-bold text-white mb-4"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -86,7 +99,7 @@ const TestQuestionsForAll = () => {
                 <motion.button
                   key={subject.id}
                   onClick={() => handleSubjectSelect(subject.id)}
-                  className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+                  className="bg-[#f06905] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -98,6 +111,7 @@ const TestQuestionsForAll = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       {/* Test Page Modal */}
