@@ -20,6 +20,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@uploadthing/react": "^7.3.3",
     "bcryptjs": "^3.0.2",
+    "framer-motion": "^12.23.15",
     "next": "15.5.2",
     "next-auth": "^4.24.11",
     "nodemailer": "^6.10.1",
