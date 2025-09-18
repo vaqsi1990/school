@@ -37,28 +37,31 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Fetch questions for the specified subject and grade
+    // Fetch all available questions for the specified subject and grade
     console.log('Fetching questions for:', { subjectName, grade: parseInt(grade) })
     
-    const questions = await prisma.question.findMany({
+    const allQuestions = await prisma.question.findMany({
       where: {
         subject: {
           name: subjectName
         },
         grade: parseInt(grade),
-        status: 'ACTIVE'
-        // Temporarily remove isPublic filter to test
+        status: 'ACTIVE',
+        isPublic: true // Only public questions
       },
       include: {
         subject: true
-      },
-      take: 10 // Limit to 10 questions for public test
+      }
     })
 
-    console.log('Found questions:', questions.length)
+    console.log('Found total questions:', allQuestions.length)
 
-    // Shuffle questions
-    const shuffledQuestions = questions.sort(() => Math.random() - 0.5)
+    // Shuffle all questions and take only 10 random ones
+    const shuffledQuestions = allQuestions
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 10) // Take only 10 random questions
+
+    console.log('Selected random questions:', shuffledQuestions.length)
 
     // Format questions for frontend (include correct answers for scoring)
     const formattedQuestions = shuffledQuestions.map(question => ({

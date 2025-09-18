@@ -59,7 +59,7 @@ function AdminDashboardContent() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
-                ადმინისტრატორის დეშბორდი
+                ადმინისტრატორის პროფილი
               </h1>
               <p className="text-black md:text-[18px] text-[16px]">
                 კეთილი იყოს თქვენი მობრძანება, {user?.admin?.name || user?.email} {user?.admin?.lastname || ''}

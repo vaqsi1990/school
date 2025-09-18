@@ -71,11 +71,18 @@ const BlogPage = () => {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ka-GE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
+    const date = new Date(dateString)
+    const georgianMonths = [
+      'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი',
+      'მაისი', 'ივნისი', 'ივლისი', 'აგვისტო',
+      'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
+    ]
+    
+    const day = date.getDate()
+    const month = georgianMonths[date.getMonth()]
+    const year = date.getFullYear()
+    
+    return `${day} ${month} ${year}`
   }
 
   const getAuthorName = (author: BlogPost['author']) => {

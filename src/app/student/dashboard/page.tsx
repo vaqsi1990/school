@@ -19,7 +19,7 @@ function StudentDashboardContent() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
-                მოსწავლის დეშბორდი
+                მოსწავლის პროფილი
               </h1>
               <p className="text-black md:text-[18px] text-[16px]">
                 კეთილი იყოს თქვენი მობრძანება, {user?.student?.name || user?.email} {user?.student?.lastname || ''}

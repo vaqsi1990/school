@@ -24,21 +24,21 @@ const Header: React.FC = () => {
             </Link>
 
             {/* Desktop Navigation - moved next to logo */}
-            <nav className="hidden md:flex items-center space-x-8 ml-8">
+            <nav className="hidden md:flex items-center  ml-8">
+
+              <Link
+                href="/about"
+                className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
+              >
+                ჩვენ შესახებ
+              </Link>
+
               <Link
                 href="/blog"
                 className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
               >
                 სიახლეები
               </Link>
-
-              <Link
-                href="/about"
-                className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
-              >
-                ჩვენს შესახებ
-              </Link>
-
               <Link
                 href="/contacts"
                 className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
@@ -71,7 +71,7 @@ const Header: React.FC = () => {
                   href="/dashboard"
                   className="text-black px-3 py-2 rounded-md md:text-[20px] text-[20px] cursor-pointer font-bold transition-colors "
                 >
-                  დეშბორდი
+                  პროფილი
                 </Link>
                 <button
                   onClick={logout}
@@ -107,6 +107,15 @@ const Header: React.FC = () => {
             <div className="px-4 py-6 space-y-4">
               {/* Mobile Navigation Links */}
               <div className="space-y-3">
+
+                <Link
+                  href="/about"
+                  className="block text-black px-4 py-3 rounded-lg text-[18px] font-bold transition-colors hover:bg-gray-50 hover:text-blue-600"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  ჩვენ შესახებ
+                </Link>
+
                 <Link
                   href="/blog"
                   className="block text-black px-4 py-3 rounded-lg text-[18px] font-bold transition-colors hover:bg-gray-50 hover:text-blue-600"
@@ -114,15 +123,6 @@ const Header: React.FC = () => {
                 >
                  სიახლეები
                 </Link>
-
-                <Link
-                  href="/about"
-                  className="block text-black px-4 py-3 rounded-lg text-[18px] font-bold transition-colors hover:bg-gray-50 hover:text-blue-600"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  ჩვენს შესახებ
-                </Link>
-
                 <Link
                   href="/contacts"
                   className="block text-black px-4 py-3 rounded-lg text-[18px] font-bold transition-colors hover:bg-gray-50 hover:text-blue-600"
@@ -158,7 +158,7 @@ const Header: React.FC = () => {
                       className="block bg-blue-600 text-white px-4 py-3 rounded-lg text-[18px] font-bold  transition-colors text-center"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      დეშბორდი
+                      პროფილი
                     </Link>
                     <button
                       onClick={() => {
