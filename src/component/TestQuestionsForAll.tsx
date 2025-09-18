@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import TestPageModal from '@/components/TestPageModal'
 
 interface Subject {
   id: string
@@ -15,19 +16,22 @@ interface Subject {
 const TestQuestionsForAll = () => {
   const router = useRouter()
   const [subjects, setSubjects] = useState<Subject[]>([])
+  const [showModal, setShowModal] = useState(false)
+  const [selectedSubjectId, setSelectedSubjectId] = useState('')
 
   // Set predefined subjects
   useEffect(() => {
     const predefinedSubjects = [
       { id: 'history', name: 'ისტორია', image: '/test/ისტორია.jpg' },
       { id: 'geography', name: 'გეოგრაფია', image: '/test/გეოგრაფია.jpg' },
-      { id: 'georgian', name: 'ქართული ენა და ლიტერატურა', image: '/test/ქართული.jpg' }
+      { id: 'georgian', name: 'ქართული ', image: '/test/ქართული.jpg' }
     ]
     setSubjects(predefinedSubjects)
   }, [])
 
   const handleSubjectSelect = (subjectId: string) => {
-    router.push(`/test/${subjectId}`)
+    setSelectedSubjectId(subjectId)
+    setShowModal(true)
   }
 
   return (
@@ -95,6 +99,13 @@ const TestQuestionsForAll = () => {
           </div>
         </div>
       </div>
+
+      {/* Test Page Modal */}
+      <TestPageModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        subjectId={selectedSubjectId}
+      />
     </div>
   )
 }

@@ -76,7 +76,7 @@ const News = () => {
       <div className="bg-gray-50 py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center">
-            <div className="text-black text-[16px]">იტვირთება...</div>
+            <div className="text-black font-bold text-[16px]">იტვირთება...</div>
           </div>
         </div>
       </div>
