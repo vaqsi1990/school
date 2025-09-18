@@ -21,8 +21,19 @@ interface BlogPost {
   author: {
     id: string
     email: string
-    admin?: any
-    teacher?: any
+    admin?: {
+      id: string
+      name: string
+      lastname: string
+      role: string
+    }
+    teacher?: {
+      id: string
+      name: string
+      lastname: string
+      subject: string
+      school: string
+    }
   }
 }
 
