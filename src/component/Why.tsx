@@ -16,18 +16,19 @@ const Why = () => {
           viewport={{ once: true }}
         >
           <motion.p 
-            className="text-lg text-black max-w-3xl mx-auto"
+            className="text-4xl text-black font-bold max-w-3xl mx-auto"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-            ჩვენი პლატფორმა გთავაზობთ ყველაზე მოწინავე ტექნოლოგიებს და მეთოდებს ოლიმპიადების ჩასატარებლად
+           რატომ ჩვენ ?
           </motion.p>
         </motion.div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Book Icon */}
+
           <motion.div 
             className="text-center"
             initial={{ opacity: 0, y: 50 }}
