@@ -62,6 +62,12 @@ const TestSubjectPage = () => {
       if (response.ok) {
         const data = await response.json()
         console.log('API Response:', data)
+        
+        if (!data.questions || data.questions.length === 0) {
+          alert('ამ საგნისა და კლასისთვის კითხვები ჯერ არ არის დამატებული')
+          return
+        }
+        
         setQuestions(data.questions || [])
         setTotalQuestions(data.totalQuestions || 0)
         setTestStarted(true)
@@ -71,11 +77,11 @@ const TestSubjectPage = () => {
       } else {
         const errorData = await response.json()
         console.error('API Error:', errorData)
-        alert(`ტესტის ჩატვა ვერ მოხერხდა: ${errorData.error || 'უცნობი შეცდომა'}`)
+        alert(`ტესტის ჩატვირთვა ვერ მოხერხდა: ${errorData.error || 'უცნობი შეცდომა'}`)
       }
     } catch (error) {
       console.error('Error starting test:', error)
-      alert('ტესტის ჩატვა ვერ მოხერხდა')
+      alert('ტესტის ჩატვირთვა ვერ მოხერხდა')
     } finally {
       setIsLoading(false)
     }
@@ -355,7 +361,7 @@ const TestSubjectPage = () => {
               disabled={!selectedGrade || isLoading}
               className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-medium disabled:bg-gray-400 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors"
             >
-              {isLoading ? 'ტესტის ჩატვა...' : 'ტესტის დაწყება'}
+              {isLoading ? 'ტესტის ჩატვირთვა...' : 'ტესტის დაწყება'}
             </button>
           </div>
         </div>

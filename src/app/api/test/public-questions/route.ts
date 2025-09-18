@@ -46,8 +46,8 @@ export async function GET(request: NextRequest) {
           name: subjectName
         },
         grade: parseInt(grade),
-        status: 'ACTIVE',
-        isPublic: true // Only public questions
+        status: 'ACTIVE'
+        // Temporarily remove isPublic filter to test
       },
       include: {
         subject: true
@@ -55,6 +55,14 @@ export async function GET(request: NextRequest) {
     })
 
     console.log('Found total questions:', allQuestions.length)
+
+    if (allQuestions.length === 0) {
+      console.log('No questions found for this subject and grade')
+      return NextResponse.json(
+        { error: 'ამ საგნისა და კლასისთვის კითხვები ჯერ არ არის დამატებული' },
+        { status: 404 }
+      )
+    }
 
     // Shuffle all questions and take only 10 random ones
     const shuffledQuestions = allQuestions
