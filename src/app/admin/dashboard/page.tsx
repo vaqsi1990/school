@@ -299,16 +299,16 @@ function AdminDashboardContent() {
             <div className="p-6">
               <div className="flex items-center">
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[20px] text-[18px]">ბლოგის მართვა</h3>
+                  <h3 className="text-black md:text-[20px] text-[18px]">სიახლეების მართვა</h3>
                 </div>
               </div>
               <div className="mt-4">
                 <p className="text-black md:text-[18px] text-[16px]">
-                  შექმენით და მართეთ ბლოგის სტატიები.
+                  შექმენით და მართეთ სიახლეები.
                 </p>
                 <button className="mt-4 w-full cursor-pointer bg-green-600 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
                   <Link href="/admin/blog" className="block w-full h-full text-white">
-                    ბლოგის მართვა
+                    სიახლეების მართვა
                   </Link>
                 </button>
               </div>

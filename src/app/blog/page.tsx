@@ -99,7 +99,7 @@ const BlogPage = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-black mb-4">ბლოგი</h1>
+          <h1 className="text-4xl font-bold text-black mb-4">სიახლეები</h1>
           <p className="text-xl text-gray-600">განათლებისა და ოლიმპიადების შესახებ საინტერესო სტატიები</p>
         </div>
 
@@ -200,7 +200,7 @@ const BlogPage = () => {
 
         {blogPosts.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">ბლოგები ჯერ არ არის გამოქვეყნებული</p>
+            <p className="text-gray-500 text-lg">სიახლეები ჯერ არ არის გამოქვეყნებული</p>
           </div>
         )}
       </div>

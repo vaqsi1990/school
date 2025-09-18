@@ -56,11 +56,11 @@ const BlogPostPage = () => {
         const data = await response.json()
         setBlogPost(data)
       } else {
-        setError('ბლოგი ვერ მოიძებნა')
+        setError('სიახლე ვერ მოიძებნა')
       }
     } catch (error) {
       console.error('Error fetching blog post:', error)
-      setError('შეცდომა ბლოგის ჩატვისას')
+      setError('შეცდომა სიახლეს ჩატვისას')
     } finally {
       setLoading(false)
     }
@@ -95,13 +95,13 @@ const BlogPostPage = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-black mb-4">ბლოგი ვერ მოიძებნა</h1>
+          <h1 className="text-2xl font-bold text-black mb-4">სიახლე ვერ მოიძებნა</h1>
           <p className="text-gray-600 mb-6">{error}</p>
           <Link
             href="/blog"
             className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
           >
-            ბლოგზე დაბრუნება
+            სიახლეებზე დაბრუნება
           </Link>
         </div>
       </div>
@@ -179,7 +179,7 @@ const BlogPostPage = () => {
                   href="/blog"
                   className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  ბლოგზე დაბრუნება
+                  სიახლეებზე დაბრუნება
                 </Link>
               </div>
             </div>

@@ -29,7 +29,7 @@ const Header: React.FC = () => {
                 href="/blog"
                 className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
               >
-               ბლოგი
+                სიახლეები
               </Link>
 
               <Link
@@ -112,7 +112,7 @@ const Header: React.FC = () => {
                   className="block text-black px-4 py-3 rounded-lg text-[18px] font-bold transition-colors hover:bg-gray-50 hover:text-blue-600"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  ბლოგი
+                 სიახლეები
                 </Link>
 
                 <Link
