@@ -22,6 +22,11 @@ interface TestResult {
   subject: string
 }
 
+interface Subject {
+  id: string
+  name: string
+}
+
 const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }> }) => {
   const router = useRouter()
   const { data: session } = useSession()
@@ -54,7 +59,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
         const response = await fetch('/api/subjects')
         if (response.ok) {
           const data = await response.json()
-          const subject = data.subjects.find((s: any) => s.id === resolvedParams.subjectId)
+          const subject = data.subjects.find((s: Subject) => s.id === resolvedParams.subjectId)
           if (subject) {
             setSubjectName(subject.name)
           }
