@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -24,8 +24,9 @@ export async function GET(
       return NextResponse.json({ error: 'წვდომა აკრძალულია' }, { status: 403 })
     }
 
+    const { id } = await params
     const blogPost = await prisma.blogPost.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         author: {
           select: {
@@ -54,7 +55,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -73,6 +74,7 @@ export async function PUT(
       return NextResponse.json({ error: 'წვდომა აკრძალულია' }, { status: 403 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const { title, content, excerpt, slug, published, tags, imageUrl } = body
 
@@ -87,7 +89,7 @@ export async function PUT(
     const existingPost = await prisma.blogPost.findFirst({
       where: { 
         slug,
-        id: { not: params.id }
+        id: { not: id }
       }
     })
 
@@ -99,7 +101,7 @@ export async function PUT(
     }
 
     const blogPost = await prisma.blogPost.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         content,
@@ -134,7 +136,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -153,8 +155,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'წვდომა აკრძალულია' }, { status: 403 })
     }
 
+    const { id } = await params
     await prisma.blogPost.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'ბლოგი წაიშალა' })
