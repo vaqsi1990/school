@@ -26,10 +26,10 @@ const Header: React.FC = () => {
             {/* Desktop Navigation - moved next to logo */}
             <nav className="hidden md:flex items-center space-x-8 ml-8">
               <Link
-                href="/subjects"
+                href="/blog"
                 className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
               >
-                საგნები
+               ბლოგი
               </Link>
 
               <Link
@@ -108,11 +108,11 @@ const Header: React.FC = () => {
               {/* Mobile Navigation Links */}
               <div className="space-y-3">
                 <Link
-                  href="/subjects"
+                  href="/blog"
                   className="block text-black px-4 py-3 rounded-lg text-[18px] font-bold transition-colors hover:bg-gray-50 hover:text-blue-600"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  საგნები
+                  ბლოგი
                 </Link>
 
                 <Link

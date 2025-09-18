@@ -14,7 +14,7 @@ type ImageUploadProps = {
 
 const ImageUpload = ({ onChange, value }: ImageUploadProps): React.JSX.Element => {
   const [imageUrls, setImageUrls] = useState<string[]>(value || []);
-
+ 
   // Update local state when value prop changes
   useEffect(() => {
     setImageUrls(value || []);

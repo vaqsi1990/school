@@ -294,6 +294,27 @@ function AdminDashboardContent() {
             </div>
           </div>
 
+          {/* Blog Management Card */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="ml-4">
+                  <h3 className="text-black md:text-[20px] text-[18px]">ბლოგის მართვა</h3>
+                </div>
+              </div>
+              <div className="mt-4">
+                <p className="text-black md:text-[18px] text-[16px]">
+                  შექმენით და მართეთ ბლოგის სტატიები.
+                </p>
+                <button className="mt-4 w-full cursor-pointer bg-green-600 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                  <Link href="/admin/blog" className="block w-full h-full text-white">
+                    ბლოგის მართვა
+                  </Link>
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Teacher Verification Card */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-6">
