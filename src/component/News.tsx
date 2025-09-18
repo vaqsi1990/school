@@ -158,12 +158,7 @@ const News = () => {
                     <span className="text-black text-[16px] text-sm">
                       {formatDate(post.createdAt)}
                     </span>
-                    <span className="text-black text-[16px] text-sm">
-                      {post.author.admin 
-                        ? `${post.author.admin.name} ${post.author.admin.lastname}`
-                        : `${post.author.teacher?.name} ${post.author.teacher?.lastname}`
-                      }
-                    </span>
+                 
                   </div>
                   <div className="flex items-center justify-between">
                   <Link
