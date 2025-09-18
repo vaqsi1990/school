@@ -19,7 +19,7 @@ const Footer: React.FC = () => {
                                 <h3 className="text-xl font-bold">ონლაინ ოლიმპიადა</h3>
                             </div>
                         </div>
-                        <p className="text-gray-300 text-sm leading-relaxed mb-6">
+                        <p className="text-white text-[16px] leading-relaxed mb-6">
                             შეამოწმე შენი ცოდნა ონლაინ
                         </p>
                     </div>
@@ -28,8 +28,8 @@ const Footer: React.FC = () => {
                     <div className="flex flex-col items-center">
                         <h4 className="text-lg font-semibold mb-6 text-white">სკოლის მოსწავლეებისთვის</h4>
                         <ul className="space-y-3">
-                            <li><Link href="/student/register" className="text-gray-300 hover:text-white transition-colors text-sm">რეგისტრაცია</Link></li>
-                            <li><Link href="/student/login" className="text-gray-300 hover:text-white transition-colors text-sm">შესვლა</Link></li>
+                            <li><Link href="/student/register" className="text-white transition-colors text-[16px]">რეგისტრაცია</Link></li>
+                            <li><Link href="/student/login" className="text-white transition-colors text-[16px]">შესვლა</Link></li>
                         </ul>
                     </div>
 
@@ -37,9 +37,10 @@ const Footer: React.FC = () => {
                     <div className="flex flex-col items-center">
                         <h4 className="text-lg font-semibold mb-6 text-white">კონტაქტი</h4>
                         <div className="space-y-3">
-                            <p className="text-gray-300 text-sm">info@olympiad.ge</p>
-                            <p className="text-gray-300 text-sm">+995 555 55 55 55</p>
-                            <p className="text-gray-300 text-sm">Tbilisi, Georgia</p>
+                            <p className="text-white text-[16px]">info@olympiad.ge</p>
+                            <p className="text-white text-[16px]">info@olympiad.ge</p>
+                            <p className="text-white text-[16px]">+995 555 55 55 55</p>
+                            <p className="text-white text-[16px]">Tbilisi, Georgia</p>
                         </div>
                     </div>
                 </div>

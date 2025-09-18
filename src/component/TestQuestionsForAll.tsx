@@ -58,7 +58,7 @@ const TestQuestionsForAll = () => {
           viewport={{ once: true }}
         >
           <motion.h1 
-            className="text-4xl font-bold text-white mb-4"
+            className="text-3xl font-bold text-white mb-4"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -103,7 +103,7 @@ const TestQuestionsForAll = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className="font-medium text-white text-lg">{subject.name}</span>
+                  <span className="font-bold text-white text-lg">{subject.name}</span>
                 </motion.button>
                 
                 </motion.div>

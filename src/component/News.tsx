@@ -89,7 +89,7 @@ const News = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-black mb-4">ბოლო სიახლეები</h2>
-            <p className="text-black text-[16px]">სიახლეები ჯერ არ არის დამატებული</p>
+            <p className="text-lg md:text-xl text-black mb-8 leading-relaxed">სიახლეები ჯერ არ არის დამატებული</p>
           </div>
         </div>
       </div>

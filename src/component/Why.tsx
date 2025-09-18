@@ -6,17 +6,17 @@ import { motion } from 'framer-motion'
 
 const Why = () => {
   return (
-    <div className=" md:py-16 py-5 bg-gray-50">
+    <div className=" md:pb-16 pb-5 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div 
-          className="text-center mb-16"
+          className="text-center mb-10"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
           <motion.p 
-            className="text-4xl text-black font-bold max-w-3xl mx-auto"
+            className="text-3xl text-black font-bold max-w-3xl mx-auto"
             initial={{ opacity: 0, scale: 0.8 }}
             whileInView={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
