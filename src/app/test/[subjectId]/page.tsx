@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import TestModal from '@/components/TestModal'
 
 interface Question {
   id: string
@@ -34,6 +35,7 @@ const TestSubjectPage = () => {
   const [testStarted, setTestStarted] = useState(false)
   const [score, setScore] = useState(0)
   const [totalQuestions, setTotalQuestions] = useState(0)
+  const [showTestModal, setShowTestModal] = useState(false)
 
   const grades = [7, 8, 9, 10, 11, 12]
 
@@ -74,6 +76,7 @@ const TestSubjectPage = () => {
         setCurrentQuestionIndex(0)
         setUserAnswers({})
         setShowResults(false)
+        setShowTestModal(true) // Show test in modal
       } else {
         const errorData = await response.json()
         console.error('API Error:', errorData)
@@ -128,7 +131,7 @@ const TestSubjectPage = () => {
 
     const calculatedScore = Math.round((correctAnswers / questions.length) * 100)
     setScore(calculatedScore)
-    setShowResults(true)
+    setShowResults(true) // Show results in modal
   }
 
   const resetTest = () => {
@@ -140,86 +143,10 @@ const TestSubjectPage = () => {
     setShowResults(false)
     setScore(0)
     setTotalQuestions(0)
+    setShowTestModal(false) // Close modal when resetting
   }
 
-  const renderQuestion = (question: Question) => {
-    const userAnswer = userAnswers[question.id] || ''
 
-    switch (question.type) {
-      case 'CLOSED_ENDED':
-        return (
-          <div className="space-y-4 text-black">
-            <p className="text-lg font-medium">{question.text}</p>
-            {question.options.map((option, index) => (
-              <label key={index} className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name={`question-${question.id}`}
-                  value={option}
-                  checked={userAnswer === option}
-                  onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                  className="w-4 h-4"
-                />
-                <span>{option}</span>
-              </label>
-            ))}
-          </div>
-        )
-
-      case 'MATCHING':
-        return (
-          <div className="space-y-4 text-black">
-            <p className="text-lg font-medium">{question.text}</p>
-            {question.leftSide && question.rightSide && (
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h4 className="font-medium mb-2">მარცხენა მხარე:</h4>
-                  {question.leftSide.map((item: string, index: number) => (
-                    <div key={index} className="p-2 border rounded mb-2">
-                      {item}
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <h4 className="font-medium mb-2">მარჯვენა მხარე:</h4>
-                  {question.rightSide.map((item: string, index: number) => (
-                    <div key={index} className="p-2 border rounded mb-2">
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )
-
-      default:
-        return (
-          <div className="space-y-4 text-black">
-            <p className="text-lg font-medium">{question.text}</p>
-            <textarea
-              value={userAnswer}
-              onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-              className="w-full p-3 border rounded-lg"
-              rows={4}
-              placeholder="შეიყვანეთ თქვენი პასუხი..."
-            />
-          </div>
-        )
-    }
-  }
-
-  const getResultMessage = (score: number) => {
-    if (score >= 80) {
-      return "გილოცავ! ამ შედეგით შენ გაქვს შანსი გამარჯვების!"
-    } else if (score >= 60) {
-      return "კარგი შედეგია! კიდევ ცოტა ვარჯიში და უკეთესი შედეგი მიიღებ."
-    } else if (score >= 40) {
-      return "საშუალო შედეგია. რეკომენდებულია მეტი ვარჯიში."
-    } else {
-      return "შედეგი საშუალოზე დაბალია. რეკომენდებულია მეტი ვარჯიში და მომზადება."
-    }
-  }
 
   if (!subjectName) {
     return (
@@ -239,90 +166,7 @@ const TestSubjectPage = () => {
     )
   }
 
-  if (showResults) {
-    return (
-      <div className="bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-gray-50 rounded-lg shadow-lg p-8 text-center">
-            <h1 className="text-3xl font-bold text-black mb-6">ტესტის შედეგები</h1>
-            
-            <div className="mb-8">
-              <div className="text-6xl font-bold text-blue-600 mb-4">{score}%</div>
-              <p className="text-xl text-black mb-4">
-                სწორი პასუხები: {Math.round((score / 100) * totalQuestions)} / {totalQuestions}
-              </p>
-              <p className="text-lg text-black">{getResultMessage(score)}</p>
-            </div>
 
-            <div className="flex justify-center space-x-4">
-              <button
-                onClick={resetTest}
-                className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                ახალი ტესტი
-              </button>
-              <button
-                onClick={() => router.push('/')}
-                className="bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                მთავარ გვერდზე
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (testStarted && questions.length > 0) {
-    const currentQuestion = questions[currentQuestionIndex]
-    
-    return (
-      <div className="bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-gray-50 rounded-lg shadow-lg p-8">
-            <div className="mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h1 className="text-2xl font-bold text-black">
-                  {currentQuestion.subject} - მე-{currentQuestion.grade} კლასი
-                </h1>
-                <span className="text-lg text-black">
-                  კითხვა {currentQuestionIndex + 1} / {questions.length}
-                </span>
-              </div>
-              <div className="w-full bg-white rounded-full h-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="mb-8">
-              {renderQuestion(currentQuestion)}
-            </div>
-
-            <div className="flex justify-between">
-              <button
-                onClick={previousQuestion}
-                disabled={currentQuestionIndex === 0}
-                className="px-6 py-2 bg-black text-white rounded-lg disabled:cursor-not-allowed transition-colors"
-              >
-                წინა
-              </button>
-              
-              <button
-                onClick={nextQuestion}
-                className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                {currentQuestionIndex === questions.length - 1 ? 'დასრულება' : 'შემდეგი'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="bg-gray-50 min-h-screen py-8">
@@ -366,6 +210,24 @@ const TestSubjectPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Test Modal */}
+      <TestModal
+        isOpen={showTestModal}
+        onClose={() => setShowTestModal(false)}
+        questions={questions}
+        currentQuestionIndex={currentQuestionIndex}
+        userAnswers={userAnswers}
+        onAnswerChange={handleAnswerChange}
+        onNextQuestion={nextQuestion}
+        onPreviousQuestion={previousQuestion}
+        onFinishTest={finishTest}
+        isLoading={isLoading}
+        showResults={showResults}
+        score={score}
+        totalQuestions={totalQuestions}
+        onResetTest={resetTest}
+      />
     </div>
   )
 }
