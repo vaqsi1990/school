@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 
 interface Question {
@@ -12,9 +12,9 @@ interface Question {
   points: number
   image: string[]
   content?: string
-  matchingPairs?: any
-  leftSide?: any
-  rightSide?: any
+  matchingPairs?: Record<string, string>
+  leftSide?: string[]
+  rightSide?: string[]
   imageOptions?: string[]
   subject: string
   grade: number
@@ -168,7 +168,7 @@ const TestSubjectPage = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h4 className="font-medium mb-2">მარცხენა მხარე:</h4>
-                  {question.leftSide.map((item: any, index: number) => (
+                  {question.leftSide.map((item: string, index: number) => (
                     <div key={index} className="p-2 border rounded mb-2">
                       {item}
                     </div>
@@ -176,7 +176,7 @@ const TestSubjectPage = () => {
                 </div>
                 <div>
                   <h4 className="font-medium mb-2">მარჯვენა მხარე:</h4>
-                  {question.rightSide.map((item: any, index: number) => (
+                  {question.rightSide.map((item: string, index: number) => (
                     <div key={index} className="p-2 border rounded mb-2">
                       {item}
                     </div>
