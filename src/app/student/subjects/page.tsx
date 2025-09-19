@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 
 interface Subject {
@@ -13,33 +14,82 @@ interface Subject {
 
 const StudentSubjectsPage = () => {
   const router = useRouter()
+  const { data: session } = useSession()
   const [subjects, setSubjects] = useState<Subject[]>([])
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selecting, setSelecting] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchSubjects = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await fetch('/api/subjects')
         
-        if (!response.ok) {
+        // Fetch subjects
+        const subjectsResponse = await fetch('/api/subjects')
+        if (!subjectsResponse.ok) {
           throw new Error('Failed to fetch subjects')
         }
+        const subjectsData = await subjectsResponse.json()
+        setSubjects(subjectsData.subjects || [])
         
-        const data = await response.json()
-        setSubjects(data.subjects || [])
+        // Fetch selected subjects for this student
+        if (session?.user?.id) {
+          const selectedResponse = await fetch(`/api/student/selected-subjects?userId=${session.user.id}`)
+          if (selectedResponse.ok) {
+            const selectedData = await selectedResponse.json()
+            setSelectedSubjects(selectedData.selectedSubjects || [])
+          }
+        }
+        
         setError(null)
       } catch (err) {
-        console.error('Error fetching subjects:', err)
-        setError('საგნების ჩატვირთვა ვერ მოხერხდა')
+        console.error('Error fetching data:', err)
+        setError('მონაცემების ჩატვირთვა ვერ მოხერხდა')
       } finally {
         setLoading(false)
       }
     }
 
-    fetchSubjects()
-  }, [])
+    fetchData()
+  }, [session])
+
+  const handleSubjectSelection = async (subjectId: string) => {
+    if (!session?.user?.id) return
+    
+    try {
+      setSelecting(subjectId)
+      const response = await fetch('/api/student/select-subject', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: session.user.id,
+          subjectId: subjectId
+        })
+      })
+      
+      if (response.ok) {
+        // Add to selected subjects
+        setSelectedSubjects(prev => [...prev, subjectId])
+        // Show success message
+        alert('საგანი წარმატებით აირჩია!')
+      } else {
+        const errorData = await response.json()
+        alert(`შეცდომა: ${errorData.error || 'საგნის არჩევა ვერ მოხერხდა'}`)
+      }
+    } catch (error) {
+      console.error('Error selecting subject:', error)
+      alert('საგნის არჩევა ვერ მოხერხდა')
+    } finally {
+      setSelecting(null)
+    }
+  }
+
+  // Filter out already selected subjects
+  const availableSubjects = subjects.filter(subject => !selectedSubjects.includes(subject.id))
 
   if (loading) {
     return (
@@ -100,13 +150,17 @@ const StudentSubjectsPage = () => {
 
         </motion.div>
 
-        {subjects.length === 0 ? (
+        {availableSubjects.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-black text-[16px]">საგნები ჯერ არ არის დამატებული</p>
+            <p className="text-black text-[16px]">
+              {subjects.length === 0 
+                ? 'საგნები ჯერ არ არის დამატებული' 
+                : 'ყველა საგანი უკვე აირჩიეთ'}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {subjects.map((subject, index) => (
+            {availableSubjects.map((subject, index) => (
               <motion.div
                 key={subject.id}
                 className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
@@ -125,12 +179,13 @@ const StudentSubjectsPage = () => {
                       {subject.description}
                     </p>
                   )}
-                  <Link href={`/student/subjects/${subject.id}`} className="block cursor-pointer w-full">
-                    <button className="w-full bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
-                      ტესტის დაწყება
-                    </button>
-                  </Link>
-
+                  <button 
+                    onClick={() => handleSubjectSelection(subject.id)}
+                    disabled={selecting === subject.id}
+                    className="w-full bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md text-[16px] font-bold transition-colors hover:bg-[#023a4d] disabled:opacity-50"
+                  >
+                    {selecting === subject.id ? 'არჩევა...' : 'არჩევა'}
+                  </button>
                 </div>
               </motion.div>
             ))}
