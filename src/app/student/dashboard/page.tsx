@@ -7,16 +7,14 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 
 function StudentDashboardContent() {
-  const { user, logout } = useAuth()
-  const [selectedSubjects, setSelectedSubjects] = useState<any[]>([])
-  const [loadingSubjects, setLoadingSubjects] = useState(true)
+  const { user } = useAuth()
+  const [selectedSubjects, setSelectedSubjects] = useState<Array<{id: string, name: string, description?: string, selectedAt: string}>>([])
 
   useEffect(() => {
     const fetchSelectedSubjects = async () => {
       if (!user?.id) return
       
       try {
-        setLoadingSubjects(true)
         const response = await fetch(`/api/student/selected-subjects?userId=${user.id}`)
         if (response.ok) {
           const data = await response.json()
@@ -24,8 +22,6 @@ function StudentDashboardContent() {
         }
       } catch (error) {
         console.error('Error fetching selected subjects:', error)
-      } finally {
-        setLoadingSubjects(false)
       }
     }
 
@@ -309,7 +305,7 @@ function StudentDashboardContent() {
                 {selectedSubjects.length === 0 ? (
                   <div className="text-center py-8">
                     <p className="text-gray-500 text-[14px]">ჯერ არ გაქვთ არჩეული საგნები</p>
-                    <p className="text-gray-500 text-[12px] mt-2">საგნების არჩევისთვის გადადით "საგნის არჩევა" გვერდზე</p>
+                    <p className="text-gray-500 text-[12px] mt-2">საგნების არჩევისთვის გადადით &quot;საგნის არჩევა&quot; გვერდზე</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
