@@ -6,14 +6,9 @@ import { StudentOnly } from '@/components/auth/ProtectedRoute'
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
-interface Subject {
-  id: string
-  name: string
-}
-
 function StudentDashboardContent() {
-  const { user } = useAuth()
-  const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([])
+  const { user, logout } = useAuth()
+  const [selectedSubjects, setSelectedSubjects] = useState<any[]>([])
   const [loadingSubjects, setLoadingSubjects] = useState(true)
 
   useEffect(() => {
@@ -106,271 +101,318 @@ function StudentDashboardContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-   
+      <motion.div 
+        className="bg-white shadow"
+        variants={headerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-6">
+            <motion.div
+              variants={headerVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
+                მოსწავლის პროფილი
+              </h1>
+              <p className="text-black md:text-[18px] text-[16px]">
+                კეთილი იყოს თქვენი მობრძანება, {user?.student?.name || user?.email} {user?.student?.lastname || ''}
+              </p>
+              <p className="text-black md:text-[18px] text-[16px]">
+                როლი: მოსწავლე
+              </p>
+            </motion.div>
+            
+          </div>
+        </div>
+      </motion.div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 grid-cols-1 md:grid-cols-3 sm:px-6 lg:px-8 py-8">
         <motion.div 
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Left Side - Student Profile */}
+          {/* Enhanced Student Info Card */}
+
+      
           <motion.div 
-            className="lg:col-span-1"
+            className="bg-white  overflow-hidden shadow rounded-lg flex flex-col h-[500px] hover:shadow-xl hover:scale-105 transition-all duration-300"
             variants={cardVariants}
+            style={{
+              backgroundImage: 'url(/test/dafa.jpeg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
+            whileTap={{ scale: 0.95 }}
           >
+            <div className="p-10 flex flex-col">
+              <div className="flex items-center">
+               
+                <div className="ml-4">
+                  <motion.h3 
+                    className="text-white md:text-[18px] text-[16px]"
+                  
+                  >
+                    პროფილის ინფორმაცია
+                  </motion.h3>
+                </div>
+              </div>
+              <div className="mt-3 space-y-2">
+                <motion.div 
+                  className="flex justify-between transition-all duration-300  p-2 rounded"
+                
+                >
+                  <span className="text-white md:text-[16px] text-[14px]">სახელი:</span>
+                  <span className="md:text-[16px] text-[14px] font-medium text-white">
+                    {user?.student?.name || 'არ არის მითითებული'}
+                  </span>
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between transition-all duration-300 p-2 rounded"
+                
+                >
+                  <span className="md:text-[16px] text-[14px] text-white">გვარი:</span>
+                  <span className="md:text-[16px] text-[14px] font-medium text-white">
+                    {user?.student?.lastname || 'არ არის მითითებული'}
+                  </span>
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between transition-all duration-300  p-2 rounded"
+                 
+                >
+                  <span className="md:text-[16px] text-[14px] text-white">კლასი:</span>
+                  <span className="md:text-[16px] text-[14px] font-medium text-white">
+                    {user?.student?.grade || 'არ არის მითითებული'}
+                  </span>
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between transition-all duration-300 p-2 rounded"
+                 
+                >
+                  <span className="md:text-[16px] text-[14px] text-white">სკოლა:</span>
+                  <span className="md:text-[16px] text-[14px] font-medium text-white">
+                    {user?.student?.school || 'არ არის მითითებული'}
+                  </span>
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between transition-all duration-300  p-2 rounded"
+                
+                >
+                  <span className="md:text-[16px] text-[14px] text-white">ტელეფონი:</span>
+                  <span className="md:text-[16px] text-[14px] font-medium text-white">
+                    {user?.student?.phone || 'არ არის მითითებული'}
+                  </span>
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between transition-all duration-300  p-2 rounded"
+                
+                >
+                  <span className="md:text-[16px] text-[14px] text-white">კოდი:</span>
+                  <span className="md:text-[16px] text-[14px] font-medium text-white">
+                    {user?.student?.code || 'არ არის მითითებული'}
+                  </span>
+                </motion.div>
+                <motion.div 
+                  className="flex justify-between transition-all duration-300  p-2 rounded"
+                 
+                >
+                  <span className="md:text-[16px] text-[14px] text-white">ელ-ფოსტა:</span>
+                  <span className="md:text-[15px] text-[14px] font-medium text-white">
+                    {user?.email || 'არ არის მითითებული'}
+                  </span>
+                </motion.div>
+                
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Olympiads Card */}
+          <motion.div 
+            className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
+            variants={cardVariants}
+          
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className="p-4 bg-white flex flex-col">
+              <div className="flex items-center">
+               
+                <div className="ml-4">
+                  <motion.h3 
+                    className="text-black md:text-[18px] text-[16px]"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    ოლიმპიადები
+                  </motion.h3>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-col">
+                <motion.p 
+                  className="text-black md:text-[16px] text-[14px]"
+                 
+                >
+                  აქ შეგიძლიათ  ოლიმპიადებში მიიღოთ მონაწილეობა
+                </motion.p>
+                <motion.button 
+                  className="mt-3 w-full cursor-pointer bg-[#034e64] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+               
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Link href="/student/olympiads" className="block bg-[#034e64] w-full h-auto">
+                  ოლიმპიადების ნახვა
+                  </Link>
+                </motion.button>
+
+               
+              </div>
+            </div>
+          </motion.div>
+          
+          <motion.div 
+            className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
+            variants={cardVariants}
+         
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className="p-4 h-44 bg-white flex flex-col">
+              <div className="flex items-center">
+               
+                <div className="ml-4">
+                  <motion.h3 
+                    className="text-black md:text-[18px] text-[16px]"
+               
+                  >
+                    საგნის არჩევა
+                  </motion.h3>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-col">
+                <motion.p 
+                  className="text-black md:text-[16px] text-[14px]"
+                  whileHover={{ scale: 1.02 }}
+                >
+                  აქ შეგიძლიათ საგნის არჩევა.
+                </motion.p>
+               
+
+                <motion.button 
+                  className="mt-9 w-full cursor-pointer bg-[#034e64] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+                
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Link href="/student/subjects" className="block bg-[#034e64] w-full h-auto">
+                 საგნის არჩევა
+                  </Link>
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Selected Subjects Section */}
+          {selectedSubjects.length > 0 && (
             <motion.div 
-              className="bg-white overflow-hidden shadow rounded-lg flex flex-col h-auto hover:shadow-xl hover:scale-105 transition-all duration-300"
+              className="overflow-hidden rounded-lg flex flex-col h-auto hover:scale-105 transition-all duration-300 md:col-span-2"
+              variants={cardVariants}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="p-4 flex flex-col">
+              <div className="p-4 bg-white flex flex-col">
                 <div className="flex items-center">
                   <div className="ml-4">
                     <motion.h3 
                       className="text-black md:text-[18px] text-[16px]"
+                      whileHover={{ scale: 1.05 }}
                     >
-                      პროფილის ინფორმაცია
+                      არჩეული საგნები
                     </motion.h3>
                   </div>
                 </div>
-                <div className="mt-3 space-y-2">
-                  <motion.div 
-                    className="flex justify-between transition-all duration-300 hover:bg-gray-50 p-2 rounded"
+                <div className="mt-3 flex flex-col">
+                  <motion.p 
+                    className="text-black md:text-[16px] text-[14px] mb-4"
+                    whileHover={{ scale: 1.02 }}
                   >
-                    <span className="text-black md:text-[16px] text-[14px]">სახელი:</span>
-                    <span className="md:text-[16px] text-[14px] font-medium text-black">
-                      {user?.student?.name || 'არ არის მითითებული'}
-                    </span>
-                  </motion.div>
-                  <motion.div 
-                    className="flex justify-between transition-all duration-300 hover:bg-gray-50 p-2 rounded"
-                  >
-                    <span className="md:text-[16px] text-[14px] text-black">გვარი:</span>
-                    <span className="md:text-[16px] text-[14px] font-medium text-black">
-                      {user?.student?.lastname || 'არ არის მითითებული'}
-                    </span>
-                  </motion.div>
-                  <motion.div 
-                    className="flex justify-between transition-all duration-300 hover:bg-gray-50 p-2 rounded"
-                  >
-                    <span className="md:text-[16px] text-[14px] text-black">კლასი:</span>
-                    <span className="md:text-[16px] text-[14px] font-medium text-black">
-                      {user?.student?.grade || 'არ არის მითითებული'}
-                    </span>
-                  </motion.div>
-                  <motion.div 
-                    className="flex justify-between transition-all duration-300 hover:bg-gray-50 p-2 rounded"
-                  >
-                    <span className="md:text-[16px] text-[14px] text-black">სკოლა:</span>
-                    <span className="md:text-[16px] text-[14px] font-medium text-black">
-                      {user?.student?.school || 'არ არის მითითებული'}
-                    </span>
-                  </motion.div>
-                  <motion.div 
-                    className="flex justify-between transition-all duration-300 hover:bg-gray-50 p-2 rounded"
-                  >
-                    <span className="md:text-[16px] text-[14px] text-black">ტელეფონი:</span>
-                    <span className="md:text-[16px] text-[14px] font-medium text-black">
-                      {user?.student?.phone || 'არ არის მითითებული'}
-                    </span>
-                  </motion.div>
-                  <motion.div 
-                    className="flex justify-between transition-all duration-300 hover:bg-gray-50 p-2 rounded"
-                  >
-                    <span className="md:text-[16px] text-[14px] text-black">კოდი:</span>
-                    <span className="md:text-[16px] text-[14px] font-medium text-black">
-                      {user?.student?.code || 'არ არის მითითებული'}
-                    </span>
-                  </motion.div>
-                  <motion.div 
-                    className="flex justify-between transition-all duration-300 hover:bg-gray-50 p-2 rounded"
-                  >
-                    <span className="md:text-[16px] text-[14px] text-black">ელ-ფოსტა:</span>
-                    <span className="md:text-[15px] text-[14px] font-medium text-black">
-                      {user?.email || 'არ არის მითითებული'}
-                    </span>
-                  </motion.div>
+                    თქვენი არჩეული საგნები:
+                  </motion.p>
+                  <div className="space-y-3">
+                    {selectedSubjects.map((subject) => (
+                      <motion.div 
+                        key={subject.id}
+                        className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        <div>
+                          <span className="text-black md:text-[16px] text-[14px] font-medium">
+                            {subject.name}
+                          </span>
+                        </div>
+                        <div className="flex space-x-2">
+                          <Link href={`/student/subjects/${subject.id}`}>
+                            <motion.button 
+                              className="bg-[#034e64] cursor-pointer mr-4 text-white px-4 py-2 rounded-md text-[14px] font-bold transition-colors hover:bg-[#023a4d]"
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              დაწყება
+                            </motion.button>
+                          <motion.button 
+                            onClick={() => handleDeleteSubject(subject.id)}
+                            className="bg-red-500 text-white cursor-pointer px-3 py-2 rounded-md text-[14px] font-bold transition-colors hover:bg-red-600"
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            წაშლა
+                          </motion.button>
+                          </Link>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </motion.div>
-          </motion.div>
-
-          {/* Right Side - Other Cards */}
+          )}
+         
           <motion.div 
-            className="lg:col-span-2"
+            className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
             variants={cardVariants}
+          
+            whileTap={{ scale: 0.95 }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Olympiads Card */}
-              <motion.div 
-                className="overflow-hidden rounded-lg flex flex-col h-auto hover:scale-105 transition-all duration-300"
-                variants={cardVariants}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="p-4 bg-white flex flex-col">
-                  <div className="flex items-center">
-                    <div className="ml-4">
-                      <motion.h3 
-                        className="text-black md:text-[18px] text-[16px]"
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        ოლიმპიადები
-                      </motion.h3>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex flex-col">
-                    <motion.p 
-                      className="text-black md:text-[16px] text-[14px]"
-                    >
-                      აქ შეგიძლიათ ოლიმპიადებში მიიღოთ მონაწილეობა
-                    </motion.p>
-                    <motion.button 
-                      className="mt-3 w-full cursor-pointer bg-[#034e64] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Link href="/student/olympiads" className="block bg-[#034e64] w-full h-auto">
-                        ოლიმპიადების ნახვა
-                      </Link>
-                    </motion.button>
-                  </div>
+            <div className="p-4 bg-white flex flex-col">
+              <div className="flex items-center">
+               
+                <div className="ml-4">
+                  <motion.h3 
+                    className="text-black md:text-[18px] text-[16px]"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    შედეგები
+                  </motion.h3>
                 </div>
-              </motion.div>
-              
-              {/* Subject Selection Card */}
-              <motion.div 
-                className="overflow-hidden rounded-lg flex flex-col h-auto hover:scale-105 transition-all duration-300"
-                variants={cardVariants}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="p-4 h-44 bg-white flex flex-col">
-                  <div className="flex items-center">
-                    <div className="ml-4">
-                      <motion.h3 
-                        className="text-black md:text-[18px] text-[16px]"
-                      >
-                        საგნის არჩევა
-                      </motion.h3>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex flex-col">
+              </div>
+              <div className="mt-3 flex flex-col">
                     <motion.p 
                       className="text-black md:text-[16px] text-[14px]"
                       whileHover={{ scale: 1.02 }}
                     >
-                      აქ შეგიძლიათ საგნის არჩევა.
-                    </motion.p>
-                    <motion.button 
-                      className="mt-9 w-full cursor-pointer bg-[#034e64] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Link href="/student/subjects" className="block bg-[#034e64] w-full h-auto">
-                        საგნის არჩევა
-                      </Link>
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Results Card */}
-              <motion.div 
-                className="overflow-hidden rounded-lg flex flex-col h-auto hover:scale-105 transition-all duration-300"
-                variants={cardVariants}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="p-4 bg-white flex flex-col">
-                  <div className="flex items-center">
-                    <div className="ml-4">
-                      <motion.h3 
-                        className="text-black md:text-[18px] text-[16px]"
-                        whileHover={{ scale: 1.05 }}
-                      >
-                        შედეგები
-                      </motion.h3>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex flex-col">
-                    <motion.p 
-                      className="text-black md:text-[16px] text-[14px]"
-                      whileHover={{ scale: 1.02 }}
-                    >
-                      იხილეთ თქვენი ოლიმპიადების შედეგები და სტატისტიკა.
-                    </motion.p>
-                    <motion.button 
-                      className="mt-3 w-full cursor-pointer bg-[#f06905] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Link href="/student/results" className="block w-full h-auto">
-                        შედეგების ნახვა
-                      </Link>
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Selected Subjects Section */}
-              {selectedSubjects.length > 0 && (
-                <motion.div 
-                  className="overflow-hidden rounded-lg flex flex-col h-auto hover:scale-105 transition-all duration-300 md:col-span-2"
-                  variants={cardVariants}
+                  იხილეთ თქვენი ოლიმპიადების შედეგები და სტატისტიკა.
+                </motion.p>
+                <motion.button 
+                  className="mt-3 w-full cursor-pointer bg-[#f06905] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+                 
                   whileTap={{ scale: 0.95 }}
                 >
-                  <div className="p-4 bg-white flex flex-col">
-                    <div className="flex items-center">
-                      <div className="ml-4">
-                        <motion.h3 
-                          className="text-black md:text-[18px] text-[16px]"
-                          whileHover={{ scale: 1.05 }}
-                        >
-                          არჩეული საგნები
-                        </motion.h3>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex flex-col">
-                      <motion.p 
-                        className="text-black md:text-[16px] text-[14px] mb-4"
-                        whileHover={{ scale: 1.02 }}
-                      >
-                        თქვენი არჩეული საგნები:
-                      </motion.p>
-                      <div className="space-y-3">
-                        {selectedSubjects.map((subject) => (
-                          <motion.div 
-                            key={subject.id}
-                            className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
-                            whileHover={{ scale: 1.02 }}
-                          >
-                            <div>
-                              <span className="text-black md:text-[16px] text-[14px] font-medium">
-                                {subject.name}
-                              </span>
-                            </div>
-                            <div className="flex space-x-2">
-                              <Link href={`/student/subjects/${subject.id}`}>
-                                <motion.button 
-                                  className="bg-[#034e64] text-white px-4 py-2 rounded-md text-[14px] font-bold transition-colors hover:bg-[#023a4d]"
-                                  whileTap={{ scale: 0.95 }}
-                                >
-                                  დაწყება
-                                </motion.button>
-                              </Link>
-                              <motion.button 
-                                onClick={() => handleDeleteSubject(subject.id)}
-                                className="bg-red-500 text-white px-3 py-2 rounded-md text-[14px] font-bold transition-colors hover:bg-red-600"
-                                whileTap={{ scale: 0.95 }}
-                              >
-                                წაშლა
-                              </motion.button>
-                            </div>
-                          </motion.div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
+                  <Link href="/student/results" className="block  w-full h-auto">
+                    შედეგების ნახვა
+                  </Link>
+                </motion.button>
+              </div>
             </div>
           </motion.div>
+
+
         </motion.div>
       </div>
     </div>
