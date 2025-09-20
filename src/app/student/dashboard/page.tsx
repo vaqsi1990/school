@@ -5,10 +5,14 @@ import { useAuth } from '@/hooks/useAuth'
 import { StudentOnly } from '@/components/auth/ProtectedRoute'
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-
+interface Subject {
+  id: string
+  name: string
+  description: string
+}
 function StudentDashboardContent() {
   const { user, logout } = useAuth()
-  const [selectedSubjects, setSelectedSubjects] = useState<any[]>([])
+  const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([])
   const [loadingSubjects, setLoadingSubjects] = useState(true)
 
   useEffect(() => {
