@@ -54,26 +54,7 @@ function AdminDashboardContent() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
-                ადმინისტრატორის პროფილი
-              </h1>
-              <p className="text-black md:text-[18px] text-[16px]">
-                კეთილი იყოს თქვენი მობრძანება, {user?.admin?.name || user?.email} {user?.admin?.lastname || ''}
-              </p>
-              <p className=" text-black md:text-[18px] text-[16px]">
-                როლი: {user?.admin?.role === 'SUPER_ADMIN' ? 'სუპერ ადმინი' :
-                  user?.admin?.role === 'ADMIN' ? 'ადმინი' :
-                    user?.admin?.role === 'MODERATOR' ? 'მოდერატორი' : 'უცნობი'}
-              </p>
-            </div>
-
-          </div>
-        </div>
-      </div>
+      
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
