@@ -193,6 +193,16 @@ function StudentDashboardContent() {
                     {user?.student?.name || 'არ არის მითითებული'}
                   </span>
                 </motion.div>
+
+                <motion.div 
+                  className="flex justify-between transition-all duration-300  p-2 rounded"
+                
+                >
+                  <span className="text-white md:text-[16px] text-[14px]">სტატუსი:</span>
+                  <span className="md:text-[16px] text-[14px] font-medium text-white">
+                 მოსწავლე
+                  </span>
+                </motion.div>
                 <motion.div 
                   className="flex justify-between transition-all duration-300 p-2 rounded"
                 
@@ -249,6 +259,8 @@ function StudentDashboardContent() {
                 </motion.div>
                 
               </div>
+
+              
             </div>
           </motion.div>
 
