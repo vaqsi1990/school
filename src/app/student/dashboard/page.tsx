@@ -10,6 +10,23 @@ interface Subject {
   name: string
   description: string
 }
+
+// Function to get subject image based on name
+const getSubjectImage = (subjectName: string): string => {
+  const imageMap: { [key: string]: string } = {
+    'მათემატიკა': '/test/მათემატიკა.jpg',
+    'ქართული ენა': '/test/ქართული.jpg',
+    'ინგლისური ენა': '/test/ინგლისური.jpg',
+    'ფიზიკა': '/test/ფიზიკა.jpg',
+    'ქიმია': '/test/ქიმია.jpg',
+    'ბიოლოგია': '/test/ბიოლოგია.jpg',
+    'ისტორია': '/test/ისტორია.jpg',
+    'გეოგრაფია': '/test/გეოგრაფია.jpg',
+    'ერთიანი ეროვნული გამოცდები': '/test/ეროვნული.jpg'
+  }
+  
+  return imageMap[subjectName] || '/test/bgimage.jpg' // fallback image
+}
 function StudentDashboardContent() {
   const { user, logout } = useAuth()
   const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([])
@@ -345,14 +362,24 @@ function StudentDashboardContent() {
                     {selectedSubjects.map((subject) => (
                       <motion.div 
                         key={subject.id}
-                        className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                        className="flex items-center p-3 bg-gray-50 rounded-lg"
                         whileHover={{ scale: 1.02 }}
                       >
-                        <div>
+                        {/* Subject Image */}
+                        <div className="w-24  h-24 rounded-lg overflow-hidden mr-4 flex-shrink-0">
+                          <img 
+                            src={getSubjectImage(subject.name)}
+                            alt={subject.name}
+                            className="w-full rounded-lg h-full object-cover"
+                          />
+                        </div>
+                        
+                        <div className="flex-1">
                           <span className="text-black md:text-[16px] text-[14px] font-medium">
                             {subject.name}
                           </span>
                         </div>
+                        
                         <div className="flex space-x-2">
                           <Link href={`/student/subjects/${subject.id}`}>
                             <motion.button 
@@ -361,6 +388,7 @@ function StudentDashboardContent() {
                             >
                               დაწყება
                             </motion.button>
+                          </Link>
                           <motion.button 
                             onClick={() => handleDeleteSubject(subject.id)}
                             className="bg-red-500 text-white cursor-pointer px-3 py-2 rounded-md text-[14px] font-bold transition-colors hover:bg-red-600"
@@ -368,7 +396,6 @@ function StudentDashboardContent() {
                           >
                             წაშლა
                           </motion.button>
-                          </Link>
                         </div>
                       </motion.div>
                     ))}

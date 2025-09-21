@@ -4,12 +4,30 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import Link from 'next/link'
+import toast from 'react-hot-toast'
+
 
 interface Subject {
   id: string
   name: string
   description?: string
+}
+
+// Function to get subject image based on name
+const getSubjectImage = (subjectName: string): string => {
+  const imageMap: { [key: string]: string } = {
+    'მათემატიკა': '/test/მათემატიკა.jpg',
+    'ქართული ენა': '/test/ქართული.jpg',
+    'ინგლისური ენა': '/test/ინგლისური.jpg',
+    'ფიზიკა': '/test/ფიზიკა.jpg',
+    'ქიმია': '/test/ქიმია.jpg',
+    'ბიოლოგია': '/test/ბიოლოგია.jpg',
+    'ისტორია': '/test/ისტორია.jpg',
+    'გეოგრაფია': '/test/გეოგრაფია.jpg',
+    'ერთიანი ეროვნული გამოცდები': '/test/ეროვნული.jpg'
+  }
+  
+  return imageMap[subjectName]  // fallback image
 }
 
 const StudentSubjectsPage = () => {
@@ -75,14 +93,14 @@ const StudentSubjectsPage = () => {
         // Add to selected subjects
         setSelectedSubjects(prev => [...prev, subjectId])
         // Show success message
-        alert('საგანი წარმატებით აირჩია!')
+        toast.success('საგანი წარმატებით აირჩია!')
       } else {
         const errorData = await response.json()
-        alert(`შეცდომა: ${errorData.error || 'საგნის არჩევა ვერ მოხერხდა'}`)
+        toast.error(`შეცდომა: ${errorData.error || 'საგნის არჩევა ვერ მოხერხდა'}`)
       }
     } catch (error) {
       console.error('Error selecting subject:', error)
-      alert('საგნის არჩევა ვერ მოხერხდა')
+      toast.error('საგნის არჩევა ვერ მოხერხდა')
     } finally {
       setSelecting(null)
     }
@@ -170,6 +188,15 @@ const StudentSubjectsPage = () => {
                 viewport={{ once: true }}
                 whileHover={{ y: -10, scale: 1.02 }}
               >
+                {/* Subject Image */}
+                <div className="h-72 w-full overflow-hidden">
+                  <img 
+                    src={getSubjectImage(subject.name)}
+                    alt={subject.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-black mb-3">
                     {subject.name}
