@@ -42,9 +42,15 @@ const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectI
 
   // Map subject IDs to names
   const subjectMapping: Record<string, string> = {
+    'math': 'მათემატიკა',
+    'physics': 'ფიზიკა',
+    'chemistry': 'ქიმია',
+    'biology': 'ბიოლოგია',
     'history': 'ისტორია',
     'geography': 'გეოგრაფია',
-    'georgian': 'ქართული ენა და ლიტერატურა'
+    'georgian': 'ქართული ენა',
+    'english': 'ინგლისური ენა',
+    'eeg': 'ერთიანი ეროვნული გამოცდები'
   }
 
   const subjectName = subjectMapping[subjectId]

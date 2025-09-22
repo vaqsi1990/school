@@ -180,6 +180,7 @@ export async function POST(request: NextRequest) {
       grade,
       round,
       isAutoScored,
+      isPublic,
       subQuestions
     } = body
 
@@ -437,6 +438,7 @@ export async function POST(request: NextRequest) {
           createdByType: 'ADMIN',
           status: 'ACTIVE',
           isAutoScored: isAutoScored !== undefined ? isAutoScored : true,
+          isPublic: isPublic !== undefined ? isPublic : false,
           // Store sub-questions as JSON in a text field for now
           // In the future, you might want to create a separate table for sub-questions
           content: subQuestions ? JSON.stringify(subQuestions) : null

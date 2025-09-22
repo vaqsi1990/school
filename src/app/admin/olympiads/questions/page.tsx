@@ -1276,8 +1276,8 @@ function AdminQuestionsContent() {
                           წაშლა
                         </button>
                         {question.isPublic && (
-                          <span className="bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
-                            🌐 საჯარო
+                          <span className="bg-green-500 text-white px-2 py-1 rounded text-[16px] font-medium">
+                             საჯარო
                           </span>
                         )}
                       </div>

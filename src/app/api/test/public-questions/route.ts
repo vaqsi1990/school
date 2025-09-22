@@ -20,10 +20,15 @@ export async function GET(request: NextRequest) {
 
     // Map predefined subject IDs to actual subject names
     const subjectMapping: Record<string, string> = {
+      'math': 'მათემატიკა',
+      'physics': 'ფიზიკა',
+      'chemistry': 'ქიმია',
+      'biology': 'ბიოლოგია',
       'history': 'ისტორია',
-      'geography': 'გეოგრაფია', 
-      'georgian': 'ქართული ენა და ლიტერატურა',
- 
+      'geography': 'გეოგრაფია',
+      'georgian': 'ქართული ენა',
+      'english': 'ინგლისური ენა',
+      'eeg': 'ერთიანი ეროვნული გამოცდები'
     }
 
     const subjectName = subjectMapping[subjectId]
@@ -46,8 +51,8 @@ export async function GET(request: NextRequest) {
           name: subjectName
         },
         grade: parseInt(grade),
-        status: 'ACTIVE'
-        // Temporarily remove isPublic filter to test
+        status: 'ACTIVE',
+        isPublic: true
       },
       include: {
         subject: true
@@ -57,9 +62,9 @@ export async function GET(request: NextRequest) {
     console.log('Found total questions:', allQuestions.length)
 
     if (allQuestions.length === 0) {
-      console.log('No questions found for this subject and grade')
+      console.log('No public questions found for this subject and grade')
       return NextResponse.json(
-        { error: 'ამ საგნისა და კლასისთვის კითხვები ჯერ არ არის დამატებული' },
+        { error: 'ამ საგნისა და კლასისთვის საჯარო კითხვები ჯერ არ არის დამატებული' },
         { status: 404 }
       )
     }

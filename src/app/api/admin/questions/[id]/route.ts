@@ -33,6 +33,7 @@ export async function PUT(
       grade,
       round,
       isAutoScored,
+      isPublic,
       subQuestions
     } = await request.json()
 
@@ -109,6 +110,7 @@ export async function PUT(
         grade: parseInt(grade),
         round: parseInt(round),
         isAutoScored: isAutoScored !== undefined ? isAutoScored : true,
+        isPublic: isPublic !== undefined ? isPublic : false,
         // Store sub-questions as JSON in a text field for now
         // In the future, you might want to create a separate table for sub-questions
         content: subQuestions ? JSON.stringify(subQuestions) : null
