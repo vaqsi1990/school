@@ -128,40 +128,19 @@ function StudentDashboardContent() {
         initial="hidden"
         animate="visible"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <motion.div
-              variants={headerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
-                მოსწავლის პროფილი
-              </h1>
-              <p className="text-black md:text-[18px] text-[16px]">
-                კეთილი იყოს თქვენი მობრძანება, {user?.student?.name || user?.email} {user?.student?.lastname || ''}
-              </p>
-              <p className="text-black md:text-[18px] text-[16px]">
-                როლი: მოსწავლე
-              </p>
-            </motion.div>
-            
-          </div>
-        </div>
+       
       </motion.div>
 
-      <div className="max-w-7xl mx-auto px-4 grid-cols-1 md:grid-cols-3 sm:px-6 lg:px-8 py-8">
+      <div className=" mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          className="grid grid-cols-1 lg:grid-cols-4 gap-6"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          {/* Enhanced Student Info Card */}
-
-      
+          {/* Profile Information - Left Column */}
           <motion.div 
-            className="bg-white  overflow-hidden shadow rounded-lg flex flex-col h-[500px] hover:shadow-xl hover:scale-105 transition-all duration-300"
+            className="lg:col-span-1 bg-white overflow-hidden shadow rounded-lg flex flex-col h-[500px] hover:shadow-xl hover:scale-105 transition-all duration-300"
             variants={cardVariants}
             style={{
               backgroundImage: 'url(/test/dafa.jpeg)',
@@ -194,15 +173,7 @@ function StudentDashboardContent() {
                   </span>
                 </motion.div>
 
-                <motion.div 
-                  className="flex justify-between transition-all duration-300  p-2 rounded"
-                
-                >
-                  <span className="text-white md:text-[16px] text-[14px]">სტატუსი:</span>
-                  <span className="md:text-[16px] text-[14px] font-medium text-white">
-                 მოსწავლე
-                  </span>
-                </motion.div>
+              
                 <motion.div 
                   className="flex justify-between transition-all duration-300 p-2 rounded"
                 
@@ -264,7 +235,9 @@ function StudentDashboardContent() {
             </div>
           </motion.div>
 
-          {/* Olympiads Card */}
+          {/* Right Column - All Other Sections */}
+          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Olympiads Card */}
           <motion.div 
             className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
             variants={cardVariants}
@@ -304,7 +277,47 @@ function StudentDashboardContent() {
               </div>
             </div>
           </motion.div>
+
+          {/* Results Section */}
+          <motion.div 
+            className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
+            variants={cardVariants}
           
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className="p-4 bg-white flex flex-col">
+              <div className="flex items-center">
+               
+                <div className="ml-4">
+                  <motion.h3 
+                    className="text-black md:text-[18px] text-[16px]"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    შედეგები
+                  </motion.h3>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-col">
+                    <motion.p 
+                      className="text-black md:text-[16px] text-[14px]"
+                      whileHover={{ scale: 1.02 }}
+                    >
+                  იხილეთ თქვენი ოლიმპიადების შედეგები და სტატისტიკა.
+                </motion.p>
+                <motion.button 
+                  className="mt-3 w-full cursor-pointer bg-[#f06905] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+                 
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Link href="/student/results" className="block  w-full h-auto">
+                    შედეგების ნახვა
+                  </Link>
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Subject Selection Card */}
           <motion.div 
             className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
             variants={cardVariants}
@@ -348,7 +361,7 @@ function StudentDashboardContent() {
           {/* Selected Subjects Section */}
           {selectedSubjects.length > 0 && (
             <motion.div 
-              className="overflow-hidden rounded-lg flex flex-col h-auto hover:scale-105 transition-all duration-300 md:col-span-2"
+              className="md:col-span-2 overflow-hidden rounded-lg flex flex-col h-auto hover:scale-105 transition-all duration-300"
               variants={cardVariants}
               whileTap={{ scale: 0.95 }}
             >
@@ -422,45 +435,8 @@ function StudentDashboardContent() {
               </div>
             </motion.div>
           )}
-         
-          <motion.div 
-            className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
-            variants={cardVariants}
-          
-            whileTap={{ scale: 0.95 }}
-          >
-            <div className="p-4 bg-white flex flex-col">
-              <div className="flex items-center">
-               
-                <div className="ml-4">
-                  <motion.h3 
-                    className="text-black md:text-[18px] text-[16px]"
-                    whileHover={{ scale: 1.05 }}
-                  >
-                    შედეგები
-                  </motion.h3>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-col">
-                    <motion.p 
-                      className="text-black md:text-[16px] text-[14px]"
-                      whileHover={{ scale: 1.02 }}
-                    >
-                  იხილეთ თქვენი ოლიმპიადების შედეგები და სტატისტიკა.
-                </motion.p>
-                <motion.button 
-                  className="mt-3 w-full cursor-pointer bg-[#f06905] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
-                 
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Link href="/student/results" className="block  w-full h-auto">
-                    შედეგების ნახვა
-                  </Link>
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
 
+          </div> {/* End of Right Column */}
 
         </motion.div>
       </div>
