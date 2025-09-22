@@ -109,11 +109,22 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
   const fetchTestResults = async (subjectId: string) => {
     try {
       setLoadingResults(true)
-      // This would be an API call to get student's test results for this subject
-      // For now, we'll simulate with empty results
-      setTestResults([])
+      setError('')
+      
+      // Fetch test results for this specific subject
+      const response = await fetch(`/api/student/test-results?subjectId=${subjectId}`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        setTestResults(data.results || [])
+      } else {
+        const errorData = await response.json()
+        console.error('Error fetching test results:', errorData.error)
+        setTestResults([])
+      }
     } catch (error) {
       console.error('Error fetching test results:', error)
+      setTestResults([])
     } finally {
       setLoadingResults(false)
     }
@@ -671,26 +682,87 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {testResults.map((result) => (
-                      <div key={result.id} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <p className="text-gray-900 md:text-[18px] text-[16px] font-medium">{result.subject}</p>
-                            <p className="text-gray-600 text-sm">
-                              {new Date(result.completedAt).toLocaleDateString('ka-GE')}
-                            </p>
+                    {testResults.map((result) => {
+                      const percentage = Math.round((result.score / result.totalQuestions) * 100)
+                      const getPerformanceColor = (percentage: number) => {
+                        if (percentage >= 90) return 'text-green-600'
+                        if (percentage >= 80) return 'text-blue-600'
+                        if (percentage >= 70) return 'text-yellow-600'
+                        if (percentage >= 60) return 'text-orange-600'
+                        return 'text-red-600'
+                      }
+                      const getPerformanceText = (percentage: number) => {
+                        if (percentage >= 90) return 'შესანიშნავი'
+                        if (percentage >= 80) return 'კარგი'
+                        if (percentage >= 70) return 'საშუალო'
+                        if (percentage >= 60) return 'საშუალოზე დაბალი'
+                        return 'ცუდი'
+                      }
+                      
+                      return (
+                        <motion.div 
+                          key={result.id} 
+                          className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1">
+                              <h3 className="text-lg font-semibold text-gray-900 md:text-[18px] text-[16px]">
+                                {result.subject} - ტესტი
+                              </h3>
+                              <p className="text-gray-600 text-sm">
+                                {new Date(result.completedAt).toLocaleDateString('ka-GE', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  timeZone: 'Asia/Tbilisi'
+                                })}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <div className={`text-2xl font-bold ${getPerformanceColor(percentage)}`}>
+                                {percentage}%
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                {getPerformanceText(percentage)}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-right">
-                            <p className="text-gray-900 md:text-[18px] text-[16px] font-bold">
-                              {result.score}/{result.totalQuestions}
-                            </p>
-                            <p className="text-gray-600 text-sm">
-                              {Math.round((result.score / result.totalQuestions) * 100)}%
-                            </p>
+                          
+                          <div className="grid grid-cols-2 gap-4 mb-3">
+                            <div className="bg-gray-50 rounded-lg p-3 text-center">
+                              <div className="text-lg font-semibold text-gray-900">
+                                {result.score}/{result.totalQuestions}
+                              </div>
+                              <div className="text-sm text-gray-600">სწორი პასუხი</div>
+                            </div>
+                            <div className="bg-gray-50 rounded-lg p-3 text-center">
+                              <div className="text-lg font-semibold text-gray-900">
+                                {result.totalQuestions - result.score}
+                              </div>
+                              <div className="text-sm text-gray-600">მცდარი პასუხი</div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    ))}
+                          
+                          {/* Progress Bar */}
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full transition-all duration-500 ${
+                                percentage >= 90 ? 'bg-green-500' :
+                                percentage >= 80 ? 'bg-blue-500' :
+                                percentage >= 70 ? 'bg-yellow-500' :
+                                percentage >= 60 ? 'bg-orange-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                        </motion.div>
+                      )
+                    })}
                   </div>
                 )}
               </div>

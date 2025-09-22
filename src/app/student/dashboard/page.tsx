@@ -292,7 +292,7 @@ function StudentDashboardContent() {
                 </motion.p>
                 <motion.button 
                   className="mt-3 w-full cursor-pointer bg-[#034e64] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
-               
+              
                   whileTap={{ scale: 0.95 }}
                 >
                   <Link href="/student/registered" className="block bg-[#034e64] w-full h-auto">
