@@ -370,44 +370,50 @@ function StudentDashboardContent() {
                   >
                     თქვენი არჩეული საგნები:
                   </motion.p>
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {selectedSubjects.map((subject) => (
                       <motion.div 
                         key={subject.id}
-                        className="flex items-center p-3 bg-gray-50 rounded-lg"
-                        whileHover={{ scale: 1.02 }}
+                        className="flex flex-col bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
                       >
                         {/* Subject Image */}
-                        <div className="w-24  h-24 rounded-lg overflow-hidden mr-4 flex-shrink-0">
+                        <div className="w-full h-48 relative overflow-hidden">
                           <img 
                             src={getSubjectImage(subject.name)}
                             alt={subject.name}
-                            className="w-full rounded-lg h-full object-cover"
+                            className="w-full h-full object-cover"
                           />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                         </div>
                         
-                        <div className="flex-1">
-                          <span className="text-black md:text-[16px] text-[14px] font-medium">
+                        {/* Card Content */}
+                        <div className="p-4 flex-1 flex flex-col">
+                          <h3 className="text-gray-900 font-semibold text-lg mb-3 line-clamp-2">
                             {subject.name}
-                          </span>
-                        </div>
-                        
-                        <div className="flex space-x-2">
-                          <Link href={`/student/subjects/${subject.id}`}>
+                          </h3>
+                          
+                          {/* Action Buttons */}
+                          <div className="mt-auto flex space-x-2">
+                            <Link href={`/student/subjects/${subject.id}`} className="flex-1">
+                              <motion.button 
+                                className="w-full bg-[#034e64] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-[#023a4d] focus:outline-none focus:ring-2 focus:ring-[#034e64] focus:ring-offset-2"
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                დაწყება
+                              </motion.button>
+                            </Link>
                             <motion.button 
-                              className="bg-[#034e64] cursor-pointer mr-4 text-white px-4 py-2 rounded-md text-[14px] font-bold transition-colors hover:bg-[#023a4d]"
+                              onClick={() => handleDeleteSubject(subject.id)}
+                              className="bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                               whileTap={{ scale: 0.95 }}
                             >
-                              დაწყება
+                              წაშლა
                             </motion.button>
-                          </Link>
-                          <motion.button 
-                            onClick={() => handleDeleteSubject(subject.id)}
-                            className="bg-red-500 text-white cursor-pointer px-3 py-2 rounded-md text-[14px] font-bold transition-colors hover:bg-red-600"
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            წაშლა
-                          </motion.button>
+                          </div>
                         </div>
                       </motion.div>
                     ))}

@@ -136,7 +136,12 @@ export async function GET(request: NextRequest) {
     const transformedOlympiads: TransformedOlympiad[] = olympiads.map((olympiad: OlympiadEventData) => {
       const registrationStatus = registrationMap.get(olympiad.id)
       const now = new Date()
-      const isRegistrationOpen = now >= olympiad.registrationStartDate && now <= olympiad.registrationDeadline
+      
+      // Allow registration throughout the deadline day (until 23:59:59)
+      const deadline = new Date(olympiad.registrationDeadline)
+      deadline.setHours(23, 59, 59, 999)
+      
+      const isRegistrationOpen = now >= olympiad.registrationStartDate && now <= deadline
       const hasStarted = now >= olympiad.startDate
       const hasEnded = now >= olympiad.endDate
       
@@ -251,8 +256,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if registration deadline has passed
-    if (new Date() > olympiad.registrationDeadline) {
+    // Check if registration deadline has passed (allow registration on deadline day)
+    const now = new Date()
+    const deadline = new Date(olympiad.registrationDeadline)
+    // Set deadline to end of day (23:59:59) to allow registration throughout the deadline day
+    deadline.setHours(23, 59, 59, 999)
+    
+    if (now > deadline) {
       return NextResponse.json(
         { error: 'რეგისტრაციის ვადა გასდა' },
         { status: 400 }

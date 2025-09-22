@@ -514,29 +514,30 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
           <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h2 className="text-lg font-semibold text-black-900 mb-4">ოლიმპიადის ინფორმაცია</h2>
+                <h2 className="text-lg font-semibold text-black md:text-[18px] text-[16px] mb-4">ოლიმპიადის ინფორმაცია</h2>
                 <div className="space-y-2">
-                  <p><strong>აღწერა:</strong> {olympiad.description}</p>
-                  <p><strong>დაწყება:</strong> {formatDateTime(olympiad.startDate)}</p>
-                  <p><strong>დასრულება:</strong> {formatDateTime(olympiad.endDate)}</p>
-                  <p><strong>საგნები:</strong> {olympiad.subjects.join(', ')}</p>
-                  <p><strong>კლასები:</strong> {olympiad.grades.join(', ')}</p>
-                  <p><strong>რაუნდები:</strong> {olympiad.rounds}</p>
-                  <p><strong>მონაწილეები:</strong> {olympiad._count.participations}/{olympiad.maxParticipants}</p>
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>აღწერა:</strong> {olympiad.description}</p>
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>დაწყება:</strong> {formatDateTime(olympiad.startDate)}</p>
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>დასრულება:</strong> {formatDateTime(olympiad.endDate)}</p>
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>საგნები:</strong> {olympiad.subjects.join(', ')}</p>
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>კლასები:</strong> {olympiad.grades.join(', ')}</p>
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>რაუნდები:</strong> {olympiad.rounds}</p>
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>მონაწილეები:</strong> {olympiad._count.participations}/{olympiad.maxParticipants}</p>
                 </div>
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-black-900 mb-4">კითხვების ინფორმაცია</h2>
+                <h2 className="text-lg font-semibold text-black md:text-[18px] text-[16px] mb-4">კითხვების ინფორმაცია</h2>
                 <div className="space-y-2">
-                  <p><strong>პაკეტების რაოდენობა:</strong> {olympiad.packages.length}</p>
-                  <p><strong>კითხვების ტიპები:</strong></p>
-                  <ul className="list-disc list-inside ml-4">
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>პაკეტების რაოდენობა:</strong> {olympiad.packages.length}</p>
+                 <p className="text-black md:text-[18px] text-[16px]"> კითხვების რაოდენობა: {olympiad.packages.reduce((total, pkg) => total + pkg.questions.length, 0)}</p>
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>კითხვების ტიპები:</strong></p>
+                  <ul className="list-disc text-black md:text-[18px] text-[16px] list-inside ml-4">
                     {olympiad.questionTypes.map((type, index) => (
                       <li key={index}>{getQuestionTypeLabel(type)}</li>
                     ))}
                   </ul>
                   {olympiad.minimumPointsThreshold && (
-                    <p><strong>მინიმალური ქულის ზღვარი:</strong> {olympiad.minimumPointsThreshold}</p>
+                    <p className="text-black md:text-[18px] text-[16px]"><strong>მინიმალური ქულის ზღვარი:</strong> {olympiad.minimumPointsThreshold}</p>
                   )}
                 </div>
               </div>
@@ -554,7 +555,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
               </button>
             ) : (
               <div className="text-center">
-                <p className="text-black-600 mb-4">
+                <p className="text-black md:text-[18px] text-[16px] mb-4">
                   {now < startDate 
                     ? `ოლიმპიადა დაიწყება ${formatDateTime(olympiad.startDate)}-ზე`
                     : `ოლიმპიადა დასრულდა ${formatDateTime(olympiad.endDate)}-ზე`
@@ -594,7 +595,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
               <div className="text-2xl font-bold text-red-600">
                 {formatTime(timeLeft)}
               </div>
-              <p className="text-[16px] text-black-600">დარჩენილი დრო</p>
+              <p className="text-[16px] text-black md:text-[18px] text-[16px]">დარჩენილი დრო</p>
             </div>
           </div>
           <div className="mt-4">
@@ -611,11 +612,11 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-black-900">
+              <h2 className="text-lg font-semibold text-black md:text-[18px] text-[16px]">
                 კითხვა {numberToGeorgianLetter(currentQuestionIndex)}
               </h2>
               {answeredQuestions.has(currentQuestion.id) && (
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full text-black md:text-[18px] text-[16px]">
                   ნაპასუხი
                 </span>
               )}

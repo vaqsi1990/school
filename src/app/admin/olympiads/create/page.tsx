@@ -440,6 +440,7 @@ function CreateOlympiadContent() {
                     type="date"
                     name="startDate"
                     required
+                    min={new Date().toISOString().split('T')[0]}
                     value={formData.startDate}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
@@ -464,6 +465,7 @@ function CreateOlympiadContent() {
                     type="date"
                     name="endDate"
                     required
+                    min={formData.startDate || new Date().toISOString().split('T')[0]}
                     value={formData.endDate}
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
@@ -490,6 +492,7 @@ function CreateOlympiadContent() {
                   type="date"
                   name="registrationStartDate"
                   required
+                  max={formData.registrationDeadline || undefined}
                   value={formData.registrationStartDate}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
@@ -504,6 +507,8 @@ function CreateOlympiadContent() {
                   type="date"
                   name="registrationDeadline"
                   required
+                  min={formData.registrationStartDate || undefined}
+                  max={formData.startDate || undefined}
                   value={formData.registrationDeadline}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"

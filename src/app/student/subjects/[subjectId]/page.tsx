@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/hooks/useAuth'
 
 interface Question {
   id: string
@@ -27,9 +27,25 @@ interface Subject {
   name: string
 }
 
+interface Olympiad {
+  id: string
+  title: string
+  description: string
+  startDate: string
+  endDate: string
+  registrationStartDate: string
+  registrationDeadline: string
+  subjects: string[]
+  grades: number[]
+  status: 'upcoming' | 'active' | 'completed'
+  isRegistered: boolean
+  registrationStatus?: 'REGISTERED' | 'IN_PROGRESS' | 'COMPLETED' | 'DISQUALIFIED'
+  isRegistrationOpen: boolean
+}
+
 const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }> }) => {
   const router = useRouter()
-  const { data: session } = useSession()
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth()
   const [subjectId, setSubjectId] = useState<string>('')
   const [subjectName, setSubjectName] = useState<string>('')
   const [studentGrade, setStudentGrade] = useState<number | null>(null)
@@ -43,37 +59,52 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
   const [testStarted, setTestStarted] = useState(false)
   const [testResults, setTestResults] = useState<TestResult[]>([])
   const [loadingResults, setLoadingResults] = useState(true)
+  const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+  const [olympiads, setOlympiads] = useState<Olympiad[]>([])
+  const [loadingOlympiads, setLoadingOlympiads] = useState(true)
+  const [registrationStatus, setRegistrationStatus] = useState<{[key: string]: 'idle' | 'loading' | 'success' | 'error'}>({})
 
   useEffect(() => {
-    const initializePage = async () => {
-      const resolvedParams = await params
-      setSubjectId(resolvedParams.subjectId)
-      
-      // Get student's grade from session
-      if (session?.user?.student?.grade) {
-        setStudentGrade(session.user.student.grade)
-      }
-      
-      // Fetch subject name
-      try {
-        const response = await fetch('/api/subjects')
-        if (response.ok) {
-          const data = await response.json()
-          const subject = data.subjects.find((s: Subject) => s.id === resolvedParams.subjectId)
-          if (subject) {
-            setSubjectName(subject.name)
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching subject:', error)
-      }
-      
-      // Fetch test results for this subject
-      fetchTestResults(resolvedParams.subjectId)
+    if (isAuthenticated && user?.userType === 'STUDENT') {
+      initializePage()
+    }
+  }, [isAuthenticated, user, params])
+
+  // Fetch olympiads when subject name and student grade are available
+  useEffect(() => {
+    if (subjectName && studentGrade && subjectId) {
+      fetchOlympiadsForSubject(subjectId)
+    }
+  }, [subjectName, studentGrade, subjectId])
+
+  const initializePage = async () => {
+    const resolvedParams = await params
+    setSubjectId(resolvedParams.subjectId)
+    
+    // Get student's grade from user
+    if (user?.student?.grade) {
+      setStudentGrade(user.student.grade)
     }
     
-    initializePage()
-  }, [params, session])
+    // Fetch subject name
+    try {
+      const response = await fetch('/api/subjects')
+      if (response.ok) {
+        const data = await response.json()
+        const subject = data.subjects.find((s: Subject) => s.id === resolvedParams.subjectId)
+        if (subject) {
+          setSubjectName(subject.name)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching subject:', error)
+      setError('საგნის მონაცემების ჩატვირთვა ვერ მოხერხდა')
+    }
+    
+    // Fetch test results for this subject
+    fetchTestResults(resolvedParams.subjectId)
+  }
 
   const fetchTestResults = async (subjectId: string) => {
     try {
@@ -88,14 +119,60 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
     }
   }
 
+  const fetchOlympiadsForSubject = async (subjectId: string) => {
+    try {
+      setLoadingOlympiads(true)
+      setError('')
+      
+      const response = await fetch('/api/student/olympiads')
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('All olympiads:', data.olympiads)
+        console.log('Current subject name:', subjectName)
+        console.log('Student grade:', studentGrade)
+        
+        // Filter olympiads that include this subject and student's grade
+        const subjectOlympiads = data.olympiads.filter((olympiad: Olympiad) => {
+          const hasSubject = olympiad.subjects.includes(subjectName)
+          const hasGrade = olympiad.grades.includes(studentGrade || 0)
+          console.log(`Olympiad ${olympiad.title}:`, {
+            subjects: olympiad.subjects,
+            grades: olympiad.grades,
+            hasSubject,
+            hasGrade,
+            matches: hasSubject && hasGrade
+          })
+          return hasSubject && hasGrade
+        })
+        
+        console.log('Filtered olympiads:', subjectOlympiads)
+        setOlympiads(subjectOlympiads)
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || 'ოლიმპიადების ჩატვირთვა ვერ მოხერხდა')
+        setOlympiads([])
+      }
+    } catch (error) {
+      console.error('Error fetching olympiads:', error)
+      setError('ოლიმპიადების ჩატვირთვა ვერ მოხერხდა')
+      setOlympiads([])
+    } finally {
+      setLoadingOlympiads(false)
+    }
+  }
+
   const startTest = async () => {
     if (!studentGrade) {
-      alert('თქვენი კლასი ვერ მოიძებნა. გთხოვთ, განაახლეთ პროფილი.')
+      setError('თქვენი კლასი ვერ მოიძებნა. გთხოვთ, განაახლეთ პროფილი.')
       return
     }
 
     try {
       setIsLoading(true)
+      setError('')
+      setSuccessMessage('')
+      
       const response = await fetch(`/api/test/public-questions?subjectId=${subjectId}&grade=${studentGrade}`)
       
       if (response.ok) {
@@ -107,16 +184,17 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
           setCurrentQuestionIndex(0)
           setUserAnswers({})
           setShowResults(false)
+          setSuccessMessage('ტესტი წარმატებით დაიწყო!')
         } else {
-          alert('ამ საგნისა და კლასისთვის კითხვები ჯერ არ არის დამატებული')
+          setError('ამ საგნისა და კლასისთვის კითხვები ჯერ არ არის დამატებული')
         }
       } else {
         const errorData = await response.json()
-        alert(`ტესტის ჩატვირთვა ვერ მოხერხდა: ${errorData.error || 'უცნობი შეცდომა'}`)
+        setError(`ტესტის ჩატვირთვა ვერ მოხერხდა: ${errorData.error || 'უცნობი შეცდომა'}`)
       }
     } catch (error) {
       console.error('Error starting test:', error)
-      alert('ტესტის ჩატვირთვა ვერ მოხერხდა')
+      setError('ტესტის ჩატვირთვა ვერ მოხერხდა')
     } finally {
       setIsLoading(false)
     }
@@ -165,6 +243,58 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
     setTotalQuestions(0)
   }
 
+  const handleOlympiadRegistration = async (olympiadId: string) => {
+    try {
+      console.log('Starting registration for olympiad:', olympiadId)
+      setRegistrationStatus(prev => ({ ...prev, [olympiadId]: 'loading' }))
+      setError('')
+      setSuccessMessage('')
+
+      const response = await fetch('/api/student/olympiads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ olympiadId }),
+      })
+
+      console.log('Registration response status:', response.status)
+      const result = await response.json()
+      console.log('Registration response data:', result)
+
+      if (response.ok) {
+        setRegistrationStatus(prev => ({ ...prev, [olympiadId]: 'success' }))
+        setSuccessMessage(result.message)
+        
+        // Refresh olympiads list
+        setTimeout(() => {
+          fetchOlympiadsForSubject(subjectId)
+        }, 2000)
+      } else {
+        setRegistrationStatus(prev => ({ ...prev, [olympiadId]: 'error' }))
+        setError(result.error || 'რეგისტრაცია ვერ მოხერხდა')
+      }
+    } catch (err) {
+      console.error('Error registering for olympiad:', err)
+      setRegistrationStatus(prev => ({ ...prev, [olympiadId]: 'error' }))
+      setError('რეგისტრაცია ვერ მოხერხდა')
+    }
+  }
+
+  const handleStartOlympiad = async (olympiadId: string) => {
+    try {
+      setError('')
+      setSuccessMessage('')
+
+      // Redirect to olympiad page
+      router.push(`/student/olympiads/${olympiadId}`)
+      
+    } catch (err) {
+      console.error('Error starting olympiad:', err)
+      setError('ოლიმპიადის დაწყება ვერ მოხერხდა')
+    }
+  }
+
   const renderQuestion = (question: Question) => {
     switch (question.type) {
       case 'MULTIPLE_CHOICE':
@@ -180,7 +310,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                   onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                   className="w-4 h-4 text-[#034e64]"
                 />
-                <span className="text-black text-[16px]">{option}</span>
+                <span className="text-gray-900 md:text-[18px] text-[16px]">{option}</span>
               </label>
             ))}
           </div>
@@ -197,7 +327,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                 onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                 className="w-4 h-4 text-[#034e64]"
               />
-              <span className="text-black text-[16px]">მართალი</span>
+              <span className="text-gray-900 md:text-[18px] text-[16px]">მართალი</span>
             </label>
             <label className="flex items-center space-x-3 cursor-pointer">
               <input
@@ -208,7 +338,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                 onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                 className="w-4 h-4 text-[#034e64]"
               />
-              <span className="text-black text-[16px]">მცდარი</span>
+              <span className="text-gray-900 md:text-[18px] text-[16px]">მცდარი</span>
             </label>
           </div>
         )
@@ -219,7 +349,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
               type="text"
               value={userAnswers[question.id] || ''}
               onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md text-black text-[16px]"
+              className="w-full p-3 border border-gray-300 rounded-md text-gray-900 md:text-[18px] text-[16px]"
               placeholder="შეიყვანეთ პასუხი..."
             />
           </div>
@@ -236,224 +366,444 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
     return 'ცუდი შედეგი. უნდა უფრო მეტად ივარჯიშოთ.'
   }
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'upcoming':
+        return 'bg-blue-100 text-blue-800 border-blue-200'
+      case 'active':
+        return 'bg-green-100 text-green-800 border-green-200'
+      case 'completed':
+        return 'bg-gray-100 text-gray-800 border-gray-200'
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200'
+    }
+  }
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'upcoming':
+        return 'მალე'
+      case 'active':
+        return 'აქტიური'
+      case 'completed':
+        return 'დასრულებული'
+      default:
+        return 'უცნობი'
+    }
+  }
+
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) {
+      return 'თარიღი არ არის მითითებული'
+    }
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) {
+      return 'არასწორი თარიღი'
+    }
+    return date.toLocaleDateString('ka-GE', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'Asia/Tbilisi'
+    })
+  }
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#034e64] mx-auto"></div>
+            <p className="mt-4 text-gray-600 md:text-[18px] text-[16px]">ავტორიზაცია მოწმდება...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show error if not authenticated or not a student
+  if (!isAuthenticated || user?.userType !== 'STUDENT') {
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold text-red-600">წვდომა აკრძალულია</h2>
+            <p className="mt-2 text-gray-600">თქვენ არ გაქვთ ამ გვერდზე წვდომის ნებართვა</p>
+            <p className="mt-1 text-sm text-gray-500">მომხმარებელი: {user?.email || 'უცნობი'}</p>
+            <p className="mt-1 text-sm text-gray-500">ტიპი: {user?.userType || 'უცნობი'}</p>
+            <button
+              onClick={() => router.push('/auth/signin')}
+              className="mt-4 inline-block bg-[#034e64] text-white px-4 py-2 rounded-md hover:bg-[#023a4d]"
+            >
+              შესვლა
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!subjectId || !studentGrade) {
     return (
-      <div className="bg-gray-50 min-h-screen py-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#034e64] mx-auto mb-4"></div>
-          <p className="text-black text-[16px]">მონაცემების ჩატვირთვა...</p>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#034e64] mx-auto"></div>
+            <p className="mt-4 text-gray-600 md:text-[18px] text-[16px]">მონაცემების ჩატვირთვა...</p>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Back Button */}
-        <motion.div 
-          className="mb-8"
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
-          <button
-            onClick={() => router.back()}
-            className="flex items-center text-[#034e64] hover:text-[#023a4d] transition-colors mb-6"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span className="text-[16px] font-bold">უკან დაბრუნება</span>
-          </button>
-        </motion.div>
-
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <motion.div 
-          className="text-center mb-8"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
-        >
-          <h1 className="text-3xl font-bold text-black mb-4">{subjectName}</h1>
-          <p className="text-black text-[16px]">კლასი: {studentGrade}</p>
-        </motion.div>
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 md:text-[18px] text-[16px]">
+                {subjectName}
+              </h1>
+              <p className="mt-2 text-gray-600 md:text-[18px] text-[16px]">
+                კლასი: {studentGrade}
+              </p>
+            </div>
+            <button
+              onClick={() => router.back()}
+              className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+            >
+              უკან დაბრუნება
+            </button>
+          </div>
+        </div>
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-green-800">{successMessage}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {!testStarted ? (
           <div className="space-y-8">
-            {/* Start Test Section */}
-            <motion.div
-              className="bg-white rounded-lg shadow-lg p-8 text-center"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-2xl font-bold text-black mb-4">ტესტის დაწყება</h2>
-              <p className="text-black text-[16px] mb-6">
-                დაიწყეთ ტესტი {subjectName} საგანში თქვენი კლასისთვის ({studentGrade} კლასი)
-              </p>
-              <button
-                onClick={startTest}
-                disabled={isLoading}
-                className="bg-[#034e64] text-white px-8 py-3 rounded-md text-[16px] font-bold transition-colors hover:bg-[#023a4d] disabled:opacity-50"
-              >
-                {isLoading ? 'ტესტის ჩატვირთვა...' : 'ტესტის დაწყება'}
-              </button>
-            </motion.div>
-
-            {/* Test Results Section */}
-            <motion.div
-              className="bg-white rounded-lg shadow-lg p-8"
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <h2 className="text-2xl font-bold text-black mb-6">შედეგები</h2>
-              {loadingResults ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#034e64] mx-auto mb-4"></div>
-                  <p className="text-black text-[16px]">შედეგების ჩატვირთვა...</p>
-                </div>
-              ) : testResults.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-black text-[16px]">ჯერ არ გაქვთ გავლილი ტესტები</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {testResults.map((result) => (
-                    <div key={result.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="text-black text-[16px] font-medium">{result.subject}</p>
-                          <p className="text-gray-600 text-sm">
-                            {new Date(result.completedAt).toLocaleDateString('ka-GE')}
-                          </p>
+            {/* Olympiads Section */}
+            <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 md:text-[18px] text-[16px]">ოლიმპიადები</h2>
+                {loadingOlympiads ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#034e64] mx-auto mb-4"></div>
+                    <p className="text-gray-600 md:text-[18px] text-[16px]">ოლიმპიადების ჩატვირთვა...</p>
+                  </div>
+                ) : olympiads.length === 0 ? (
+                  <div className="text-center py-8">
+                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900 md:text-[18px] text-[16px]">
+                      ოლიმპიადები არ არის
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500 md:text-[18px] text-[16px]">
+                      ამ საგნისთვის ხელმისაწვდომი ოლიმპიადები არ არის
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {olympiads.map((olympiad) => (
+                      <div key={olympiad.id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-4">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(olympiad.status)}`}>
+                            {getStatusText(olympiad.status)}
+                          </span>
                         </div>
-                        <div className="text-right">
-                          <p className="text-black text-[16px] font-bold">
-                            {result.score}/{result.totalQuestions}
-                          </p>
-                          <p className="text-gray-600 text-sm">
-                            {Math.round((result.score / result.totalQuestions) * 100)}%
-                          </p>
+
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2 md:text-[18px] text-[16px]">
+                          {olympiad.title}
+                        </h3>
+
+                        <p className="text-gray-600 mb-4 md:text-[18px] text-[16px]">
+                          {olympiad.description}
+                        </p>
+
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center text-sm text-gray-500">
+                            <svg className="flex-shrink-0 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>დაწყება: {formatDate(olympiad.startDate)}</span>
+                          </div>
+                          
+                          <div className="flex items-center text-sm text-gray-500">
+                            <svg className="flex-shrink-0 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <span>რეგისტრაციის გახსნა: {formatDate(olympiad.registrationStartDate)}</span>
+                          </div>
+                          
+                          <div className="flex items-center text-sm text-gray-500">
+                            <svg className="flex-shrink-0 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>რეგისტრაციის დასრულება: {formatDate(olympiad.registrationDeadline)}</span>
+                          </div>
+
+                          <div className="flex items-center text-sm text-gray-500">
+                            <svg className="flex-shrink-0 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                            <span>კლასები: {olympiad.grades.join(', ')}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex space-x-3">
+                          <button
+                            className="flex-1 cursor-pointer bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+                          >
+                            დეტალები
+                          </button>
+                          {olympiad.isRegistered ? (
+                            <button
+                              onClick={() => handleStartOlympiad(olympiad.id)}
+                              className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors text-center"
+                            >
+                              დაწყება
+                            </button>
+                          ) : olympiad.isRegistrationOpen ? (
+                            <button
+                              onClick={() => handleOlympiadRegistration(olympiad.id)}
+                              disabled={registrationStatus[olympiad.id] === 'loading' || registrationStatus[olympiad.id] === 'success'}
+                              className={`flex-1 cursor-pointer px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors ${
+                                registrationStatus[olympiad.id] === 'success'
+                                  ? 'bg-green-700 text-white cursor-not-allowed'
+                                  : registrationStatus[olympiad.id] === 'loading'
+                                  ? 'bg-gray-400 text-white cursor-not-allowed'
+                                  : 'bg-green-600 hover:bg-green-700 text-white'
+                              }`}
+                            >
+                              {registrationStatus[olympiad.id] === 'loading'
+                                ? 'იტვირთება...'
+                                : registrationStatus[olympiad.id] === 'success'
+                                ? 'დარეგისტრირებული'
+                                : 'რეგისტრაცია'}
+                            </button>
+                          ) : (
+                            <button
+                              disabled
+                              className="flex-1 cursor-pointer bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold cursor-not-allowed"
+                            >
+                              რეგისტრაცია დასრულდა
+                            </button>
+                          )}
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Start Test Section */}
+            <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+              <div className="p-6 text-center">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4 md:text-[18px] text-[16px]">ტესტის დაწყება</h2>
+                <p className="text-gray-600 mb-6 md:text-[18px] text-[16px]">
+                  დაიწყეთ ტესტი {subjectName} საგანში თქვენი კლასისთვის ({studentGrade} კლასი)
+                </p>
+                <button
+                  onClick={startTest}
+                  disabled={isLoading}
+                  className="bg-[#034e64] text-white px-8 py-3 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d] disabled:opacity-50"
+                >
+                  {isLoading ? 'ტესტის ჩატვირთვა...' : 'ტესტის დაწყება'}
+                </button>
+              </div>
+            </div>
+
+            {/* Test Results Section */}
+            <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+              <div className="p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 md:text-[18px] text-[16px]">შედეგები</h2>
+                {loadingResults ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#034e64] mx-auto mb-4"></div>
+                    <p className="text-gray-600 md:text-[18px] text-[16px]">შედეგების ჩატვირთვა...</p>
+                  </div>
+                ) : testResults.length === 0 ? (
+                  <div className="text-center py-8">
+                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900 md:text-[18px] text-[16px]">
+                      ტესტები არ არის
+                    </h3>
+                    <p className="mt-1 text-sm text-gray-500 md:text-[18px] text-[16px]">
+                      ჯერ არ გაქვთ გავლილი ტესტები
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {testResults.map((result) => (
+                      <div key={result.id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-gray-900 md:text-[18px] text-[16px] font-medium">{result.subject}</p>
+                            <p className="text-gray-600 text-sm">
+                              {new Date(result.completedAt).toLocaleDateString('ka-GE')}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-gray-900 md:text-[18px] text-[16px] font-bold">
+                              {result.score}/{result.totalQuestions}
+                            </p>
+                            <p className="text-gray-600 text-sm">
+                              {Math.round((result.score / result.totalQuestions) * 100)}%
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         ) : (
           /* Test Interface */
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            {!showResults ? (
-              <div>
-                <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-xl font-bold text-black">
-                    კითხვა {currentQuestionIndex + 1} / {totalQuestions}
-                  </h2>
-                  <div className="text-sm text-gray-600">
-                    პროგრესი: {Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}%
-                  </div>
-                </div>
-
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold text-black mb-4">
-                    {questions[currentQuestionIndex]?.question}
-                  </h3>
-                  {questions[currentQuestionIndex] && renderQuestion(questions[currentQuestionIndex])}
-                </div>
-
-                <div className="flex justify-between">
-                  <button
-                    onClick={previousQuestion}
-                    disabled={currentQuestionIndex === 0}
-                    className="bg-gray-500 text-white px-4 py-2 rounded-md text-[16px] font-bold transition-colors hover:bg-gray-600 disabled:opacity-50"
-                  >
-                    წინა
-                  </button>
-                  
-                  {currentQuestionIndex === questions.length - 1 ? (
-                    <button
-                      onClick={finishTest}
-                      className="bg-[#034e64] text-white px-6 py-2 rounded-md text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
-                    >
-                      დასრულება
-                    </button>
-                  ) : (
-                    <button
-                      onClick={nextQuestion}
-                      className="bg-[#034e64] text-white px-4 py-2 rounded-md text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
-                    >
-                      შემდეგი
-                    </button>
-                  )}
-                </div>
-              </div>
-            ) : (
-              /* Results */
-              <div className="text-center">
-                <h2 className="text-2xl font-bold text-black mb-6">ტესტის შედეგები</h2>
-                
-                <div className="mb-8">
-                  <div className="relative w-32 h-32 mx-auto mb-4">
-                    <svg className="w-32 h-32 transform -rotate-90">
-                      <circle
-                        cx="64"
-                        cy="64"
-                        r="56"
-                        stroke="#e5e7eb"
-                        strokeWidth="8"
-                        fill="none"
-                      />
-                      <circle
-                        cx="64"
-                        cy="64"
-                        r="56"
-                        stroke="#034e64"
-                        strokeWidth="8"
-                        fill="none"
-                        strokeDasharray={`${2 * Math.PI * 56}`}
-                        strokeDashoffset={`${2 * Math.PI * 56 * (1 - score / totalQuestions)}`}
-                        className="transition-all duration-1000 ease-out"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-2xl font-bold text-black">
-                        {Math.round((score / totalQuestions) * 100)}%
-                      </span>
+          <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+            <div className="p-6">
+              {!showResults ? (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold text-gray-900 md:text-[18px] text-[16px]">
+                      კითხვა {currentQuestionIndex + 1} / {totalQuestions}
+                    </h2>
+                    <div className="text-sm text-gray-600">
+                      პროგრესი: {Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}%
                     </div>
                   </div>
-                  
-                  <p className="text-xl font-semibold text-black mb-2">
-                    {score} / {totalQuestions} სწორი პასუხი
-                  </p>
-                  <p className="text-black text-[16px] mb-6">
-                    {getResultMessage(score, totalQuestions)}
-                  </p>
-                </div>
 
-                <div className="space-x-4">
-                  <button
-                    onClick={resetTest}
-                    className="bg-[#034e64] text-white px-6 py-2 rounded-md text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
-                  >
-                    ხელახლა ცდა
-                  </button>
-                  <button
-                    onClick={() => router.back()}
-                    className="bg-gray-500 text-white px-6 py-2 rounded-md text-[16px] font-bold transition-colors hover:bg-gray-600"
-                  >
-                    დაბრუნება
-                  </button>
+                  <div className="mb-8">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4 md:text-[18px] text-[16px]">
+                      {questions[currentQuestionIndex]?.question}
+                    </h3>
+                    {questions[currentQuestionIndex] && renderQuestion(questions[currentQuestionIndex])}
+                  </div>
+
+                  <div className="flex justify-between">
+                    <button
+                      onClick={previousQuestion}
+                      disabled={currentQuestionIndex === 0}
+                      className="bg-gray-500 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-gray-600 disabled:opacity-50"
+                    >
+                      წინა
+                    </button>
+                    
+                    {currentQuestionIndex === questions.length - 1 ? (
+                      <button
+                        onClick={finishTest}
+                        className="bg-[#034e64] text-white px-6 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+                      >
+                        დასრულება
+                      </button>
+                    ) : (
+                      <button
+                        onClick={nextQuestion}
+                        className="bg-[#034e64] text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+                      >
+                        შემდეგი
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              ) : (
+                /* Results */
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6 md:text-[18px] text-[16px]">ტესტის შედეგები</h2>
+                  
+                  <div className="mb-8">
+                    <div className="relative w-32 h-32 mx-auto mb-4">
+                      <svg className="w-32 h-32 transform -rotate-90">
+                        <circle
+                          cx="64"
+                          cy="64"
+                          r="56"
+                          stroke="#e5e7eb"
+                          strokeWidth="8"
+                          fill="none"
+                        />
+                        <circle
+                          cx="64"
+                          cy="64"
+                          r="56"
+                          stroke="#034e64"
+                          strokeWidth="8"
+                          fill="none"
+                          strokeDasharray={`${2 * Math.PI * 56}`}
+                          strokeDashoffset={`${2 * Math.PI * 56 * (1 - score / totalQuestions)}`}
+                          className="transition-all duration-1000 ease-out"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-2xl font-bold text-gray-900">
+                          {Math.round((score / totalQuestions) * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <p className="text-xl font-semibold text-gray-900 mb-2 md:text-[18px] text-[16px]">
+                      {score} / {totalQuestions} სწორი პასუხი
+                    </p>
+                    <p className="text-gray-600 mb-6 md:text-[18px] text-[16px]">
+                      {getResultMessage(score, totalQuestions)}
+                    </p>
+                  </div>
+
+                  <div className="space-x-4">
+                    <button
+                      onClick={resetTest}
+                      className="bg-[#034e64] text-white px-6 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+                    >
+                      ხელახლა ცდა
+                    </button>
+                    <button
+                      onClick={() => router.back()}
+                      className="bg-gray-500 text-white px-6 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-gray-600"
+                    >
+                      დაბრუნება
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
