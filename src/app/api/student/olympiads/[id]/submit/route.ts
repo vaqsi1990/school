@@ -139,6 +139,32 @@ export async function POST(
       }
     })
 
+    // Remove the olympiad subjects from student's selected subjects
+    // This resets the system for these subjects, requiring re-selection for new olympiads
+    try {
+      for (const subjectName of olympiad.subjects) {
+        // Find the subject by name
+        const subject = await prisma.subject.findFirst({
+          where: { name: subjectName }
+        })
+        
+        if (subject) {
+          // Remove the subject from student's selected subjects
+          await prisma.studentSubjectSelection.deleteMany({
+            where: {
+              userId: student.userId,
+              subjectId: subject.id
+            }
+          })
+          
+          console.log(`Removed subject "${subjectName}" from student ${student.id} after olympiad completion`)
+        }
+      }
+    } catch (subjectRemovalError) {
+      console.error('Error removing subjects from student selection:', subjectRemovalError)
+      // Don't fail the entire submission if subject removal fails
+    }
+
     return NextResponse.json({
       message: 'Answers submitted successfully',
       score: totalScore,
