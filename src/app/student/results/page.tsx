@@ -5,6 +5,18 @@ import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 
+interface OlympiadData {
+  id: string
+  title: string
+  description: string
+  startDate: string
+  endDate: string
+  subjects: string[]
+  grades: number[]
+  isRegistered: boolean
+  registrationStatus: 'REGISTERED' | 'IN_PROGRESS' | 'COMPLETED' | 'DISQUALIFIED'
+}
+
 interface OlympiadResult {
   id: string
   olympiadId: string
@@ -31,7 +43,6 @@ const StudentResultsPage = () => {
   const [results, setResults] = useState<OlympiadResult[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [successMessage, setSuccessMessage] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'completed' | 'disqualified'>('all')
 
   useEffect(() => {
@@ -51,11 +62,11 @@ const StudentResultsPage = () => {
         const data = await response.json()
         // Filter only completed olympiads with results
         const olympiadResults = data.olympiads
-          .filter((olympiad: any) => 
+          .filter((olympiad: OlympiadData) => 
             olympiad.isRegistered && 
             (olympiad.registrationStatus === 'COMPLETED' || olympiad.registrationStatus === 'DISQUALIFIED')
           )
-          .map((olympiad: any) => ({
+          .map((olympiad: OlympiadData) => ({
             id: olympiad.id,
             olympiadId: olympiad.id,
             olympiadTitle: olympiad.title,
