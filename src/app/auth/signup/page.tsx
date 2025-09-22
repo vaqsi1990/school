@@ -172,7 +172,7 @@ export default function SignUpPage() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="appearance-none text-black placeholder:text-black block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="თქვენი ელ-ფოსტა"
           />
         </div>
@@ -210,7 +210,7 @@ export default function SignUpPage() {
             maxLength={6}
             value={verificationCode}
             onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
-            className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-center text-2xl tracking-widest"
+            className="appearance-none text-black placeholder:text-black block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm text-center text-2xl tracking-widest"
             placeholder="000000"
           />
         </div>
@@ -281,7 +281,7 @@ export default function SignUpPage() {
             {...register('email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="appearance-none text-black placeholder:text-black block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="თქვენი ელ-ფოსტა"
             readOnly
           />
@@ -299,7 +299,7 @@ export default function SignUpPage() {
             type={showPassword ? 'text' : 'password'}
             autoComplete="new-password"
             {...register('password')}
-            className="appearance-none block w-full px-3 py-2 pr-10 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="appearance-none text-black placeholder:text-black block w-full px-3 py-2 pr-10 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="მინიმუმ 6 სიმბოლო"
           />
           <button
@@ -334,7 +334,7 @@ export default function SignUpPage() {
             type={showConfirmPassword ? 'text' : 'password'}
             autoComplete="new-password"
             {...register('confirmPassword')}
-            className="appearance-none block w-full px-3 py-2 pr-10 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            className="appearance-none text-black placeholder:text-black block w-full px-3 py-2 pr-10 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             placeholder="დაადასტურეთ პაროლი"
           />
           <button
@@ -372,7 +372,7 @@ export default function SignUpPage() {
                   type="text"
                   autoComplete="given-name"
                   {...register('studentName')}
-                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none text-black placeholder:text-black block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="სახელი"
                 />
               </div>
@@ -391,7 +391,7 @@ export default function SignUpPage() {
                   type="text"
                   autoComplete="family-name"
                   {...register('studentLastname')}
-                  className="appearance-none block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none text-black placeholder:text-black block w-full px-3 py-2 border border-black rounded-md placeholder-black focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="გვარი"
                 />
               </div>

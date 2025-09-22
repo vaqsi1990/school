@@ -488,3 +488,39 @@ export async function POST(request: NextRequest) {
     }
   }
 }
+
+export async function DELETE() {
+  try {
+    console.log('=== DELETE /api/admin/questions START ===')
+    
+    // Check if user is authenticated and is admin
+    const session = await getServerSession(authOptions)
+    if (!session?.user || session.user.userType !== 'ADMIN') {
+      console.log('Authentication failed:', { user: session?.user, userType: session?.user?.userType })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    console.log('Authentication successful for user:', session.user.email)
+
+    // Delete all ACTIVE questions
+    const result = await prisma.question.deleteMany({
+      where: {
+        status: 'ACTIVE'
+      }
+    })
+
+    console.log(`Deleted ${result.count} questions`)
+    console.log('=== DELETE /api/admin/questions SUCCESS ===')
+    return NextResponse.json({ 
+      message: `წარმატებით წაიშალა ${result.count} კითხვა`,
+      deletedCount: result.count 
+    })
+  } catch (error) {
+    console.error('=== DELETE /api/admin/questions ERROR ===')
+    console.error('Error deleting all questions:', error)
+    return NextResponse.json(
+      { error: `Internal server error: ${error instanceof Error ? error.message : 'Unknown error'}` },
+      { status: 500 }
+    )
+  }
+}

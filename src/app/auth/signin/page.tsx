@@ -87,7 +87,7 @@ export default function SignInPage() {
                   type='email'
                   autoComplete='email'
                   {...register('email')}
-                  className='appearance-none block w-full placeholder:text-[16px] px-8 py-4 border border-black rounded-md placeholder-black  '
+                  className='appearance-none text-black placeholder:text-black block w-full placeholder:text-[16px] px-8 py-4 border border-black rounded-md placeholder-black  '
                   placeholder='თქვენი ელ-ფოსტა'
                 />
               </div>
@@ -106,7 +106,7 @@ export default function SignInPage() {
                   type={showPassword ? 'text' : 'password'}
                   autoComplete='current-password'
                   {...register('password')}
-                          className='appearance-none block w-full placeholder:text-[16px] px-8 py-4 border border-black rounded-md placeholder-black  '
+                          className='appearance-none text-black placeholder:text-black block w-full placeholder:text-[16px] px-8 py-4 border border-black rounded-md placeholder-black  '
                   placeholder='თქვენი პაროლი'
                   />
                 <button

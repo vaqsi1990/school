@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import ImageUpload from '@/component/CloudinaryUploader'
 import ImageModal from '@/components/ImageModal'
 import { numberToGeorgianLetter, numberToGeorgianQuestionNumber, numberToGeorgianOptionLabel } from '@/utils/georgianLetters'
+import toast from 'react-hot-toast'
 
 interface Subject {
   id: string
@@ -88,6 +89,9 @@ function AdminQuestionsContent() {
   const [selectedQuestions, setSelectedQuestions] = useState<Set<string>>(new Set())
   const [showPackageModal, setShowPackageModal] = useState(false)
   const [packageName, setPackageName] = useState('')
+  const [showAllQuestions, setShowAllQuestions] = useState(false)
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false)
+  const [isDeletingAll, setIsDeletingAll] = useState(false)
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
@@ -222,23 +226,52 @@ function AdminQuestionsContent() {
       })
 
       if (response.ok) {
-        alert('კითხვა წარმატებით წაიშალა!')
+        toast.success('კითხვა წარმატებით წაიშალა!')
         setQuestions(prevQuestions => prevQuestions.filter(q => q.id !== questionId))
         setShowDeleteModal(false)
         setDeletingQuestionId(null)
       } else {
         const error = await response.json()
-        alert(`შეცდომა: ${error.message}`)
+        toast.error(`შეცდომა: ${error.message}`)
       }
     } catch (error) {
       console.error('Error deleting question:', error)
-      alert('სისტემური შეცდომა მოხდა')
+      toast.error('სისტემური შეცდომა მოხდა')
     }
   }
 
   const openDeleteModal = (questionId: string) => {
     setDeletingQuestionId(questionId)
     setShowDeleteModal(true)
+  }
+
+  const deleteAllQuestions = async () => {
+    try {
+      setIsDeletingAll(true)
+      const response = await fetch('/api/admin/questions', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        toast.success(result.message)
+        setQuestions([])
+        setShowDeleteAllModal(false)
+        setSelectedQuestions(new Set())
+        setCurrentPage(1)
+      } else {
+        const error = await response.json()
+        toast.error(`შეცდომა: ${error.error}`)
+      }
+    } catch (error) {
+      console.error('Error deleting all questions:', error)
+      toast.error('სისტემური შეცდომა მოხდა')
+    } finally {
+      setIsDeletingAll(false)
+    }
   }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -915,9 +948,9 @@ function AdminQuestionsContent() {
   })
 
   // Pagination logic
-  const totalPages = Math.ceil(filteredQuestions.length / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
+  const totalPages = showAllQuestions ? 1 : Math.ceil(filteredQuestions.length / itemsPerPage)
+  const startIndex = showAllQuestions ? 0 : (currentPage - 1) * itemsPerPage
+  const endIndex = showAllQuestions ? filteredQuestions.length : startIndex + itemsPerPage
   const currentQuestions = filteredQuestions.slice(startIndex, endIndex)
 
   // Reset to first page when filters change
@@ -973,6 +1006,18 @@ function AdminQuestionsContent() {
                   </button>
                 </>
               )}
+              
+              <button
+                onClick={() => setShowAllQuestions(!showAllQuestions)}
+                className={`px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold ${
+                  showAllQuestions 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                }`}
+              >
+                {showAllQuestions ? 'გვერდებით ჩვენება' : 'ყველა კითხვა'}
+              </button>
+         
              
               <Link
                 href="/admin/olympiads"
@@ -1250,7 +1295,7 @@ function AdminQuestionsContent() {
           )}
 
           {/* Pagination */}
-          {filteredQuestions.length > 0 && totalPages > 1 && (
+          {filteredQuestions.length > 0 && totalPages > 1 && !showAllQuestions && (
             <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
               <div className="flex-1 flex justify-between sm:hidden">
                 <button
@@ -2327,6 +2372,54 @@ function AdminQuestionsContent() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete All Questions Confirmation Modal */}
+      {showDeleteAllModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+
+              <h3 className="text-lg font-medium text-black md:text-[18px] text-[16px] mb-4 text-center">
+                ყველა კითხვის წაშლა
+              </h3>
+
+              <div className="text-center mb-6">
+                <p className="text-sm text-black md:text-[16px] text-[14px] mb-2">
+                  <strong>ყურადღება!</strong> ეს მოქმედება შეუქცევადია.
+                </p>
+                <p className="text-sm text-black md:text-[16px] text-[14px] mb-2">
+                  ყველა კითხვა ({questions.length} ცალი) წაიშლება სისტემიდან.
+                </p>
+                <p className="text-sm text-black md:text-[16px] text-[14px]">
+                  ნამდვილად გსურთ ყველა კითხვის წაშლა?
+                </p>
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={deleteAllQuestions}
+                  disabled={isDeletingAll}
+                  className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px]"
+                >
+                  {isDeletingAll ? 'წაშლა...' : 'დიახ, ყველა წავშალოთ'}
+                </button>
+                <button
+                  onClick={() => setShowDeleteAllModal(false)}
+                  disabled={isDeletingAll}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px]"
+                >
+                  გაუქმება
+                </button>
+              </div>
             </div>
           </div>
         </div>

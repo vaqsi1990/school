@@ -174,7 +174,7 @@ function StudentDashboardContent() {
                 </motion.div>
 
               
-                <motion.div 
+                <motion.div
                   className="flex justify-between transition-all duration-300 p-2 rounded"
                 
                 >
