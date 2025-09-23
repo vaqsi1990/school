@@ -37,6 +37,7 @@ const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectI
   const [score, setScore] = useState(0)
   const [totalQuestions, setTotalQuestions] = useState(0)
   const [showTestModal, setShowTestModal] = useState(false)
+  const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({})
 
   const grades = [7, 8, 9, 10, 11, 12]
 
@@ -54,6 +55,38 @@ const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectI
   }
 
   const subjectName = subjectMapping[subjectId]
+
+  // Function to shuffle array
+  const shuffleArray = (array: string[]) => {
+    const shuffled = [...array]
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    return shuffled
+  }
+
+  // Function to create shuffled options for all questions
+  const createShuffledOptions = (questions: Question[]) => {
+    const shuffled: Record<string, string[]> = {}
+    
+    questions.forEach(question => {
+      // Shuffle options for CLOSED_ENDED questions
+      if (question.type === 'CLOSED_ENDED' && question.options) {
+        shuffled[question.id] = shuffleArray(question.options)
+      }
+      
+      // Shuffle image options for CLOSED_ENDED questions
+      if (question.type === 'CLOSED_ENDED' && question.imageOptions) {
+        const filteredImageOptions = question.imageOptions.filter(img => img && img.trim() !== '')
+        if (filteredImageOptions.length > 0) {
+          shuffled[`${question.id}_images`] = shuffleArray(filteredImageOptions)
+        }
+      }
+    })
+    
+    return shuffled
+  }
 
   const startTest = async () => {
     if (!selectedGrade) {
@@ -75,6 +108,11 @@ const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectI
         
         setQuestions(data.questions || [])
         setTotalQuestions(data.totalQuestions || 0)
+        
+        // Create shuffled options for questions
+        const shuffled = createShuffledOptions(data.questions || [])
+        setShuffledOptions(shuffled)
+        
         setTestStarted(true)
         setCurrentQuestionIndex(0)
         setUserAnswers({})
@@ -136,6 +174,7 @@ const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectI
     setShowResults(false)
     setScore(0)
     setTotalQuestions(0)
+    setShuffledOptions({})
     setShowTestModal(false) // Close modal when resetting
   }
 
@@ -220,6 +259,7 @@ const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectI
         score={score}
         totalQuestions={totalQuestions}
         onResetTest={resetTest}
+        shuffledOptions={shuffledOptions}
       />
     </div>
   )

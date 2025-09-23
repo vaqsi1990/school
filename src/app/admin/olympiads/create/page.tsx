@@ -435,7 +435,7 @@ function CreateOlympiadContent() {
                 <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
                   დაწყების თარიღი და დრო *
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <input
                     type="date"
                     name="startDate"
@@ -445,14 +445,37 @@ function CreateOlympiadContent() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
                   />
-                  <input
-                    type="time"
+                  <select
                     name="startTime"
                     required
-                    value={formData.startTime}
-                    onChange={handleInputChange}
+                    value={formData.startTime.split(':')[0]}
+                    onChange={(e) => {
+                      const minutes = formData.startTime.split(':')[1] || '00'
+                      setFormData(prev => ({ ...prev, startTime: `${e.target.value}:${minutes}` }))
+                    }}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
-                  />
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i.toString().padStart(2, '0')}>
+                        {i.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    name="startMinutes"
+                    value={formData.startTime.split(':')[1] || '00'}
+                    onChange={(e) => {
+                      const hours = formData.startTime.split(':')[0]
+                      setFormData(prev => ({ ...prev, startTime: `${hours}:${e.target.value}` }))
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
+                  >
+                    {Array.from({ length: 60 }, (_, i) => (
+                      <option key={i} value={i.toString().padStart(2, '0')}>
+                        {i.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -460,7 +483,7 @@ function CreateOlympiadContent() {
                 <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
                   დასრულების თარიღი და დრო *
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <input
                     type="date"
                     name="endDate"
@@ -470,14 +493,37 @@ function CreateOlympiadContent() {
                     onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
                   />
-                  <input
-                    type="time"
+                  <select
                     name="endTime"
                     required
-                    value={formData.endTime}
-                    onChange={handleInputChange}
+                    value={formData.endTime.split(':')[0]}
+                    onChange={(e) => {
+                      const minutes = formData.endTime.split(':')[1] || '00'
+                      setFormData(prev => ({ ...prev, endTime: `${e.target.value}:${minutes}` }))
+                    }}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
-                  />
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i.toString().padStart(2, '0')}>
+                        {i.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    name="endMinutes"
+                    value={formData.endTime.split(':')[1] || '00'}
+                    onChange={(e) => {
+                      const hours = formData.endTime.split(':')[0]
+                      setFormData(prev => ({ ...prev, endTime: `${hours}:${e.target.value}` }))
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
+                  >
+                    {Array.from({ length: 60 }, (_, i) => (
+                      <option key={i} value={i.toString().padStart(2, '0')}>
+                        {i.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>

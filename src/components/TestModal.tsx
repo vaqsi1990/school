@@ -34,6 +34,7 @@ interface TestModalProps {
   score: number
   totalQuestions: number
   onResetTest: () => void
+  shuffledOptions?: Record<string, string[]>
 }
 
 const TestModal: React.FC<TestModalProps> = ({
@@ -50,7 +51,8 @@ const TestModal: React.FC<TestModalProps> = ({
   showResults,
   score,
   totalQuestions,
-  onResetTest
+  onResetTest,
+  shuffledOptions = {}
 }) => {
   if (!isOpen || questions.length === 0) return null
 
@@ -76,7 +78,7 @@ const TestModal: React.FC<TestModalProps> = ({
         return (
           <div className="space-y-4 text-black">
             <p className="text-lg font-medium">{question.text}</p>
-            {question.options.map((option, index) => (
+            {(shuffledOptions[question.id] || question.options).map((option, index) => (
               <label key={index} className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="radio"
