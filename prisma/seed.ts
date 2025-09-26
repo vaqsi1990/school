@@ -90,6 +90,57 @@ async function seed() {
     console.log("⚠️ Questions already exist or error occurred:", error);
   }
 
+  // Seed About Page with default content
+  try {
+    const defaultAboutPage = {
+      title: 'ჩვენ შესახებ',
+      content: {
+        sections: [
+          {
+            id: '1',
+            type: 'text',
+            content: 'EduArena არის თანამედროვე საგანმანათლებლო პლატფორმა, რომელიც მოსწავლეებს სთავაზობს ონლაინ ოლიმპიადებს სხვადასხვა საგანში. თითოეული ოლიმპიადა გათვლილია შესაბამისი კლასის პროგრამაზე, რაც უზრუნველყოფს სამართლიან და თანაბარ პირობებს მონაწილეებისთვის. მოსწავლეს შეუძლია ოლიმპიადაში მონაწილეობა მიიღოს ონლაინ, სახლიდან გაუსვლელად, რაც კიდევ უფრო მოსახერხებელს და ხელმისაწვდომს ხდის პროცესს.'
+          },
+          {
+            id: '2',
+            type: 'list',
+            title: 'ჩვენი მისიაა:',
+            items: [
+              'განათლების ხელმისაწვდომობის გაზრდა;',
+              'ინოვაციური ტექნოლოგიების დანერგვა სასწავლო პროცესში;',
+              'მოსწავლეების მოტივაციის გაძლიერება ჯანსაღი კონკურსებისა და ოლიმპიადების საშუალებით.'
+            ]
+          },
+          {
+            id: '3',
+            type: 'list',
+            title: 'EduArena გამოირჩევა:',
+            items: [
+              'მრავალფეროვანი ოლიმპიადებით სხვადასხვა საგნისა და კლასის მიხედვით;',
+              'გამჭვირვალე და ობიექტური შეფასების სისტემით;',
+              'თანამედროვე, მარტივად გამოსაყენებელი პლატფორმით;'
+            ]
+          },
+          {
+            id: '4',
+            type: 'text',
+            content: 'ჩვენ გვჯერა, რომ განათლების პროცესში ტექნოლოგიების ინტეგრაცია მნიშვნელოვნად ზრდის მოსწავლეთა ინტერესს და აძლევს მათ შესაძლებლობას, საკუთარი ცოდნა რეალურ გარემოში გამოსცადონ.'
+          }
+        ]
+      }
+    };
+
+    await prisma.aboutPage.create({
+      data: {
+        title: defaultAboutPage.title,
+        content: defaultAboutPage.content as any
+      }
+    });
+    console.log("✅ About Page seeded successfully!");
+  } catch (error) {
+    console.log("⚠️ About Page already exists or error occurred:", error);
+  }
+
   console.log("✅ All JSON files seeded successfully!");
 }
 

@@ -521,3 +521,13 @@ model StudentSubjectSelection {
   @@unique([userId, subjectId])
   @@map("student_subject_selections")
 }
+
+model AboutPage {
+  id          String   @id @default(cuid())
+  title       String
+  content     Json     // Dynamic content sections
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("about_pages")
+}

@@ -207,7 +207,10 @@ CREATE TABLE "public"."questions" (
     "chapterName" TEXT,
     "content" TEXT,
     "isAutoScored" BOOLEAN NOT NULL DEFAULT true,
+    "isPublic" BOOLEAN NOT NULL DEFAULT false,
     "matchingPairs" JSONB,
+    "leftSide" JSONB,
+    "rightSide" JSONB,
     "maxPoints" INTEGER,
     "paragraphName" TEXT,
     "rubric" TEXT,
@@ -272,6 +275,7 @@ CREATE TABLE "public"."olympiads" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "grade" INTEGER NOT NULL,
     "maxParticipants" INTEGER,
+    "showDetailedReview" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "olympiads_pkey" PRIMARY KEY ("id")
 );
@@ -287,6 +291,7 @@ CREATE TABLE "public"."olympiad_events" (
     "registrationDeadline" TIMESTAMP(3) NOT NULL,
     "maxParticipants" INTEGER NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "showDetailedReview" BOOLEAN NOT NULL DEFAULT false,
     "rounds" INTEGER NOT NULL DEFAULT 3,
     "subjects" TEXT[],
     "grades" INTEGER[],
@@ -398,6 +403,47 @@ CREATE TABLE "public"."manual_scores" (
 );
 
 -- CreateTable
+CREATE TABLE "public"."blog_posts" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "excerpt" TEXT,
+    "slug" TEXT NOT NULL,
+    "authorId" TEXT NOT NULL,
+    "published" BOOLEAN NOT NULL DEFAULT false,
+    "publishedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "tags" TEXT[],
+    "imageUrl" TEXT,
+    "views" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "blog_posts_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."student_subject_selections" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "subjectId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "student_subject_selections_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."about_pages" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "about_pages_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."_OlympiadEventToQuestionPackage" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL,
@@ -476,6 +522,12 @@ CREATE UNIQUE INDEX "student_answers_studentId_questionId_olympiadId_key" ON "pu
 
 -- CreateIndex
 CREATE UNIQUE INDEX "manual_scores_studentId_questionId_olympiadId_roundNumber_key" ON "public"."manual_scores"("studentId", "questionId", "olympiadId", "roundNumber");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "blog_posts_slug_key" ON "public"."blog_posts"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "student_subject_selections_userId_subjectId_key" ON "public"."student_subject_selections"("userId", "subjectId");
 
 -- CreateIndex
 CREATE INDEX "_OlympiadEventToQuestionPackage_B_index" ON "public"."_OlympiadEventToQuestionPackage"("B");
@@ -587,6 +639,15 @@ ALTER TABLE "public"."manual_scores" ADD CONSTRAINT "manual_scores_scoredBy_fkey
 
 -- AddForeignKey
 ALTER TABLE "public"."manual_scores" ADD CONSTRAINT "manual_scores_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "public"."students"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."blog_posts" ADD CONSTRAINT "blog_posts_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "public"."users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."student_subject_selections" ADD CONSTRAINT "student_subject_selections_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."student_subject_selections" ADD CONSTRAINT "student_subject_selections_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "public"."subjects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."_OlympiadEventToQuestionPackage" ADD CONSTRAINT "_OlympiadEventToQuestionPackage_A_fkey" FOREIGN KEY ("A") REFERENCES "public"."olympiad_events"("id") ON DELETE CASCADE ON UPDATE CASCADE;
