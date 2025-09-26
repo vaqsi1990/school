@@ -1,126 +1,78 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
     
     if (!session?.user || session.user.userType !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json(
+        { error: 'არასაკმარისი უფლებები' },
+        { status: 403 }
+      );
     }
 
-    const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
-    const status = searchParams.get('status')
-    const olympiadId = searchParams.get('olympiadId')
-    const search = searchParams.get('search')
+    const { searchParams } = new URL(request.url);
+    const olympiadId = searchParams.get('olympiadId');
 
-    const skip = (page - 1) * limit
-
-    // Build where clause
-    const where: Record<string, unknown> = {}
-    
-    if (status && status !== 'all') {
-      where.status = status
-    }
-    
-    if (olympiadId && olympiadId !== 'all') {
-      where.olympiadEventId = olympiadId
+    if (!olympiadId) {
+      return NextResponse.json(
+        { error: 'ოლიმპიადის ID აუცილებელია' },
+        { status: 400 }
+      );
     }
 
-    if (search) {
-      where.OR = [
-        {
-          student: {
-            OR: [
-              { name: { contains: search, mode: 'insensitive' } },
-              { lastname: { contains: search, mode: 'insensitive' } }
-            ]
+    const answers = await prisma.studentAnswer.findMany({
+      where: {
+        olympiadId: olympiadId
+      },
+      include: {
+        question: {
+          include: {
+            subject: true
           }
         },
-        {
-          olympiadEvent: {
-            name: { contains: search, mode: 'insensitive' }
-          }
-        }
+        student: true
+      },
+      orderBy: [
+        { student: { name: 'asc' } },
+        { answeredAt: 'desc' }
       ]
-    }
+    });
 
-    // Debug: Check total participations
-    const totalParticipations = await prisma.studentOlympiadEvent.count()
-    console.log('Debug - Total participations:', totalParticipations)
-    console.log('Debug - Where clause:', where)
-
-    // Get student answers with related data
-    const [answers, totalCount] = await Promise.all([
-      prisma.studentOlympiadEvent.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          student: {
-            select: {
-              id: true,
-              name: true,
-              lastname: true,
-              grade: true
-            }
+    // Fetch manual scores separately
+    const answersWithManualScores = await Promise.all(
+      answers.map(async (answer) => {
+        const manualScores = await prisma.manualScore.findMany({
+          where: {
+            studentId: answer.studentId,
+            questionId: answer.questionId,
+            olympiadId: answer.olympiadId!,
+            roundNumber: answer.roundNumber!
           },
-          olympiadEvent: {
-            select: {
-              id: true,
-              name: true,
-              subjects: true,
-              grades: true
-            }
+          include: {
+            scorer: true
+          },
+          orderBy: {
+            scoredAt: 'desc'
           }
-        }
-      }),
-      prisma.studentOlympiadEvent.count({ where })
-    ])
+        });
 
-    console.log('Debug - Found answers:', answers.length)
-    console.log('Debug - Total count:', totalCount)
+        return {
+          ...answer,
+          manualScores
+        };
+      })
+    );
 
-    // Transform the data to match the expected interface
-    const transformedAnswers = answers.map(answer => ({
-      id: answer.id,
-      studentId: answer.studentId,
-      studentName: answer.student.name,
-      studentLastname: answer.student.lastname,
-      olympiadName: answer.olympiadEvent.name,
-      subject: answer.olympiadEvent.subjects.join(', '),
-      grade: answer.student.grade,
-      round: answer.currentRound || 1,
-      totalScore: null, // Don't show scores until tests are corrected
-      maxScore: null, // Don't show scores until tests are corrected
-      status: answer.status,
-      submittedAt: answer.createdAt.toISOString(),
-      endTime: answer.endTime?.toISOString(),
-      participationId: answer.id
-    }))
-
-    const totalPages = Math.ceil(totalCount / limit)
-
-    return NextResponse.json({
-      answers: transformedAnswers,
-      pagination: {
-        page,
-        limit,
-        total: totalCount,
-        totalPages
-      }
-    })
-
+    return NextResponse.json(answersWithManualScores);
   } catch (error) {
-    console.error('Error fetching student answers:', error)
+    console.error('Error fetching student answers:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'შეცდომა მოსწავლეთა პასუხების ჩატვირთვისას' },
       { status: 500 }
-    )
+    );
   }
 }
