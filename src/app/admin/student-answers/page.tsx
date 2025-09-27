@@ -55,6 +55,19 @@ interface Olympiad {
   grade: number;
 }
 
+interface MatchingPair {
+  left: string;
+  right: string;
+}
+
+interface LeftSideItem {
+  left: string;
+}
+
+interface RightSideItem {
+  right: string;
+}
+
 interface TestQuestion {
   id: string;
   text: string;
@@ -64,9 +77,9 @@ interface TestQuestion {
   points: number;
   image: string[];
   imageOptions: string[];
-  matchingPairs: any;
-  leftSide: any;
-  rightSide: any;
+  matchingPairs: MatchingPair[] | null;
+  leftSide: LeftSideItem[] | null;
+  rightSide: RightSideItem[] | null;
   content: string | null;
   answerTemplate: string | null;
   rubric: string | null;
