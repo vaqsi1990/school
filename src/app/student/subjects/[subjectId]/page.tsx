@@ -961,19 +961,19 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                 </h3>
                 
                 <div className="mb-4 p-3 bg-gray-50 rounded-md">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-[16px] text-black">
                     <strong>ტესტი:</strong> {selectedResultForAppeal.subject}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-[16px] text-black">
                     <strong>ქულა:</strong> {selectedResultForAppeal.score}/{selectedResultForAppeal.totalQuestions}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-[16px] text-black">
                     <strong>თარიღი:</strong> {new Date(selectedResultForAppeal.completedAt).toLocaleDateString('ka-GE')}
                   </p>
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-[16px] font-medium text-black mb-2">
                     გასაჩივრების მიზეზი *
                   </label>
                   <select
@@ -990,7 +990,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                 </div>
 
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-[16px] font-medium text-black mb-2">
                     აღწერა *
                   </label>
                   <textarea
@@ -1005,7 +1005,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                 <div className="flex space-x-3">
                   <button
                     onClick={handleAppealCancel}
-                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium transition-colors"
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-[16px] -font-medium transition-colors"
                   >
                     გაუქმება
                   </button>

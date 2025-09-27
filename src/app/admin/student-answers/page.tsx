@@ -55,6 +55,42 @@ interface Olympiad {
   grade: number;
 }
 
+interface TestQuestion {
+  id: string;
+  text: string;
+  type: string;
+  options: string[];
+  correctAnswer: string | null;
+  points: number;
+  image: string[];
+  imageOptions: string[];
+  matchingPairs: any;
+  leftSide: any;
+  rightSide: any;
+  content: string | null;
+  answerTemplate: string | null;
+  rubric: string | null;
+  subject: {
+    name: string;
+  };
+  grade: number;
+  order: number;
+  packageName: string;
+}
+
+interface TestContent {
+  olympiad: {
+    id: string;
+    name: string;
+    description: string | null;
+    startDate: string;
+    endDate: string;
+    subjects: string[];
+    grades: number[];
+  };
+  questions: TestQuestion[];
+}
+
 export default function AdminStudentAnswersPage() {
   const { user, isAuthenticated } = useAuth();
   const router = useRouter();
@@ -65,6 +101,9 @@ export default function AdminStudentAnswersPage() {
   const [editingAnswer, setEditingAnswer] = useState<string | null>(null);
   const [manualScore, setManualScore] = useState<{ [key: string]: { score: number; feedback: string } }>({});
   const [saving, setSaving] = useState<{ [key: string]: boolean }>({});
+  const [testContent, setTestContent] = useState<TestContent | null>(null);
+  const [showTestContent, setShowTestContent] = useState(false);
+  const [loadingTestContent, setLoadingTestContent] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated || user?.userType !== 'ADMIN') {
@@ -104,6 +143,25 @@ export default function AdminStudentAnswersPage() {
       }
     } catch (error) {
       console.error('Error fetching student answers:', error);
+    }
+  };
+
+  const fetchTestContent = async () => {
+    if (!selectedOlympiad) return;
+    
+    setLoadingTestContent(true);
+    try {
+      const response = await fetch(`/api/admin/olympiads/${selectedOlympiad}/test-content`);
+      if (response.ok) {
+        const data = await response.json();
+        setTestContent(data);
+      } else {
+        console.error('Error fetching test content');
+      }
+    } catch (error) {
+      console.error('Error fetching test content:', error);
+    } finally {
+      setLoadingTestContent(false);
     }
   };
 
@@ -156,6 +214,13 @@ export default function AdminStudentAnswersPage() {
     }));
   };
 
+  const toggleTestContent = () => {
+    if (!showTestContent && !testContent) {
+      fetchTestContent();
+    }
+    setShowTestContent(!showTestContent);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -192,6 +257,178 @@ export default function AdminStudentAnswersPage() {
             ))}
           </select>
         </div>
+
+        {/* Test Content Toggle */}
+        {selectedOlympiad && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-800">ტესტის კონტენტი</h2>
+              <button
+                onClick={toggleTestContent}
+                disabled={loadingTestContent}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+              >
+                {loadingTestContent ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    ჩატვირთვა...
+                  </>
+                ) : (
+                  <>
+                    {showTestContent ? 'ტესტის კონტენტის დამალვა' : 'ტესტის კონტენტის ნახვა'}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Test Content Display */}
+        {showTestContent && testContent && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">
+              {testContent.olympiad.name}
+            </h3>
+            {testContent.olympiad.description && (
+              <p className="text-gray-600 mb-4">{testContent.olympiad.description}</p>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-sm">
+              <div>
+                <span className="font-medium">საგნები:</span> {testContent.olympiad.subjects.join(', ')}
+              </div>
+              <div>
+                <span className="font-medium">კლასები:</span> {testContent.olympiad.grades.join(', ')}
+              </div>
+              <div>
+                <span className="font-medium">დაწყების თარიღი:</span> {new Date(testContent.olympiad.startDate).toLocaleDateString('ka-GE')}
+              </div>
+              <div>
+                <span className="font-medium">დასრულების თარიღი:</span> {new Date(testContent.olympiad.endDate).toLocaleDateString('ka-GE')}
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              {testContent.questions.map((question, index) => (
+                <div key={question.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
+                        {question.packageName}
+                      </span>
+                      <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm">
+                        კითხვა {index + 1}
+                      </span>
+                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
+                        {question.points} ქულა
+                      </span>
+                    </div>
+                    <span className="text-sm text-gray-500">{question.type}</span>
+                  </div>
+                  
+                  <div className="mb-3">
+                    <p className="text-gray-800 font-medium">{question.text}</p>
+                  </div>
+
+                  {question.content && (
+                    <div className="mb-3 p-3 bg-gray-50 rounded">
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap">{question.content}</p>
+                    </div>
+                  )}
+
+                  {question.options && question.options.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium text-gray-700 mb-2">ვარიანტები:</p>
+                      <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                        {question.options.map((option, optIndex) => (
+                          <li key={optIndex}>{option}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {question.matchingPairs && (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium text-gray-700 mb-2">შესათანხმებელი წყვილები:</p>
+                      <div className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                        <pre>{JSON.stringify(question.matchingPairs, null, 2)}</pre>
+                      </div>
+                    </div>
+                  )}
+
+                  {question.leftSide && question.rightSide && (
+                    <div className="mb-3 grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-2">მარცხენა მხარე:</p>
+                        <div className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                          <pre>{JSON.stringify(question.leftSide, null, 2)}</pre>
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-700 mb-2">მარჯვენა მხარე:</p>
+                        <div className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
+                          <pre>{JSON.stringify(question.rightSide, null, 2)}</pre>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {question.correctAnswer && (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium text-green-700 mb-1">სწორი პასუხი:</p>
+                      <p className="text-sm text-green-600 bg-green-50 p-2 rounded">{question.correctAnswer}</p>
+                    </div>
+                  )}
+
+                  {question.answerTemplate && (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium text-blue-700 mb-1">პასუხის შაბლონი:</p>
+                      <p className="text-sm text-blue-600 bg-blue-50 p-2 rounded whitespace-pre-wrap">{question.answerTemplate}</p>
+                    </div>
+                  )}
+
+                  {question.rubric && (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium text-purple-700 mb-1">შეფასების კრიტერიუმები:</p>
+                      <p className="text-sm text-purple-600 bg-purple-50 p-2 rounded whitespace-pre-wrap">{question.rubric}</p>
+                    </div>
+                  )}
+
+                  {question.image && question.image.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium text-gray-700 mb-2">სურათები:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {question.image.map((img, imgIndex) => (
+                          <img
+                            key={imgIndex}
+                            src={img}
+                            alt={`კითხვის სურათი ${imgIndex + 1}`}
+                            className="max-w-xs max-h-32 object-contain border border-gray-200 rounded"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {question.imageOptions && question.imageOptions.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium text-gray-700 mb-2">სურათების ვარიანტები:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {question.imageOptions.map((img, imgIndex) => (
+                          <img
+                            key={imgIndex}
+                            src={img}
+                            alt={`ვარიანტი ${imgIndex + 1}`}
+                            className="max-w-xs max-h-32 object-contain border border-gray-200 rounded"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Student Answers */}
         {selectedOlympiad && (
