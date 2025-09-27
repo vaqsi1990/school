@@ -24,6 +24,7 @@ model User {
   teacher      Teacher?
   blogPosts    BlogPost[]
   subjectSelections StudentSubjectSelection[]
+  reviewedAppeals Appeal[]
 
   @@map("users")
 }
@@ -100,6 +101,8 @@ model Student {
   answers                     StudentAnswer[]
   olympiadEventParticipations StudentOlympiadEvent[]
   participations              StudentOlympiad[]
+  testResults                 TestResult[]
+  appeals                     Appeal[]
   user                        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("students")
@@ -154,6 +157,7 @@ model Subject {
   questionSets QuestionSet[]
   questions    Question[]
   studentSelections StudentSubjectSelection[]
+  testResults  TestResult[]
 
   @@map("subjects")
 }
@@ -530,4 +534,44 @@ model AboutPage {
   updatedAt   DateTime @updatedAt
 
   @@map("about_pages")
+}
+
+model Appeal {
+  id           String      @id @default(cuid())
+  testResultId String
+  reason       String
+  description  String
+  status       AppealStatus @default(PENDING)
+  studentId    String
+  subjectId    String
+  submittedAt  DateTime    @default(now())
+  reviewedAt   DateTime?
+  reviewedBy   String?
+  reviewNotes  String?
+  testResult   TestResult  @relation(fields: [testResultId], references: [id], onDelete: Cascade)
+  student      Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  reviewer     User?       @relation(fields: [reviewedBy], references: [id])
+
+  @@map("appeals")
+}
+
+model TestResult {
+  id           String   @id @default(cuid())
+  studentId    String
+  subjectId    String
+  score        Int
+  totalQuestions Int
+  completedAt  DateTime @default(now())
+  subject      Subject? @relation(fields: [subjectId], references: [id])
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  appeals      Appeal[]
+
+  @@map("test_results")
+}
+
+enum AppealStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  UNDER_REVIEW
 }
