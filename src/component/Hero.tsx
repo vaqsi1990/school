@@ -43,7 +43,7 @@ const Hero: React.FC = () => {
               transition={{ duration: 0.8, delay: 0.6 }}
             >
               <Link
-                href="/register"   
+                href="/auth/signup"   
                 className="inline-flex mb-6 text-white items-center justify-center px-8 py-4 bg-[#034e64] md:text-[20px] text-[18px] font-bold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
               >
                 დარეგისტრირდი ახლა
