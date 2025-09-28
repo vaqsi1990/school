@@ -553,7 +553,7 @@ function CreateOlympiadContent() {
                   type="date"
                   name="registrationDeadline"
                   required
-                  min={formData.registrationStartDate || undefined}
+                  min={formData.registrationStartDate || new Date().toISOString().split('T')[0]}
                   max={formData.startDate || undefined}
                   value={formData.registrationDeadline}
                   onChange={handleInputChange}
