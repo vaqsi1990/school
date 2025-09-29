@@ -261,7 +261,7 @@ export default function SignUpPage() {
             <option value="">აირჩიეთ </option>
             <option value="STUDENT">მოსწავლე</option>
             {/* <option value="TEACHER">მასწავლებელი</option> */}
-            <option value="ADMIN">ადმინისტრატორი</option>
+            {/* <option value="ADMIN">ადმინისტრატორი</option> */}
           </select>
         </div>
         {errors.userType && (
