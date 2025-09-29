@@ -5,17 +5,6 @@ import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 
-interface OlympiadData {
-  id: string
-  title: string
-  description: string
-  startDate: string
-  endDate: string
-  subjects: string[]
-  grades: number[]
-  isRegistered: boolean
-  registrationStatus: 'REGISTERED' | 'IN_PROGRESS' | 'COMPLETED' | 'DISQUALIFIED'
-}
 
 interface OlympiadResult {
   id: string
@@ -80,7 +69,22 @@ const StudentResultsPage = () => {
             const data = await response.json()
             if (data.results && data.results.length > 0) {
               // Transform the results to match our interface
-              const transformedResults = data.results.map((result: any) => ({
+              const transformedResults = data.results.map((result: {
+                id: string;
+                olympiadId: string;
+                olympiadTitle: string;
+                olympiadDescription: string;
+                subjects: string[];
+                grades: number[];
+                score: number;
+                maxScore: number;
+                percentage: number;
+                totalQuestions: number;
+                completedAt: string;
+                status: string;
+                startDate?: string;
+                endDate?: string;
+              }) => ({
                 id: result.id,
                 olympiadId: result.olympiadId,
                 olympiadTitle: result.olympiadTitle,

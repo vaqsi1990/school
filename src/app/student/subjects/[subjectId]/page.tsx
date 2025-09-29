@@ -14,17 +14,22 @@ interface Question {
   explanation?: string
 }
 
-interface TestResult {
-  id: string
-  score: number
-  totalQuestions: number
-  completedAt: string
-  subject: string
-}
 
 interface Subject {
   id: string
   name: string
+}
+
+interface OlympiadResult {
+  id: string
+  olympiadId: string
+  olympiadTitle: string
+  score: number
+  maxScore: number
+  percentage: number
+  totalQuestions: number
+  completedAt: string
+  status: string
 }
 
 interface Olympiad {
@@ -57,7 +62,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
   const [totalQuestions, setTotalQuestions] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [testStarted, setTestStarted] = useState(false)
-  const [olympiadResults, setOlympiadResults] = useState<any[]>([])
+  const [olympiadResults, setOlympiadResults] = useState<OlympiadResult[]>([])
   const [loadingResults, setLoadingResults] = useState(true)
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
@@ -65,26 +70,12 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
   const [loadingOlympiads, setLoadingOlympiads] = useState(true)
   const [registrationStatus, setRegistrationStatus] = useState<{[key: string]: 'idle' | 'loading' | 'success' | 'error'}>({})
   const [showAppealForm, setShowAppealForm] = useState(false)
-  const [selectedResultForAppeal, setSelectedResultForAppeal] = useState<any | null>(null)
+  const [selectedResultForAppeal, setSelectedResultForAppeal] = useState<OlympiadResult | null>(null)
   const [appealReason, setAppealReason] = useState('')
   const [appealDescription, setAppealDescription] = useState('')
   const [submittingAppeal, setSubmittingAppeal] = useState(false)
 
-  useEffect(() => {
-    if (isAuthenticated && user?.userType === 'STUDENT') {
-      initializePage()
-    }
-  }, [isAuthenticated, user, params])
-
-  // Fetch olympiads and results when subject name and student grade are available
-  useEffect(() => {
-    if (subjectName && studentGrade && subjectId) {
-      fetchOlympiadsForSubject(subjectId)
-      fetchOlympiadResults(subjectName)
-    }
-  }, [subjectName, studentGrade, subjectId])
-
-  const initializePage = async () => {
+  const initializePage = React.useCallback(async () => {
     const resolvedParams = await params
     setSubjectId(resolvedParams.subjectId)
     
@@ -109,9 +100,9 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
     }
     
     // Fetch olympiad results for this subject (will be called after subjectName is set)
-  }
+  }, [params, user])
 
-  const fetchOlympiadResults = async (subjectName: string) => {
+  const fetchOlympiadResults = React.useCallback(async (subjectName: string) => {
     try {
       setLoadingResults(true)
       setError('')
@@ -133,9 +124,9 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
     } finally {
       setLoadingResults(false)
     }
-  }
+  }, [])
 
-  const fetchOlympiadsForSubject = async (subjectId: string) => {
+  const fetchOlympiadsForSubject = React.useCallback(async (subjectId: string) => {
     try {
       setLoadingOlympiads(true)
       setError('')
@@ -179,7 +170,21 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
     } finally {
       setLoadingOlympiads(false)
     }
-  }
+  }, [subjectName, studentGrade])
+
+  useEffect(() => {
+    if (isAuthenticated && user?.userType === 'STUDENT') {
+      initializePage()
+    }
+  }, [isAuthenticated, user, params, initializePage])
+
+  // Fetch olympiads and results when subject name and student grade are available
+  useEffect(() => {
+    if (subjectName && studentGrade && subjectId) {
+      fetchOlympiadsForSubject(subjectId)
+      fetchOlympiadResults(subjectName)
+    }
+  }, [subjectName, studentGrade, subjectId, fetchOlympiadsForSubject, fetchOlympiadResults])
 
   const startTest = async () => {
     if (!studentGrade) {
@@ -314,7 +319,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
     }
   }
 
-  const handleAppealClick = (result: any) => {
+  const handleAppealClick = (result: OlympiadResult) => {
     setSelectedResultForAppeal(result)
     setShowAppealForm(true)
     setAppealReason('')
