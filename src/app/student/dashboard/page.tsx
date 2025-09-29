@@ -317,6 +317,45 @@ function StudentDashboardContent() {
             </div>
           </motion.div>
 
+          {/* Appeals Section */}
+          <motion.div 
+            className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
+            variants={cardVariants}
+          
+            whileTap={{ scale: 0.95 }}
+          >
+            <div className="p-4 bg-white flex flex-col">
+              <div className="flex items-center">
+               
+                <div className="ml-4">
+                  <motion.h3 
+                    className="text-black md:text-[18px] text-[16px]"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    გასაჩივრებები
+                  </motion.h3>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-col">
+                    <motion.p 
+                      className="text-black md:text-[16px] text-[14px]"
+                      whileHover={{ scale: 1.02 }}
+                    >
+                  ნახეთ თქვენი გასაჩივრებების სტატუსი და ადმინის პასუხები.
+                </motion.p>
+                <motion.button 
+                  className="mt-3 w-full cursor-pointer bg-[#dc2626] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+                 
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Link href="/student/appeals" className="block  w-full h-auto">
+                    გასაჩივრებების ნახვა
+                  </Link>
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+
           {/* Subject Selection Card */}
           <motion.div 
             className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
