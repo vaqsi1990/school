@@ -39,19 +39,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create manual score record
-    const manualScore = await prisma.manualScore.create({
-      data: {
-        studentId: answer.studentId,
-        questionId: answer.questionId,
-        olympiadId: answer.olympiadId!,
-        roundNumber: answer.roundNumber!,
-        scoredBy: session.user.id,
-        score: score,
-        maxScore: answer.question.points,
-        feedback: feedback || null
+    // Only create manual score if we have valid olympiadId that exists in database
+    let manualScore = null;
+    if (answer.olympiadId) {
+      // Check if olympiad exists
+      const olympiadExists = await prisma.olympiad.findUnique({
+        where: { id: answer.olympiadId }
+      });
+      
+      if (olympiadExists) {
+        manualScore = await prisma.manualScore.create({
+          data: {
+            studentId: answer.studentId,
+            questionId: answer.questionId,
+            olympiadId: answer.olympiadId,
+            roundNumber: answer.roundNumber || 1,
+            scoredBy: session.user.id,
+            score: score,
+            maxScore: answer.question.points,
+            feedback: feedback || null
+          }
+        });
       }
-    });
+    }
 
     // Update the student answer with the new score
     await prisma.studentAnswer.update({
@@ -64,7 +74,12 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      manualScore
+      manualScore,
+      message: manualScore 
+        ? 'ქულა წარმატებით შენახულია' 
+        : answer.olympiadId 
+          ? 'ქულა შენახულია (მანუალური შეფასების ისტორია არ შეიქმნა - ოლიმპიადა ვერ მოიძებნა)'
+          : 'ქულა შენახულია (მანუალური შეფასების ისტორია არ შეიქმნა - არ არის ოლიმპიადის ID)'
     });
   } catch (error) {
     console.error('Error creating manual score:', error);
