@@ -49,10 +49,12 @@ interface StudentAnswer {
 interface Olympiad {
   id: string;
   name: string;
-  subject: {
-    name: string;
-  };
-  grade: number;
+  description: string | null;
+  subjects: string[];
+  grades: number[];
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
 }
 
 interface MatchingPair {
@@ -117,6 +119,10 @@ export default function AdminStudentAnswersPage() {
   const [testContent, setTestContent] = useState<TestContent | null>(null);
   const [showTestContent, setShowTestContent] = useState(false);
   const [loadingTestContent, setLoadingTestContent] = useState(false);
+  const [showStudentInfo, setShowStudentInfo] = useState(true);
+  const [showQuestionInfo, setShowQuestionInfo] = useState(true);
+  const [showAnswerEvaluation, setShowAnswerEvaluation] = useState(true);
+  const [showAllSections, setShowAllSections] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated || user?.userType !== 'ADMIN') {
@@ -138,7 +144,9 @@ export default function AdminStudentAnswersPage() {
       const response = await fetch('/api/admin/olympiads');
       if (response.ok) {
         const data = await response.json();
-        setOlympiads(Array.isArray(data) ? data : []);
+        // The API returns { olympiads, pagination }, so we need to extract the olympiads array
+        const olympiadsData = data.olympiads || data;
+        setOlympiads(Array.isArray(olympiadsData) ? olympiadsData : []);
       }
     } catch (error) {
       console.error('Error fetching olympiads:', error);
@@ -149,13 +157,58 @@ export default function AdminStudentAnswersPage() {
 
   const fetchStudentAnswers = async () => {
     try {
-      const response = await fetch(`/api/admin/student-answers?olympiadId=${selectedOlympiad}`);
+      console.log('=== Fetching answers for olympiad ===');
+      console.log('Selected olympiad:', selectedOlympiad);
+      
+      // First test the basic API
+      const testResponse = await fetch('/api/admin/test', {
+        credentials: 'include'
+      });
+      console.log('Test API response:', await testResponse.json());
+      
+      // Check if we have a session
+      const sessionResponse = await fetch('/api/auth/session', {
+        credentials: 'include'
+      });
+      const session = await sessionResponse.json();
+      console.log('Current session:', session);
+      console.log('Session response status:', sessionResponse.status);
+      
+      const response = await fetch(`/api/admin/student-answers?olympiadId=${selectedOlympiad}`, {
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('Received answers:', data);
         setAnswers(data);
+      } else {
+        console.log('Response not ok, status:', response.status);
+        console.log('Response statusText:', response.statusText);
+        
+        // Try to get the response as text first
+        const textResponse = await response.text();
+        console.log('Raw response text:', textResponse);
+        
+        try {
+          const errorData = JSON.parse(textResponse);
+          console.error('API Error JSON:', errorData);
+        } catch (jsonError) {
+          console.error('Failed to parse response as JSON:', jsonError);
+          console.error('Response was not valid JSON');
+        }
       }
     } catch (error) {
-      console.error('Error fetching student answers:', error);
+      console.error('=== Network or other error ===');
+      console.error('Error type:', typeof error);
+      console.error('Error message:', error instanceof Error ? error.message : 'No message');
+      console.error('Full error:', error);
     }
   };
 
@@ -234,6 +287,14 @@ export default function AdminStudentAnswersPage() {
     setShowTestContent(!showTestContent);
   };
 
+  const toggleAllSections = () => {
+    const newState = !showAllSections;
+    setShowAllSections(newState);
+    setShowStudentInfo(newState);
+    setShowQuestionInfo(newState);
+    setShowAnswerEvaluation(newState);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -265,7 +326,7 @@ export default function AdminStudentAnswersPage() {
             <option className="text-black" value="">აირჩიეთ ოლიმპიადა</option>
             {olympiads.map((olympiad) => (
               <option className="text-black placeholder:text-black" key={olympiad.id} value={olympiad.id}>
-                {olympiad.name} - {olympiad.subject.name} (კლასი {olympiad.grade})
+                {olympiad.name} - {olympiad.subjects.join(', ')} (კლასები: {olympiad.grades.join(', ')})
               </option>
             ))}
           </select>
@@ -359,36 +420,22 @@ export default function AdminStudentAnswersPage() {
                     </div>
                   )}
 
-                  {question.matchingPairs && (
-                    <div className="mb-3">
-                      <p className="text-sm font-medium text-gray-700 mb-2">შესათანხმებელი წყვილები:</p>
-                      <div className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
-                        <pre>{JSON.stringify(question.matchingPairs, null, 2)}</pre>
-                      </div>
-                    </div>
-                  )}
+                 
 
-                  {question.leftSide && question.rightSide && (
-                    <div className="mb-3 grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm font-medium text-gray-700 mb-2">მარცხენა მხარე:</p>
-                        <div className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
-                          <pre>{JSON.stringify(question.leftSide, null, 2)}</pre>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-700 mb-2">მარჯვენა მხარე:</p>
-                        <div className="text-sm text-gray-700 bg-gray-50 p-2 rounded">
-                          <pre>{JSON.stringify(question.rightSide, null, 2)}</pre>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                
 
                   {question.correctAnswer && (
                     <div className="mb-3">
                       <p className="text-sm font-medium text-green-700 mb-1">სწორი პასუხი:</p>
-                      <p className="text-sm text-green-600 bg-green-50 p-2 rounded">{question.correctAnswer}</p>
+                      {question.correctAnswer.startsWith('https://') ? (
+                        <img
+                          src={question.correctAnswer}
+                          alt="სწორი პასუხი"
+                          className="max-w-xs max-h-32 object-contain border border-gray-200 rounded"
+                        />
+                      ) : (
+                        <p className="text-sm text-green-600 bg-green-50 p-2 rounded">{question.correctAnswer}</p>
+                      )}
                     </div>
                   )}
 
@@ -443,6 +490,58 @@ export default function AdminStudentAnswersPage() {
           </div>
         )}
 
+        {/* Toggle Controls */}
+        {selectedOlympiad && answers.length > 0 && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">ჩვენების პარამეტრები</h2>
+      
+          </div>
+        )}
+
+        {/* Student Info Summary */}
+        {selectedOlympiad && answers.length > 0 && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">მოსწავლეთა ინფორმაცია</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {(() => {
+                // Group answers by student ID to avoid duplicates
+                const uniqueStudents = answers.reduce((acc, answer) => {
+                  if (!acc[answer.studentId]) {
+                    acc[answer.studentId] = answer;
+                  }
+                  return acc;
+                }, {} as Record<string, typeof answers[0]>);
+                
+                return Object.values(uniqueStudents).map((answer) => (
+                  <div key={answer.studentId} className="p-4 bg-blue-50 rounded-lg">
+                    <h3 className="font-semibold text-gray-800 mb-2">{answer.student.name} {answer.student.lastname}</h3>
+                    <div className="space-y-1 text-sm">
+                      <p><span className="font-medium">კლასი:</span> {answer.student.grade}</p>
+                      <p><span className="font-medium">სკოლა:</span> {answer.student.school}</p>
+                      <p><span className="font-medium">თარიღი:</span> {new Date(answer.answeredAt).toLocaleDateString('ka-GE')}</p>
+                      {answer.roundNumber && (
+                        <p><span className="font-medium">რაუნდი:</span> {answer.roundNumber}</p>
+                      )}
+                    </div>
+                    <div>
+              <button
+                onClick={toggleAllSections}
+                className={`px-6 py-3 rounded-lg text-lg font-bold transition-colors ${
+                  showAllSections 
+                    ? 'bg-red-600 text-white hover:bg-red-700' 
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                }`}
+              >
+                {showAllSections ? 'ყველაფრის დამალვა' : 'ყველაფრის ჩვენება'}
+              </button>
+            </div>
+                  </div>
+                ));
+              })()}
+            </div>
+          </div>
+        )}
+
         {/* Student Answers */}
         {selectedOlympiad && (
           <div className="space-y-6">
@@ -451,169 +550,187 @@ export default function AdminStudentAnswersPage() {
                 <p className="text-gray-600">ამ ოლიმპიადაში პასუხები არ არის</p>
               </div>
             ) : (
-              answers.map((answer) => (
+              answers.map((answer) => {
+                // Don't render the card if all sections are hidden
+                if (!showQuestionInfo && !showAnswerEvaluation) {
+                  return null;
+                }
+
+                return (
                 <div key={answer.id} className="bg-white rounded-lg shadow-lg p-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Student Info */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">მოსწავლის ინფორმაცია</h3>
-                      <div className="space-y-1 text-sm">
-                        <p><span className="font-medium">სახელი:</span> {answer.student.name} {answer.student.lastname}</p>
-                        <p><span className="font-medium">კლასი:</span> {answer.student.grade}</p>
-                        <p><span className="font-medium">სკოლა:</span> {answer.student.school}</p>
-                        <p><span className="font-medium">პასუხის თარიღი:</span> {new Date(answer.answeredAt).toLocaleDateString('ka-GE')}</p>
-                        {answer.roundNumber && (
-                          <p><span className="font-medium">რაუნდი:</span> {answer.roundNumber}</p>
-                        )}
-                      </div>
-                    </div>
+                  <div className={`grid gap-6 ${
+                    showQuestionInfo && showAnswerEvaluation 
+                      ? 'grid-cols-1 lg:grid-cols-2'
+                      : 'grid-cols-1'
+                  }`}>
 
                     {/* Question Info */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">კითხვის ინფორმაცია</h3>
-                      <div className="space-y-1 text-sm">
-                        <p><span className="font-medium">საგანი:</span> {answer.question.subject.name}</p>
-                        <p><span className="font-medium">კლასი:</span> {answer.question.grade}</p>
-                        <p><span className="font-medium">ტიპი:</span> {answer.question.type}</p>
-                        <p><span className="font-medium">ქულა:</span> {answer.question.points}</p>
-                      </div>
-                      <div className="mt-2">
-                        <p className="font-medium text-sm">კითხვა:</p>
-                        <p className="text-sm text-gray-700">{answer.question.text}</p>
-                      </div>
-                      {answer.question.options.length > 0 && (
+                    {showQuestionInfo && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-2">კითხვის ინფორმაცია</h3>
+                        <div className="space-y-1 text-sm">
+                          <p><span className="font-medium">საგანი:</span> {answer.question.subject.name}</p>
+                          <p><span className="font-medium">კლასი:</span> {answer.question.grade}</p>
+                          <p><span className="font-medium">ტიპი:</span> {answer.question.type}</p>
+                          <p><span className="font-medium">ქულა:</span> {answer.question.points}</p>
+                        </div>
                         <div className="mt-2">
-                          <p className="font-medium text-sm">ვარიანტები:</p>
-                          <ul className="text-sm text-gray-700 list-disc list-inside">
-                            {answer.question.options.map((option, index) => (
-                              <li key={index}>{option}</li>
-                            ))}
-                          </ul>
+                          <p className="font-medium text-sm">კითხვა:</p>
+                          <p className="text-sm text-gray-700">{answer.question.text}</p>
                         </div>
-                      )}
-                    </div>
-
-                    {/* Answer and Scoring */}
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800 mb-2">პასუხი და შეფასება</h3>
-                      <div className="space-y-2">
-                        <div>
-                          <p className="font-medium text-sm">მოსწავლის პასუხი:</p>
-                          <p className="text-sm text-gray-700 bg-gray-100 p-2 rounded">{answer.answer}</p>
-                        </div>
-                        
-                        {answer.question.correctAnswer && (
-                          <div>
-                            <p className="font-medium text-sm">სწორი პასუხი:</p>
-                            <p className="text-sm text-green-700 bg-green-100 p-2 rounded">{answer.question.correctAnswer}</p>
+                        {answer.question.options.length > 0 && (
+                          <div className="mt-2">
+                            <p className="font-medium text-sm">ვარიანტები:</p>
+                            <ul className="text-sm text-gray-700 list-disc list-inside">
+                              {answer.question.options.map((option, index) => (
+                                <li key={index}>{option}</li>
+                              ))}
+                            </ul>
                           </div>
                         )}
+                      </div>
+                    )}
 
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm">ქულა:</span>
-                          {editingAnswer === answer.id ? (
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="number"
-                                value={manualScore[answer.id]?.score || 0}
+                    {/* Answer and Scoring */}
+                    {showAnswerEvaluation && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-2">პასუხი და შეფასება</h3>
+                        <div className="space-y-2">
+                          <div>
+                            <p className="font-medium text-sm">მოსწავლის პასუხი:</p>
+                            {answer.answer.startsWith('https://') ? (
+                              <img
+                                src={answer.answer}
+                                alt="მოსწავლის პასუხი"
+                                className="max-w-xs max-h-32 object-contain border border-gray-200 rounded"
+                              />
+                            ) : (
+                              <p className="text-sm text-gray-700 bg-gray-100 p-2 rounded">{answer.answer}</p>
+                            )}
+                          </div>
+                          
+                          {answer.question.correctAnswer && (
+                            <div>
+                              <p className="font-medium text-sm">სწორი პასუხი:</p>
+                              {answer.question.correctAnswer.startsWith('https://') ? (
+                                <img
+                                  src={answer.question.correctAnswer}
+                                  alt="სწორი პასუხი"
+                                  className="max-w-xs max-h-32 object-contain border border-gray-200 rounded"
+                                />
+                              ) : (
+                                <p className="text-sm text-green-700 bg-green-100 p-2 rounded">{answer.question.correctAnswer}</p>
+                              )}
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm">ქულა:</span>
+                            {editingAnswer === answer.id ? (
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="number"
+                                  value={manualScore[answer.id]?.score || 0}
+                                  onChange={(e) => setManualScore(prev => ({
+                                    ...prev,
+                                    [answer.id]: {
+                                      ...prev[answer.id],
+                                      score: parseFloat(e.target.value) || 0
+                                    }
+                                  }))}
+                                  className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                                  min="0"
+                                  max={answer.question.points}
+                                  step="0.1"
+                                />
+                                <span className="text-sm text-gray-500">/ {answer.question.points}</span>
+                              </div>
+                            ) : (
+                              <span className="text-sm">
+                                {answer.points !== null ? answer.points : 'არ არის შეფასებული'} / {answer.question.points}
+                              </span>
+                            )}
+                          </div>
+
+                          {editingAnswer === answer.id && (
+                            <div>
+                              <p className="font-medium text-sm mb-1">კომენტარი:</p>
+                              <textarea
+                                value={manualScore[answer.id]?.feedback || ''}
                                 onChange={(e) => setManualScore(prev => ({
                                   ...prev,
                                   [answer.id]: {
                                     ...prev[answer.id],
-                                    score: parseFloat(e.target.value) || 0
+                                    feedback: e.target.value
                                   }
                                 }))}
-                                className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
-                                min="0"
-                                max={answer.question.points}
-                                step="0.1"
+                                className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                                rows={2}
+                                placeholder="შეიყვანეთ კომენტარი..."
                               />
-                              <span className="text-sm text-gray-500">/ {answer.question.points}</span>
                             </div>
-                          ) : (
-                            <span className="text-sm">
-                              {answer.points !== null ? answer.points : 'არ არის შეფასებული'} / {answer.question.points}
-                            </span>
                           )}
-                        </div>
 
-                        {editingAnswer === answer.id && (
-                          <div>
-                            <p className="font-medium text-sm mb-1">კომენტარი:</p>
-                            <textarea
-                              value={manualScore[answer.id]?.feedback || ''}
-                              onChange={(e) => setManualScore(prev => ({
-                                ...prev,
-                                [answer.id]: {
-                                  ...prev[answer.id],
-                                  feedback: e.target.value
-                                }
-                              }))}
-                              className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
-                              rows={2}
-                              placeholder="შეიყვანეთ კომენტარი..."
-                            />
-                          </div>
-                        )}
-
-                        {/* Manual Scores History */}
-                        {answer.manualScores.length > 0 && (
-                          <div>
-                            <p className="font-medium text-sm mb-1">ხელით შეფასებები:</p>
-                            <div className="space-y-1">
-                              {answer.manualScores.map((score) => (
-                                <div key={score.id} className="text-xs bg-blue-50 p-2 rounded">
-                                  <p><span className="font-medium">ქულა:</span> {score.score}/{score.maxScore}</p>
-                                  <p><span className="font-medium">შეფასება:</span> {score.scorer.name} {score.scorer.lastname}</p>
-                                  <p><span className="font-medium">თარიღი:</span> {new Date(score.scoredAt).toLocaleDateString('ka-GE')}</p>
-                                  {score.feedback && (
-                                    <p><span className="font-medium">კომენტარი:</span> {score.feedback}</p>
-                                  )}
-                                </div>
-                              ))}
+                          {/* Manual Scores History */}
+                          {answer.manualScores.length > 0 && (
+                            <div>
+                              <p className="font-medium text-sm mb-1">ხელით შეფასებები:</p>
+                              <div className="space-y-1">
+                                {answer.manualScores.map((score) => (
+                                  <div key={score.id} className="text-xs bg-blue-50 p-2 rounded">
+                                    <p><span className="font-medium">ქულა:</span> {score.score}/{score.maxScore}</p>
+                                    <p><span className="font-medium">შეფასება:</span> {score.scorer.name} {score.scorer.lastname}</p>
+                                    <p><span className="font-medium">თარიღი:</span> {new Date(score.scoredAt).toLocaleDateString('ka-GE')}</p>
+                                    {score.feedback && (
+                                      <p><span className="font-medium">კომენტარი:</span> {score.feedback}</p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        )}
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-2 mt-3">
-                          {editingAnswer === answer.id ? (
-                            <>
-                              <button
-                                onClick={() => handleManualScore(answer.id)}
-                                disabled={saving[answer.id]}
-                                className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50"
-                              >
-                                {saving[answer.id] ? 'შენახვა...' : 'შენახვა'}
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setEditingAnswer(null);
-                                  setManualScore(prev => {
-                                    const newState = { ...prev };
-                                    delete newState[answer.id];
-                                    return newState;
-                                  });
-                                }}
-                                className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
-                              >
-                                გაუქმება
-                              </button>
-                            </>
-                          ) : (
-                            <button
-                              onClick={() => startEditing(answer.id, answer.points || 0)}
-                              className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
-                            >
-                              ხელით შეფასება
-                            </button>
                           )}
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-2 mt-3">
+                            {editingAnswer === answer.id ? (
+                              <>
+                                <button
+                                  onClick={() => handleManualScore(answer.id)}
+                                  disabled={saving[answer.id]}
+                                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50"
+                                >
+                                  {saving[answer.id] ? 'შენახვა...' : 'შენახვა'}
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditingAnswer(null);
+                                    setManualScore(prev => {
+                                      const newState = { ...prev };
+                                      delete newState[answer.id];
+                                      return newState;
+                                    });
+                                  }}
+                                  className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
+                                >
+                                  გაუქმება
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => startEditing(answer.id, answer.points || 0)}
+                                className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                              >
+                                ხელით შეფასება
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         )}

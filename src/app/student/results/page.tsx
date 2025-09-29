@@ -43,7 +43,13 @@ const StudentResultsPage = () => {
   const [results, setResults] = useState<OlympiadResult[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'completed' | 'disqualified'>('all')
+  const [showAppealForm, setShowAppealForm] = useState(false)
+  const [selectedResultForAppeal, setSelectedResultForAppeal] = useState<OlympiadResult | null>(null)
+  const [appealReason, setAppealReason] = useState('')
+  const [appealDescription, setAppealDescription] = useState('')
+  const [submittingAppeal, setSubmittingAppeal] = useState(false)
 
   useEffect(() => {
     if (isAuthenticated && user?.userType === 'STUDENT') {
@@ -56,41 +62,54 @@ const StudentResultsPage = () => {
       setLoading(true)
       setError('')
       
-      const response = await fetch('/api/student/olympiads')
-      
-      if (response.ok) {
-        const data = await response.json()
-        // Filter only completed olympiads with results
-        const olympiadResults = data.olympiads
-          .filter((olympiad: OlympiadData) => 
-            olympiad.isRegistered && 
-            (olympiad.registrationStatus === 'COMPLETED' || olympiad.registrationStatus === 'DISQUALIFIED')
-          )
-          .map((olympiad: OlympiadData) => ({
-            id: olympiad.id,
-            olympiadId: olympiad.id,
-            olympiadTitle: olympiad.title,
-            olympiadDescription: olympiad.description,
-            subjects: olympiad.subjects,
-            grades: olympiad.grades,
-            startDate: olympiad.startDate,
-            endDate: olympiad.endDate,
-            status: olympiad.registrationStatus,
-            // These would come from a separate results API in a real implementation
-            score: Math.floor(Math.random() * 50) + 20, // Mock data
-            totalQuestions: Math.floor(Math.random() * 20) + 30, // Mock data
-            percentage: Math.floor(Math.random() * 40) + 60, // Mock data
-            rank: Math.floor(Math.random() * 50) + 1, // Mock data
-            totalParticipants: Math.floor(Math.random() * 200) + 100, // Mock data
-            completedAt: olympiad.endDate
-          }))
-        
-        setResults(olympiadResults)
-      } else {
-        const errorData = await response.json()
-        setError(errorData.error || 'შედეგების ჩატვირთვა ვერ მოხერხდა')
-        setResults([])
+      // Get all subjects first to fetch results for each
+      const subjectsResponse = await fetch('/api/subjects')
+      if (!subjectsResponse.ok) {
+        throw new Error('Failed to fetch subjects')
       }
+      
+      const subjectsData = await subjectsResponse.json()
+      const allResults: OlympiadResult[] = []
+      
+      // Fetch results for each subject
+      for (const subject of subjectsData.subjects) {
+        try {
+          const response = await fetch(`/api/student/olympiad-results-by-subject?subjectName=${encodeURIComponent(subject.name)}`)
+          
+          if (response.ok) {
+            const data = await response.json()
+            if (data.results && data.results.length > 0) {
+              // Transform the results to match our interface
+              const transformedResults = data.results.map((result: any) => ({
+                id: result.id,
+                olympiadId: result.olympiadId,
+                olympiadTitle: result.olympiadTitle,
+                olympiadDescription: result.olympiadDescription,
+                subjects: result.subjects,
+                grades: result.grades,
+                startDate: result.startDate,
+                endDate: result.endDate,
+                status: result.status,
+                score: result.score,
+                totalQuestions: result.totalQuestions,
+                percentage: result.percentage,
+                completedAt: result.completedAt
+              }))
+              
+              allResults.push(...transformedResults)
+            }
+          }
+        } catch (subjectError) {
+          console.error(`Error fetching results for subject ${subject.name}:`, subjectError)
+        }
+      }
+      
+      // Remove duplicates based on olympiadId
+      const uniqueResults = allResults.filter((result, index, self) => 
+        index === self.findIndex(r => r.olympiadId === result.olympiadId)
+      )
+      
+      setResults(uniqueResults)
     } catch (error) {
       console.error('Error fetching olympiad results:', error)
       setError('შედეგების ჩატვირთვა ვერ მოხერხდა')
@@ -146,12 +165,74 @@ const StudentResultsPage = () => {
     if (isNaN(date.getTime())) {
       return 'არასწორი თარიღი'
     }
-    return date.toLocaleDateString('ka-GE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'Asia/Tbilisi'
-    })
+    
+    const georgianMonths = [
+      'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
+      'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
+    ]
+    
+    const day = date.getDate()
+    const month = georgianMonths[date.getMonth()]
+    const year = date.getFullYear()
+    
+    return `${day} ${month}, ${year}`
+  }
+
+  const handleAppealClick = (result: OlympiadResult) => {
+    setSelectedResultForAppeal(result)
+    setShowAppealForm(true)
+    setAppealReason('')
+    setAppealDescription('')
+  }
+
+  const handleAppealSubmit = async () => {
+    if (!selectedResultForAppeal || !appealReason || !appealDescription.trim()) {
+      setError('გთხოვთ, შეავსოთ ყველა ველი')
+      return
+    }
+
+    try {
+      setSubmittingAppeal(true)
+      setError('')
+      setSuccessMessage('')
+
+      const response = await fetch('/api/student/appeal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          resultId: selectedResultForAppeal.id,
+          reason: appealReason,
+          description: appealDescription,
+          subjectId: selectedResultForAppeal.subjects[0] // Use first subject
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setSuccessMessage('გასაჩივრება წარმატებით გაიგზავნა!')
+        setShowAppealForm(false)
+        setSelectedResultForAppeal(null)
+        setAppealReason('')
+        setAppealDescription('')
+      } else {
+        setError(result.error || 'გასაჩივრების გაგზავნა ვერ მოხერხდა')
+      }
+    } catch (err) {
+      console.error('Error submitting appeal:', err)
+      setError('გასაჩივრების გაგზავნა ვერ მოხერხდა')
+    } finally {
+      setSubmittingAppeal(false)
+    }
+  }
+
+  const handleAppealCancel = () => {
+    setShowAppealForm(false)
+    setSelectedResultForAppeal(null)
+    setAppealReason('')
+    setAppealDescription('')
   }
 
   const filteredResults = results.filter(result => {
@@ -223,6 +304,22 @@ const StudentResultsPage = () => {
           </div>
         </div>
 
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-green-800">{successMessage}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Error Message */}
         {error && (
@@ -376,7 +473,7 @@ const StudentResultsPage = () => {
               <div className="space-y-6">
                 {filteredResults.map((result, index) => (
                   <motion.div 
-                    key={result.id} 
+                    key={`${result.olympiadId}-${result.subjects.join('-')}-${index}`} 
                     className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow duration-200"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -397,7 +494,7 @@ const StudentResultsPage = () => {
                     </div>
 
                     {/* Results Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                       {result.status === 'COMPLETED' && (
                         <>
                           <div className="bg-gray-50 rounded-lg p-4 text-center">
@@ -410,19 +507,13 @@ const StudentResultsPage = () => {
                             <div className="text-2xl font-bold text-gray-900">
                               {result.score}/{result.totalQuestions}
                             </div>
-                            <div className="text-sm text-gray-600">სწორი პასუხი</div>
+                            <div className="text-sm text-gray-600">მიღებული ქულა</div>
                           </div>
                           <div className="bg-gray-50 rounded-lg p-4 text-center">
                             <div className="text-2xl font-bold text-gray-900">
-                              {result.rank}
+                              {result.totalQuestions}
                             </div>
-                            <div className="text-sm text-gray-600">რანგი</div>
-                          </div>
-                          <div className="bg-gray-50 rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-gray-900">
-                              {result.totalParticipants}
-                            </div>
-                            <div className="text-sm text-gray-600">მონაწილე</div>
+                            <div className="text-sm text-gray-600">კითხვების რაოდენობა</div>
                           </div>
                         </>
                       )}
@@ -438,7 +529,7 @@ const StudentResultsPage = () => {
                     )}
 
                     {/* Details */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500 mb-4">
                       <div className="flex items-center">
                         <svg className="flex-shrink-0 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -449,7 +540,7 @@ const StudentResultsPage = () => {
                         <svg className="flex-shrink-0 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span>დასრულება: {formatDate(result.endDate)}</span>
+                        <span>დასრულება: {formatDate(result.completedAt)}</span>
                       </div>
                       <div className="flex items-center">
                         <svg className="flex-shrink-0 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -464,12 +555,101 @@ const StudentResultsPage = () => {
                         <span>კლასები: {result.grades.join(', ')}</span>
                       </div>
                     </div>
+                    
+                    {/* Action Buttons */}
+                    {result.status === 'COMPLETED' && (
+                      <div className="pt-4 justify-center items-center border-t border-gray-200 flex space-x-3">
+                        <button
+                          onClick={() => router.push(`/student/olympiads/${result.olympiadId}/results`)}
+                          className="bg-[#034e64]  cursor-pointer text-white px-6 py-2 rounded-md md:text-[16px] text-[14px] font-bold transition-colors hover:bg-[#023a4d]"
+                        >
+                          დეტალური შედეგები
+                        </button>
+                        <button
+                          onClick={() => handleAppealClick(result)}
+                          className="bg-orange-600   cursor-pointer text-white px-6 py-2 rounded-md md:text-[16px] text-[14px] font-bold transition-colors hover:bg-orange-700"
+                        >
+                          გასაჩივრება
+                        </button>
+                      </div>
+                    )}
                   </motion.div>
                 ))}
               </div>
             )}
           </div>
         </div>
+
+        {/* Appeal Form Modal */}
+        {showAppealForm && selectedResultForAppeal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                  ქულის გასაჩივრება
+                </h3>
+                
+                <div className="mb-4 p-3 bg-gray-50 rounded-md">
+                  <p className="text-[16px] text-black">
+                    <strong>ოლიმპიადა:</strong> {selectedResultForAppeal.olympiadTitle}
+                  </p>
+                  <p className="text-[16px] text-black">
+                    <strong>ქულა:</strong> {selectedResultForAppeal.score}/{selectedResultForAppeal.totalQuestions}
+                  </p>
+                  <p className="text-[16px] text-black">
+                    <strong>თარიღი:</strong> {formatDate(selectedResultForAppeal.completedAt)}
+                  </p>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-[16px] font-medium text-black mb-2">
+                    გასაჩივრების მიზეზი *
+                  </label>
+                  <select
+                    value={appealReason}
+                    onChange={(e) => setAppealReason(e.target.value)}
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#034e64] focus:border-transparent"
+                  >
+                    <option value="">აირჩიეთ მიზეზი</option>
+                    <option value="WRONG_ANSWER">პასუხი არასწორად არის შეფასებული</option>
+                    <option value="TECHNICAL_ISSUE">ტექნიკური პრობლემა</option>
+                    <option value="QUESTION_ERROR">კითხვაში შეცდომა</option>
+                    <option value="OTHER">სხვა</option>
+                  </select>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-[16px] font-medium text-black mb-2">
+                    აღწერა *
+                  </label>
+                  <textarea
+                    value={appealDescription}
+                    onChange={(e) => setAppealDescription(e.target.value)}
+                    rows={4}
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#034e64] focus:border-transparent"
+                    placeholder="დეტალურად აღწერეთ თქვენი გასაჩივრება..."
+                  />
+                </div>
+
+                <div className="flex space-x-3">
+                  <button
+                    onClick={handleAppealCancel}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-[16px] font-medium transition-colors"
+                  >
+                    გაუქმება
+                  </button>
+                  <button
+                    onClick={handleAppealSubmit}
+                    disabled={submittingAppeal || !appealReason || !appealDescription.trim()}
+                    className="flex-1 bg-[#034e64] hover:bg-[#023a4d] text-white px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {submittingAppeal ? 'იგზავნება...' : 'გაგზავნა'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

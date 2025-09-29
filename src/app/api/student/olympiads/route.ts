@@ -39,7 +39,7 @@ interface TransformedOlympiad {
   registrationDeadline: string
   subjects: string[]
   grades: number[]
-  status: 'upcoming' | 'completed'
+  status: 'upcoming' | 'active' | 'completed'
   isRegistered: boolean
   registrationStatus?: 'REGISTERED' | 'IN_PROGRESS' | 'COMPLETED' | 'DISQUALIFIED'
   isRegistrationOpen: boolean
@@ -156,11 +156,11 @@ export async function GET(request: NextRequest) {
         hasEnded
       })
       
-      let status: 'upcoming' | 'completed' = 'upcoming'
+      let status: 'upcoming' | 'active' | 'completed' = 'upcoming'
       if (hasEnded) {
         status = 'completed'
       } else if (hasStarted) {
-        status = 'upcoming' // Active olympiad
+        status = 'active' // Active olympiad
       }
       
       return {

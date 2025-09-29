@@ -419,6 +419,7 @@ model StudentOlympiadEvent {
   updatedAt       DateTime            @updatedAt
   olympiadEvent   OlympiadEvent       @relation(fields: [olympiadEventId], references: [id], onDelete: Cascade)
   student         Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  appeals         Appeal[]
 
   @@unique([studentId, olympiadEventId])
   @@map("student_olympiad_events")
@@ -537,20 +538,20 @@ model AboutPage {
 }
 
 model Appeal {
-  id           String      @id @default(cuid())
-  testResultId String
-  reason       String
-  description  String
-  status       AppealStatus @default(PENDING)
-  studentId    String
-  subjectId    String
-  submittedAt  DateTime    @default(now())
-  reviewedAt   DateTime?
-  reviewedBy   String?
-  reviewNotes  String?
-  testResult   TestResult  @relation(fields: [testResultId], references: [id], onDelete: Cascade)
-  student      Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  reviewer     User?       @relation(fields: [reviewedBy], references: [id])
+  id                    String              @id @default(cuid())
+  studentOlympiadEventId String
+  reason                String
+  description           String
+  status                AppealStatus        @default(PENDING)
+  studentId             String
+  subjectId             String
+  submittedAt           DateTime            @default(now())
+  reviewedAt            DateTime?
+  reviewedBy            String?
+  reviewNotes           String?
+  studentOlympiadEvent  StudentOlympiadEvent @relation(fields: [studentOlympiadEventId], references: [id], onDelete: Cascade)
+  student               Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  reviewer              User?               @relation(fields: [reviewedBy], references: [id])
 
   @@map("appeals")
 }
@@ -564,7 +565,6 @@ model TestResult {
   completedAt  DateTime @default(now())
   subject      Subject? @relation(fields: [subjectId], references: [id])
   student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  appeals      Appeal[]
 
   @@map("test_results")
 }

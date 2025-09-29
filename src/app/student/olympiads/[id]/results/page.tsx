@@ -76,10 +76,10 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   }
 
   const getScoreMessage = (percentage: number) => {
-    if (percentage >= 90) return 'შესანიშნავი შედეგი! 🎉'
-    if (percentage >= 80) return 'კარგი შედეგი! 👍'
-    if (percentage >= 60) return 'საშუალო შედეგი 📚'
-    return 'სცადეთ კიდევ ერთხელ 💪'
+    if (percentage >= 90) return 'შესანიშნავი შედეგი! '
+    if (percentage >= 80) return 'კარგი შედეგი! '
+    if (percentage >= 60) return 'საშუალო შედეგი '
+    return 'სცადეთ კიდევ ერთხელ '
   }
 
   if (loading) {
@@ -116,7 +116,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="text-green-500 text-6xl mb-4">🎉</div>
+          <div className="text-green-500 text-6xl mb-4"></div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">ოლიმპიადა დასრულდა!</h1>
           <p className="text-gray-600">თქვენი შედეგები ქვემოთაა</p>
         </div>
@@ -141,7 +141,9 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
             </div>
             <div>
               <span className="font-medium text-gray-700">სტატუსი:</span>
-              <span className="ml-2 text-gray-600">{olympiad.status}</span>
+              <span className="ml-2 text-gray-600">
+                {olympiad.status === 'COMPLETED' ? 'დასრულებულია' : olympiad.status}
+              </span>
             </div>
           </div>
         </div>

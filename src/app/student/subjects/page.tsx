@@ -13,6 +13,23 @@ interface Subject {
   description?: string
 }
 
+interface OlympiadResult {
+  id: string
+  olympiadId: string
+  olympiadTitle: string
+  olympiadDescription: string
+  subjects: string[]
+  grades: number[]
+  startDate: string
+  endDate: string
+  status: string
+  score: number
+  maxScore: number
+  percentage: number
+  totalQuestions: number
+  completedAt: string
+}
+
 // Function to get subject image based on name
 const getSubjectImage = (subjectName: string): string => {
   const imageMap: { [key: string]: string } = {
@@ -38,6 +55,8 @@ const StudentSubjectsPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selecting, setSelecting] = useState<string | null>(null)
+  const [olympiadResults, setOlympiadResults] = useState<Record<string, OlympiadResult[]>>({})
+  const [loadingResults, setLoadingResults] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     const fetchData = async () => {
@@ -104,6 +123,72 @@ const StudentSubjectsPage = () => {
     } finally {
       setSelecting(null)
     }
+  }
+
+  const fetchOlympiadResults = async (subjectName: string) => {
+    try {
+      console.log('Fetching olympiad results for subject:', subjectName)
+      setLoadingResults(prev => ({ ...prev, [subjectName]: true }))
+      
+      const response = await fetch(`/api/student/olympiad-results-by-subject?subjectName=${encodeURIComponent(subjectName)}`)
+      
+      console.log('API response status:', response.status)
+      
+      if (response.ok) {
+        const data = await response.json()
+        console.log('API response data:', data)
+        setOlympiadResults(prev => ({
+          ...prev,
+          [subjectName]: data.results || []
+        }))
+      } else {
+        const errorData = await response.json()
+        console.error('Error fetching olympiad results for subject:', subjectName, errorData)
+        setOlympiadResults(prev => ({
+          ...prev,
+          [subjectName]: []
+        }))
+      }
+    } catch (error) {
+      console.error('Error fetching olympiad results:', error)
+      setOlympiadResults(prev => ({
+        ...prev,
+        [subjectName]: []
+      }))
+    } finally {
+      setLoadingResults(prev => ({ ...prev, [subjectName]: false }))
+    }
+  }
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'COMPLETED':
+        return 'დასრულებულია'
+      case 'DISQUALIFIED':
+        return 'დისკვალიფიცირებული'
+      default:
+        return status
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'COMPLETED':
+        return 'bg-green-100 text-green-800'
+      case 'DISQUALIFIED':
+        return 'bg-red-100 text-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('ka-GE', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
   }
 
   // Filter out already selected subjects
@@ -206,6 +291,54 @@ const StudentSubjectsPage = () => {
                       {subject.description}
                     </p>
                   )}
+
+                  {/* Olympiad Results Section */}
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium text-gray-700">ოლიმპიადის შედეგები</h4>
+                      <button
+                        onClick={() => fetchOlympiadResults(subject.name)}
+                        disabled={loadingResults[subject.name]}
+                        className="text-xs text-[#034e64] hover:text-[#023a4d] font-medium"
+                      >
+                        {loadingResults[subject.name] ? 'ჩატვირთვა...' : 'ჩატვირთვა'}
+                      </button>
+                    </div>
+                    
+                    {olympiadResults[subject.name] && olympiadResults[subject.name].length > 0 ? (
+                      <div className="space-y-2 max-h-32 overflow-y-auto">
+                        {olympiadResults[subject.name].map((result) => (
+                          <div key={result.id} className="bg-gray-50 rounded p-2 text-xs">
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="font-medium text-gray-800 truncate">
+                                {result.olympiadTitle}
+                              </span>
+                              <span className={`px-2 py-1 rounded text-xs ${getStatusColor(result.status)}`}>
+                                {getStatusText(result.status)}
+                              </span>
+                            </div>
+                            <div className="text-gray-600">
+                              ქულა: {result.score}/{result.maxScore} ({result.percentage}%)
+                            </div>
+                            <div className="text-gray-500">
+                              {formatDate(result.completedAt)}
+                            </div>
+                            <button
+                              onClick={() => router.push(`/student/olympiads/${result.olympiadId}/results`)}
+                              className="text-[#034e64] hover:text-[#023a4d] text-xs font-medium mt-1"
+                            >
+                              დეტალური შედეგები →
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : olympiadResults[subject.name] && olympiadResults[subject.name].length === 0 ? (
+                      <p className="text-xs text-gray-500">ოლიმპიადის შედეგები არ არის</p>
+                    ) : (
+                      <p className="text-xs text-gray-400">ღილაკზე დაჭერით ჩატვირთეთ შედეგები</p>
+                    )}
+                  </div>
+
                   <button 
                     onClick={() => handleSubjectSelection(subject.id)}
                     disabled={selecting === subject.id}

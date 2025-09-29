@@ -80,7 +80,7 @@ export async function POST(
     // Check if student already started and completed
     const participation = olympiad.participations[0]
     if (participation.startTime && participation.endTime) {
-      return NextResponse.json({ error: 'Student already completed this olympiad' }, { status: 400 })
+      return NextResponse.json({ error: 'თქვენ უკვე გაიარეთ ეს ოლიმპიადა' }, { status: 400 })
     }
     
     // If student started but didn't complete, allow continuation

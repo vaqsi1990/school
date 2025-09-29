@@ -23,11 +23,23 @@ export async function GET(
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'ავტორიზაცია საჭიროა' }, { status: 401 })
     }
 
     const resolvedParams = await params
-    const studentId = session.user.id
+    const userId = session.user.id
+
+    // First get the student record
+    const student = await prisma.student.findUnique({
+      where: { userId },
+      select: { id: true }
+    })
+
+    if (!student) {
+      return NextResponse.json({ error: 'მოსწავლის მონაცემები ვერ მოიძებნა' }, { status: 404 })
+    }
+
+    const studentId = student.id
 
     // Get olympiad with participation details
     const olympiad = await prisma.olympiadEvent.findUnique({
@@ -49,12 +61,12 @@ export async function GET(
     })
 
     if (!olympiad) {
-      return NextResponse.json({ error: 'Olympiad not found' }, { status: 404 })
+      return NextResponse.json({ error: 'ოლიმპიადა ვერ მოიძებნა' }, { status: 404 })
     }
 
     const participation = olympiad.participations[0]
     if (!participation) {
-      return NextResponse.json({ error: 'Participation not found' }, { status: 404 })
+      return NextResponse.json({ error: 'თქვენ არ ხართ რეგისტრირებული ამ ოლიმპიადაზე' }, { status: 404 })
     }
 
     // Get all questions from packages
@@ -125,7 +137,7 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching olympiad results:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'სისტემური შეცდომა მოხდა' },
       { status: 500 }
     )
   }

@@ -30,22 +30,29 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify the test result belongs to the current student
-    const testResult = await prisma.testResult.findFirst({
+    // Get student record
+    const student = await prisma.student.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!student) {
+      return NextResponse.json(
+        { error: 'მოსწავლის მონაცემები ვერ მოიძებნა' },
+        { status: 404 }
+      )
+    }
+
+    // Verify the olympiad result belongs to the current student
+    const olympiadResult = await prisma.studentOlympiadEvent.findFirst({
       where: {
         id: resultId,
-        student: {
-          userId: session.user.id
-        }
-      },
-      include: {
-        student: true
+        studentId: student.id
       }
     })
 
-    if (!testResult) {
+    if (!olympiadResult) {
       return NextResponse.json(
-        { error: 'ტესტის შედეგი ვერ მოიძებნა' },
+        { error: 'ოლიმპიადის შედეგი ვერ მოიძებნა' },
         { status: 404 }
       )
     }
@@ -53,13 +60,13 @@ export async function POST(request: NextRequest) {
     // Check if appeal already exists for this result
     const existingAppeal = await prisma.appeal.findFirst({
       where: {
-        testResultId: resultId
+        studentOlympiadEventId: resultId
       }
     })
 
     if (existingAppeal) {
       return NextResponse.json(
-        { error: 'ამ ტესტისთვის უკვე გაგზავნილია გასაჩივრება' },
+        { error: 'ამ ოლიმპიადისთვის უკვე გაგზავნილია გასაჩივრება' },
         { status: 400 }
       )
     }
@@ -67,11 +74,11 @@ export async function POST(request: NextRequest) {
     // Create the appeal
     const appeal = await prisma.appeal.create({
       data: {
-        testResultId: resultId,
+        studentOlympiadEventId: resultId,
         reason,
         description: description.trim(),
         status: 'PENDING',
-        studentId: testResult.student.id,
+        studentId: student.id,
         subjectId: subjectId,
         submittedAt: new Date()
       }
@@ -109,17 +116,27 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Get student record
+    const student = await prisma.student.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!student) {
+      return NextResponse.json(
+        { error: 'მოსწავლის მონაცემები ვერ მოიძებნა' },
+        { status: 404 }
+      )
+    }
+
     // Get student's appeals
     const appeals = await prisma.appeal.findMany({
       where: {
-        student: {
-          userId: session.user.id
-        }
+        studentId: student.id
       },
       include: {
-        testResult: {
+        studentOlympiadEvent: {
           include: {
-            subject: true
+            olympiadEvent: true
           }
         }
       },
@@ -135,11 +152,10 @@ export async function GET(request: NextRequest) {
         description: appeal.description,
         status: appeal.status,
         submittedAt: appeal.submittedAt,
-        testResult: {
-          id: appeal.testResult.id,
-          score: appeal.testResult.score,
-          totalQuestions: appeal.testResult.totalQuestions,
-          subject: appeal.testResult.subject?.name || 'უცნობი საგანი'
+        olympiadResult: {
+          id: appeal.studentOlympiadEvent?.id,
+          score: appeal.studentOlympiadEvent?.totalScore,
+          olympiadTitle: appeal.studentOlympiadEvent?.olympiadEvent?.name || 'უცნობი ოლიმპიადა'
         }
       }))
     })

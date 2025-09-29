@@ -57,7 +57,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
   const [totalQuestions, setTotalQuestions] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
   const [testStarted, setTestStarted] = useState(false)
-  const [testResults, setTestResults] = useState<TestResult[]>([])
+  const [olympiadResults, setOlympiadResults] = useState<any[]>([])
   const [loadingResults, setLoadingResults] = useState(true)
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
@@ -65,7 +65,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
   const [loadingOlympiads, setLoadingOlympiads] = useState(true)
   const [registrationStatus, setRegistrationStatus] = useState<{[key: string]: 'idle' | 'loading' | 'success' | 'error'}>({})
   const [showAppealForm, setShowAppealForm] = useState(false)
-  const [selectedResultForAppeal, setSelectedResultForAppeal] = useState<TestResult | null>(null)
+  const [selectedResultForAppeal, setSelectedResultForAppeal] = useState<any | null>(null)
   const [appealReason, setAppealReason] = useState('')
   const [appealDescription, setAppealDescription] = useState('')
   const [submittingAppeal, setSubmittingAppeal] = useState(false)
@@ -76,10 +76,11 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
     }
   }, [isAuthenticated, user, params])
 
-  // Fetch olympiads when subject name and student grade are available
+  // Fetch olympiads and results when subject name and student grade are available
   useEffect(() => {
     if (subjectName && studentGrade && subjectId) {
       fetchOlympiadsForSubject(subjectId)
+      fetchOlympiadResults(subjectName)
     }
   }, [subjectName, studentGrade, subjectId])
 
@@ -107,29 +108,28 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
       setError('საგნის მონაცემების ჩატვირთვა ვერ მოხერხდა')
     }
     
-    // Fetch test results for this subject
-    fetchTestResults(resolvedParams.subjectId)
+    // Fetch olympiad results for this subject (will be called after subjectName is set)
   }
 
-  const fetchTestResults = async (subjectId: string) => {
+  const fetchOlympiadResults = async (subjectName: string) => {
     try {
       setLoadingResults(true)
       setError('')
       
-      // Fetch test results for this specific subject
-      const response = await fetch(`/api/student/test-results?subjectId=${subjectId}`)
+      // Fetch olympiad results for this specific subject
+      const response = await fetch(`/api/student/olympiad-results-by-subject?subjectName=${encodeURIComponent(subjectName)}`)
       
       if (response.ok) {
         const data = await response.json()
-        setTestResults(data.results || [])
+        setOlympiadResults(data.results || [])
       } else {
         const errorData = await response.json()
-        console.error('Error fetching test results:', errorData.error)
-        setTestResults([])
+        console.error('Error fetching olympiad results:', errorData.error)
+        setOlympiadResults([])
       }
     } catch (error) {
-      console.error('Error fetching test results:', error)
-      setTestResults([])
+      console.error('Error fetching olympiad results:', error)
+      setOlympiadResults([])
     } finally {
       setLoadingResults(false)
     }
@@ -148,18 +148,21 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
         console.log('Current subject name:', subjectName)
         console.log('Student grade:', studentGrade)
         
-        // Filter olympiads that include this subject and student's grade
+        // Filter olympiads that include this subject and student's grade, and exclude completed ones
         const subjectOlympiads = data.olympiads.filter((olympiad: Olympiad) => {
           const hasSubject = olympiad.subjects.includes(subjectName)
           const hasGrade = olympiad.grades.includes(studentGrade || 0)
+          const isNotCompleted = olympiad.status !== 'completed'
           console.log(`Olympiad ${olympiad.title}:`, {
             subjects: olympiad.subjects,
             grades: olympiad.grades,
+            status: olympiad.status,
             hasSubject,
             hasGrade,
-            matches: hasSubject && hasGrade
+            isNotCompleted,
+            matches: hasSubject && hasGrade && isNotCompleted
           })
-          return hasSubject && hasGrade
+          return hasSubject && hasGrade && isNotCompleted
         })
         
         console.log('Filtered olympiads:', subjectOlympiads)
@@ -311,7 +314,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
     }
   }
 
-  const handleAppealClick = (result: TestResult) => {
+  const handleAppealClick = (result: any) => {
     setSelectedResultForAppeal(result)
     setShowAppealForm(true)
     setAppealReason('')
@@ -663,12 +666,22 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                           >
                             დეტალები
                           </button>
-                          {olympiad.isRegistered ? (
+                      
+
+
+                          {olympiad.isRegistered && olympiad.registrationStatus !== 'COMPLETED' && olympiad.registrationStatus !== 'DISQUALIFIED' ? (
                             <button
                               onClick={() => handleStartOlympiad(olympiad.id)}
                               className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors text-center"
                             >
                               დაწყება
+                            </button>
+                          ) : olympiad.isRegistered && (olympiad.registrationStatus === 'COMPLETED' || olympiad.registrationStatus === 'DISQUALIFIED') ? (
+                            <button
+                              disabled
+                              className="flex-1 cursor-pointer bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold cursor-not-allowed"
+                            >
+                              {olympiad.registrationStatus === 'COMPLETED' ? 'დასრულებულია' : 'დისკვალიფიცირებული'}
                             </button>
                           ) : olympiad.isRegistrationOpen ? (
                             <button
@@ -721,31 +734,30 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
               </div>
             </div>
 
-            {/* Test Results Section */}
+            {/* Olympiad Results Section */}
             <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200">
               <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 md:text-[18px] text-[16px]">შედეგები</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 md:text-[18px] text-[16px]">ოლიმპიადის შედეგები</h2>
                 {loadingResults ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#034e64] mx-auto mb-4"></div>
                     <p className="text-gray-600 md:text-[18px] text-[16px]">შედეგების ჩატვირთვა...</p>
                   </div>
-                ) : testResults.length === 0 ? (
+                ) : olympiadResults.length === 0 ? (
                   <div className="text-center py-8">
                     <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     <h3 className="mt-2 text-sm font-medium text-gray-900 md:text-[18px] text-[16px]">
-                      ტესტები არ არის
+                      ოლიმპიადის შედეგები არ არის
                     </h3>
                     <p className="mt-1 text-sm text-gray-500 md:text-[18px] text-[16px]">
-                      ჯერ არ გაქვთ გავლილი ტესტები
+                      ჯერ არ გაქვთ გავლილი ოლიმპიადები
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {testResults.map((result) => {
-                      const percentage = Math.round((result.score / result.totalQuestions) * 100)
+                    {olympiadResults.map((result) => {
                       const getPerformanceColor = (percentage: number) => {
                         if (percentage >= 90) return 'text-green-600'
                         if (percentage >= 80) return 'text-blue-600'
@@ -760,6 +772,26 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                         if (percentage >= 60) return 'საშუალოზე დაბალი'
                         return 'ცუდი'
                       }
+                      const getStatusColor = (status: string) => {
+                        switch (status) {
+                          case 'COMPLETED':
+                            return 'bg-green-100 text-green-800'
+                          case 'DISQUALIFIED':
+                            return 'bg-red-100 text-red-800'
+                          default:
+                            return 'bg-gray-100 text-gray-800'
+                        }
+                      }
+                      const getStatusText = (status: string) => {
+                        switch (status) {
+                          case 'COMPLETED':
+                            return 'დასრულებულია'
+                          case 'DISQUALIFIED':
+                            return 'დისკვალიფიცირებული'
+                          default:
+                            return status
+                        }
+                      }
                       
                       return (
                         <motion.div 
@@ -772,7 +804,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                           <div className="flex justify-between items-start mb-3">
                             <div className="flex-1">
                               <h3 className="text-lg font-semibold text-gray-900 md:text-[18px] text-[16px]">
-                                {result.subject} - ტესტი
+                                {result.olympiadTitle}
                               </h3>
                               <p className="text-gray-600 text-sm">
                                 {new Date(result.completedAt).toLocaleDateString('ka-GE', {
@@ -786,27 +818,30 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                               </p>
                             </div>
                             <div className="text-right">
-                              <div className={`text-2xl font-bold ${getPerformanceColor(percentage)}`}>
-                                {percentage}%
+                              <div className={`text-2xl font-bold ${getPerformanceColor(result.percentage)}`}>
+                                {result.percentage}%
                               </div>
                               <div className="text-sm text-gray-600">
-                                {getPerformanceText(percentage)}
+                                {getPerformanceText(result.percentage)}
                               </div>
+                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(result.status)}`}>
+                                {getStatusText(result.status)}
+                              </span>
                             </div>
                           </div>
                           
                           <div className="grid grid-cols-2 gap-4 mb-3">
                             <div className="bg-gray-50 rounded-lg p-3 text-center">
                               <div className="text-lg font-semibold text-gray-900">
-                                {result.score}/{result.totalQuestions}
+                                {result.score}/{result.maxScore}
                               </div>
-                              <div className="text-sm text-gray-600">სწორი პასუხი</div>
+                              <div className="text-sm text-gray-600">მიღებული ქულა</div>
                             </div>
                             <div className="bg-gray-50 rounded-lg p-3 text-center">
                               <div className="text-lg font-semibold text-gray-900">
-                                {result.totalQuestions - result.score}
+                                {result.totalQuestions}
                               </div>
-                              <div className="text-sm text-gray-600">მცდარი პასუხი</div>
+                              <div className="text-sm text-gray-600">კითხვების რაოდენობა</div>
                             </div>
                           </div>
                           
@@ -814,22 +849,22 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                           <div className="w-full bg-gray-200 rounded-full h-2">
                             <div 
                               className={`h-2 rounded-full transition-all duration-500 ${
-                                percentage >= 90 ? 'bg-green-500' :
-                                percentage >= 80 ? 'bg-blue-500' :
-                                percentage >= 70 ? 'bg-yellow-500' :
-                                percentage >= 60 ? 'bg-orange-500' : 'bg-red-500'
+                                result.percentage >= 90 ? 'bg-green-500' :
+                                result.percentage >= 80 ? 'bg-blue-500' :
+                                result.percentage >= 70 ? 'bg-yellow-500' :
+                                result.percentage >= 60 ? 'bg-orange-500' : 'bg-red-500'
                               }`}
-                              style={{ width: `${percentage}%` }}
+                              style={{ width: `${result.percentage}%` }}
                             ></div>
                           </div>
                           
-                          {/* Appeal Button */}
-                          <div className="mt-4 pt-4 border-t border-gray-200">
+                          {/* View Details Button */}
+                          <div className="mt-4 pt-4 border-t mx-auto border-gray-200">
                             <button
-                              onClick={() => handleAppealClick(result)}
-                              className="w-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                              onClick={() => router.push(`/student/olympiads/${result.olympiadId}/results`)}
+                              className="bg-[#034e64] mx-auto block text-white px-8 py-3 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d] disabled:opacity-50"
                             >
-                              ქულის გასაჩივრება
+                              დეტალური შედეგები
                             </button>
                           </div>
                         </motion.div>
@@ -962,10 +997,10 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                 
                 <div className="mb-4 p-3 bg-gray-50 rounded-md">
                   <p className="text-[16px] text-black">
-                    <strong>ტესტი:</strong> {selectedResultForAppeal.subject}
+                    <strong>ოლიმპიადა:</strong> {selectedResultForAppeal.olympiadTitle}
                   </p>
                   <p className="text-[16px] text-black">
-                    <strong>ქულა:</strong> {selectedResultForAppeal.score}/{selectedResultForAppeal.totalQuestions}
+                    <strong>ქულა:</strong> {selectedResultForAppeal.score}/{selectedResultForAppeal.maxScore}
                   </p>
                   <p className="text-[16px] text-black">
                     <strong>თარიღი:</strong> {new Date(selectedResultForAppeal.completedAt).toLocaleDateString('ka-GE')}
