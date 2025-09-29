@@ -38,18 +38,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // First, let's check if there are any answers at all
-    const allAnswers = await prisma.studentAnswer.findMany({
-      take: 5,
-      include: {
-        question: {
-          include: {
-            subject: true
-          }
-        },
-        student: true
-      }
-    });
     
  
     
@@ -79,7 +67,12 @@ export async function GET(request: NextRequest) {
     const answersWithManualScores = await Promise.all(
       answers.map(async (answer) => {
         // Build where clause conditionally to handle null values
-        const whereClause: any = {
+        const whereClause: {
+          studentId: string;
+          questionId: string;
+          olympiadId?: string;
+          roundNumber?: number;
+        } = {
           studentId: answer.studentId,
           questionId: answer.questionId
         };
