@@ -549,6 +549,9 @@ model Appeal {
   reviewedAt            DateTime?
   reviewedBy            String?
   reviewNotes           String?
+  adminComment          String?
+  processedAt           DateTime?
+  processedBy           String?
   studentOlympiadEvent  StudentOlympiadEvent @relation(fields: [studentOlympiadEventId], references: [id], onDelete: Cascade)
   student               Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
   reviewer              User?               @relation(fields: [reviewedBy], references: [id])

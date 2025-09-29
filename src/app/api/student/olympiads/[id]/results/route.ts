@@ -130,7 +130,11 @@ export async function GET(
       status: participation.status,
       startTime: participation.startTime,
       endTime: participation.endTime,
-      questions: questionsWithAnswers
+      questions: questionsWithAnswers,
+      minimumPointsThreshold: olympiad.minimumPointsThreshold,
+      currentRound: participation.currentRound,
+      totalRounds: olympiad.rounds,
+      hasAdvancedToNextStage: olympiad.minimumPointsThreshold ? score >= olympiad.minimumPointsThreshold : false
     }
 
     return NextResponse.json(result)

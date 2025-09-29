@@ -107,8 +107,10 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
       setLoadingResults(true)
       setError('')
       
-      // Fetch olympiad results for this specific subject
-      const response = await fetch(`/api/student/olympiad-results-by-subject?subjectName=${encodeURIComponent(subjectName)}`)
+      // Fetch olympiad results for this specific subject with cache-busting
+      const response = await fetch(`/api/student/olympiad-results-by-subject?subjectName=${encodeURIComponent(subjectName)}&t=${Date.now()}`, {
+        cache: 'no-store'
+      })
       
       if (response.ok) {
         const data = await response.json()
@@ -742,7 +744,28 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
             {/* Olympiad Results Section */}
             <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200">
               <div className="p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 md:text-[18px] text-[16px]">ოლიმპიადის შედეგები</h2>
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 md:text-[18px] text-[16px]">ოლიმპიადის შედეგები</h2>
+                  <button
+                    onClick={() => fetchOlympiadResults(subjectName)}
+                    disabled={loadingResults}
+                    className="bg-[#034e64] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#023a4d] disabled:opacity-50 flex items-center gap-2"
+                  >
+                    {loadingResults ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        ჩატვირთვა...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        განახლება
+                      </>
+                    )}
+                  </button>
+                </div>
                 {loadingResults ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#034e64] mx-auto mb-4"></div>
@@ -996,9 +1019,19 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  ქულის გასაჩივრება
-                </h3>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    ქულის გასაჩივრება
+                  </h3>
+                  <button
+                    onClick={handleAppealCancel}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
                 
                 <div className="mb-4 p-3 bg-gray-50 rounded-md">
                   <p className="text-[16px] text-black">

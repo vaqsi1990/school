@@ -360,6 +360,27 @@ function AdminDashboardContent() {
             </div>
           </div>
 
+          {/* Appeals Management Card */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="ml-4">
+                  <h3 className="text-black md:text-[20px] text-[18px]">გასაჩივრებების მართვა</h3>
+                </div>
+              </div>
+              <div className="mt-4">
+                <p className="text-black md:text-[18px] text-[16px]">
+                  მართეთ მოსწავლეთა გასაჩივრებები და მიიღეთ გადაწყვეტილებები.
+                </p>
+                <button className="mt-4 w-full cursor-pointer bg-[#dc2626] text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
+                  <Link href="/admin/appeals" className="block w-full h-full text-white">
+                    გასაჩივრებების ნახვა
+                  </Link>
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* System Statistics Card */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-6">

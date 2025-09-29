@@ -68,7 +68,9 @@ export async function GET(request: NextRequest) {
             startDate: true,
             endDate: true,
             subjects: true,
-            grades: true
+            grades: true,
+            minimumPointsThreshold: true,
+            rounds: true
           }
         }
       },
@@ -111,6 +113,8 @@ export async function GET(request: NextRequest) {
 
         const score = participation.totalScore || 0
         const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0
+        
+        console.log(`Olympiad ${participation.olympiadEvent.name}: score=${score}, maxScore=${maxScore}, percentage=${percentage}`)
 
         return {
           id: participation.id,
@@ -126,7 +130,11 @@ export async function GET(request: NextRequest) {
           maxScore,
           percentage,
           totalQuestions: allQuestions.length,
-          completedAt: participation.endTime || participation.olympiadEvent.endDate
+          completedAt: participation.endTime || participation.olympiadEvent.endDate,
+          minimumPointsThreshold: participation.olympiadEvent.minimumPointsThreshold,
+          currentRound: participation.currentRound,
+          totalRounds: participation.olympiadEvent.rounds,
+          hasAdvancedToNextStage: participation.olympiadEvent.minimumPointsThreshold ? score >= participation.olympiadEvent.minimumPointsThreshold : false
         }
       })
     )

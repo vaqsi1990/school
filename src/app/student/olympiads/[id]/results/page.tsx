@@ -36,6 +36,10 @@ interface OlympiadResult {
   percentage: number
   status: string
   questions?: QuestionResult[]
+  minimumPointsThreshold?: number
+  currentRound?: number
+  totalRounds?: number
+  hasAdvancedToNextStage?: boolean
 }
 
 export default function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -97,7 +101,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-500 text-6xl mb-4">❌</div>
+  
           <h1 className="text-2xl font-bold text-gray-900 mb-4">შეცდომა</h1>
           <p className="text-gray-600 mb-6">{error || 'ოლიმპიადის შედეგები ვერ ჩაიტვირთა'}</p>
           <Link
@@ -115,6 +119,18 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
+        <div className="mb-6">
+          <button
+            onClick={() => router.back()}
+            className="flex items-center text-[#034e64] hover:text-[#023a4d] transition-colors mb-4"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            უკან დაბრუნება
+          </button>
+        </div>
+        
         <div className="text-center mb-8">
           <div className="text-green-500 text-6xl mb-4"></div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">ოლიმპიადა დასრულდა!</h1>
@@ -221,6 +237,47 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                 <div className={`text-lg font-medium ${getScoreColor(olympiad.percentage)} mb-6`}>
                   {getScoreMessage(olympiad.percentage)}
                 </div>
+
+                {/* Stage Progression Message */}
+                {olympiad.minimumPointsThreshold && olympiad.currentRound && olympiad.totalRounds && (
+                  <div className="mb-6">
+                    {olympiad.score >= olympiad.minimumPointsThreshold ? (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div className="flex items-center">
+                       
+                          <div>
+                            <div className="text-lg font-semibold text-green-800 mb-1">
+                              გილოცავთ! შემდეგ ეტაპზე გადახვედით!
+                            </div>
+                            <div className="text-green-700">
+                              თქვენ მიიღეთ {olympiad.score} ქულა, რაც აღემატება მინიმალურ ზღვარს ({olympiad.minimumPointsThreshold} ქულა).
+                              {olympiad.currentRound < olympiad.totalRounds ? (
+                                <span> ახლა თქვენ ხართ {olympiad.currentRound + 1} ეტაპზე.</span>
+                              ) : (
+                                <span> თქვენ დაასრულეთ ყველა ეტაპი!</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div className="flex items-center">
+                          <div className="text-yellow-500 text-2xl mr-3">📊</div>
+                          <div>
+                            <div className="text-lg font-semibold text-yellow-800 mb-1">
+                              შემდეგ ეტაპზე გადასასვლელად საჭიროა მეტი ქულა
+                            </div>
+                            <div className="text-yellow-700">
+                              თქვენ მიიღეთ {olympiad.score} ქულა, მაგრამ შემდეგ ეტაპზე გადასასვლელად საჭიროა მინიმუმ {olympiad.minimumPointsThreshold} ქულა.
+                              გაგრძელეთ ვარჯიში!
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </>
             )}
           </div>
