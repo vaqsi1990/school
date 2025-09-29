@@ -724,22 +724,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
               </div>
             </div>
 
-            {/* Start Test Section */}
-            <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200">
-              <div className="p-6 text-center">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4 md:text-[18px] text-[16px]">ტესტის დაწყება</h2>
-                <p className="text-gray-600 mb-6 md:text-[18px] text-[16px]">
-                  დაიწყეთ ტესტი {subjectName} საგანში თქვენი კლასისთვის ({studentGrade} კლასი)
-                </p>
-                <button
-                  onClick={startTest}
-                  disabled={isLoading}
-                  className="bg-[#034e64] text-white px-8 py-3 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d] disabled:opacity-50"
-                >
-                  {isLoading ? 'ტესტის ჩატვირთვა...' : 'ტესტის დაწყება'}
-                </button>
-              </div>
-            </div>
+          
 
             {/* Olympiad Results Section */}
             <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200">
