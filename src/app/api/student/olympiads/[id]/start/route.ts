@@ -85,19 +85,26 @@ export async function POST(
     
     // If student started but didn't complete, allow continuation
     if (participation.startTime && !participation.endTime) {
-      // Check if time hasn't expired (1 hour limit)
+      // Check if time hasn't expired (custom duration limit)
       const now = new Date()
       const startTime = new Date(participation.startTime)
       const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000)
-      const totalTime = 60 * 60 // 1 hour in seconds
+      const totalTime = olympiad.duration * 60 * 60 // Convert hours to seconds
       
       if (elapsed >= totalTime) {
-        // Time expired, mark as completed
+        // Time expired, mark as disqualified
         await prisma.studentOlympiadEvent.update({
           where: { id: participation.id },
-          data: { endTime: now, status: 'COMPLETED' }
+          data: { 
+            endTime: now, 
+            status: 'DISQUALIFIED',
+            totalScore: 0
+          }
         })
-        return NextResponse.json({ error: 'Olympiad time has expired' }, { status: 400 })
+        return NextResponse.json({ 
+          error: 'ოლიმპიადის დრო ამოიწურა. თქვენ ვერ გაიარეთ ოლიმპიადა და ვერ გადახვალთ შემდეგ ეტაპზე.',
+          disqualified: true 
+        }, { status: 400 })
       }
       
       // Return existing questions for continuation
@@ -120,7 +127,8 @@ export async function POST(
       return NextResponse.json({
         message: 'Olympiad resumed successfully',
         questions: allQuestions,
-        resumed: true
+        resumed: true,
+        duration: olympiad.duration * 60 // Return duration in minutes for frontend timer
       })
     }
 
@@ -181,7 +189,8 @@ export async function POST(
 
     return NextResponse.json({
       message: 'Olympiad started successfully',
-      questions: shuffledQuestions
+      questions: shuffledQuestions,
+      duration: olympiad.duration * 60 // Return duration in minutes for frontend timer
     })
   } catch (error) {
     console.error('Error starting olympiad:', error)

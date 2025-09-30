@@ -336,6 +336,7 @@ model OlympiadEvent {
   isActive               Boolean                @default(true)
   showDetailedReview     Boolean                @default(false)
   rounds                 Int                    @default(3)
+  duration               Float                  @default(1.0) // Duration in hours
   subjects               String[]
   grades                 Int[]
   createdBy              String

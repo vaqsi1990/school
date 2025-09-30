@@ -70,6 +70,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
   const [error, setError] = useState('')
   const [isStarted, setIsStarted] = useState(false)
   const [startTime, setStartTime] = useState<Date | null>(null)
+  const [duration, setDuration] = useState(60) // Duration in minutes, default 60
   const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({})
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<string>>(new Set())
 
@@ -111,7 +112,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         const startTime = new Date(data.startTime)
         const now = new Date()
         const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000)
-        const totalTime = 60 * 60 // 1 hour in seconds
+        const totalTime = (data.duration || 60) * 60 // Convert minutes to seconds
         
         if (elapsed < totalTime) {
           setIsStarted(true)
@@ -119,6 +120,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
           setQuestions(data.questions || [])
           setAnswers(data.answers || {})
           setCurrentQuestionIndex(data.currentQuestionIndex || 0)
+          setDuration(data.duration || 60)
           
           // Load shuffled options or create new ones if not exist
           if (data.shuffledOptions) {
@@ -140,18 +142,19 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
       const timer = setInterval(() => {
         const now = new Date()
         const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000)
-        const totalTime = 60 * 60 // 1 hour in seconds
+        const totalTime = duration * 60 // Convert minutes to seconds
         const remaining = Math.max(0, totalTime - elapsed)
         setTimeLeft(remaining)
 
         if (remaining === 0) {
-          handleSubmitAnswers()
+          // Time expired, automatically submit with disqualification
+          handleTimeExpired()
         }
       }, 1000)
 
       return () => clearInterval(timer)
     }
-  }, [isStarted, startTime])
+  }, [isStarted, startTime, duration])
 
   const fetchOlympiad = async () => {
     try {
@@ -192,6 +195,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
       if (data.resumed) {
         // Olympiad was resumed, use existing start time
         setQuestions(data.questions)
+        setDuration(data.duration || 60)
         
         // Create shuffled options for all questions
         const shuffled = createShuffledOptions(data.questions)
@@ -206,6 +210,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         // New olympiad start
         const startTime = new Date()
         setQuestions(data.questions)
+        setDuration(data.duration || 60)
         
         // Create shuffled options for all questions
         const shuffled = createShuffledOptions(data.questions)
@@ -221,7 +226,8 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
           questions: data.questions,
           shuffledOptions: shuffled,
           answers: {},
-          currentQuestionIndex: 0
+          currentQuestionIndex: 0,
+          duration: data.duration || 60
         }
         localStorage.setItem(`olympiad_${resolvedParams.id}`, JSON.stringify(olympiadData))
       }
@@ -289,6 +295,45 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         data.currentQuestionIndex = newIndex
         localStorage.setItem(`olympiad_${resolvedParams.id}`, JSON.stringify(data))
       }
+    }
+  }
+
+  const handleTimeExpired = async () => {
+    setIsSubmitting(true)
+    try {
+      // Submit answers even if time expired
+      const response = await fetch(`/api/student/olympiads/${resolvedParams.id}/submit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ answers }),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        let errorMessage = 'Failed to submit answers'
+        try {
+          const errorData = JSON.parse(errorText)
+          errorMessage = errorData.error || errorMessage
+        } catch {
+          errorMessage = errorText || errorMessage
+        }
+        throw new Error(errorMessage)
+      }
+
+      const result = await response.json()
+      
+      // Clear localStorage
+      localStorage.removeItem(`olympiad_${resolvedParams.id}`)
+      
+      // Redirect to results with disqualification message
+      router.push(`/student/olympiads/${resolvedParams.id}/results?score=${result.score}&disqualified=true`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'სისტემური შეცდომა მოხდა')
+      console.error('Error submitting answers:', err)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -607,16 +652,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         {/* Question */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-black md:text-[18px] text-[16px]">
-                კითხვა {numberToGeorgianLetter(currentQuestionIndex)}
-              </h2>
-              {answeredQuestions.has(currentQuestion.id) && (
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full text-black md:text-[18px] text-[16px]">
-                  ნაპასუხი
-                </span>
-              )}
-            </div>
+           
             
             {(currentQuestion.type === 'TEXT_ANALYSIS' || currentQuestion.type === 'MAP_ANALYSIS') ? (
               <div className="mb-4">

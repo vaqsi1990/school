@@ -770,16 +770,7 @@ function TestQuestionsContent() {
                       <span className="text-[16px] text-black">
                        {currentQuestionIndex + 1}
                       </span>
-                      <div className="flex items-center space-x-2">
-                        {answeredQuestions.has(selectedQuestions[currentQuestionIndex].id) && (
-                          <span className="text-xs bg-green-100 text-black px-2 py-1 rounded-full">
-                            ნაპასუხი
-                          </span>
-                        )}
-                        <span className="text-[16px] text-black">
-                          {selectedQuestions[currentQuestionIndex].points} ქულა
-                        </span>
-                      </div>
+                    
                     </div>
                     
                     {(selectedQuestions[currentQuestionIndex].type === 'TEXT_ANALYSIS' || selectedQuestions[currentQuestionIndex].type === 'MAP_ANALYSIS') ? (

@@ -53,8 +53,14 @@ export async function POST(
       return NextResponse.json({ error: 'Student has not started this olympiad' }, { status: 400 })
     }
 
-    // Check if already submitted
+    // Check if already submitted or disqualified
     if (participation.endTime) {
+      if (participation.status === 'DISQUALIFIED') {
+        return NextResponse.json({ 
+          error: 'თქვენ ვერ გაიარეთ ოლიმპიადა დროის ამოწურვის გამო',
+          disqualified: true 
+        }, { status: 400 })
+      }
       return NextResponse.json({ error: 'Student already submitted answers' }, { status: 400 })
     }
 

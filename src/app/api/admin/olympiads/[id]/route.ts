@@ -76,6 +76,7 @@ export async function PUT(
       subjects,
       grades,
       rounds,
+      duration,
       packages,
       questionTypes,
       questionTypeQuantities,
@@ -111,6 +112,7 @@ export async function PUT(
         maxParticipants: 999999, // Set to a very high number to effectively remove limit
         isActive,
         rounds: parseInt(rounds),
+        duration: parseFloat(duration),
         subjects: subjects,
         grades: grades.map((grade: string | number) => parseInt(grade.toString())),
         questionTypes: questionTypes,

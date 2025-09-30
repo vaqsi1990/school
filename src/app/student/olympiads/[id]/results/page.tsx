@@ -52,6 +52,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const score = searchParams.get('score')
   const isManualGrading = searchParams.get('manual') === 'true'
   const isAutoGrading = searchParams.get('auto') === 'true'
+  const isDisqualified = searchParams.get('disqualified') === 'true'
   const resolvedParams = use(params)
 
   useEffect(() => {
@@ -168,10 +169,26 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="text-center">
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              {isManualGrading ? 'ოლიმპიადა დასრულდა' : 'თქვენი შედეგი'}
+              {isDisqualified ? 'ოლიმპიადა დასრულდა' : isManualGrading ? 'ოლიმპიადა დასრულდა' : 'თქვენი შედეგი'}
             </h3>
             
-            {isManualGrading ? (
+            {isDisqualified ? (
+              <div className="mb-6">
+                <div className="text-6xl mb-4">❌</div>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                  <div className="text-lg font-medium text-red-800 mb-2">
+                    ❌ ოლიმპიადა ვერ გაიარეთ
+                  </div>
+                  <div className="text-red-700">
+                    ოლიმპიადის დრო ამოიწურა და თქვენ ვერ მოასწრეთ ყველა კითხვის პასუხი. 
+                    ამის გამო თქვენ ვერ გადახვალთ შემდეგ ეტაპზე.
+                  </div>
+                </div>
+                <div className="text-lg text-gray-600">
+                  მიღებული ქულა: {olympiad.score} / {olympiad.maxScore}
+                </div>
+              </div>
+            ) : isManualGrading ? (
               <div className="mb-6">
                 <div className="text-6xl mb-4">⏳</div>
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">

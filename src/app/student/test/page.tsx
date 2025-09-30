@@ -253,16 +253,7 @@ function StudentTestContent() {
         {/* Question Card */}
         <div className="bg-white shadow rounded-lg p-6 mb-8">
           <div className="mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-gray-900">
-                {currentQuestion.text}
-              </h2>
-              {answeredQuestions.has(currentQuestion.id) && (
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                  ნაპასუხი
-                </span>
-              )}
-            </div>
+           
             
             {currentQuestion.image && currentQuestion.image.length > 0 && (
               <div className={`mb-4 flex gap-2 ${

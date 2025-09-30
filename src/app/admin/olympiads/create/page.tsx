@@ -37,6 +37,7 @@ interface OlympiadFormData {
   subjects: string[]
   grades: number[]
   rounds: number
+  duration: number // Duration in hours
   packages: string[] // Array of package IDs
   questionTypes: string[]
   questionTypeQuantities: Record<string, number>
@@ -63,6 +64,7 @@ function CreateOlympiadContent() {
     subjects: [],
     grades: [7, 8, 9, 10, 11, 12],
     rounds: 3,
+    duration: 1, // Default 1 hour
     packages: [],
     questionTypes: [],
     questionTypeQuantities: {},
@@ -324,6 +326,7 @@ function CreateOlympiadContent() {
       subjects: [],
       grades: [7, 8, 9, 10, 11, 12],
       rounds: 3,
+      duration: 1, // Default 1 hour
       packages: [],
       questionTypes: [],
       questionTypeQuantities: {},
@@ -560,6 +563,27 @@ function CreateOlympiadContent() {
                   <option value={2}>2 რაუნდი</option>
                   <option value={3}>3 რაუნდი</option>
                 </select>
+              </div>
+
+              <div className="flex flex-col h-full">
+                <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
+                  ტესტირების ხანგრძლივობა (საათებში) *
+                </label>
+                <input
+                  type="number"
+                  name="duration"
+                  required
+                  min="0.25"
+                  max="10"
+                  step="0.25"
+                  value={formData.duration}
+                  onChange={handleInputChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
+                  placeholder="1"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  მინიმუმ 0.25 საათი (15 წუთი), მაქსიმუმ 10 საათი
+                </p>
               </div>
 
               <div className="flex flex-col h-full">
