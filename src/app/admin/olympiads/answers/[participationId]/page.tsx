@@ -241,9 +241,9 @@ function StudentAnswerDetailContent() {
               <h3 className="text-lg font-medium text-gray-900 mb-3">ოლიმპიადის ინფორმაცია</h3>
               <div className="space-y-2">
                 <p><strong>სახელი:</strong> {olympiadInfo.name}</p>
-                <p><strong>საგნები:</strong> {olympiadInfo.subjects.join(', ')}</p>
-                <p><strong>კლასები:</strong> {olympiadInfo.grades.join(', ')}</p>
-                <p><strong>რაუნდები:</strong> {olympiadInfo.rounds}</p>
+                <p><strong>საგანი:</strong> {olympiadInfo.subjects.join(', ')}</p>
+                <p><strong>კლასი:</strong> {olympiadInfo.grades.join(', ')}</p>
+                <p><strong>რაუნდი:</strong> {olympiadInfo.rounds}</p>
               </div>
             </div>
             <div>

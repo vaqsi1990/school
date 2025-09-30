@@ -123,7 +123,8 @@ export async function GET(request: NextRequest) {
       },
       select: {
         olympiadEventId: true,
-        status: true
+        status: true,
+        endTime: true
       }
     })
 
@@ -132,53 +133,65 @@ export async function GET(request: NextRequest) {
       studentRegistrations.map(reg => [reg.olympiadEventId, reg.status])
     )
 
-    // Transform data for frontend
-    const transformedOlympiads: TransformedOlympiad[] = olympiads.map((olympiad: OlympiadEventData) => {
-      const registrationStatus = registrationMap.get(olympiad.id)
-      const now = new Date()
-      
-      // Allow registration throughout the deadline day (until 23:59:59)
-      const deadline = new Date(olympiad.registrationDeadline)
-      deadline.setHours(23, 59, 59, 999)
-      
-      const isRegistrationOpen = now >= olympiad.registrationStartDate && now <= deadline
-      const hasStarted = now >= olympiad.startDate
-      const hasEnded = now >= olympiad.endDate
-      
-      console.log('Olympiad:', olympiad.name, {
-        now: now.toISOString(),
-        registrationStartDate: olympiad.registrationStartDate.toISOString(),
-        registrationDeadline: olympiad.registrationDeadline.toISOString(),
-        startDate: olympiad.startDate.toISOString(),
-        endDate: olympiad.endDate.toISOString(),
-        isRegistrationOpen,
-        hasStarted,
-        hasEnded
+    // Create a map for completed olympiads lookup
+    const completedOlympiadsMap = new Map(
+      studentRegistrations
+        .filter(reg => reg.status === 'COMPLETED' || reg.endTime !== null)
+        .map(reg => [reg.olympiadEventId, true])
+    )
+
+    // Transform data for frontend and filter out completed olympiads
+    const transformedOlympiads: TransformedOlympiad[] = olympiads
+      .filter((olympiad: OlympiadEventData) => {
+        // Filter out olympiads that the student has completed
+        return !completedOlympiadsMap.has(olympiad.id)
       })
-      
-      let status: 'upcoming' | 'active' | 'completed' = 'upcoming'
-      if (hasEnded) {
-        status = 'completed'
-      } else if (hasStarted) {
-        status = 'active' // Active olympiad
-      }
-      
-      return {
-        id: olympiad.id,
-        title: olympiad.name,
-        description: olympiad.description || '',
-        startDate: olympiad.startDate.toISOString(),
-        endDate: olympiad.endDate.toISOString(),
-        registrationStartDate: olympiad.registrationStartDate.toISOString(),
-        registrationDeadline: olympiad.registrationDeadline.toISOString(),
-        subjects: olympiad.subjects,
-        grades: olympiad.grades,
-        status,
-        isRegistered: !!registrationStatus,
-        registrationStatus: registrationStatus || undefined,
-        isRegistrationOpen
-      }
-    })
+      .map((olympiad: OlympiadEventData) => {
+        const registrationStatus = registrationMap.get(olympiad.id)
+        const now = new Date()
+        
+        // Allow registration throughout the deadline day (until 23:59:59)
+        const deadline = new Date(olympiad.registrationDeadline)
+        deadline.setHours(23, 59, 59, 999)
+        
+        const isRegistrationOpen = now >= olympiad.registrationStartDate && now <= deadline
+        const hasStarted = now >= olympiad.startDate
+        const hasEnded = now >= olympiad.endDate
+        
+        console.log('Olympiad:', olympiad.name, {
+          now: now.toISOString(),
+          registrationStartDate: olympiad.registrationStartDate.toISOString(),
+          registrationDeadline: olympiad.registrationDeadline.toISOString(),
+          startDate: olympiad.startDate.toISOString(),
+          endDate: olympiad.endDate.toISOString(),
+          isRegistrationOpen,
+          hasStarted,
+          hasEnded
+        })
+        
+        let status: 'upcoming' | 'active' | 'completed' = 'upcoming'
+        if (hasEnded) {
+          status = 'completed'
+        } else if (hasStarted) {
+          status = 'active' // Active olympiad
+        }
+        
+        return {
+          id: olympiad.id,
+          title: olympiad.name,
+          description: olympiad.description || '',
+          startDate: olympiad.startDate.toISOString(),
+          endDate: olympiad.endDate.toISOString(),
+          registrationStartDate: olympiad.registrationStartDate.toISOString(),
+          registrationDeadline: olympiad.registrationDeadline.toISOString(),
+          subjects: olympiad.subjects,
+          grades: olympiad.grades,
+          status,
+          isRegistered: !!registrationStatus,
+          registrationStatus: registrationStatus || undefined,
+          isRegistrationOpen
+        }
+      })
 
     console.log('Transformed olympiads:', transformedOlympiads)
 

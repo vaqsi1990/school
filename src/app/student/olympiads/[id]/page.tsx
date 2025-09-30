@@ -519,25 +519,21 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                   <p className="text-black md:text-[18px] text-[16px]"><strong>აღწერა:</strong> {olympiad.description}</p>
                   <p className="text-black md:text-[18px] text-[16px]"><strong>დაწყება:</strong> {formatDateTime(olympiad.startDate)}</p>
                   <p className="text-black md:text-[18px] text-[16px]"><strong>დასრულება:</strong> {formatDateTime(olympiad.endDate)}</p>
-                  <p className="text-black md:text-[18px] text-[16px]"><strong>საგნები:</strong> {olympiad.subjects.join(', ')}</p>
-                  <p className="text-black md:text-[18px] text-[16px]"><strong>კლასები:</strong> {olympiad.grades.join(', ')}</p>
-                  <p className="text-black md:text-[18px] text-[16px]"><strong>რაუნდები:</strong> {olympiad.rounds}</p>
-                  <p className="text-black md:text-[18px] text-[16px]"><strong>მონაწილეები:</strong> {olympiad._count.participations}/{olympiad.maxParticipants}</p>
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>საგანი:</strong> {olympiad.subjects.join(', ')}</p>
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>კლასი:</strong> {olympiad.grades.join(', ')}</p>
+                  <p className="text-black md:text-[18px] text-[16px]"><strong>რაუნდი:</strong> {olympiad.rounds}</p>
+                
                 </div>
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-black md:text-[18px] text-[16px] mb-4">კითხვების ინფორმაცია</h2>
+            
                 <div className="space-y-2">
-                  <p className="text-black md:text-[18px] text-[16px]"><strong>პაკეტების რაოდენობა:</strong> {olympiad.packages.length}</p>
-                 <p className="text-black md:text-[18px] text-[16px]"> კითხვების რაოდენობა: {olympiad.packages.reduce((total, pkg) => total + pkg.questions.length, 0)}</p>
-                  <p className="text-black md:text-[18px] text-[16px]"><strong>კითხვების ტიპები:</strong></p>
-                  <ul className="list-disc text-black md:text-[18px] text-[16px] list-inside ml-4">
-                    {olympiad.questionTypes.map((type, index) => (
-                      <li key={index}>{getQuestionTypeLabel(type)}</li>
-                    ))}
-                  </ul>
+                 
+                 <p className="text-black font-bold md:text-[18px] text-[16px]"> კითხვის რაოდენობა: {olympiad.packages.reduce((total, pkg) => total + pkg.questions.length, 0)}</p>
+              
+                
                   {olympiad.minimumPointsThreshold && (
-                    <p className="text-black md:text-[18px] text-[16px]"><strong>მინიმალური ქულის ზღვარი:</strong> {olympiad.minimumPointsThreshold}</p>
+                    <p className="text-black md:text-[18px] text-[16px]"><strong>მეორე ტურში გადამსვლელი ქულა:</strong> {olympiad.minimumPointsThreshold}</p>
                   )}
                 </div>
               </div>

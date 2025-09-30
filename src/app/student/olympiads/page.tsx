@@ -96,12 +96,18 @@ export default function StudentOlympiadsPage() {
     if (isNaN(date.getTime())) {
       return 'არასწორი თარიღი'
     }
-    return date.toLocaleDateString('ka-GE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'Asia/Tbilisi'
-    })
+    
+    // Georgian month names
+    const georgianMonths = [
+      'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
+      'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
+    ]
+    
+    const day = date.getDate()
+    const month = georgianMonths[date.getMonth()]
+    const year = date.getFullYear()
+    
+    return `${day} ${month} ${year}`
   }
 
   const handleRegistration = async (olympiadId: string) => {
