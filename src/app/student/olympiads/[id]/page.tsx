@@ -585,32 +585,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
             </div>
           </div>
 
-          {/* Start Button */}
-          <div className="text-center">
-            {canStart ? (
-              <button
-                onClick={handleStartOlympiad}
-                className="bg-[#034e64] text-white px-8 py-3 rounded-md md:text-[24px] text-[20px] font-bold transition-colors hover:bg-[#023a4d]"
-              >
-                ოლიმპიადის დაწყება
-              </button>
-            ) : (
-              <div className="text-center">
-                <p className="text-black md:text-[18px] text-[16px] mb-4">
-                  {now < startDate 
-                    ? `ოლიმპიადა დაიწყება ${formatDateTime(olympiad.startDate)}-ზე`
-                    : `ოლიმპიადა დასრულდა ${formatDateTime(olympiad.endDate)}-ზე`
-                  }
-                </p>
-                <button
-                  disabled
-                  className="bg-gray-400 text-white px-8 py-3 rounded-md md:text-[24px] text-[20px] font-bold cursor-not-allowed"
-                >
-                  {now < startDate ? 'ოლიმპიადა ჯერ არ დაწყებულა' : 'ოლიმპიადა დასრულდა'}
-                </button>
-              </div>
-            )}
-          </div>
+        აქ ჩავსვა პდფ
         </div>
       </div>
     )

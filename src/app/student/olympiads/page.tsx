@@ -148,24 +148,7 @@ export default function StudentOlympiadsPage() {
     }
   }
 
-  const handleStartOlympiad = async (olympiadId: string) => {
-    try {
-      setError('')
-      setSuccessMessage('')
 
-      // For now, just show a message that the olympiad will start
-      // In the future, this could redirect to the actual olympiad test page
-      setSuccessMessage('ოლიმპიადა მალე დაიწყება!')
-      
-      // TODO: Implement actual olympiad start functionality
-      // This could redirect to a test page or show the first round
-      console.log('Starting olympiad:', olympiadId)
-      
-    } catch (err) {
-      console.error('Error starting olympiad:', err)
-      setError('ოლიმპიადის დაწყება ვერ მოხერხდა')
-    }
-  }
 
   // Show loading while checking authentication
   if (authLoading) {
