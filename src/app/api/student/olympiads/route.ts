@@ -310,17 +310,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check participant limit
-    const participantCount = await prisma.studentOlympiadEvent.count({
-      where: { olympiadEventId: olympiadId }
-    })
-
-    if (participantCount >= olympiad.maxParticipants) {
-      return NextResponse.json(
-        { error: 'ოლიმპიადაზე მონაწილეთა ლიმიტი ამოწურულია' },
-        { status: 400 }
-      )
-    }
+    // Participant limit removed - unlimited registrations allowed
 
     // Create registration
     const registration = await prisma.studentOlympiadEvent.create({

@@ -117,13 +117,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate numeric values
-    if (maxParticipants < 1 || maxParticipants > 10000) {
-      return NextResponse.json(
-        { error: 'მონაწილეთა რაოდენობა უნდა იყოს 1-დან 10000-მდე' },
-        { status: 400 }
-      )
-    }
+    // maxParticipants validation removed - unlimited participants allowed
 
     if (rounds < 1 || rounds > 10) {
       return NextResponse.json(
@@ -213,7 +207,7 @@ export async function POST(request: NextRequest) {
         endDate: new Date(endDate),
         registrationStartDate: new Date(registrationStartDate),
         registrationDeadline: new Date(registrationDeadline),
-        maxParticipants: parseInt(maxParticipants),
+        maxParticipants: 999999, // Set to a very high number to effectively remove limit
         isActive,
         showDetailedReview: showDetailedReview || false,
         rounds: parseInt(rounds),

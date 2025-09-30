@@ -343,7 +343,7 @@ export default function ManageOlympiadsPage() {
                               )}
                             <div><strong>რაუნდები:</strong> {olympiad.rounds}</div>
                             <div><strong>პაკეტები:</strong> {olympiad.packages.length}</div>
-                            <div><strong>მონაწილეები:</strong> {olympiad._count.participations}/{olympiad.maxParticipants}</div>
+                            <div><strong>მონაწილეები:</strong> {olympiad._count.participations} (შეზღუდვა არ არის)</div>
                             {olympiad.minimumPointsThreshold && (
                               <div><strong>მინ. ქულის ზღვარი:</strong> {olympiad.minimumPointsThreshold} ქულა</div>
                             )}

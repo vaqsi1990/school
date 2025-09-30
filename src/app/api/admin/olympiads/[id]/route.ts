@@ -108,7 +108,7 @@ export async function PUT(
         startDate: new Date(startDate),
         endDate: new Date(endDate),
         registrationDeadline: new Date(registrationDeadline),
-        maxParticipants: parseInt(maxParticipants),
+        maxParticipants: 999999, // Set to a very high number to effectively remove limit
         isActive,
         rounds: parseInt(rounds),
         subjects: subjects,

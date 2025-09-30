@@ -24,7 +24,7 @@ const TestQuestionsForAll = () => {
     const predefinedSubjects = [
       { id: 'history', name: 'ისტორია', image: '/test/ისტორია.jpg' },
       { id: 'geography', name: 'გეოგრაფია', image: '/test/გეოგრაფია.jpg' },
-      { id: 'georgian', name: 'ქართული ', image: '/test/ქართული.jpg' }
+      { id: 'georgian', name: 'ქართული ენა', image: '/test/ქართული.jpg' }
     ]
     setSubjects(predefinedSubjects)
   }, [])

@@ -32,7 +32,6 @@ interface OlympiadFormData {
   endTime: string
   registrationStartDate: string
   registrationDeadline: string
-  maxParticipants: number
   isActive: boolean
   showDetailedReview: boolean
   subjects: string[]
@@ -59,7 +58,6 @@ function CreateOlympiadContent() {
     endTime: '17:00',
     registrationStartDate: '',
     registrationDeadline: '',
-    maxParticipants: 100,
     isActive: true,
     showDetailedReview: false,
     subjects: [],
@@ -321,7 +319,6 @@ function CreateOlympiadContent() {
       endTime: '17:00',
       registrationStartDate: '',
       registrationDeadline: '',
-      maxParticipants: 100,
       isActive: true,
       showDetailedReview: false,
       subjects: [],
@@ -381,7 +378,7 @@ function CreateOlympiadContent() {
 
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
             {/* Basic Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               <div className="flex flex-col h-full">
                 <label className="block text-sm font-medium text-black md:text-[16px] text-[15px] mb-2">
                   ოლიმპიადის სახელი *
@@ -394,22 +391,6 @@ function CreateOlympiadContent() {
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
                   placeholder="შეიყვანეთ ოლიმპიადის სახელი..."
-                />
-              </div>
-
-              <div className="flex flex-col h-full">
-                <label className="block text-sm font-medium text-black md:text-[16px] text-[15px] mb-2">
-                  მაქსიმალური მონაწილეების რაოდენობა *
-                </label>
-                <input
-                  type="number"
-                  name="maxParticipants"
-                  required
-                  min="1"
-                  max="1000"
-                  value={formData.maxParticipants}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
                 />
               </div>
             </div>

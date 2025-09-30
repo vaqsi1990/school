@@ -332,7 +332,7 @@ model OlympiadEvent {
   endDate                DateTime
   registrationStartDate  DateTime               @default(now())
   registrationDeadline   DateTime
-  maxParticipants        Int
+  maxParticipants        Int?               @default(999999)
   isActive               Boolean                @default(true)
   showDetailedReview     Boolean                @default(false)
   rounds                 Int                    @default(3)
