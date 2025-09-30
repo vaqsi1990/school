@@ -630,7 +630,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
               <h1 className="text-black md:text-[24px] text-[20px] font-bold">
                 {olympiad.name}
               </h1>
-              <p className="text-black-600">კითხვა (currentQuestionIndex) / {questions.length}</p>
+               <p className="text-black-600">კითხვა {currentQuestionIndex + 1} / {questions.length}</p>
             </div>
             <div className="text-right">
               <div className="text-2xl font-bold text-red-600">

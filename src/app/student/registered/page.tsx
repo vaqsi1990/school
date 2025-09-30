@@ -146,6 +146,38 @@ const StudentRegisteredPage = () => {
     }
   }
 
+  const handleDirectStartOlympiad = async (olympiadId: string) => {
+    try {
+      setError('')
+      setSuccessMessage('')
+
+      const response = await fetch(`/api/student/olympiads/${olympiadId}/start`, {
+        method: 'POST',
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        let errorMessage = 'Failed to start olympiad'
+        try {
+          const errorData = JSON.parse(errorText)
+          errorMessage = errorData.error || errorMessage
+        } catch {
+          errorMessage = errorText || errorMessage
+        }
+        throw new Error(errorMessage)
+      }
+
+      const data = await response.json()
+      
+      // Redirect to olympiad page after successful start
+      router.push(`/student/olympiads/${olympiadId}`)
+
+    } catch (err) {
+      console.error('Error starting olympiad:', err)
+      setError(err instanceof Error ? err.message : 'ოლიმპიადის დაწყება ვერ მოხერხდა')
+    }
+  }
+
   // Show loading while checking authentication
   if (authLoading) {
     return (
@@ -325,16 +357,40 @@ const StudentRegisteredPage = () => {
 
                     <div className="flex space-x-3">
                       <button
-                        className="flex-1 cursor-pointer bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+                        onClick={() => handleStartOlympiad(olympiad.id)}
+                        className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors text-center"
                       >
                         დეტალები
                       </button>
-                      {(olympiad.registrationStatus === 'REGISTERED' || olympiad.registrationStatus === 'IN_PROGRESS') && (
+                      {olympiad.registrationStatus !== 'COMPLETED' && olympiad.registrationStatus !== 'DISQUALIFIED' ? (
+                        (() => {
+                          const now = new Date()
+                          const startDate = new Date(olympiad.startDate)
+                          const endDate = new Date(olympiad.endDate)
+                          const canStart = now >= startDate && now <= endDate
+                          
+                          return canStart ? (
+                            <button
+                              onClick={() => handleDirectStartOlympiad(olympiad.id)}
+                              className="flex-1 cursor-pointer bg-[#034e64] hover:bg-[#023a4d] text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors text-center"
+                            >
+                              {olympiad.registrationStatus === 'IN_PROGRESS' ? 'გაგრძელება' : 'დაწყება'}
+                            </button>
+                          ) : (
+                            <button
+                              disabled
+                              className="flex-1 cursor-pointer bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold cursor-not-allowed"
+                            >
+                              {now < startDate ? 'ჯერ არ დაწყებულა' : 'დასრულდა'}
+                            </button>
+                          )
+                        })()
+                      ) : (
                         <button
-                          onClick={() => handleStartOlympiad(olympiad.id)}
-                          className="flex-1 cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors text-center"
+                          disabled
+                          className="flex-1 cursor-pointer bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold cursor-not-allowed"
                         >
-                          {olympiad.registrationStatus === 'IN_PROGRESS' ? 'გაგრძელება' : 'დაწყება'}
+                          {olympiad.registrationStatus === 'COMPLETED' ? 'დასრულებულია' : 'დისკვალიფიცირებული'}
                         </button>
                       )}
                     </div>
