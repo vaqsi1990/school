@@ -344,8 +344,26 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
 
       const data = await response.json()
       
-      // Redirect to olympiad page after successful start
-      router.push(`/student/olympiads/${olympiadId}`)
+      // Start the olympiad directly with questions
+      if (data.questions && data.questions.length > 0) {
+        // Store olympiad data in localStorage for the test page
+        const olympiadData = {
+          isStarted: true,
+          startTime: new Date().toISOString(),
+          questions: data.questions,
+          answers: {},
+          currentQuestionIndex: 0,
+          duration: data.duration || 60,
+          olympiadId: olympiadId
+        }
+        localStorage.setItem(`olympiad_${olympiadId}`, JSON.stringify(olympiadData))
+        
+        // Redirect to olympiad test page
+        router.push(`/student/olympiads/${olympiadId}`)
+      } else {
+        // Fallback to regular olympiad page
+        router.push(`/student/olympiads/${olympiadId}`)
+      }
 
     } catch (err) {
       console.error('Error starting olympiad:', err)

@@ -238,45 +238,7 @@ function StudentDashboardContent() {
           {/* Right Column - All Other Sections */}
           <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Olympiads Card */}
-          <motion.div 
-            className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
-            variants={cardVariants}
-          
-            whileTap={{ scale: 0.95 }}
-          >
-            <div className="p-4 bg-white flex flex-col">
-              <div className="flex items-center">
-               
-                <div className="ml-4">
-                  <motion.h3 
-                    className="text-black md:text-[18px] text-[16px]"
-                    whileHover={{ scale: 1.05 }}
-                  >
-                ჩანიშნული    ოლიმპიადები
-                  </motion.h3>
-                </div>
-              </div>
-              <div className="mt-3 flex flex-col">
-                <motion.p 
-                  className="text-black md:text-[16px] text-[14px]"
-                 
-                >
-                  აქ შეგიძლიათ ნახოთ  ჩანიშნული ოლიმპიადების სია
-                </motion.p>
-                <motion.button 
-                  className="mt-3 w-full cursor-pointer bg-[#034e64] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
-              
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Link href="/student/registered" className="block bg-[#034e64] w-full h-auto">
-                  ჩანიშნული ოლიმპიადების ნახვა
-                  </Link>
-                </motion.button>
-
-               
-              </div>
-            </div>
-          </motion.div>
+       
 
           {/* Results Section */}
           <motion.div 

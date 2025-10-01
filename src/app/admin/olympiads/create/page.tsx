@@ -23,6 +23,12 @@ interface QuestionPackage {
   }
 }
 
+interface Curriculum {
+  id: string
+  title: string
+  content: string | null
+}
+
 interface OlympiadFormData {
   name: string
   description: string
@@ -43,6 +49,7 @@ interface OlympiadFormData {
   questionTypeQuantities: Record<string, number>
   questionTypeOrder: string[] // Array to store the order of question types
   minimumPointsThreshold: number
+  curriculumId: string
 }
 
 function CreateOlympiadContent() {
@@ -50,6 +57,8 @@ function CreateOlympiadContent() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [packages, setPackages] = useState<QuestionPackage[]>([])
   const [isLoadingPackages, setIsLoadingPackages] = useState(true)
+  const [curriculums, setCurriculums] = useState<Curriculum[]>([])
+  const [isLoadingCurriculums, setIsLoadingCurriculums] = useState(true)
   const [formData, setFormData] = useState<OlympiadFormData>({
     name: '',
     description: '',
@@ -69,7 +78,8 @@ function CreateOlympiadContent() {
     questionTypes: [],
     questionTypeQuantities: {},
     questionTypeOrder: [],
-    minimumPointsThreshold: 0
+    minimumPointsThreshold: 0,
+    curriculumId: ''
   })
 
   const availableSubjects = [
@@ -92,25 +102,36 @@ function CreateOlympiadContent() {
     { value: 'CLOSED_ENDED', label: 'დახურული კითხვა' }
   ]
 
-  // Fetch available packages
+  // Fetch available packages and curriculums
   useEffect(() => {
-    const fetchPackages = async () => {
+    const fetchData = async () => {
       try {
         setIsLoadingPackages(true)
-        const response = await fetch('/api/admin/question-packages')
-        if (response.ok) {
-          const data = await response.json()
-          setPackages(data.packages || [])
+        setIsLoadingCurriculums(true)
+        
+        // Fetch packages
+        const packagesResponse = await fetch('/api/admin/question-packages')
+        if (packagesResponse.ok) {
+          const packagesData = await packagesResponse.json()
+          setPackages(packagesData.packages || [])
+        }
+        
+        // Fetch curriculums
+        const curriculumsResponse = await fetch('/api/admin/curriculum')
+        if (curriculumsResponse.ok) {
+          const curriculumsData = await curriculumsResponse.json()
+          setCurriculums(curriculumsData.curriculums || [])
         }
       } catch (error) {
-        console.error('Error fetching packages:', error)
+        console.error('Error fetching data:', error)
       } finally {
         setIsLoadingPackages(false)
+        setIsLoadingCurriculums(false)
       }
     }
 
     if (user) {
-      fetchPackages()
+      fetchData()
     }
   }, [user])
 
@@ -331,7 +352,8 @@ function CreateOlympiadContent() {
       questionTypes: [],
       questionTypeQuantities: {},
       questionTypeOrder: [],
-      minimumPointsThreshold: 0
+      minimumPointsThreshold: 0,
+      curriculumId: ''
     })
   }
 
@@ -727,6 +749,34 @@ function CreateOlympiadContent() {
                     <strong>არჩეული პაკეტები:</strong> {formData.packages.length} პაკეტი
                   </p>
                 </div>
+              )}
+            </div>
+
+            {/* Curriculum Selection */}
+            <div>
+              <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-3">
+                სასწავლო პროგრამა
+              </label>
+              
+              {isLoadingCurriculums ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#034e64] mx-auto"></div>
+                  <p className="text-black md:text-[16px] text-[14px] mt-2">სასწავლო პროგრამების ჩატვირთვა...</p>
+                </div>
+              ) : (
+                <select
+                  name="curriculumId"
+                  value={formData.curriculumId}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[16px] text-[14px]"
+                >
+                  <option value="">სასწავლო პროგრამის არჩევა (არასავალდებულო)</option>
+                  {curriculums.map((curriculum) => (
+                    <option key={curriculum.id} value={curriculum.id}>
+                      {curriculum.title}
+                    </option>
+                  ))}
+                </select>
               )}
             </div>
 

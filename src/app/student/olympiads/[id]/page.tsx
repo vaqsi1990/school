@@ -47,6 +47,12 @@ interface OlympiadEvent {
   questionTypes: string[]
   questionTypeQuantities?: Record<string, number> | null
   minimumPointsThreshold?: number | null
+  curriculumId?: string
+  curriculum?: {
+    id: string
+    title: string
+    content: string | null
+  }
   packages: Array<{
     id: string
     name: string
@@ -585,7 +591,14 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
             </div>
           </div>
 
-        აქ ჩავსვა პდფ
+         {olympiad.curriculumId && (
+          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+            <h2 className="text-lg font-semibold text-black md:text-[18px] text-[16px] mb-4">სასწავლო პროგრამა</h2>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <p className="text-black-800 whitespace-pre-wrap leading-relaxed">{olympiad.curriculum?.content}</p>
+            </div>
+          </div>
+         )}
         </div>
       </div>
     )

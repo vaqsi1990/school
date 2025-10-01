@@ -47,17 +47,21 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
     maxParticipants: '',
     isActive: true,
     rounds: 3,
+    duration: 1,
     subjects: [] as string[],
     grades: [] as number[],
     packages: [] as string[],
     questionTypes: [] as string[],
     questionTypeQuantities: {} as Record<string, number>,
-    minimumPointsThreshold: ''
+    minimumPointsThreshold: '',
+    curriculumId: ''
   })
 
   // Available options
   const [availablePackages, setAvailablePackages] = useState<QuestionPackage[]>([])
   const [availableSubjects, setAvailableSubjects] = useState<string[]>([])
+  const [curriculums, setCurriculums] = useState<{id: string, title: string, content: string | null}[]>([])
+  const [isLoadingCurriculums, setIsLoadingCurriculums] = useState(true)
 
   const questionTypeOptions = [
     { value: 'MATCHING', label: 'შესაბამისობა' },
@@ -88,12 +92,14 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
         maxParticipants: data.olympiad.maxParticipants.toString(),
         isActive: data.olympiad.isActive,
         rounds: data.olympiad.rounds,
+        duration: data.olympiad.duration,
         subjects: data.olympiad.subjects,
         grades: data.olympiad.grades,
         packages: data.olympiad.packages.map((pkg: QuestionPackage) => pkg.id),
         questionTypes: data.olympiad.questionTypes,
         questionTypeQuantities: data.olympiad.questionTypeQuantities || {},
-        minimumPointsThreshold: data.olympiad.minimumPointsThreshold?.toString() || ''
+        minimumPointsThreshold: data.olympiad.minimumPointsThreshold?.toString() || '',
+        curriculumId: data.olympiad.curriculumId || ''
       })
     } catch (err) {
       setError('ოლიმპიადის ჩატვირთვისას შეცდომა მოხდა')
@@ -110,6 +116,8 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
 
   const fetchAvailableData = async () => {
     try {
+      setIsLoadingCurriculums(true)
+      
       // Fetch packages
       const packagesResponse = await fetch('/api/admin/question-packages')
       if (packagesResponse.ok) {
@@ -123,8 +131,17 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
         const subjectsData = await subjectsResponse.json()
         setAvailableSubjects(subjectsData.subjects?.map((s: { name: string }) => s.name) || [])
       }
+
+      // Fetch curriculums
+      const curriculumsResponse = await fetch('/api/admin/curriculum')
+      if (curriculumsResponse.ok) {
+        const curriculumsData = await curriculumsResponse.json()
+        setCurriculums(curriculumsData.curriculums || [])
+      }
     } catch (err) {
       console.error('Error fetching available data:', err)
+    } finally {
+      setIsLoadingCurriculums(false)
     }
   }
 
@@ -364,6 +381,22 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
+                ხანგრძლივობა (საათები) *
+              </label>
+              <input
+                type="number"
+                value={formData.duration || 1}
+                onChange={(e) => handleInputChange('duration', parseFloat(e.target.value) || 1)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                min="0.5"
+                max="24"
+                step="0.5"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 მინიმალური ქულის ზღვარი
               </label>
               <input
@@ -446,6 +479,33 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
                   </label>
                 ))}
               </div>
+            </div>
+
+            {/* Curriculum Selection */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                სასწავლო პროგრამა
+              </label>
+              
+              {isLoadingCurriculums ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#034e64] mx-auto"></div>
+                  <p className="text-gray-600 text-sm mt-2">სასწავლო პროგრამების ჩატვირთვა...</p>
+                </div>
+              ) : (
+                <select
+                  value={formData.curriculumId}
+                  onChange={(e) => handleInputChange('curriculumId', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-gray-900"
+                >
+                  <option value="">სასწავლო პროგრამის არჩევა (არასავალდებულო)</option>
+                  {curriculums.map((curriculum) => (
+                    <option key={curriculum.id} value={curriculum.id}>
+                      {curriculum.title}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
 
             {/* Question Types */}

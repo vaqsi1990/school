@@ -113,6 +113,26 @@ function AdminOlympiadsContent() {
             </div>
           </div>
 
+          <div className="bg-white overflow-hidden shadow rounded-lg flex flex-col h-full">
+            <div className="p-4 flex-1 flex flex-col">
+              <div className="flex items-center">
+                <div className="ml-4">
+                  <h3 className="text-black md:text-[20px]  text-[18px]">სასწავლო პროგრამები</h3>
+                </div>
+              </div>
+              <div className="mt-3 flex-1 flex flex-col">
+                <p className="text-black md:text-[18px] text-[16px] flex-1">
+                  მართეთ სასწავლო პროგრამები.
+                </p>
+                <button className="mt-3 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                  <Link href="/admin/curriculum" className="block w-full h-full text-white">
+                    სასწავლო პროგრამების მართვა
+                  </Link>
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Teachers Management Card */}
           <div className="bg-white overflow-hidden shadow rounded-lg flex flex-col h-full">
             <div className="p-4 flex-1 flex flex-col">

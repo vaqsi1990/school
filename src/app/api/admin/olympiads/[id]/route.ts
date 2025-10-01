@@ -80,7 +80,8 @@ export async function PUT(
       packages,
       questionTypes,
       questionTypeQuantities,
-      minimumPointsThreshold
+      minimumPointsThreshold,
+      curriculumId
     } = body
 
     // Validate required fields
@@ -121,7 +122,8 @@ export async function PUT(
         packages: {
           set: [], // Clear existing connections
           connect: packages.map((pkgId: string) => ({ id: pkgId }))
-        }
+        },
+        ...(curriculumId && { curriculumId })
       },
       include: {
         packages: true,

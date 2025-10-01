@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
-
+import { useRouter } from 'next/navigation'
 interface Olympiad {
   id: string
   title: string
@@ -27,7 +27,7 @@ export default function StudentOlympiadsPage() {
   const [error, setError] = useState('')
   const [registrationStatus, setRegistrationStatus] = useState<{[key: string]: 'idle' | 'loading' | 'success' | 'error'}>({})
   const [successMessage, setSuccessMessage] = useState('')
-
+  const router = useRouter()
 
 
   useEffect(() => {
@@ -109,7 +109,16 @@ export default function StudentOlympiadsPage() {
     
     return `${day} ${month} ${year}`
   }
-
+  const handleStartOlympiad = async (olympiadId: string) => {
+    try {
+      setError('')
+      setSuccessMessage('')
+      router.push(`/student/olympiads/${olympiadId}`)
+    } catch (err) {
+      console.error('Error starting olympiad:', err)
+      setError('ოლიმპიადის დაწყება ვერ მოხერხდა')
+    }
+  }
   const handleRegistration = async (olympiadId: string) => {
     try {
       console.log('Starting registration for olympiad:', olympiadId)
@@ -333,6 +342,7 @@ export default function StudentOlympiadsPage() {
                   {/* Action Buttons */}
                   <div className="flex space-x-3">
                     <button
+                     onClick={() => handleStartOlympiad(olympiad.id)}
                       className="flex-1 cursor-pointer bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
                     >
                       დეტალები

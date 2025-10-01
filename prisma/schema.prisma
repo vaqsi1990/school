@@ -319,9 +319,22 @@ model Olympiad {
   subject            Subject            @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   rounds             Round[]
   participations     StudentOlympiad[]
-
+  curriculumId       String?
+  curriculum         Curriculum?        @relation(fields: [curriculumId], references: [id])
   @@unique([subjectId, grade, name])
   @@map("olympiads")
+}
+
+model Curriculum {
+  id          String      @id @default(cuid())
+  title       String
+  content     String?     
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  olympiads       Olympiad[]
+  olympiadEvents  OlympiadEvent[]
 }
 
 model OlympiadEvent {
@@ -345,6 +358,8 @@ model OlympiadEvent {
   minimumPointsThreshold Int?
   questionTypes          QuestionType[]
   questionTypeQuantities Json?
+  curriculumId           String?
+  curriculum             Curriculum?            @relation(fields: [curriculumId], references: [id])
   createdByUser          Admin                  @relation("CreatedOlympiadEvents", fields: [createdBy], references: [id], onDelete: Cascade)
   participations         StudentOlympiadEvent[]
   packages               QuestionPackage[]      @relation("OlympiadEventToQuestionPackage")

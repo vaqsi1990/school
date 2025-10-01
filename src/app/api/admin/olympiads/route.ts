@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
       questionTypes,
       questionTypeQuantities,
       questionTypeOrder,
-      minimumPointsThreshold
+      minimumPointsThreshold,
+      curriculumId
     } = body
 
     // Validate required fields
@@ -228,7 +229,8 @@ export async function POST(request: NextRequest) {
         createdBy: admin.id,
         packages: {
           connect: packages.map(pkgId => ({ id: pkgId }))
-        }
+        },
+        ...(curriculumId && { curriculumId })
       },
       include: {
         packages: true,
