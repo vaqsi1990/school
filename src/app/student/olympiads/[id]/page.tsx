@@ -79,7 +79,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
   const [duration, setDuration] = useState(60) // Duration in minutes, default 60
   const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({})
   const [answeredQuestions, setAnsweredQuestions] = useState<Set<string>>(new Set())
-console.log('sd');
+
 
   useEffect(() => {
     fetchOlympiad()
