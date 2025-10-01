@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -25,6 +25,7 @@ export async function PUT(
       )
     }
 
+    const resolvedParams = await params
     const body = await request.json()
     const { title, content } = body
 
@@ -38,7 +39,7 @@ export async function PUT(
 
     // Update curriculum
     const curriculum = await prisma.curriculum.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: {
         title,
         content: content || null
@@ -61,7 +62,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -81,9 +82,11 @@ export async function DELETE(
       )
     }
 
+    const resolvedParams = await params
+
     // Check if curriculum is used by any olympiads
     const olympiadsUsingCurriculum = await prisma.olympiad.count({
-      where: { curriculumId: params.id }
+      where: { curriculumId: resolvedParams.id }
     })
 
     if (olympiadsUsingCurriculum > 0) {
@@ -95,7 +98,7 @@ export async function DELETE(
 
     // Delete curriculum
     await prisma.curriculum.delete({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     return NextResponse.json({
