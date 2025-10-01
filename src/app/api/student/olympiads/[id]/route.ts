@@ -36,6 +36,7 @@ export async function GET(
             }
           }
         },
+        curriculum: true,
         createdByUser: {
           select: {
             name: true,
