@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+
 import ImageModal from '@/components/ImageModal'
 
 
@@ -509,12 +509,12 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         <div className="max-w-4xl mx-auto">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-black-900 mb-4">ოლიმპიადა ვერ მოიძებნა</h1>
-            <Link
-              href="/student/olympiads"
-              className="bg-[#034e64] text-white px-4 py-2 rounded-md"
+            <button
+              onClick={() => router.back()}
+              className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
             >
               უკან დაბრუნება
-            </Link>
+            </button>
           </div>
         </div>
       </div>
@@ -536,12 +536,12 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
               <h1 className="text-black md:text-[24px] text-[20px] font-bold">
                 {olympiad.name}
               </h1>
-              <Link
-                href="/student/olympiads"
-                className="bg-gray-500 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-gray-600"
-              >
-                უკან დაბრუნება
-              </Link>
+              <button
+              onClick={() => router.back()}
+              className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+            >
+              უკან დაბრუნება
+            </button>
             </div>
           </div>
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { TeacherOnly } from '@/components/auth/ProtectedRoute'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import ImageUpload from '@/component/CloudinaryUploader'
 import ImageModal from '@/components/ImageModal'
 import { numberToGeorgianLetter, numberToGeorgianQuestionNumber, numberToGeorgianOptionLabel } from '@/utils/georgianLetters'
@@ -70,6 +70,7 @@ function TeacherQuestionsContent() {
   const [activeTab, setActiveTab] = useState<'all' | 'matching' | 'text-analysis' | 'map-analysis' | 'open-ended' | 'closed-ended'>('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedGrade, setSelectedGrade] = useState('')
+  const router = useRouter()
   const [selectedRound, setSelectedRound] = useState('')
   const [formData, setFormData] = useState<{
     text: string
@@ -818,11 +819,12 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                )}
             </div>
             <div className="flex gap-4">
-              <Link href="/teacher/olympiads">
-                <button className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
-                  უკან დაბრუნება
-                </button>
-              </Link>
+            <button
+              onClick={() => router.back()}
+              className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+            >
+              უკან დაბრუნება
+            </button>
               {profile?.isVerified ? (
                 <button
                   onClick={() => setShowCreateForm(!showCreateForm)}
