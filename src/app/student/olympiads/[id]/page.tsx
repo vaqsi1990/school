@@ -129,12 +129,21 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
           setCurrentQuestionIndex(data.currentQuestionIndex || 0)
           setDuration(data.duration || 60)
           
+          // Calculate and set remaining time immediately
+          const remaining = Math.max(0, totalTime - elapsed)
+          setTimeLeft(remaining)
+          
           // Load shuffled options or create new ones if not exist
           if (data.shuffledOptions) {
             setShuffledOptions(data.shuffledOptions)
           } else if (data.questions) {
             const shuffled = createShuffledOptions(data.questions)
             setShuffledOptions(shuffled)
+          }
+          
+          // Load answered questions
+          if (data.answeredQuestions) {
+            setAnsweredQuestions(new Set(data.answeredQuestions))
           }
         } else {
           // Time expired, submit answers
@@ -200,7 +209,8 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
       const data = await response.json()
       
       if (data.resumed) {
-        // Olympiad was resumed, use existing start time
+        // Olympiad was resumed, use existing start time from database
+        const startTime = new Date(data.startTime)
         setQuestions(data.questions)
         setDuration(data.duration || 60)
         
@@ -209,10 +219,19 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         setShuffledOptions(shuffled)
         
         setIsStarted(true)
-        // We need to get the actual start time from the database
-        // For now, we'll use current time minus elapsed time
-        const now = new Date()
-        setStartTime(now) // This will be corrected by the timer
+        setStartTime(startTime)
+        
+        // Save resumed olympiad data to localStorage
+        const olympiadData = {
+          isStarted: true,
+          startTime: startTime.toISOString(),
+          questions: data.questions,
+          shuffledOptions: shuffled,
+          answers: {}, // Will be loaded from localStorage if exists
+          currentQuestionIndex: 0, // Will be loaded from localStorage if exists
+          duration: data.duration || 60
+        }
+        localStorage.setItem(`olympiad_${resolvedParams.id}`, JSON.stringify(olympiadData))
       } else {
         // New olympiad start
         const startTime = new Date()
@@ -245,7 +264,11 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
   }
 
   const handleAnswerChange = (questionId: string, answer: string | string[] | Record<string, string>) => {
-    // Allow changes to any question - no locking based on answeredQuestions
+    // Check if question is already answered and locked
+    if (answeredQuestions.has(questionId)) {
+      return // Don't allow changes to locked questions
+    }
+    
     const newAnswers = {
       ...answers,
       [questionId]: answer
@@ -264,7 +287,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      // Only mark current question as answered if it has an answer
+      // Mark current question as answered and locked
       const currentQuestionId = questions[currentQuestionIndex].id
       const currentAnswer = answers[currentQuestionId]
       const hasAnswer = currentAnswer && (
@@ -273,9 +296,8 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
         typeof currentAnswer === 'object' ? Object.keys(currentAnswer).length > 0 : false
       )
       
-      if (hasAnswer) {
-        setAnsweredQuestions(prev => new Set([...prev, currentQuestionId]))
-      }
+      // Always mark as answered when moving to next question (even if no answer given)
+      setAnsweredQuestions(prev => new Set([...prev, currentQuestionId]))
       
       const newIndex = currentQuestionIndex + 1
       setCurrentQuestionIndex(newIndex)
@@ -285,6 +307,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
       if (olympiadData) {
         const data = JSON.parse(olympiadData)
         data.currentQuestionIndex = newIndex
+        data.answeredQuestions = [...answeredQuestions, currentQuestionId]
         localStorage.setItem(`olympiad_${resolvedParams.id}`, JSON.stringify(data))
       }
     }
@@ -600,6 +623,22 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
             </div>
           </div>
          )}
+
+          {/* Start Button */}
+          <div className="text-center">
+            {canStart ? (
+              <button
+                onClick={handleStartOlympiad}
+                className="bg-[#034e64] text-white px-8 py-3 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+              >
+                ოლიმპიადის დაწყება
+              </button>
+            ) : (
+              <div className="bg-gray-100 text-gray-500 px-8 py-3 rounded-md md:text-[20px] text-[16px] font-bold">
+                {now < startDate ? 'ოლიმპიადა ჯერ არ დაწყებულა' : 'ოლიმპიადა დასრულებულია'}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -737,7 +776,12 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                           value={option}
                           checked={answers[currentQuestion.id] === option}
                           onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                          className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
+                          disabled={answeredQuestions.has(currentQuestion.id)}
+                          className={`h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300 ${
+                            answeredQuestions.has(currentQuestion.id) 
+                              ? 'cursor-not-allowed opacity-60' 
+                              : ''
+                          }`}
                         />
                         <span className="ml-2 text-black-900">{option}</span>
                       </label>
@@ -757,7 +801,12 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                       value={value}
                       checked={answers[currentQuestion.id] === value}
                       onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                      className="h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300"
+                      disabled={answeredQuestions.has(currentQuestion.id)}
+                      className={`h-4 w-4 text-[#034e64] focus:ring-[#034e64] border-gray-300 ${
+                        answeredQuestions.has(currentQuestion.id) 
+                          ? 'cursor-not-allowed opacity-60' 
+                          : ''
+                      }`}
                     />
                     <span className="ml-2 text-black-900">{value === 'true' ? 'სწორი' : 'არასწორი'}</span>
                   </label>
@@ -769,7 +818,12 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
               <textarea
                 value={answers[currentQuestion.id] as string || ''}
                 onChange={(e) => handleAnswerChange(currentQuestion.id, e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                disabled={answeredQuestions.has(currentQuestion.id)}
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] ${
+                  answeredQuestions.has(currentQuestion.id) 
+                    ? 'cursor-not-allowed opacity-60 bg-gray-100' 
+                    : ''
+                }`}
                 rows={4}
                 placeholder="შეიყვანეთ თქვენი პასუხი..."
               />

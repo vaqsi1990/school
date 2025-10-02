@@ -333,12 +333,25 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
       if (!response.ok) {
         const errorText = await response.text()
         let errorMessage = 'Failed to start olympiad'
+        let isDisqualified = false
         try {
           const errorData = JSON.parse(errorText)
           errorMessage = errorData.error || errorMessage
+          isDisqualified = errorData.disqualified || false
         } catch {
           errorMessage = errorText || errorMessage
         }
+        
+        // If time expired and student is disqualified, refresh olympiad list
+        if (isDisqualified) {
+          setError(errorMessage)
+          // Refresh olympiad list to update registration status
+          setTimeout(() => {
+            fetchOlympiadsForSubject(subjectId)
+          }, 2000)
+          return
+        }
+        
         throw new Error(errorMessage)
       }
 
@@ -346,15 +359,30 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
       
       // Start the olympiad directly with questions
       if (data.questions && data.questions.length > 0) {
-        // Store olympiad data in localStorage for the test page
-        const olympiadData = {
-          isStarted: true,
-          startTime: new Date().toISOString(),
-          questions: data.questions,
-          answers: {},
-          currentQuestionIndex: 0,
-          duration: data.duration || 60,
-          olympiadId: olympiadId
+        // Check if olympiad is being resumed or started fresh
+        const existingData = localStorage.getItem(`olympiad_${olympiadId}`)
+        let olympiadData
+        
+        if (data.resumed && existingData) {
+          // Resume existing olympiad - keep existing data but update questions if needed
+          const existing = JSON.parse(existingData)
+          olympiadData = {
+            ...existing,
+            questions: data.questions,
+            duration: data.duration || 60,
+            startTime: data.startTime || existing.startTime
+          }
+        } else {
+          // Start new olympiad
+          olympiadData = {
+            isStarted: true,
+            startTime: data.startTime || new Date().toISOString(),
+            questions: data.questions,
+            answers: {},
+            currentQuestionIndex: 0,
+            duration: data.duration || 60,
+            olympiadId: olympiadId
+          }
         }
         localStorage.setItem(`olympiad_${olympiadId}`, JSON.stringify(olympiadData))
         
@@ -525,21 +553,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
   }
 
 
-  const formatDate = (dateString: string | undefined) => {
-    if (!dateString) {
-      return 'თარიღი არ არის მითითებული'
-    }
-    const date = new Date(dateString)
-    if (isNaN(date.getTime())) {
-      return 'არასწორი თარიღი'
-    }
-    return date.toLocaleDateString('ka-GE', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      timeZone: 'Asia/Tbilisi'
-    })
-  }
+
 
   // Show loading while checking authentication
   if (authLoading) {
@@ -736,17 +750,21 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                                 const endDate = new Date(olympiad.endDate)
                                 const canStart = now >= startDate && now <= endDate
                                 
+                                // Check if olympiad is already started in localStorage
+                                const olympiadData = localStorage.getItem(`olympiad_${olympiad.id}`)
+                                const isAlreadyStarted = olympiadData && JSON.parse(olympiadData).isStarted
+                                
                                 return canStart ? (
                                   <button
                                     onClick={() => handleDirectStartOlympiad(olympiad.id)}
                                     className="flex-1 cursor-pointer bg-[#034e64] hover:bg-[#023a4d] text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors text-center"
                                   >
-                                    დაწყება
+                                    {isAlreadyStarted ? 'გაგრძლება' : 'დაწყება'}
                                   </button>
                                 ) : (
                                   <button
                                     disabled
-                                    className="flex-1 cursor-pointer bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold cursor-not-allowed"
+                                    className="flex-1  cursor-pointer bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold cursor-not-allowed"
                                   >
                                     {now < startDate ? 'ჯერ არ დაწყებულა' : 'დასრულდა'}
                                   </button>
@@ -756,7 +774,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                           ) : olympiad.isRegistered && (olympiad.registrationStatus === 'COMPLETED' || olympiad.registrationStatus === 'DISQUALIFIED') ? (
                             <button
                               disabled
-                              className="flex-1 cursor-pointer bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold cursor-not-allowed"
+                              className="flex-1 w-[50%] cursor-pointer bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold cursor-not-allowed"
                             >
                               {olympiad.registrationStatus === 'COMPLETED' ? 'დასრულებულია' : 'დისკვალიფიცირებული'}
                             </button>
@@ -780,7 +798,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                           ) : (
                             <button
                               disabled
-                              className="flex-1 cursor-pointer bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold cursor-not-allowed"
+                              className="flex-1  cursor-pointer bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold cursor-not-allowed"
                             >
                               რეგისტრაცია დასრულდა
                             </button>
@@ -889,7 +907,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                                 {result.olympiadTitle}
                               </h3>
                               <p className="text-gray-600 text-sm">
-                                {new Date(result.completedAt).toLocaleDateString('ka-GE', {
+                                {new Date(result.completedAt).toLocaleDateString('en-US', {
                                   year: 'numeric',
                                   month: 'long',
                                   day: 'numeric',
@@ -1094,7 +1112,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
                     <strong>ქულა:</strong> {selectedResultForAppeal.score}/{selectedResultForAppeal.maxScore}
                   </p>
                   <p className="text-[16px] text-black">
-                    <strong>თარიღი:</strong> {new Date(selectedResultForAppeal.completedAt).toLocaleDateString('ka-GE')}
+                    <strong>Date:</strong> {new Date(selectedResultForAppeal.completedAt).toLocaleDateString('en-US')}
                   </p>
                 </div>
 
@@ -1153,3 +1171,17 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
 }
 
 export default StudentSubjectPage
+
+function formatDate(dateString: string) {
+  const date = new Date(dateString)
+  const months = [
+    'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
+    'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
+  ]
+  const day = date.getDate()
+  const month = months[date.getMonth()]
+  const year = date.getFullYear()
+  const hours = date.getHours().toString().padStart(2, '0')
+  const minutes = date.getMinutes().toString().padStart(2, '0')
+  return `${day} ${month} ${year} ${hours}:${minutes}`
+}

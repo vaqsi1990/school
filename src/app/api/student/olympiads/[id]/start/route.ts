@@ -128,7 +128,8 @@ export async function POST(
         message: 'Olympiad resumed successfully',
         questions: allQuestions,
         resumed: true,
-        duration: olympiad.duration * 60 // Return duration in minutes for frontend timer
+        duration: olympiad.duration * 60, // Return duration in minutes for frontend timer
+        startTime: participation.startTime.toISOString() // Return the actual start time from database
       })
     }
 

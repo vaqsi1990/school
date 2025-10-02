@@ -111,8 +111,38 @@ export async function GET(request: NextRequest) {
           return total + (question.points || 1)
         }, 0)
 
-        const score = participation.totalScore || 0
+        // Calculate actual score from student answers instead of using totalScore
+        const studentAnswers = await prisma.studentAnswer.findMany({
+          where: {
+            studentId: participation.studentId,
+            olympiadId: participation.olympiadEventId
+          }
+        })
+        
+        const actualScore = studentAnswers.reduce((total, answer) => {
+          return total + (answer.points || 0)
+        }, 0)
+        
+        const score = actualScore
         const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0
+        
+        // Debug logging to identify the issue
+        console.log(`\n=== DEBUG - Olympiad ${participation.olympiadEvent.name} ===`)
+        console.log('Participation Total Score:', participation.totalScore)
+        console.log('Actual Score (from answers):', actualScore)
+        console.log('Max Score (from questions):', maxScore)
+        console.log('Total Questions:', allQuestions.length)
+        console.log('Percentage:', percentage)
+        console.log('Student Answers Count:', studentAnswers.length)
+        console.log('\nStudent Answers:')
+        studentAnswers.forEach(sa => {
+          console.log(`  - Question ${sa.questionId}: ${sa.points} points (correct: ${sa.isCorrect})`)
+        })
+        console.log('\nQuestions:')
+        allQuestions.forEach(q => {
+          console.log(`  - Question ${q.id}: ${q.points || 1} points - "${q.text.substring(0, 50)}..."`)
+        })
+        console.log('=== END DEBUG ===\n')
         
         console.log(`Olympiad ${participation.olympiadEvent.name}: score=${score}, maxScore=${maxScore}, percentage=${percentage}`)
 
