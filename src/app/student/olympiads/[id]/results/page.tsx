@@ -280,7 +280,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                     ) : (
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <div className="flex items-center">
-                          <div className="text-yellow-500 text-2xl mr-3">📊</div>
+              
                           <div>
                             <div className="text-lg font-semibold text-yellow-800 mb-1">
                               შემდეგ ეტაპზე გადასასვლელად საჭიროა მეტი ქულა

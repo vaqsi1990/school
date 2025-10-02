@@ -2171,7 +2171,7 @@ function AdminQuestionsContent() {
 
                      {/* Scoring Information */}
                      <div className="mt-4 p-3 bg-yellow-100 rounded text-sm border-l-4 border-yellow-400">
-                       <p className="font-medium text-yellow-800">📊 ქულების გამოთვლა:</p>
+                       <p className="font-medium text-yellow-800"> ქულების გამოთვლა:</p>
                        <p className="text-yellow-700">ქულები გამოითვლება პროპორციულად სწორი პასუხების რაოდენობისა</p>
                        <div className="mt-2 text-xs text-yellow-600">
                          <p>• {Math.min(formData.leftSide.length, formData.rightSide.length)} სწორი = {formData.points} ქულა (100%)</p>

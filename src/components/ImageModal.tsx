@@ -32,12 +32,12 @@ export default function ImageModal({ src, alt, className = '' }: ImageModalProps
         >
           <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
             {/* Close Button */}
-            <button
+            <div
               onClick={closeModal}
-              className="absolute -top-12 right-0 text-white hover:text-gray-300 text-3xl font-bold z-10 bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center"
+              className="absolute -top-12 right-0 text-white hover:text-gray-300 text-3xl font-bold z-10 bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center cursor-pointer"
             >
               ✕
-            </button>
+            </div>
 
             {/* Image */}
             <img
