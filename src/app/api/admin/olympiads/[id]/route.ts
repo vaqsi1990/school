@@ -161,13 +161,17 @@ export async function DELETE(
     }
 
     const resolvedParams = await params
-    // Check if olympiad exists
+    // Check if olympiad exists and get participants
     const existingOlympiad = await prisma.olympiadEvent.findUnique({
       where: { id: resolvedParams.id },
       include: {
-        _count: {
-          select: {
-            participations: true
+        participations: {
+          include: {
+            student: {
+              select: {
+                userId: true
+              }
+            }
           }
         }
       }
@@ -177,21 +181,47 @@ export async function DELETE(
       return NextResponse.json({ error: 'Olympiad not found' }, { status: 404 })
     }
 
-    // Check if there are participants
-    if (existingOlympiad._count.participations > 0) {
-      return NextResponse.json(
-        { error: 'Cannot delete olympiad with existing participants' },
-        { status: 400 }
-      )
+    // Before deleting the olympiad, remove the subjects from students' selected subjects
+    // This allows students to re-register for new olympiads with these subjects
+    if (existingOlympiad.participations.length > 0) {
+      try {
+        for (const participation of existingOlympiad.participations) {
+          for (const subjectName of existingOlympiad.subjects) {
+            // Find the subject by name
+            const subject = await prisma.subject.findFirst({
+              where: { name: subjectName }
+            })
+            
+            if (subject) {
+              // Remove the subject from student's selected subjects
+              await prisma.studentSubjectSelection.deleteMany({
+                where: {
+                  userId: participation.student.userId,
+                  subjectId: subject.id
+                }
+              })
+              
+              console.log(`Removed subject "${subjectName}" from student ${participation.studentId} after olympiad deletion`)
+            }
+          }
+        }
+      } catch (subjectRemovalError) {
+        console.error('Error removing subjects from student selections:', subjectRemovalError)
+        // Continue with deletion even if subject removal fails
+      }
     }
 
-    // Delete olympiad
+    // Delete olympiad - Prisma cascade will handle:
+    // - participations (StudentOlympiadEvent)
+    // - appeals (Appeal)
+    // - question package associations
     await prisma.olympiadEvent.delete({
       where: { id: resolvedParams.id }
     })
 
     return NextResponse.json({
-      message: 'Olympiad deleted successfully'
+      message: 'Olympiad deleted successfully',
+      participantsAffected: existingOlympiad.participations.length
     })
   } catch (error) {
     console.error('Error deleting olympiad:', error)

@@ -130,7 +130,19 @@ export default function ManageOlympiadsPage() {
   }
 
   const handleDeleteOlympiad = async (olympiadId: string, olympiadName: string) => {
-    if (!confirm(`ნამდვილად გსურთ "${olympiadName}" ოლიმპიადის წაშლა? ეს მოქმედება შეუქცევადია.`)) {
+    // Find the olympiad to get participant count
+    const olympiad = olympiads.find(o => o.id === olympiadId)
+    const participantCount = olympiad?._count.participations || 0
+    
+    let confirmMessage = `ნამდვილად გსურთ "${olympiadName}" ოლიმპიადის წაშლა?`
+    
+    if (participantCount > 0) {
+      confirmMessage += `\n\n⚠️ გაფრთხილება: ამ ოლიმპიადაზე ${participantCount} მონაწილეა დარეგისტრირებული.\n\nწაშლის შემდეგ:\n• მონაწილეთა რეგისტრაციები წაიშლება\n• მათი არჩეული საგნები გაუქმდება და შეძლებენ ხელახლა არჩევას\n• ყველა დაკავშირებული მონაცემი (შედეგები, აპელაციები) წაიშლება\n\nეს მოქმედება შეუქცევადია!`
+    } else {
+      confirmMessage += '\n\nეს მოქმედება შეუქცევადია.'
+    }
+    
+    if (!confirm(confirmMessage)) {
       return
     }
 
@@ -140,8 +152,14 @@ export default function ManageOlympiadsPage() {
       })
 
       if (response.ok) {
+        const result = await response.json()
         // Refresh the olympiads list
         fetchOlympiads()
+        
+        // Show success message
+        if (result.participantsAffected > 0) {
+          alert(`✅ ოლიმპიადა წარმატებით წაიშალა!\n\n${result.participantsAffected} მონაწილის რეგისტრაცია და არჩეული საგნები გაუქმდა.`)
+        }
       } else {
         const errorData = await response.json()
         setError(errorData.error || 'ოლიმპიადის წაშლისას შეცდომა მოხდა')
@@ -378,13 +396,10 @@ export default function ManageOlympiadsPage() {
                             </Link>
                             <button
                               onClick={() => handleDeleteOlympiad(olympiad.id, olympiad.name)}
-                              disabled={olympiad._count.participations > 0}
-                              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-                                olympiad._count.participations > 0
-                                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                  : 'bg-red-100 text-red-700 hover:bg-red-200'
-                              }`}
-                              title={olympiad._count.participations > 0 ? 'წაშლა შეუძლებელია - არის მონაწილეები' : 'ოლიმპიადის წაშლა'}
+                              className="bg-red-100 text-red-700 hover:bg-red-200 px-3 py-1 rounded-md text-xs font-medium transition-colors"
+                              title={olympiad._count.participations > 0 
+                                ? `ოლიმპიადის წაშლა (${olympiad._count.participations} მონაწილე)` 
+                                : 'ოლიმპიადის წაშლა'}
                             >
                               წაშლა
                             </button>
