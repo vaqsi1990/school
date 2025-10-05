@@ -1442,7 +1442,7 @@ function AdminQuestionsContent() {
                   {/* Points */}
                   <div>
                     <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
-                      ქულები *
+                      ქულა *
                     </label>
                     <input
                       type="number"
@@ -1459,7 +1459,7 @@ function AdminQuestionsContent() {
                   {!formData.isAutoScored && (
                     <div>
                       <label className="block  font-medium text-black md:text-[18px] text-[16px] mb-2">
-                        მაქსიმალური ქულები *
+                        მაქსიმალური ქულა *
                       </label>
                       <input
                         type="number"
@@ -1686,7 +1686,7 @@ function AdminQuestionsContent() {
                             {/* Points */}
                             <div className="mb-3">
                               <label className="block text-sm font-medium text-black md:text-[16px] text-[14px] mb-2">
-                                ქულები *
+                                ქულა *
                               </label>
                               <input
                                 type="number"

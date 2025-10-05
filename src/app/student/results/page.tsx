@@ -553,7 +553,7 @@ const StudentResultsPage = () => {
                         
                               <div>
                                 <div className="text-sm font-semibold text-green-800">
-                                  შემდეგ ეტაპზე გადახვედით!
+                                გილოცავთ! თქვენ გადახვედით შემდეგ ტურში! 
                                 </div>
                                 <div className="text-xs text-green-700">
                                   მიღებული ქულა: {result.score} / მინიმალური ზღვარი: {result.minimumPointsThreshold}
@@ -572,7 +572,7 @@ const StudentResultsPage = () => {
                               <div className="text-yellow-500 text-lg mr-2">⚠️</div>
                               <div>
                                 <div className="text-sm font-semibold text-yellow-800">
-                                  შემდეგ ეტაპზე გადასასვლელად საჭიროა მეტი ქულა
+                                შემდეგ ტურში გადასასვლელად საჭიროა მეტი ქულა
                                 </div>
                                 <div className="text-xs text-yellow-700">
                                   მიღებული ქულა: {result.score} / საჭირო: {result.minimumPointsThreshold}

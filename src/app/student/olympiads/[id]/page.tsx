@@ -727,7 +727,7 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
               <p className="text-black-700 mb-4">{currentQuestion.question}</p>
             )}
             
-            <p className="text-[16px] text-black-500">ქულები: {currentQuestion.points}</p>
+            <p className="text-[16px] text-black-500">ქულა: {currentQuestion.points}</p>
           </div>
 
           {/* Answer Options */}

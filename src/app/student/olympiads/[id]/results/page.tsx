@@ -181,7 +181,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                   </div>
                   <div className="text-red-700">
                     ოლიმპიადის დრო ამოიწურა და თქვენ ვერ მოასწრეთ ყველა კითხვის პასუხი. 
-                    ამის გამო თქვენ ვერ გადახვალთ შემდეგ ეტაპზე.
+                    ამის გამო თქვენ ვერ გადახვალთ შემდეგ ტურში.
                   </div>
                 </div>
                 <div className="text-lg text-gray-600">
@@ -264,15 +264,11 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
                        
                           <div>
                             <div className="text-lg font-semibold text-green-800 mb-1">
-                              გილოცავთ! შემდეგ ეტაპზე გადახვედით!
+                            გილოცავთ! თქვენ გადახვედით შემდეგ ტურში! 
                             </div>
                             <div className="text-green-700">
-                              თქვენ მიიღეთ {olympiad.score} ქულა, რაც აღემატება მინიმალურ ზღვარს ({olympiad.minimumPointsThreshold} ქულა).
-                              {olympiad.currentRound < olympiad.totalRounds ? (
-                                <span> ახლა თქვენ ხართ {olympiad.currentRound + 1} ეტაპზე.</span>
-                              ) : (
-                                <span> თქვენ დაასრულეთ ყველა ეტაპი!</span>
-                              )}
+                            მეორე ტურის ჩატარების დრო და დეტალურ ინფორმაცია გამოქვეყნდება ჩვენი სოციალური ქსელის ოფიციალურ გვერდზე. 
+                            გისურვებთ წარმატებებს! 
                             </div>
                           </div>
                         </div>
@@ -283,11 +279,11 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
               
                           <div>
                             <div className="text-lg font-semibold text-yellow-800 mb-1">
-                              შემდეგ ეტაპზე გადასასვლელად საჭიროა მეტი ქულა
+                              გილოცავთ! თქვენ გადახვედით შემდეგ ტურში! 
                             </div>
                             <div className="text-yellow-700">
-                              თქვენ მიიღეთ {olympiad.score} ქულა, მაგრამ შემდეგ ეტაპზე გადასასვლელად საჭიროა მინიმუმ {olympiad.minimumPointsThreshold} ქულა.
-                              გაგრძელეთ ვარჯიში!
+                              თქვენ მიიღეთ {olympiad.score} ქულა, მაგრამ შემდეგ ტურში გადასასვლელად საჭიროა მინიმუმ {olympiad.minimumPointsThreshold} ქულა.
+                                გაგრძელეთ ვარჯიში!
                             </div>
                           </div>
                         </div>
@@ -447,7 +443,7 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
             href="/student/dashboard"
             className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors text-center"
           >
-            დაშბორდი
+            პროფილზე დაბრუნება 
           </Link>
         </div>
       </div>

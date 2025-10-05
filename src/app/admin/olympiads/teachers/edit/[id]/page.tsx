@@ -557,7 +557,7 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
               {/* Points */}
               <div>
                 <label className="block font-medium text-black md:text-[18px] text-[16px] mb-2">
-                  ქულები *
+                  ქულა *
                 </label>
                 <input
                   type="number"
@@ -574,7 +574,7 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
               {!formData.isAutoScored && (
                 <div>
                   <label className="block font-medium text-black md:text-[18px] text-[16px] mb-2">
-                    მაქსიმალური ქულები *
+                    მაქსიმალური ქულა *
                   </label>
                   <input
                     type="number"
@@ -736,7 +736,7 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
 
                         <div>
                           <label className="block text-sm font-medium text-black md:text-[16px] text-[14px] mb-2">
-                            ქულები *
+                            ქულა *
                           </label>
                           <input
                             type="number"

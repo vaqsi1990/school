@@ -1040,7 +1040,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                 </div>
                                  <div>
                    <label className="block text-black md:text-[20px] text-[18px] font-medium mb-2">
-                     ქულები
+                     ქულა
                    </label>
                    <input
                      type="number"
@@ -1544,7 +1544,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                          {/* Points */}
                          <div className="mb-3">
                            <label className="block text-sm font-medium text-black md:text-[16px] text-[14px] mb-2">
-                             ქულები *
+                             ქულა *
                            </label>
                            <input
                              type="number"
