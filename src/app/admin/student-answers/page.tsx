@@ -124,6 +124,18 @@ export default function AdminStudentAnswersPage() {
   const [showAnswerEvaluation, setShowAnswerEvaluation] = useState(true);
   const [showAllSections, setShowAllSections] = useState(true);
 
+  // Function to translate question types to Georgian
+  const translateQuestionType = (type: string): string => {
+    const translations: { [key: string]: string } = {
+      'CLOSED_ENDED': 'დახურული კითხვა',
+      'MATCHING': 'შესაბამისობა',
+      'TEXT_ANALYSIS': 'ტექსტის ანალიზი',
+      'MAP_ANALYSIS': 'რუკის ანალიზი',
+      'OPEN_ENDED': 'ღია კითხვა'
+    };
+    return translations[type] || type;
+  };
+
   useEffect(() => {
     if (!isAuthenticated || user?.userType !== 'ADMIN') {
       router.push('/auth/signin');
@@ -396,7 +408,7 @@ export default function AdminStudentAnswersPage() {
                         {question.points} ქულა
                       </span>
                     </div>
-                    <span className="text-sm text-gray-500">{question.type}</span>
+                    <span className="text-sm text-gray-500">{translateQuestionType(question.type)}</span>
                   </div>
                   
                   <div className="mb-3">
@@ -571,7 +583,7 @@ export default function AdminStudentAnswersPage() {
                         <div className="space-y-1 text-sm">
                           <p><span className="font-medium">საგანი:</span> {answer.question.subject.name}</p>
                           <p><span className="font-medium">კლასი:</span> {answer.question.grade}</p>
-                          <p><span className="font-medium">ტიპი:</span> {answer.question.type}</p>
+                          <p><span className="font-medium">ტიპი:</span> {translateQuestionType(answer.question.type)}</p>
                           <p><span className="font-medium">ქულა:</span> {answer.question.points}</p>
                         </div>
                         <div className="mt-2">
@@ -581,13 +593,31 @@ export default function AdminStudentAnswersPage() {
                         {answer.question.options.length > 0 && (
                           <div className="mt-2">
                             <p className="font-medium text-sm">ვარიანტები:</p>
-                            <ul className="text-sm text-gray-700 list-disc list-inside">
-                              {answer.question.options.map((option, index) => (
-                                <li key={index}>{option}</li>
-                              ))}
-                            </ul>
+                            <div className="space-y-1">
+                              {answer.question.options.map((option, index) => {
+                                const isCorrect = option === answer.question.correctAnswer;
+                                const isStudentAnswer = option === answer.answer;
+                                return (
+                                  <div
+                                    key={index}
+                                    className={`p-2 rounded text-sm ${
+                                      isCorrect
+                                        ? 'bg-green-100 text-green-800 border border-green-200'
+                                        : isStudentAnswer && !isCorrect
+                                        ? 'bg-red-100 text-red-800 border border-red-200'
+                                        : 'bg-gray-100 text-gray-700'
+                                    }`}
+                                  >
+                                    <span className="font-medium">{String.fromCharCode(65 + index)}.</span> {option}
+                                    {isCorrect && <span className="ml-2 text-green-600">✓ სწორი</span>}
+                                    {isStudentAnswer && !isCorrect && <span className="ml-2 text-red-600">✗ მოსწავლის პასუხი</span>}
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </div>
                         )}
+                      
                       </div>
                     )}
 

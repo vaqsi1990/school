@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { AdminOnly } from '@/components/auth/ProtectedRoute'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 function AdminDashboardContent() {
@@ -15,11 +15,38 @@ function AdminDashboardContent() {
   })
   const [isLoading, setIsLoading] = useState(false)
   const [message, setMessage] = useState('')
+  const [appealCounts, setAppealCounts] = useState({
+    pending: 0,
+    approved: 0,
+    rejected: 0,
+    underReview: 0,
+    total: 0
+  })
+  const [isLoadingCounts, setIsLoadingCounts] = useState(true)
 
   // Debug logging to see what user data is available
   console.log('Full user object:', user);
   console.log('Admin data:', user?.admin);
   console.log('User type:', user?.userType);
+
+  // Fetch appeal counts
+  useEffect(() => {
+    const fetchAppealCounts = async () => {
+      try {
+        const response = await fetch('/api/admin/appeals/counts')
+        if (response.ok) {
+          const data = await response.json()
+          setAppealCounts(data.counts)
+        }
+      } catch (error) {
+        console.error('Error fetching appeal counts:', error)
+      } finally {
+        setIsLoadingCounts(false)
+      }
+    }
+
+    fetchAppealCounts()
+  }, [])
 
   const handleProfileSetup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -363,16 +390,40 @@ function AdminDashboardContent() {
           {/* Appeals Management Card */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-6">
-              <div className="flex items-center">
+              <div className="flex items-center justify-between">
                 <div className="ml-4">
                   <h3 className="text-black md:text-[20px] text-[18px]">გასაჩივრებების მართვა</h3>
                 </div>
+              
               </div>
               <div className="mt-4">
                 <p className="text-black md:text-[18px] text-[16px]">
                   მართეთ მოსწავლეთა გასაჩივრებები და მიიღეთ გადაწყვეტილებები.
                 </p>
-                <button className="mt-4 w-full cursor-pointer bg-[#dc2626] text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
+                
+                {/* Appeal Statistics */}
+                {!isLoadingCounts && (
+                  <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">სულ:</span>
+                      <span className="font-medium text-gray-900">{appealCounts.total}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">დამტკიცებული:</span>
+                      <span className="font-medium text-green-600">{appealCounts.approved}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">უარყოფილი:</span>
+                      <span className="font-medium text-red-600">{appealCounts.rejected}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">მოლოდინი:</span>
+                      <span className="font-medium text-orange-600">{appealCounts.pending}</span>
+                    </div>
+                  </div>
+                )}
+                
+                <button className="mt-4 w-full cursor-pointer bg-[#dc2626] text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold hover:bg-[#b91c1c] transition-colors">
                   <Link href="/admin/appeals" className="block w-full h-full text-white">
                     გასაჩივრებების ნახვა
                   </Link>
