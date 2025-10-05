@@ -54,7 +54,7 @@ function TeacherOlympiadsContent() {
             <div className="flex gap-4">
               <Link href="/teacher/dashboard">
                 <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
-                  დეშბორდზე დაბრუნება
+                  პროფილზე დაბრუნება
                 </button>
               </Link>
             </div>

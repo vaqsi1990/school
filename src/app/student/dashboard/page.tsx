@@ -11,6 +11,17 @@ interface Subject {
   description: string
 }
 
+interface AppealNotification {
+  id: string
+  type: 'success' | 'error'
+  title: string
+  message: string
+  adminComment?: string
+  processedAt: string
+  olympiadName: string
+  reason: string
+}
+
 // Function to get subject image based on name
 const getSubjectImage = (subjectName: string): string => {
   const imageMap: { [key: string]: string } = {
@@ -31,6 +42,9 @@ function StudentDashboardContent() {
   const { user, logout } = useAuth()
   const [selectedSubjects, setSelectedSubjects] = useState<Subject[]>([])
   const [loadingSubjects, setLoadingSubjects] = useState(true)
+  const [notifications, setNotifications] = useState<AppealNotification[]>([])
+  const [loadingNotifications, setLoadingNotifications] = useState(true)
+  const [showNotifications, setShowNotifications] = useState(false)
 
   useEffect(() => {
     const fetchSelectedSubjects = async () => {
@@ -50,7 +64,25 @@ function StudentDashboardContent() {
       }
     }
 
+    const fetchNotifications = async () => {
+      if (!user?.id) return
+      
+      try {
+        setLoadingNotifications(true)
+        const response = await fetch('/api/student/appeal-notifications')
+        if (response.ok) {
+          const data = await response.json()
+          setNotifications(data.notifications || [])
+        }
+      } catch (error) {
+        console.error('Error fetching notifications:', error)
+      } finally {
+        setLoadingNotifications(false)
+      }
+    }
+
     fetchSelectedSubjects()
+    fetchNotifications()
   }, [user?.id])
 
   const handleDeleteSubject = async (subjectId: string) => {
@@ -287,8 +319,7 @@ function StudentDashboardContent() {
             whileTap={{ scale: 0.95 }}
           >
             <div className="p-4 bg-white flex flex-col">
-              <div className="flex items-center">
-               
+              <div className="flex items-center justify-between">
                 <div className="ml-4">
                   <motion.h3 
                     className="text-black md:text-[18px] text-[16px]"
@@ -297,6 +328,13 @@ function StudentDashboardContent() {
                     გასაჩივრებები
                   </motion.h3>
                 </div>
+                {!loadingNotifications && notifications.length > 0 && (
+                  <div className="flex items-center">
+                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                      {notifications.length}
+                    </span>
+                  </div>
+                )}
               </div>
               <div className="mt-3 flex flex-col">
                     <motion.p 
@@ -314,9 +352,85 @@ function StudentDashboardContent() {
                     გასაჩივრებების ნახვა
                   </Link>
                 </motion.button>
+                {notifications.length > 0 && (
+                  <motion.button 
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="mt-2 w-full cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md md:text-[16px] text-[14px] font-bold"
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {showNotifications ? 'ნოთიფიკაციების დამალვა' : 'ნოთიფიკაციების ნახვა'}
+                  </motion.button>
+                )}
               </div>
             </div>
           </motion.div>
+
+          {/* Notifications Section */}
+          {showNotifications && notifications.length > 0 && (
+            <motion.div 
+              className="overflow-hidden rounded-lg flex flex-col h-auto"
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <div className="p-4 bg-white flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-black md:text-[18px] text-[16px] font-bold">
+                    გასაჩივრებების გადაწყვეტილებები
+                  </h3>
+                  <button
+                    onClick={() => setShowNotifications(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="space-y-3">
+                  {notifications.map((notification) => (
+                    <motion.div
+                      key={notification.id}
+                      className={`p-3 rounded-lg border-l-4 ${
+                        notification.type === 'success' 
+                          ? 'bg-green-50 border-green-400' 
+                          : 'bg-red-50 border-red-400'
+                      }`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className={`font-semibold text-sm ${
+                            notification.type === 'success' ? 'text-green-800' : 'text-red-800'
+                          }`}>
+                            {notification.title}
+                          </h4>
+                          <p className="text-gray-700 text-sm mt-1">
+                            {notification.message}
+                          </p>
+                          {notification.adminComment && (
+                            <div className="mt-2 p-2 bg-gray-100 rounded text-sm">
+                              <p className="font-medium text-gray-600">ადმინის კომენტარი:</p>
+                              <p className="text-gray-700">{notification.adminComment}</p>
+                            </div>
+                          )}
+                          <p className="text-xs text-gray-500 mt-2">
+                            {new Date(notification.processedAt).toLocaleDateString('ka-GE', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Subject Selection Card */}
           <motion.div 
