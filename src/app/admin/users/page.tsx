@@ -65,13 +65,95 @@ function UserManagementContent() {
   const [resetMessage, setResetMessage] = useState('')
   const [deleteMessage, setDeleteMessage] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [addTeacherModal, setAddTeacherModal] = useState({
+    isOpen: false
+  })
+  const [teacherForm, setTeacherForm] = useState({
+    email: '',
+    password: '',
+    name: '',
+    lastname: '',
+    subject: '',
+    school: '',
+    phone: '',
+    isVerified: true
+  })
+  const [isAddingTeacher, setIsAddingTeacher] = useState(false)
+  const [addTeacherMessage, setAddTeacherMessage] = useState('')
+  const [subjects, setSubjects] = useState<{id: string, name: string}[]>([])
+  const [loadingSubjects, setLoadingSubjects] = useState(false)
 
   useEffect(() => {
     console.log('Current user:', user)
     if (user) {
       fetchUsers()
+      fetchSubjects()
     }
   }, [user])
+
+  const fetchSubjects = async () => {
+    try {
+      setLoadingSubjects(true)
+      const response = await fetch('/api/subjects')
+      console.log('Subjects API response status:', response.status)
+      if (response.ok) {
+        const data = await response.json()
+        console.log('Subjects data received:', data)
+        const subjectsFromAPI = data.subjects || []
+        
+        // If no subjects from API, use fallback list
+        if (subjectsFromAPI.length === 0) {
+          console.log('No subjects from API, using fallback list')
+          const fallbackSubjects = [
+            { id: 'math', name: 'მათემატიკა' },
+            { id: 'physics', name: 'ფიზიკა' },
+            { id: 'chemistry', name: 'ქიმია' },
+            { id: 'biology', name: 'ბიოლოგია' },
+            { id: 'history', name: 'ისტორია' },
+            { id: 'geography', name: 'გეოგრაფია' },
+            { id: 'georgian', name: 'ქართული ენა' },
+            { id: 'english', name: 'ინგლისური ენა' },
+            { id: 'national', name: 'ერთიანი ეროვნული გამოცდები' }
+          ]
+          setSubjects(fallbackSubjects)
+        } else {
+          setSubjects(subjectsFromAPI)
+        }
+      } else {
+        console.error('Failed to fetch subjects:', response.statusText)
+        // Use fallback on API error
+        const fallbackSubjects = [
+          { id: 'math', name: 'მათემატიკა' },
+          { id: 'physics', name: 'ფიზიკა' },
+          { id: 'chemistry', name: 'ქიმია' },
+          { id: 'biology', name: 'ბიოლოგია' },
+          { id: 'history', name: 'ისტორია' },
+          { id: 'geography', name: 'გეოგრაფია' },
+          { id: 'georgian', name: 'ქართული ენა' },
+          { id: 'english', name: 'ინგლისური ენა' },
+          { id: 'national', name: 'ერთიანი ეროვნული გამოცდები' }
+        ]
+        setSubjects(fallbackSubjects)
+      }
+    } catch (error) {
+      console.error('Error fetching subjects:', error)
+      // Use fallback on error
+      const fallbackSubjects = [
+        { id: 'math', name: 'მათემატიკა' },
+        { id: 'physics', name: 'ფიზიკა' },
+        { id: 'chemistry', name: 'ქიმია' },
+        { id: 'biology', name: 'ბიოლოგია' },
+        { id: 'history', name: 'ისტორია' },
+        { id: 'geography', name: 'გეოგრაფია' },
+        { id: 'georgian', name: 'ქართული ენა' },
+        { id: 'english', name: 'ინგლისური ენა' },
+        { id: 'national', name: 'ერთიანი ეროვნული გამოცდები' }
+      ]
+      setSubjects(fallbackSubjects)
+    } finally {
+      setLoadingSubjects(false)
+    }
+  }
 
   const fetchUsers = async () => {
     try {
@@ -195,6 +277,81 @@ function UserManagementContent() {
     setDeleteMessage('')
   }
 
+  const openAddTeacherModal = () => {
+    if (!user || user.userType !== 'ADMIN') {
+      setError('მხოლოდ ადმინისტრატორებს შეუძლიათ მასწავლებლების დამატება')
+      return
+    }
+    
+    setAddTeacherModal({ isOpen: true })
+    setTeacherForm({
+      email: '',
+      password: '',
+      name: '',
+      lastname: '',
+      subject: '',
+      school: '',
+      phone: '',
+      isVerified: true
+    })
+    setAddTeacherMessage('')
+  }
+
+  const closeAddTeacherModal = () => {
+    setAddTeacherModal({ isOpen: false })
+    setTeacherForm({
+      email: '',
+      password: '',
+      name: '',
+      lastname: '',
+      subject: '',
+      school: '',
+      phone: '',
+      isVerified: true
+    })
+    setAddTeacherMessage('')
+  }
+
+  const handleAddTeacher = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!user || user.userType !== 'ADMIN') {
+      setAddTeacherMessage('მხოლოდ ადმინისტრატორებს შეუძლიათ მასწავლებლების დამატება')
+      return
+    }
+
+    setIsAddingTeacher(true)
+    setAddTeacherMessage('')
+
+    try {
+      const response = await fetch('/api/admin/add-teacher', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(teacherForm),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setAddTeacherMessage('მასწავლებელი წარმატებით დაემატა!')
+        // Refresh users list
+        await fetchUsers()
+        setTimeout(() => {
+          closeAddTeacherModal()
+        }, 2000)
+      } else {
+        setAddTeacherMessage(`შეცდომა: ${result.error}`)
+      }
+    } catch (error) {
+      console.error('Add teacher error:', error)
+      setAddTeacherMessage('სისტემური შეცდომა მოხდა')
+    } finally {
+      setIsAddingTeacher(false)
+    }
+  }
+
   const handleDeleteUser = async () => {
     if (!user || user.userType !== 'ADMIN') {
       setDeleteMessage('მხოლოდ ადმინისტრატორებს შეუძლიათ მომხმარებლების წაშლა')
@@ -290,12 +447,20 @@ function UserManagementContent() {
                 სისტემაში რეგისტრირებული ყველა მომხმარებელი
               </p>
             </div>
-            <Link
-              href="/admin/dashboard"
-              className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
-            >
-              დაბრუნება
-            </Link>
+            <div className="flex gap-3">
+              <button
+                onClick={openAddTeacherModal}
+                className="bg-green-600 cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-green-700"
+              >
+                მასწავლებლის დამატება
+              </button>
+              <Link
+                href="/admin/dashboard"
+                className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+              >
+                დაბრუნება
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -650,6 +815,178 @@ function UserManagementContent() {
                   გაუქმება
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Teacher Modal */}
+      {addTeacherModal.isOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-medium text-gray-900">
+                  მასწავლებლის დამატება
+                </h3>
+                <button
+                  onClick={closeAddTeacherModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              <form onSubmit={handleAddTeacher} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ელ-ფოსტა *
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={teacherForm.email}
+                      onChange={(e) => setTeacherForm(prev => ({ ...prev, email: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="მაგ: teacher@school.ge"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      პაროლი *
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={teacherForm.password}
+                      onChange={(e) => setTeacherForm(prev => ({ ...prev, password: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="მინიმუმ 6 სიმბოლო"
+                      minLength={6}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      სახელი *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={teacherForm.name}
+                      onChange={(e) => setTeacherForm(prev => ({ ...prev, name: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="მაგ: გიორგი"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      გვარი *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={teacherForm.lastname}
+                      onChange={(e) => setTeacherForm(prev => ({ ...prev, lastname: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="მაგ: ქართველიშვილი"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      საგანი *
+                    </label>
+                    <select
+                      required
+                      value={teacherForm.subject}
+                      onChange={(e) => setTeacherForm(prev => ({ ...prev, subject: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      disabled={loadingSubjects}
+                    >
+                      <option value="">აირჩიეთ საგანი</option>
+                      {subjects.map((subject) => (
+                        <option key={subject.id} value={subject.name}>
+                          {subject.name}
+                        </option>
+                      ))}
+                    </select>
+                    {loadingSubjects && (
+                      <p className="text-xs text-gray-500 mt-1">საგნები იტვირთება...</p>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      სკოლა *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={teacherForm.school}
+                      onChange={(e) => setTeacherForm(prev => ({ ...prev, school: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="მაგ: თბილისის #1 საჯარო სკოლა"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ტელეფონი *
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={teacherForm.phone}
+                      onChange={(e) => setTeacherForm(prev => ({ ...prev, phone: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="მაგ: 555123456"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      ვერიფიკაციის სტატუსი
+                    </label>
+                    <select
+                      value={teacherForm.isVerified ? 'true' : 'false'}
+                      onChange={(e) => setTeacherForm(prev => ({ ...prev, isVerified: e.target.value === 'true' }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="true">ვერიფიცირებული</option>
+                      <option value="false">ვერიფიკაციის პროცესში</option>
+                    </select>
+                  </div>
+                </div>
+                
+                {addTeacherMessage && (
+                  <div className={`p-3 rounded-md text-sm ${
+                    addTeacherMessage.includes('შეცდომა') ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                  }`}>
+                    {addTeacherMessage}
+                  </div>
+                )}
+                
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="submit"
+                    disabled={isAddingTeacher}
+                    className="flex-1 bg-green-600 cursor-pointer text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold transition-colors hover:bg-green-700 disabled:bg-gray-400"
+                  >
+                    {isAddingTeacher ? 'მიმდინარეობს...' : 'მასწავლებლის დამატება'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeAddTeacherModal}
+                    className="flex-1 bg-gray-500 cursor-pointer text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold transition-colors hover:bg-gray-600"
+                  >
+                    გაუქმება
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>
