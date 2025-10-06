@@ -24,11 +24,6 @@ function AdminDashboardContent() {
   })
   const [isLoadingCounts, setIsLoadingCounts] = useState(true)
 
-  // Debug logging to see what user data is available
-  console.log('Full user object:', user);
-  console.log('Admin data:', user?.admin);
-  console.log('User type:', user?.userType);
-
   // Fetch appeal counts
   useEffect(() => {
     const fetchAppealCounts = async () => {

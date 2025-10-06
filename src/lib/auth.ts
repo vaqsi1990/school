@@ -66,27 +66,21 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        console.log('JWT callback - Setting user data:', { userType: user.userType, email: user.email })
         token.userType = user.userType
         token.student = user.student
         token.teacher = user.teacher
         token.admin = user.admin
-        // დავრწმუნდეთ, რომ userType უკვე დაყენებულია
-        console.log('JWT callback - UserType set to:', token.userType)
       }
-      console.log('JWT callback - Final token:', { userType: token.userType, email: token.email })
       return token
     },
     async session({ session, token }) {
       if (token) {
-        console.log('Session callback - Token:', { userType: token.userType, email: token.email })
         session.user.id = token.sub!
         session.user.userType = token.userType
         session.user.student = token.student
         session.user.teacher = token.teacher
         session.user.admin = token.admin
       }
-      console.log('Session callback - Session:', { userType: session.user.userType, email: session.user.email })
       return session
     },
     async redirect({ url, baseUrl }) {
@@ -106,10 +100,10 @@ export const authOptions: NextAuthOptions = {
   // Add proper error handling
   events: {
     async signIn({ user, account, profile, isNewUser }) {
-      console.log('User signed in:', user.email)
+      // User signed in
     },
     async signOut({ session, token }) {
-      console.log('User signed out')
+      // User signed out
     }
   }
 }

@@ -201,7 +201,6 @@ export async function DELETE(
                 }
               })
               
-              console.log(`Removed subject "${subjectName}" from student ${participation.studentId} after olympiad deletion`)
             }
           }
         }

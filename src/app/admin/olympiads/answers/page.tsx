@@ -61,12 +61,9 @@ function AdminAnswersContent() {
       })
 
       const response = await fetch(`/api/admin/student-answers?${params}`)
-      console.log('API Response status:', response.status)
-      console.log('API URL:', `/api/admin/student-answers?${params}`)
       
       if (response.ok) {
         const data = await response.json()
-        console.log('API Response data:', data)
         setAnswers(data.answers)
         setTotalPages(data.pagination?.totalPages || 1)
       } else {

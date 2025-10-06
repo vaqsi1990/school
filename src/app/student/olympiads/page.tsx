@@ -45,7 +45,6 @@ export default function StudentOlympiadsPage() {
       
       if (response.ok) {
         const data = await response.json()
-        console.log('API Response:', data)
         setOlympiads(data.olympiads || [])
       } else {
         const errorData = await response.json()
@@ -121,7 +120,6 @@ export default function StudentOlympiadsPage() {
   }
   const handleRegistration = async (olympiadId: string) => {
     try {
-      console.log('Starting registration for olympiad:', olympiadId)
       setRegistrationStatus(prev => ({ ...prev, [olympiadId]: 'loading' }))
       setError('')
       setSuccessMessage('')
@@ -134,9 +132,7 @@ export default function StudentOlympiadsPage() {
         body: JSON.stringify({ olympiadId }),
       })
 
-      console.log('Registration response status:', response.status)
       const result = await response.json()
-      console.log('Registration response data:', result)
 
       if (response.ok) {
         setRegistrationStatus(prev => ({ ...prev, [olympiadId]: 'success' }))

@@ -101,7 +101,6 @@ const TestSubjectPage = () => {
       
       if (response.ok) {
         const data = await response.json()
-        console.log('API Response:', data)
         
         if (!data.questions || data.questions.length === 0) {
           alert('ამ საგნისა და კლასისთვის კითხვები ჯერ არ არის დამატებული')

@@ -10,8 +10,6 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    console.log('Fetched subjects:', subjects) // Debug log
-
     return NextResponse.json({ subjects })
   } catch (error) {
     console.error('Error fetching subjects:', error)

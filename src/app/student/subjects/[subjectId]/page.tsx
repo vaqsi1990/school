@@ -137,28 +137,15 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
 
       if (response.ok) {
         const data = await response.json()
-        console.log('All olympiads:', data.olympiads)
-        console.log('Current subject name:', subjectName)
-        console.log('Student grade:', studentGrade)
 
         // Filter olympiads that include this subject and student's grade, and exclude completed ones
         const subjectOlympiads = data.olympiads.filter((olympiad: Olympiad) => {
           const hasSubject = olympiad.subjects.includes(subjectName)
           const hasGrade = olympiad.grades.includes(studentGrade || 0)
           const isNotCompleted = olympiad.status !== 'completed'
-          console.log(`Olympiad ${olympiad.title}:`, {
-            subjects: olympiad.subjects,
-            grades: olympiad.grades,
-            status: olympiad.status,
-            hasSubject,
-            hasGrade,
-            isNotCompleted,
-            matches: hasSubject && hasGrade && isNotCompleted
-          })
           return hasSubject && hasGrade && isNotCompleted
         })
 
-        console.log('Filtered olympiads:', subjectOlympiads)
         setOlympiads(subjectOlympiads)
       } else {
         const errorData = await response.json()
@@ -271,7 +258,6 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
 
   const handleOlympiadRegistration = async (olympiadId: string) => {
     try {
-      console.log('Starting registration for olympiad:', olympiadId)
       setRegistrationStatus(prev => ({ ...prev, [olympiadId]: 'loading' }))
       setError('')
       setSuccessMessage('')
@@ -284,9 +270,7 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
         body: JSON.stringify({ olympiadId }),
       })
 
-      console.log('Registration response status:', response.status)
       const result = await response.json()
-      console.log('Registration response data:', result)
 
       if (response.ok) {
         setRegistrationStatus(prev => ({ ...prev, [olympiadId]: 'success' }))

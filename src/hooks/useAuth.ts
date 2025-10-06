@@ -20,7 +20,6 @@ export function useAuth() {
   useEffect(() => {
     if (status === 'unauthenticated' && retryCount < 3) {
       const timer = setTimeout(() => {
-        console.log('Retrying session update...', retryCount + 1)
         setRetryCount(prev => prev + 1)
         update()
       }, 1000 * (retryCount + 1)) // Exponential backoff
@@ -40,7 +39,6 @@ export function useAuth() {
   const login = async (email: string, password: string) => {
     try {
       setLastError(null)
-      console.log('Attempting login for:', email)
       
       const result = await signIn('credentials', {
         email,
@@ -49,8 +47,6 @@ export function useAuth() {
       })
 
       if (result?.error) {
-        console.log('NextAuth error:', result.error)
-        
         let georgianError = 'შესვლა ვერ მოხერხდა'
         
         switch (result.error) {
@@ -74,15 +70,8 @@ export function useAuth() {
         throw new Error(georgianError)
       }
 
-      console.log('Login successful, updating session...')
-      
       // Force session update after successful login
       await update()
-      
-      // დამატებითი დაყოვნება session-ის სრულად დამკვიდრებისთვის
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      console.log('Session update completed')
       return { success: true }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'შესვლა ვერ მოხერხდა'

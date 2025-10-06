@@ -37,11 +37,6 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    console.log('Searching for participations with:', {
-      studentId: student.id,
-      studentGrade: student.grade,
-      subjectName
-    })
 
     // Get olympiad participations for this student that include the specified subject
     const participations = await prisma.studentOlympiadEvent.findMany({
@@ -79,7 +74,6 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    console.log('Found participations:', participations.length)
 
     // Get detailed results for each participation
     const results = await Promise.all(
@@ -126,25 +120,6 @@ export async function GET(request: NextRequest) {
         const score = actualScore
         const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0
         
-        // Debug logging to identify the issue
-        console.log(`\n=== DEBUG - Olympiad ${participation.olympiadEvent.name} ===`)
-        console.log('Participation Total Score:', participation.totalScore)
-        console.log('Actual Score (from answers):', actualScore)
-        console.log('Max Score (from questions):', maxScore)
-        console.log('Total Questions:', allQuestions.length)
-        console.log('Percentage:', percentage)
-        console.log('Student Answers Count:', studentAnswers.length)
-        console.log('\nStudent Answers:')
-        studentAnswers.forEach(sa => {
-          console.log(`  - Question ${sa.questionId}: ${sa.points} points (correct: ${sa.isCorrect})`)
-        })
-        console.log('\nQuestions:')
-        allQuestions.forEach(q => {
-          console.log(`  - Question ${q.id}: ${q.points || 1} points - "${q.text.substring(0, 50)}..."`)
-        })
-        console.log('=== END DEBUG ===\n')
-        
-        console.log(`Olympiad ${participation.olympiadEvent.name}: score=${score}, maxScore=${maxScore}, percentage=${percentage}`)
 
         return {
           id: participation.id,

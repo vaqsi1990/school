@@ -84,7 +84,6 @@ function UserManagementContent() {
   const [loadingSubjects, setLoadingSubjects] = useState(false)
 
   useEffect(() => {
-    console.log('Current user:', user)
     if (user) {
       fetchUsers()
       fetchSubjects()
@@ -95,15 +94,12 @@ function UserManagementContent() {
     try {
       setLoadingSubjects(true)
       const response = await fetch('/api/subjects')
-      console.log('Subjects API response status:', response.status)
       if (response.ok) {
         const data = await response.json()
-        console.log('Subjects data received:', data)
         const subjectsFromAPI = data.subjects || []
         
         // If no subjects from API, use fallback list
         if (subjectsFromAPI.length === 0) {
-          console.log('No subjects from API, using fallback list')
           const fallbackSubjects = [
             { id: 'math', name: 'მათემატიკა' },
             { id: 'physics', name: 'ფიზიკა' },
@@ -194,11 +190,6 @@ function UserManagementContent() {
     setResetMessage('')
 
     try {
-      console.log('Sending password reset request:', {
-        userId: resetPasswordModal.userId,
-        newPassword: newPassword
-      })
-
       const response = await fetch('/api/admin/reset-password', {
         method: 'POST',
         headers: {
@@ -210,9 +201,7 @@ function UserManagementContent() {
         }),
       })
 
-      console.log('Response status:', response.status)
       const result = await response.json()
-      console.log('Response result:', result)
 
       if (response.ok) {
         setResetMessage('პაროლი წარმატებით შეიცვალა!')
@@ -362,11 +351,6 @@ function UserManagementContent() {
     setDeleteMessage('')
 
     try {
-      console.log('Sending delete user request:', {
-        userId: deleteUserModal.userId,
-        userEmail: deleteUserModal.userEmail
-      })
-
       const response = await fetch('/api/admin/delete-user', {
         method: 'DELETE',
         headers: {
@@ -377,9 +361,7 @@ function UserManagementContent() {
         }),
       })
 
-      console.log('Delete response status:', response.status)
       const result = await response.json()
-      console.log('Delete response result:', result)
 
       if (response.ok) {
         setDeleteMessage('მომხმარებელი წარმატებით წაიშალა!')

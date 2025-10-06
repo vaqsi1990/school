@@ -11,14 +11,6 @@ const transporter = nodemailer.createTransport({
 
 export async function sendVerificationEmail(email: string, token: string) {
   try {
-    console.log('Sending verification email to:', email)
-    console.log('Verification code:', token)
-    console.log('Email config:', {
-      user: process.env.EMAIL_USER,
-      hasPassword: !!process.env.EMAIL_PASSWORD,
-      hasNexTAuthUrl: !!process.env.NEXTAUTH_URL
-    })
-
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -42,9 +34,7 @@ export async function sendVerificationEmail(email: string, token: string) {
       `
     }
 
-    console.log('Mail options prepared, sending email...')
     await transporter.sendMail(mailOptions)
-    console.log('Email sent successfully!')
     return { success: true }
   } catch (error) {
     console.error('Error sending verification email:', error)

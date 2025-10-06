@@ -1306,14 +1306,8 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                        <button
                          type="button"
                          onClick={() => {
-                           console.log('Before adding left side:')
-                           console.log('Left side length:', formData.leftSide.length)
-                           console.log('Right side length:', formData.rightSide.length)
                            setFormData(prev => {
                              const newLeftSide = [...prev.leftSide, { left: '', leftImage: undefined }]
-                             console.log('After adding left side:')
-                             console.log('New left side length:', newLeftSide.length)
-                             console.log('Right side length:', prev.rightSide.length)
                              return {
                                ...prev,
                                leftSide: newLeftSide
@@ -1327,10 +1321,8 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                        <button
                          type="button"
                          onClick={() => {
-                           console.log('Adding right side item')
                            setFormData(prev => {
                              const newRightSide = [...prev.rightSide, { right: '', rightImage: undefined }]
-                             console.log('New right side:', newRightSide)
                              return {
                                ...prev,
                                rightSide: newRightSide

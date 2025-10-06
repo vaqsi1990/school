@@ -34,7 +34,6 @@ export default function SignInPage() {
         // ველოდებით session-ის სრულად დამკვიდრებას
         // და შემდეგ ვამისამართებთ dashboard-ზე
         setTimeout(() => {
-          console.log('Redirecting to dashboard after successful login')
           router.push('/dashboard')
         }, 1000) // გავზარდეთ დრო 1 წამამდე
       } else {

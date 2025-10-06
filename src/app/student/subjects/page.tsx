@@ -127,16 +127,12 @@ const StudentSubjectsPage = () => {
 
   const fetchOlympiadResults = async (subjectName: string) => {
     try {
-      console.log('Fetching olympiad results for subject:', subjectName)
       setLoadingResults(prev => ({ ...prev, [subjectName]: true }))
       
       const response = await fetch(`/api/student/olympiad-results-by-subject?subjectName=${encodeURIComponent(subjectName)}`)
       
-      console.log('API response status:', response.status)
-      
       if (response.ok) {
         const data = await response.json()
-        console.log('API response data:', data)
         setOlympiadResults(prev => ({
           ...prev,
           [subjectName]: data.results || []

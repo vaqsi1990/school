@@ -169,22 +169,16 @@ export default function AdminStudentAnswersPage() {
 
   const fetchStudentAnswers = async () => {
     try {
-      console.log('=== Fetching answers for olympiad ===');
-      console.log('Selected olympiad:', selectedOlympiad);
-      
       // First test the basic API
       const testResponse = await fetch('/api/admin/test', {
         credentials: 'include'
       });
-      console.log('Test API response:', await testResponse.json());
       
       // Check if we have a session
       const sessionResponse = await fetch('/api/auth/session', {
         credentials: 'include'
       });
       const session = await sessionResponse.json();
-      console.log('Current session:', session);
-      console.log('Session response status:', sessionResponse.status);
       
       const response = await fetch(`/api/admin/student-answers?olympiadId=${selectedOlympiad}`, {
         credentials: 'include',
@@ -192,21 +186,13 @@ export default function AdminStudentAnswersPage() {
           'Content-Type': 'application/json',
         }
       });
-      console.log('Response status:', response.status);
-      console.log('Response ok:', response.ok);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
       
       if (response.ok) {
         const data = await response.json();
-        console.log('Received answers:', data);
         setAnswers(data);
       } else {
-        console.log('Response not ok, status:', response.status);
-        console.log('Response statusText:', response.statusText);
-        
         // Try to get the response as text first
         const textResponse = await response.text();
-        console.log('Raw response text:', textResponse);
         
         try {
           const errorData = JSON.parse(textResponse);
