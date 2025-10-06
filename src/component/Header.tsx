@@ -39,12 +39,7 @@ const Header: React.FC = () => {
               >
                 სიახლეები
               </Link>
-              <Link
-                href="/contacts"
-                className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
-              >
-                კონტაქტები
-              </Link>
+           
             </nav>
           </div>
 
@@ -123,13 +118,7 @@ const Header: React.FC = () => {
                 >
                  სიახლეები
                 </Link>
-                <Link
-                  href="/contacts"
-                  className="block text-black px-4 py-3 rounded-lg text-[18px] font-bold transition-colors hover:bg-gray-50 hover:text-blue-600"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  კონტაქტები
-                </Link>
+             
               </div>
 
               {/* Mobile Action Buttons */}
