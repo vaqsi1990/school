@@ -119,21 +119,35 @@ const BlogPostPage = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-          {blogPost.imageUrl && (
+          {/* {blogPost.imageUrl ? (
             <div className="aspect-w-16 aspect-h-9">
               <img
                 src={blogPost.imageUrl}
                 alt={blogPost.title}
                 className="w-full h-64 md:h-96 object-cover"
+                onError={(e) => {
+                  // Hide image if it fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                }}
               />
             </div>
+          ) : (
+            <div className="h-64 md:h-96 w-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+              <div className="text-center text-gray-600">
+                <svg className="w-16 h-16 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
+                <p className="text-lg">სურათი არ არის</p>
+              </div>
+            </div>
           )}
-          
+           */}
           <div className="p-8">
             {/* Header */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-sm text-gray-500">{getAuthorName(blogPost.author)}</span>
+               
                 <span className="text-sm text-gray-500">{formatDate(blogPost.publishedAt || blogPost.createdAt)}</span>
               </div>
               

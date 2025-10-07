@@ -86,12 +86,16 @@ const AdminBlogPage = () => {
     try {
       const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
       
+      // Use first uploaded image as main image if no imageUrl is provided
+      const imageUrl = formData.imageUrl || (formData.images.length > 0 ? formData.images[0] : '')
+      
       const response = editingPost 
         ? await fetch(`/api/admin/blog/${editingPost.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               ...formData,
+              imageUrl,
               tags: tagsArray
             })
           })
@@ -100,6 +104,7 @@ const AdminBlogPage = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               ...formData,
+              imageUrl,
               tags: tagsArray
             })
           })
