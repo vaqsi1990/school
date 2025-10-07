@@ -13,7 +13,7 @@ const Hero: React.FC = () => {
         <div className="flex  flex-col md:flex-row  md:mt-0 text-center md:text-start px-4 items-center justify-between w-full">
           {/* Text Content - Left Side */}
           <motion.div 
-            className="max-w-2xl  mb-0 text-black z-10"
+            className="max-w-2xl md:mt-10 mt-0 md:ml-12 ml-0  mb-0 text-black z-10"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}

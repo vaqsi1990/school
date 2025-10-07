@@ -207,7 +207,7 @@ const AdminBlogPage = () => {
                   images: []
                 })
               }}
-              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
             >
               ახალი ბლოგი
             </button>
@@ -215,13 +215,13 @@ const AdminBlogPage = () => {
 
           {showForm && (
             <div className="mb-8 p-6 border rounded-lg bg-gray-50">
-              <h2 className="text-2xl font-bold text-black mb-4">
+              <h2 className="text-[20px] font-bold text-black mb-4">
                 {editingPost ? 'ბლოგის რედაქტირება' : 'ახალი ბლოგი'}
               </h2>
               
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-[16px] font-medium text-black mb-2">
+                  <label className="block text-[20px] font-medium text-black mb-2">
                     სათაური *
                   </label>
                   <input
@@ -239,7 +239,7 @@ const AdminBlogPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[16px] font-medium text-black mb-2">
+                  <label className="block text-[20px] font-medium text-black mb-2">
                     Slug *
                   </label>
                   <input
@@ -252,7 +252,7 @@ const AdminBlogPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[16px] font-medium text-black mb-2">
+                  <label className="block text-[20px] font-medium text-black mb-2">
                     მოკლე აღწერა
                   </label>
                   <textarea
@@ -264,7 +264,7 @@ const AdminBlogPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[16px] font-medium text-black mb-2">
+                  <label className="block text-[20px] font-medium text-black mb-2">
                     კონტენტი *
                   </label>
                   <textarea
@@ -277,7 +277,7 @@ const AdminBlogPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[16px] font-medium text-black mb-2">
+                  <label className="block text-[20px] font-medium text-black mb-2">
                     ტეგები (მძიმით გამოყოფილი)
                   </label>
                   <input
@@ -290,7 +290,7 @@ const AdminBlogPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[16px] font-medium text-black mb-2">
+                  <label className="block text-[20px] font-medium text-black mb-2">
                     სურათების ატვირთვა
                   </label>
                   <ImageUpload
@@ -300,7 +300,7 @@ const AdminBlogPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-[16px] font-medium text-black mb-2">
+                  <label className="block text-[20px] font-medium text-black mb-2">
                     სურათის URL (ალტერნატივა)
                   </label>
                   <input
@@ -319,7 +319,7 @@ const AdminBlogPage = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.checked }))}
                     className="w-4 h-4 text-black placeholder:text-black border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <label htmlFor="published" className="text-[16px] font-medium text-black">
+                  <label htmlFor="published" className="text-[20px] font-medium text-black">
                     გამოქვეყნება
                   </label>
                 </div>
@@ -327,7 +327,7 @@ const AdminBlogPage = () => {
                 <div className="flex space-x-4">
                   <button
                     type="submit"
-                    className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="bg-blue-600 text-white px-6 text-[20px] py-3 rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     {editingPost ? 'განახლება' : 'შენახვა'}
                   </button>
@@ -337,7 +337,7 @@ const AdminBlogPage = () => {
                       setShowForm(false)
                       setEditingPost(null)
                     }}
-                    className="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                    className="bg-gray-600 text-white text-[20px] px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
                   >
                     გაუქმება
                   </button>
@@ -399,13 +399,13 @@ const AdminBlogPage = () => {
                       <div className="flex space-x-2">
                         <button
                           onClick={() => editPost(post)}
-                          className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-blue-700"
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-[20px] font-medium hover:bg-blue-700"
                         >
                           რედაქტირება
                         </button>
                         <button
                           onClick={() => deletePost(post.id)}
-                          className="bg-red-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-red-700"
+                          className="bg-red-600 text-white px-3 py-1 rounded text-[20px] font-medium hover:bg-red-700"
                         >
                           წაშლა
                         </button>

@@ -22,7 +22,7 @@ const Why = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             viewport={{ once: true }}
           >
-           რატომ ჩვენ ?
+           რატომ ჩვენ?
           </motion.p>
         </motion.div>
         

@@ -76,7 +76,7 @@ const News = () => {
       <div className="bg-gray-50 py-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center">
-            <div className="text-black font-bold text-[16px]">იტვირთება...</div>
+            <div className="text-black font-bold text-[18px]">იტვირთება...</div>
           </div>
         </div>
       </div>
@@ -116,7 +116,7 @@ const News = () => {
             ბოლო სიახლეები
           </motion.h2>
           <motion.p 
-            className="text-black text-[16px]"
+            className="text-black text-[20px]"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -126,7 +126,7 @@ const News = () => {
           </motion.p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {posts.map((post, index) => (
               <motion.div 
                 key={post.id}
@@ -138,7 +138,7 @@ const News = () => {
                 whileHover={{ y: -10, scale: 1.02 }}
               >
                 {post.imageUrl ? (
-                  <div className="relative h-48 w-full">
+                  <div className="relative h-62 w-full">
                     <Image
                       src={post.imageUrl}
                       alt={post.title}
@@ -162,14 +162,14 @@ const News = () => {
                   </div>
                 )}
                 <div className="p-6">
-                  <h3 className="text-black text-[16px] font-semibold mb-3 line-clamp-2">
+                  <h3 className="text-black text-[18px] font-semibold mb-3 line-clamp-2">
                     {post.title}
                   </h3>
-                  <p className="text-black text-[16px] mb-4 line-clamp-3">
+                  <p className="text-black text-[18px] mb-4 line-clamp-3">
                     {post.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
                   </p>
                   <div className="flex justify-between items-center">
-                    <span className="text-black text-[16px] text-sm">
+                    <span className="text-black text-[18px] text-sm">
                       {formatDate(post.createdAt)}
                     </span>
                  
@@ -177,7 +177,7 @@ const News = () => {
                   <div className="flex items-center justify-between">
                   <Link
                     href={`/blog/${post.slug}`}
-                    className="text-blue-600 mt-4 hover:text-blue-800 font-medium"
+                    className="text-[#034e64] mt-4 text-[20px] hover:text-blue-800 font-bold"
                   >
                     წაიკითხე მეტი →
                   </Link>
@@ -202,7 +202,7 @@ const News = () => {
           >
             <Link 
               href="/blog"
-              className="bg-[#034e64] cursor-pointer text-white px-4 py-3 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+              className="bg-[#034e64] cursor-pointer text-white px-4 py-3 rounded-md md:text-[20px] text-[18px] font-bold transition-colors hover:bg-[#023a4d]"
             >
               ყველა სიახლე
             </Link>

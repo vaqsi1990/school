@@ -103,7 +103,7 @@ const TestQuestionsForAll = () => {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-4  gap-13 justify-center max-w-4xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-4  gap-13 justify-center max-w-7xl mx-auto">
                   {subjects.map((subject, index) => (
                     <motion.div 
                       key={subject.id} 
@@ -116,7 +116,7 @@ const TestQuestionsForAll = () => {
                     >
                     
                     <motion.div 
-                      className="relative w-48 h-48 mb-4"
+                      className="relative w-52 h-52 mb-4"
                       whileHover={{ scale: 1.1, rotate: 5 }}
                       transition={{ duration: 0.3 }}
                     >
@@ -134,7 +134,7 @@ const TestQuestionsForAll = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <span className="font-bold text-white text-lg">{subject.name}</span>
+                      <span className="font-bold text-white">{subject.name}</span>
                     </motion.button>
                     
                     </motion.div>
