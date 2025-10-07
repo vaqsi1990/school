@@ -153,10 +153,10 @@ function TeacherDashboardContent() {
                  </div>
                </div>
                <div className="mt-4">
-                   <p className="text-black md:text-[18px] text-[16px]">
-                   ნახეთ არსებული კითხვები.
+                   <p className="text-black md:text-[17px] text-[14px]">
+                   ნახეთ არსებული კითხვები
                  </p>
-                 <button className="mt-4 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium text-black">
+                 <button className="mt-4 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold text-black">
                    <Link href="/teacher/questions" className="block w-full h-full text-white">
                     კითხვების ნახვა
                    </Link>
@@ -181,10 +181,10 @@ function TeacherDashboardContent() {
                  </div>
                </div>
                <div className="mt-4">
-                 <p className="text-black md:text-[18px] text-[16px]">
-                   შექმენით და მართეთ ბლოგის სტატიები.
+                 <p className="text-black md:text-[17px] text-[14px]">
+                   შექმენით და მართეთ ბლოს სტატიები
                  </p>
-                 <button className="mt-4 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium">
+                 <button className="mt-4 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                    <Link href="/teacher/blog" className="block w-full h-full text-white">
                      ბლოგის მართვა
                    </Link>
@@ -218,14 +218,14 @@ function TeacherDashboardContent() {
                   </div>
                 </div>
                 <div className="mt-4">
-                    <p className={`md:text-[18px] text-[16px] ${canReviewAnswers ? 'text-black' : 'text-gray-500'}`}>
+                    <p className={`md:text-[17px] text-[14px] ${canReviewAnswers ? 'text-black' : 'text-gray-500'}`}>
                     {canReviewAnswers 
                       ? 'შეამოწმეთ სტუდენტების პასუხები და შედეგები.'
-                      : 'პასუხების შემოწმების უფლება ადმინისტრატორმა უნდა მიანიჭოს.'
+                      : 'პასუხების შემოწმების უფლება ადმინისტრატორმა უნდა მიანიჭოს'
                     }
                   </p>
                   {canReviewAnswers ? (
-                    <button className="mt-4 w-full cursor-pointer bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium text-black">
+                    <button className="mt-4 w-full cursor-pointer bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold text-black">
                       <Link href="/teacher/answers" className="block w-full h-full text-white">
                        პასუხების შემოწმება
                       </Link>
@@ -233,7 +233,7 @@ function TeacherDashboardContent() {
                   ) : (
                     <button 
                       disabled 
-                      className="mt-4 w-full cursor-not-allowed bg-gray-400 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-medium text-black"
+                      className="mt-4 w-full cursor-not-allowed bg-gray-400 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold text-black"
                     >
                       უფლება არ არის
                     </button>

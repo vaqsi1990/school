@@ -263,8 +263,8 @@ function AdminDashboardContent() {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-black md:text-[18px] text-[16px]">
-                  მართეთ სისტემაში არსებული მომხმარებლები და მათი ნებართვები.
+                <p className="text-black md:text-[17px] text-[14px]">
+                  მართეთ სისტემაში არსებული მომხმარებლები და მათი ნებართვები
                 </p>
                 <button className="mt-4 w-full cursor-pointer bg-[#034e64]  text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/users" className="block bg-[#034e64] w-full h-full">
@@ -285,15 +285,15 @@ function AdminDashboardContent() {
                 </div>
               </div>
               <div className="mt-4">
-                <p className=" text-black md:text-[18px] text-[16px]">
-                  მართეთ ყველა ოლიმპიადა, კითხვები და შედეგები.
+                <p className=" text-black md:text-[17px] text-[14px]">
+                  მართეთ ყველა ოლიმპიადა, კითხვები და შედეგები
                 </p>
-                <button className="mt-4 w-full cursor-pointer bg-[#f06905] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-4 w-full cursor-pointer bg-[#f06905] text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/olympiads" className="block w-full h-full text-white">
                     ოლიმპიადების ნახვა
                   </Link>
                 </button>
-              </div>
+              </div>  
             </div>
           </div>
 
@@ -306,10 +306,10 @@ function AdminDashboardContent() {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-black md:text-[18px] text-[16px]">
-                  შექმენით და მართეთ სიახლეები.
+                <p className="text-black md:text-[17px] text-[14px]">
+                  შექმენით და მართეთ სიახლეები
                 </p>
-                <button className="mt-4 w-full cursor-pointer bg-green-600 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-4 w-full cursor-pointer bg-green-600 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/blog" className="block w-full h-full text-white">
                     სიახლეების მართვა
                   </Link>
@@ -328,8 +328,8 @@ function AdminDashboardContent() {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-black md:text-[18px] text-[16px]">
-                  დაადასტურეთ მასწავლებლების ანგარიშები.
+                <p className="text-black md:text-[17px] text-[14px]">
+                  დაადასტურეთ მასწავლებლების ანგარიშები
                 </p>
                 <button className="mt-4 w-full cursor-pointer bg-[#feb909] text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/teachers" className="block bg-[#feb931] w-full h-full">
@@ -349,10 +349,10 @@ function AdminDashboardContent() {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-black md:text-[18px] text-[16px]">
-                  ნახეთ მოსწავლეთა პასუხები და შეასწორეთ ქულები.
+                <p className="text-black md:text-[17px] text-[14px]">
+                  ნახეთ მოსწავლეთა პასუხები და შეასწორეთ ქულები
                 </p>
-                <button className="mt-4 w-full cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-4 w-full cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/student-answers" className="block w-full h-full text-white">
                     პასუხების ნახვა
                   </Link>
@@ -366,16 +366,16 @@ function AdminDashboardContent() {
             <div className="p-6">
               <div className="flex items-center">
                 <div className="ml-4">
-                  <h3 className="text-black md:text-[20px] text-[18px]">About გვერდის მართვა</h3>
+                  <h3 className="text-black md:text-[20px] text-[18px]">ჩვენს შესახებ გვერდის მართვა</h3>
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-black md:text-[18px] text-[16px]">
-                  რედაქტირეთ About გვერდის შინაარსი.
+                <p className="text-black md:text-[17px] text-[14px]">
+                  რედაქტირეთ ჩვენს შესახებ გვერდის შინაარსი
                 </p>
-                <button className="mt-4 w-full cursor-pointer bg-purple-600 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-4 w-full cursor-pointer bg-purple-600 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/about" className="block w-full h-full text-white">
-                    About გვერდის რედაქტირება
+                   გვერდის რედაქტირება
                   </Link>
                 </button>
               </div>
@@ -392,8 +392,8 @@ function AdminDashboardContent() {
               
               </div>
               <div className="mt-4">
-                <p className="text-black md:text-[18px] text-[16px]">
-                  მართეთ მოსწავლეთა გასაჩივრებები და მიიღეთ გადაწყვეტილებები.
+                <p className="text-black md:text-[17px] text-[14px]">
+                  მართეთ მოსწავლეთა გასაჩივრებები და მიიღეთ გადაწყვეტილებები
                 </p>
                 
                 {/* Appeal Statistics */}
@@ -437,8 +437,8 @@ function AdminDashboardContent() {
                 </div>
               </div>
               <div className="mt-4">
-                <p className="text-black md:text-[18px] text-[16px]">
-                  იხილეთ სისტემის ზოგადი სტატისტიკა და ანალიტიკა.
+                <p className="text-black md:text-[17px] text-[14px]">
+                    იხილეთ სისტემის ზოგადი სტატისტიკა და ანალიტიკა
                 </p>
                 <button className="mt-4 w-full cursor-pointer bg-[#638d13] text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/statistics" className="block bg-[#638d13] w-full h-full">

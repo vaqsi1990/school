@@ -134,7 +134,7 @@ export default function SignInPage() {
               <button
                 type='submit'
                 disabled={isLoading}
-                className='inline-flex w-full text-white cursor-pointer items-center justify-center px-8 py-4 bg-[#034e64]  md:text-[24px] text-[18px] font-bold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg'
+                className='inline-flex w-full text-white cursor-pointer items-center justify-center px-8 py-4 bg-[#034e64]  md:text-[20px] text-[18px] font-bold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg'
               >
                 {isLoading ? 'შესვლა...' : 'შესვლა'}
               </button>
@@ -162,10 +162,10 @@ export default function SignInPage() {
                 </Link>
               </p>
             </div>
-            <div className='mt-6 text-black md:text-[18px] text-[16px] text-center'>
-              <h1> დაგავიწყდა პაროლი?  
-                <Link href='/auth/reset-password' className='font-medium text-black hover:underline transition-all duration-300 md:text-[20px] text-[18px]'>
-                  აღადგინეთ
+            <div className='mt-6 text-black md:text-[18px]  text-[16px] text-center'>
+              <h1> დაგავიწყდა პაროლი?   
+                <Link href='/auth/reset-password' className='font-medium ml-2 text-black hover:underline transition-all duration-300 md:text-[20px] text-[18px]'>
+                   აღადგინეთ
                 </Link>
               </h1>
             </div>

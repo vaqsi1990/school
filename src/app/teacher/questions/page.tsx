@@ -897,8 +897,8 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
            <div className="flex gap-2 flex-wrap">
              <button
                onClick={() => setActiveTab('all')}
-               className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'all'
-                   ? 'bg-[#034e64] text-white'
+               className={`px-4 py-2 rounded-md font-medium md:text-[20px] text-[18px] ${activeTab === 'all'
+                   ? 'bg-black text-white'
                    : 'bg-gray-200 text-black hover:bg-gray-300'
                  }`}
              >
@@ -906,8 +906,8 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
              </button>
              <button
                onClick={() => setActiveTab('closed-ended')}
-               className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'closed-ended'
-                   ? 'bg-[#034e64] text-white'
+               className={`px-4 py-2 rounded-md font-medium md:text-[20px] text-[18px] ${activeTab === 'closed-ended'
+                   ? 'bg-black text-white'
                    : 'bg-gray-200 text-black hover:bg-gray-300'
                  }`}
              >
@@ -915,8 +915,8 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
              </button>
              <button
                onClick={() => setActiveTab('matching')}
-               className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'matching'
-                   ? 'bg-[#034e64] text-white'
+               className={`px-4 py-2 rounded-md font-medium md:text-[20px] text-[18px] ${activeTab === 'matching'
+                   ? 'bg-black text-white'
                    : 'bg-gray-200 text-black hover:bg-gray-300'
                  }`}
              >
@@ -924,8 +924,8 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
              </button>
              <button
                onClick={() => setActiveTab('text-analysis')}
-               className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'text-analysis'
-                   ? 'bg-[#034e64] text-white'
+               className={`px-4 py-2 rounded-md font-medium md:text-[20px] text-[18px] ${activeTab === 'text-analysis'
+                   ? 'bg-black text-white'
                    : 'bg-gray-200 text-black hover:bg-gray-300'
                  }`}
              >
@@ -933,8 +933,8 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
              </button>
              <button
                onClick={() => setActiveTab('map-analysis')}
-               className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'map-analysis'
-                   ? 'bg-[#034e64] text-white'
+               className={`px-4 py-2 rounded-md font-medium md:text-[20px] text-[18px] ${activeTab === 'map-analysis'
+                   ? 'bg-black text-white'
                    : 'bg-gray-200 text-black hover:bg-gray-300'
                  }`}
              >
@@ -942,8 +942,8 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
              </button>
              <button
                onClick={() => setActiveTab('open-ended')}
-               className={`px-4 py-2 rounded-md font-medium md:text-[18px] text-[16px] ${activeTab === 'open-ended'
-                   ? 'bg-[#034e64] text-white'
+               className={`px-4 py-2 rounded-md font-medium md:text-[20px] text-[18px] ${activeTab === 'open-ended'
+                   ? 'bg-black text-white'
                    : 'bg-gray-200 text-black hover:bg-gray-300'
                  }`}
              >

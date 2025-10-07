@@ -465,7 +465,7 @@ function UserManagementContent() {
                 onClick={() => setActiveTab('all')}
                 className={`px-4 py-2 rounded-md font-medium ${
                   activeTab === 'all' 
-                    ? 'bg-blue-600 text-white' 
+                    ? 'bg-black  text-white' 
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
@@ -475,7 +475,7 @@ function UserManagementContent() {
                 onClick={() => setActiveTab('students')}
                 className={`px-4 py-2 rounded-md font-medium ${
                   activeTab === 'students' 
-                    ? 'bg-blue-600 text-white' 
+                    ? 'bg-black text-white' 
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
@@ -485,7 +485,7 @@ function UserManagementContent() {
                 onClick={() => setActiveTab('teachers')}
                 className={`px-4 py-2 rounded-md font-medium ${
                   activeTab === 'teachers' 
-                    ? 'bg-blue-600 text-white' 
+                    ? 'bg-black text-white' 
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
@@ -495,7 +495,7 @@ function UserManagementContent() {
                 onClick={() => setActiveTab('admins')}
                 className={`px-4 py-2 rounded-md font-medium ${
                   activeTab === 'admins' 
-                    ? 'bg-blue-600 text-white' 
+                    ? 'bg-black text-white' 
                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
@@ -630,7 +630,7 @@ function UserManagementContent() {
                               ? `${user.admin.name} ${user.admin.lastname}`
                               : user.email
                           )}
-                          className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d] mr-2"
+                          className="bg-blue-600 cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d] mr-2"
                         >
                           პაროლის შეცვლა
                         </button>

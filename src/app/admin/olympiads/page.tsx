@@ -34,13 +34,13 @@ function AdminOlympiadsContent() {
               <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
                 ოლიმპიადების მართვა
               </h1>
-              <p className="text-black md:text-[18px] text-[16px]">
+              <p className="text-black md:text-[17px] text-[14px]">
                 ოლიმპიადების შექმნა, რედაქტირება და მართვა
               </p>
             </div>
             <Link
               href="/admin/dashboard"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold"
             >
               დაბრუნება
             </Link>
@@ -59,10 +59,10 @@ function AdminOlympiadsContent() {
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
-                <p className="text-black md:text-[18px] text-[16px] flex-1">
-                  შექმენით ახალი ოლიმპიადა სისტემაში.
+                <p className="text-black md:text-[17px] text-[14px] flex-1">
+                  შექმენით ახალი ოლიმპიადა სისტემაში
                 </p>
-                <button className="mt-3 w-full cursor-pointer bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-3 w-full cursor-pointer bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/olympiads/create" className="block w-full h-full text-white">
                     ახალი ოლიმპიადა
                   </Link>
@@ -80,10 +80,10 @@ function AdminOlympiadsContent() {
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
-                <p className="text-black md:text-[18px] text-[16px] flex-1">
-                  მართეთ არსებული ოლიმპიადები და მათი პარამეტრები.
+                <p className="text-black md:text-[17px] text-[14px] flex-1">
+                  მართეთ არსებული ოლიმპიადები და მათი პარამეტრები
                 </p>
-                <button className="mt-3 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-3 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/olympiads/manage" className="block w-full h-full text-white">
                     ოლიმპიადების ნახვა
                   </Link>
@@ -101,10 +101,10 @@ function AdminOlympiadsContent() {
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
-                <p className="text-black md:text-[18px] text-[16px] flex-1">
-                  მართეთ ოლიმპიადების კითხვები და პასუხები.
+                <p className="text-black md:text-[17px] text-[14px] flex-1">
+                  მართეთ ოლიმპიადების კითხვები და პასუხები
                 </p>
-                <button className="mt-3 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-3 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/olympiads/questions" className="block w-full h-full text-white">
                     კითხვების მართვა
                   </Link>
@@ -121,10 +121,10 @@ function AdminOlympiadsContent() {
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
-                <p className="text-black md:text-[18px] text-[16px] flex-1">
-                  მართეთ სასწავლო პროგრამები.
+                <p className="text-black md:text-[17px] text-[14px] flex-1">
+                  მართეთ სასწავლო პროგრამები
                 </p>
-                <button className="mt-3 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-3 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/curriculum" className="block w-full h-full text-white">
                     სასწავლო პროგრამების მართვა
                   </Link>
@@ -145,10 +145,10 @@ function AdminOlympiadsContent() {
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
-                <p className="text-black md:text-[18px] text-[16px] flex-1">
-                  მართეთ მასწავლებლების მიერ დამატებული კითხვები და დადასტურება.
+                <p className="text-black md:text-[17px] text-[14px] flex-1">
+                  მართეთ მასწავლებლების მიერ დამატებული კითხვები და დადასტურება
                 </p>
-                <button className="mt-3 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-3 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/olympiads/teachers" className="block w-full h-full text-white">
                     მასწავლებლის კითხვების ნახვა
                   </Link>
@@ -166,10 +166,10 @@ function AdminOlympiadsContent() {
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
-                <p className="text-black md:text-[18px] text-[16px] flex-1">
-                  მართეთ კითხვების პაკეტები და ჯგუფები.
+                <p className="text-black md:text-[17px] text-[14px] flex-1">
+                  მართეთ კითხვების პაკეტები და ჯგუფები
                 </p>
-                <button className="mt-3 w-full cursor-pointer bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-3 w-full cursor-pointer bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/olympiads/packages" className="block w-full h-full text-white">
                     პაკეტების მართვა
                   </Link>
@@ -187,10 +187,10 @@ function AdminOlympiadsContent() {
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
-                <p className="text-black md:text-[18px] text-[16px] flex-1">
-                  ნახეთ და მართეთ ოლიმპიადების შედეგები.
+                <p className="text-black md:text-[17px] text-[14px] flex-1">
+                  ნახეთ და მართეთ ოლიმპიადების შედეგები
                 </p>
-                <button className="mt-3 w-full cursor-pointer bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-3 w-full cursor-pointer bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/olympiads/results" className="block w-full h-full text-white">
                     შედეგების ნახვა
                   </Link>
@@ -208,10 +208,10 @@ function AdminOlympiadsContent() {
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
-                <p className="text-black md:text-[18px] text-[16px] flex-1">
-                  ნახეთ ოლიმპიადების პასუხები და შეამოწმეთ პასუხები პრივატულობის დაცვით.
+                <p className="text-black md:text-[17px] text-[14px] flex-1">
+                  ნახეთ ოლიმპიადების პასუხები და შეამოწმეთ პასუხები პრივატულობის დაცვით
                 </p>
-                <button className="mt-3 w-full cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-3 w-full cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/olympiads/answers" className="block w-full h-full text-white">
                     პასუხების შემოწმება
                   </Link>
@@ -229,10 +229,10 @@ function AdminOlympiadsContent() {
                 </div>
               </div>
               <div className="mt-3 flex-1 flex flex-col">
-                <p className="text-black md:text-[18px] text-[16px] flex-1">
-                  მართეთ ტესტის კითხვები.
+                <p className="text-black md:text-[17px] text-[14px] flex-1">
+                  მართეთ ტესტის კითხვები
                 </p>
-                <button className="mt-3 w-full cursor-pointer bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold">
+                <button className="mt-3 w-full cursor-pointer bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/olympiads/testquestions" className="block w-full h-full text-white">
                     ტესტის კითხვები
                   </Link>

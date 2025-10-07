@@ -231,7 +231,7 @@ export default function ResetPasswordConfirmPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="inline-flex w-full text-white cursor-pointer items-center justify-center px-8 py-4 bg-[#034e64]  md:text-[24px] text-[18px] font-bold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                  className="inline-flex w-full text-white cursor-pointer items-center justify-center px-8 py-4 bg-[#034e64]  md:text-[20px] text-[18px] font-bold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
                   {isLoading ? 'მიმდინარეობს...' : 'პაროლის შეცვლა'}
                 </button>
