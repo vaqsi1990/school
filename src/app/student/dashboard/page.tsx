@@ -172,7 +172,7 @@ function StudentDashboardContent() {
         >
           {/* Profile Information - Left Column */}
           <motion.div 
-            className="lg:col-span-1 bg-white overflow-hidden shadow rounded-lg flex flex-col h-[500px] hover:shadow-xl hover:scale-105 transition-all duration-300"
+            className="lg:col-span-1 bg-white overflow-hidden shadow rounded-lg flex flex-col h-[500px] transition-all duration-300"
             variants={cardVariants}
             style={{
               backgroundImage: 'url(/test/dafa.jpeg)',
@@ -199,7 +199,7 @@ function StudentDashboardContent() {
                   className="flex justify-between transition-all duration-300  p-2 rounded"
                 
                 >
-                  <span className="text-white md:text-[16px] text-[14px]">სახელი:</span>
+                  <span className="text-white md:text-[18px] text-[14px]">სახელი:</span>
                   <span className="md:text-[16px] text-[14px] font-medium text-white">
                     {user?.student?.name || 'არ არის მითითებული'}
                   </span>
@@ -210,8 +210,8 @@ function StudentDashboardContent() {
                   className="flex justify-between transition-all duration-300 p-2 rounded"
                 
                 >
-                  <span className="md:text-[16px] text-[14px] text-white">გვარი:</span>
-                  <span className="md:text-[16px] text-[14px] font-medium text-white">
+                  <span className="md:text-[18px] text-[14px] text-white">გვარი:</span>
+                  <span className="md:text-[18px] text-[14px] font-medium text-white">
                     {user?.student?.lastname || 'არ არის მითითებული'}
                   </span>
                 </motion.div>
@@ -274,7 +274,7 @@ function StudentDashboardContent() {
 
           {/* Results Section */}
           <motion.div 
-            className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
+            className=" overflow-hidden rounded-lg flex flex-col h-auto transition-all duration-300"
             variants={cardVariants}
           
             whileTap={{ scale: 0.95 }}
@@ -284,8 +284,7 @@ function StudentDashboardContent() {
                
                 <div className="ml-4">
                   <motion.h3 
-                    className="text-black md:text-[18px] text-[16px]"
-                    whileHover={{ scale: 1.05 }}
+                    className="text-black md:text-[20px] text-[16px]"
                   >
                     შედეგები
                   </motion.h3>
@@ -293,17 +292,16 @@ function StudentDashboardContent() {
               </div>
               <div className="mt-3 flex flex-col">
                     <motion.p 
-                      className="text-black md:text-[16px] text-[14px]"
-                      whileHover={{ scale: 1.02 }}
+                      className="text-black md:text-[17px] text-[14px]"
                     >
-                  იხილეთ თქვენი ოლიმპიადების შედეგები და სტატისტიკა.
+                  იხილეთ თქვენი ოლიმპიადების შედეგები და სტატისტიკა
                 </motion.p>
                 <motion.button 
-                  className="mt-3 w-full cursor-pointer bg-[#f06905] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+                  className="mt-3 w-[70%] mx-auto cursor-pointer bg-[#f06905] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
                  
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Link href="/student/results" className="block  w-full h-auto">
+                  <Link href="/student/results" className="block  md:text-[20px] text-[16px] w-full h-auto">
                     შედეგების ნახვა
                   </Link>
                 </motion.button>
@@ -313,7 +311,7 @@ function StudentDashboardContent() {
 
           {/* Appeals Section */}
           <motion.div 
-            className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
+            className=" overflow-hidden rounded-lg flex flex-col h-auto transition-all duration-300"
             variants={cardVariants}
           
             whileTap={{ scale: 0.95 }}
@@ -322,8 +320,7 @@ function StudentDashboardContent() {
               <div className="flex items-center justify-between">
                 <div className="ml-4">
                   <motion.h3 
-                    className="text-black md:text-[18px] text-[16px]"
-                    whileHover={{ scale: 1.05 }}
+                    className="text-black md:text-[20px] text-[16px]"
                   >
                     გასაჩივრებები
                   </motion.h3>
@@ -338,24 +335,23 @@ function StudentDashboardContent() {
               </div>
               <div className="mt-3 flex flex-col">
                     <motion.p 
-                      className="text-black md:text-[16px] text-[14px]"
-                      whileHover={{ scale: 1.02 }}
+                      className="text-black md:text-[17px] text-[14px]"
                     >
-                  ნახეთ თქვენი გასაჩივრებების სტატუსი და ადმინის პასუხები.
+                  ნახეთ თქვენი გასაჩივრებების სტატუსი და ადმინის პასუხები
                 </motion.p>
                 <motion.button 
-                  className="mt-3 w-full cursor-pointer bg-[#dc2626] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+                  className="mt-3 w-[70%] mx-auto cursor-pointer bg-[#dc2626] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
                  
                   whileTap={{ scale: 0.95 }}
                 >
-                  <Link href="/student/appeals" className="block  w-full h-auto">
+                  <Link href="/student/appeals" className="block  md:text-[20px] text-[16px] w-full h-auto">
                     გასაჩივრებების ნახვა
                   </Link>
                 </motion.button>
                 {notifications.length > 0 && (
                   <motion.button 
                     onClick={() => setShowNotifications(!showNotifications)}
-                    className="mt-2 w-full cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md md:text-[16px] text-[14px] font-bold"
+                    className="mt-2 w-[70%] mx-auto cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-md md:text-[16px] text-[14px] font-bold"
                     whileTap={{ scale: 0.95 }}
                   >
                     {showNotifications ? 'ნოთიფიკაციების დამალვა' : 'ნოთიფიკაციების ნახვა'}
@@ -375,12 +371,12 @@ function StudentDashboardContent() {
             >
               <div className="p-4 bg-white flex flex-col">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-black md:text-[18px] text-[16px] font-bold">
+                  <h3 className="text-black md:text-[20px] text-[16px] font-bold">
                     გასაჩივრებების გადაწყვეტილებები
                   </h3>
                   <button
                     onClick={() => setShowNotifications(false)}
-                    className="text-gray-500 hover:text-gray-700"
+                    className="text-gray-500"
                   >
                     ✕
                   </button>
@@ -434,17 +430,17 @@ function StudentDashboardContent() {
 
           {/* Subject Selection Card */}
           <motion.div 
-            className=" overflow-hidden rounded-lg flex flex-col h-auto  hover:scale-105 transition-all duration-300"
+            className=" overflow-hidden rounded-lg flex flex-col h-auto  transition-all duration-300"
             variants={cardVariants}
          
-            whileTap={{ scale: 0.95 }}
+           
           >
-            <div className="p-4 h-44 bg-white flex flex-col">
+            <div className="p-4 bg-white flex flex-col">
               <div className="flex items-center">
                
                 <div className="ml-4">
                   <motion.h3 
-                    className="text-black md:text-[18px] text-[16px]"
+                    className="text-black md:text-[20px] text-[16px]"
                
                   >
                     საგნის არჩევა
@@ -453,19 +449,19 @@ function StudentDashboardContent() {
               </div>
               <div className="mt-3 flex flex-col">
                 <motion.p 
-                  className="text-black md:text-[16px] text-[14px]"
-                  whileHover={{ scale: 1.02 }}
+                  className="text-black md:text-[17px] text-[14px]"
+               
                 >
-                  აქ შეგიძლიათ საგნის არჩევა.
+                  აქ შეგიძლიათ საგნის არჩევა
                 </motion.p>
                
 
                 <motion.button 
-                  className="mt-9 w-full cursor-pointer bg-[#034e64] text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+                  className="mt-3 w-[70%] mx-auto cursor-pointer bg-green-600 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
                 
-                  whileTap={{ scale: 0.95 }}
+                 
                 >
-                  <Link href="/student/subjects" className="block bg-[#034e64] w-full h-auto">
+                  <Link href="/student/subjects" className="block bg-green-600 md:text-[20px] text-[16px] w-full h-auto">
                  საგნის არჩევა
                   </Link>
                 </motion.button>
@@ -476,16 +472,16 @@ function StudentDashboardContent() {
           {/* Selected Subjects Section */}
           {selectedSubjects.length > 0 && (
             <motion.div 
-              className="md:col-span-2 overflow-hidden rounded-lg flex flex-col h-auto hover:scale-105 transition-all duration-300"
+              className="md:col-span-2 overflow-hidden rounded-lg flex flex-col h-auto transition-all duration-300"
               variants={cardVariants}
-              whileTap={{ scale: 0.95 }}
+           
             >
               <div className="p-4 bg-white flex flex-col">
                 <div className="flex items-center">
                   <div className="ml-4">
                     <motion.h3 
-                      className="text-black md:text-[18px] text-[16px]"
-                      whileHover={{ scale: 1.05 }}
+                      className="text-black text-lg "
+                   
                     >
                       არჩეული საგნები
                     </motion.h3>
@@ -493,8 +489,8 @@ function StudentDashboardContent() {
                 </div>
                 <div className="mt-3 flex flex-col">
                   <motion.p 
-                    className="text-black md:text-[16px] text-[14px] mb-4"
-                    whileHover={{ scale: 1.02 }}
+                    className="text-black text-lg mb-4"
+                  
                   >
                     თქვენი არჩეული საგნები:
                   </motion.p>
@@ -502,11 +498,8 @@ function StudentDashboardContent() {
                     {selectedSubjects.map((subject) => (
                       <motion.div 
                         key={subject.id}
-                        className="flex flex-col bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-xl transition-all duration-300"
-                        whileHover={{ scale: 1.02, y: -2 }}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
+                        className="flex flex-col bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden transition-all duration-300"
+                       
                       >
                         {/* Subject Image */}
                         <div className="w-full h-48 relative overflow-hidden">
@@ -528,7 +521,7 @@ function StudentDashboardContent() {
                           <div className="mt-auto flex space-x-2">
                             <Link href={`/student/subjects/${subject.id}`} className="flex-1">
                               <motion.button 
-                                className="w-full bg-[#034e64] text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-[#023a4d] focus:outline-none focus:ring-2 focus:ring-[#034e64] focus:ring-offset-2"
+                                className="w-full bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-lg text-[16px] font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-[#034e64] focus:ring-offset-2"
                                 whileTap={{ scale: 0.95 }}
                               >
                                 დაწყება
@@ -536,7 +529,7 @@ function StudentDashboardContent() {
                             </Link>
                             <motion.button 
                               onClick={() => handleDeleteSubject(subject.id)}
-                              className="bg-red-500 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                              className="bg-red-500 cursor-pointer text-white px-3 py-2 rounded-lg text-[16px] font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                               whileTap={{ scale: 0.95 }}
                             >
                               წაშლა
