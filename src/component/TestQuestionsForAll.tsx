@@ -17,7 +17,6 @@ const TestQuestionsForAll = () => {
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [showModal, setShowModal] = useState(false)
   const [selectedSubjectId, setSelectedSubjectId] = useState('')
-  const [showAllSubjects, setShowAllSubjects] = useState(false)
   const [loading, setLoading] = useState(true)
 
   // Fetch subjects from API
@@ -27,9 +26,10 @@ const TestQuestionsForAll = () => {
         const response = await fetch('/api/subjects')
         if (response.ok) {
           const data = await response.json()
-          // Filter out ეროვნული გამოცდები
+          // Filter to show only specific subjects
+          const targetSubjects = ['ისტორია', 'გეოგრაფია', 'ქართული ენა', 'ინგლისური ენა']
           const filteredSubjects = data.subjects.filter((subject: Subject) => 
-            subject.name !== 'ერთიანი ეროვნული გამოცდები'
+            targetSubjects.includes(subject.name)
           )
           setSubjects(filteredSubjects)
         }
@@ -46,10 +46,6 @@ const TestQuestionsForAll = () => {
   // Map subject names to image paths
   const getSubjectImage = (subjectName: string) => {
     const imageMap: { [key: string]: string } = {
-      'მათემატიკა': '/test/მათემატიკა.jpg',
-      'ფიზიკა': '/test/ფიზიკა.jpg',
-      'ქიმია': '/test/ქიმია.jpg',
-      'ბიოლოგია': '/test/ბიოლოგია.jpg',
       'ისტორია': '/test/ისტორია.jpg',
       'გეოგრაფია': '/test/გეოგრაფია.jpg',
       'ქართული ენა': '/test/ქართული.jpg',
@@ -108,7 +104,7 @@ const TestQuestionsForAll = () => {
             ) : (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-4  gap-13 justify-center max-w-4xl mx-auto">
-                  {subjects.slice(0, showAllSubjects ? subjects.length : 4).map((subject, index) => (
+                  {subjects.map((subject, index) => (
                     <motion.div 
                       key={subject.id} 
                       className="flex flex-col items-center justify-center"
@@ -145,19 +141,7 @@ const TestQuestionsForAll = () => {
                   ))}
                 </div>
                 
-                {/* Show/Hide button */}
-                {subjects.length > 4 && (
-                  <div className="text-center mt-8">
-                    <motion.button
-                      onClick={() => setShowAllSubjects(!showAllSubjects)}
-                      className="bg-white/20 cursor-pointer text-white md:text-[20px] text-[16px] hover:bg-white/30 px-6 py-3 rounded-lg font-semibold transition-colors backdrop-blur-sm"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {showAllSubjects ? 'დამალვა' : `ყველას ჩვენება`}
-                    </motion.button>
-                  </div>
-                )}
+              
               </>
             )}
           </div>
