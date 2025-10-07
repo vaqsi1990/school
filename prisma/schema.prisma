@@ -594,3 +594,15 @@ enum AppealStatus {
   REJECTED
   UNDER_REVIEW
 }
+
+model VisitorLog {
+  id        String   @id @default(cuid())
+  ipAddress String?
+  userAgent String?
+  page      String?
+  referrer  String?
+  visitedAt DateTime @default(now())
+  sessionId String?
+
+  @@map("visitor_logs")
+}

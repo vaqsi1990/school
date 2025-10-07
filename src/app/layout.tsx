@@ -5,6 +5,7 @@ import Header from "@/component/Header";
 import Footer from "@/component/Footer";
 import SessionProvider from '@/components/providers/SessionProvider'
 import AuthErrorBoundary from '@/components/auth/AuthErrorBoundary'
+import VisitorTracker from '@/components/VisitorTracker'
 import { Toaster } from 'react-hot-toast'
 
 const geistSans = Geist({
@@ -44,6 +45,7 @@ export default function RootLayout({
       >
         <SessionProvider>
           <AuthErrorBoundary>
+            <VisitorTracker />
             <Header />
             {children}
             <Footer />
