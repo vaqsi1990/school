@@ -221,9 +221,9 @@ const AdminStatistics = () => {
             </motion.div>
           </div>
 
-          {/* Charts Section */}
+        
           <div className="grid grid-cols-1 h-[200px] gap-8 mb-8">
-            {/* Visitors by Day Chart */}
+      
             <motion.div
               className="bg-white rounded-lg shadow-md p-6"
               initial={{ opacity: 0, x: -20 }}
@@ -254,7 +254,6 @@ const AdminStatistics = () => {
         
           </div>
 
-          {/* Today's Activity */}
           <motion.div
             className="bg-white rounded-lg shadow-md p-6"
             initial={{ opacity: 0, y: 20 }}

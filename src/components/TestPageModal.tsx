@@ -20,6 +20,12 @@ interface Question {
   grade: number
 }
 
+interface Subject {
+  id: string
+  name: string
+  description?: string
+}
+
 interface TestPageModalProps {
   isOpen: boolean
   onClose: () => void
@@ -38,23 +44,31 @@ const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectI
   const [totalQuestions, setTotalQuestions] = useState(0)
   const [showTestModal, setShowTestModal] = useState(false)
   const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({})
+  const [subjectName, setSubjectName] = useState('')
 
   const grades = [7, 8, 9, 10, 11, 12]
 
-  // Map subject IDs to names
-  const subjectMapping: Record<string, string> = {
-    'math': 'მათემატიკა',
-    'physics': 'ფიზიკა',
-    'chemistry': 'ქიმია',
-    'biology': 'ბიოლოგია',
-    'history': 'ისტორია',
-    'geography': 'გეოგრაფია',
-    'georgian': 'ქართული ენა',
-    'english': 'ინგლისური ენა',
-    'eeg': 'ერთიანი ეროვნული გამოცდები'
-  }
+  // Fetch subject name when component mounts
+  useEffect(() => {
+    const fetchSubjectName = async () => {
+      try {
+        const response = await fetch('/api/subjects')
+        if (response.ok) {
+          const data = await response.json()
+          const subject = data.subjects.find((s: Subject) => s.id === subjectId)
+          if (subject) {
+            setSubjectName(subject.name)
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching subject name:', error)
+      }
+    }
 
-  const subjectName = subjectMapping[subjectId]
+    if (subjectId) {
+      fetchSubjectName()
+    }
+  }, [subjectId])
 
   // Function to shuffle array
   const shuffleArray = (array: string[]) => {
@@ -96,7 +110,7 @@ const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectI
 
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/test/public-questions?subjectId=${subjectId}&grade=${selectedGrade}`)
+      const response = await fetch(`/api/test/public-questions-by-id?subjectId=${subjectId}&grade=${selectedGrade}`)
       
       if (response.ok) {
         const data = await response.json()
