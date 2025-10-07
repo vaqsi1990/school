@@ -3,10 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
-    // Get visitor statistics
-    const totalVisitors = await prisma.visitorLog.count()
-    
-    // Get unique visitors (by IP address)
+    // Get unique visitors (by IP address) - this will be our total visitors
     const uniqueVisitors = await prisma.visitorLog.groupBy({
       by: ['ipAddress'],
       where: {
@@ -16,31 +13,40 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    const totalVisitors = uniqueVisitors.length
+
     // Get visitors by day for the last 30 days
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    // Get visitors by day - need to group by date only, not datetime
+    // Get visitors by day - group by date and count unique IPs per day
     const visitorsByDayRaw = await prisma.visitorLog.findMany({
       where: {
         visitedAt: {
           gte: thirtyDaysAgo
+        },
+        ipAddress: {
+          not: null
         }
       },
       select: {
-        visitedAt: true
+        visitedAt: true,
+        ipAddress: true
       }
     })
 
-    // Group by date and count
-    const visitorsByDayMap = new Map<string, number>()
+    // Group by date and count unique IPs per day
+    const visitorsByDayMap = new Map<string, Set<string>>()
     visitorsByDayRaw.forEach(visit => {
       const date = visit.visitedAt.toISOString().split('T')[0]
-      visitorsByDayMap.set(date, (visitorsByDayMap.get(date) || 0) + 1)
+      if (!visitorsByDayMap.has(date)) {
+        visitorsByDayMap.set(date, new Set())
+      }
+      visitorsByDayMap.get(date)!.add(visit.ipAddress!)
     })
 
     const visitorsByDay = Array.from(visitorsByDayMap.entries())
-      .map(([date, count]) => ({ date, count }))
+      .map(([date, ipSet]) => ({ date, count: ipSet.size }))
       .sort((a, b) => b.date.localeCompare(a.date))
 
     // Get peak day from the already calculated visitorsByDay
@@ -90,7 +96,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: {
         totalVisitors,
-        uniqueVisitors: uniqueVisitors.length,
+        uniqueVisitors: totalVisitors,
         visitorsByDay,
         peakDay,
         visitorsByHour: visitorsByHour.map(hour => ({
@@ -115,18 +121,42 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { ipAddress, userAgent, page, referrer, sessionId } = body
+    const { userAgent, page, referrer, sessionId } = body
 
-    // Log visitor
-    await prisma.visitorLog.create({
-      data: {
-        ipAddress,
-        userAgent,
-        page,
-        referrer,
-        sessionId
+    // Get IP address from request headers
+    const ipAddress = request.headers.get('x-forwarded-for') || 
+                     request.headers.get('x-real-ip') || 
+                     'unknown'
+
+    // Check if this session already visited this page today
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const tomorrow = new Date(today)
+    tomorrow.setDate(tomorrow.getDate() + 1)
+
+    const existingVisit = await prisma.visitorLog.findFirst({
+      where: {
+        sessionId: body.sessionId,
+        page: body.page,
+        visitedAt: {
+          gte: today,
+          lt: tomorrow
+        }
       }
     })
+
+    // Only log if this session hasn't visited this page today
+    if (!existingVisit) {
+      await prisma.visitorLog.create({
+        data: {
+          ipAddress,
+          userAgent: body.userAgent,
+          page: body.page,
+          referrer: body.referrer,
+          sessionId: body.sessionId
+        }
+      })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

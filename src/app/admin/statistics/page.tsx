@@ -222,7 +222,7 @@ const AdminStatistics = () => {
           </div>
 
           {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 h-[200px] gap-8 mb-8">
             {/* Visitors by Day Chart */}
             <motion.div
               className="bg-white rounded-lg shadow-md p-6"
@@ -251,33 +251,7 @@ const AdminStatistics = () => {
               </div>
             </motion.div>
 
-            {/* Most Visited Pages */}
-            <motion.div
-              className="bg-white rounded-lg shadow-md p-6"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
-            >
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">ყველაზე ხშირად მონახულებული გვერდები</h3>
-              <div className="space-y-3">
-                {stats.mostVisitedPages.slice(0, 5).map((page, index) => (
-                  <div key={page.page} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 truncate">{getPageName(page.page || '/')}</span>
-                    <div className="flex items-center">
-                      <div className="w-24 bg-gray-200 rounded-full h-2 mr-2">
-                        <div
-                          className="bg-green-600 h-2 rounded-full"
-                          style={{
-                            width: `${(page.count / Math.max(...stats.mostVisitedPages.map(p => p.count))) * 100}%`
-                          }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">{page.count}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+        
           </div>
 
           {/* Today's Activity */}
