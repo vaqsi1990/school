@@ -191,7 +191,7 @@ const AdminBlogPage = () => {
       <div className="max-w-7xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow-lg p-8">
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-black">ბლოგის მართვა</h1>
+            <h1 className="text-[25px] font-bold text-black">ბლოგის მართვა</h1>
             <button
               onClick={() => {
                 setShowForm(true)

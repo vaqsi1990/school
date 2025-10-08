@@ -138,7 +138,7 @@ const AdminStatistics = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">ვიზიტორების სტატისტიკა</h1>
+          <h1 className="text-[25px] font-bold text-gray-900 mb-8">ვიზიტორების სტატისტიკა</h1>
           
           {/* Main Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -155,7 +155,7 @@ const AdminStatistics = () => {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">სულ ვიზიტორები</p>
+                  <p className="text-sm font-medium text-black">სულ ვიზიტორები</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.totalVisitors.toLocaleString()}</p>
                 </div>
               </div>
@@ -173,7 +173,7 @@ const AdminStatistics = () => {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">უნიკალური ვიზიტორები</p>
+                  <p className="text-sm font-medium text-black">უნიკალური ვიზიტორები</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.uniqueVisitors.toLocaleString()}</p>
                 </div>
               </div>
@@ -191,7 +191,7 @@ const AdminStatistics = () => {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">პიკური დღე</p>
+                  <p className="text-sm font-medium text-black">პიკური დღე</p>
                   <p className="text-lg font-bold text-gray-900">
                     {stats.peakDay ? `${stats.peakDay.count} ვიზიტორი` : 'მონაცემები არ არის'}
                   </p>
@@ -214,7 +214,7 @@ const AdminStatistics = () => {
                   </svg>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">ბოლო 30 დღე</p>
+                  <p className="text-sm font-medium text-black">ბოლო 30 დღე</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.visitorsByDay.length}</p>
                 </div>
               </div>
@@ -234,17 +234,17 @@ const AdminStatistics = () => {
               <div className="space-y-3">
                 {stats.visitorsByDay.slice(0, 7).map((day, index) => (
                   <div key={day.date} className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">{formatDate(day.date)}</span>
+                    <span className="text-[16px] font-medium text-black">{formatDate(day.date)}</span>
                     <div className="flex items-center">
                       <div className="w-32 bg-gray-200 rounded-full h-2 mr-2">
                         <div
-                          className="bg-blue-600 h-2 rounded-full"
+                          className="bg-green-600 h-2 rounded-full"
                           style={{
                             width: `${(day.count / Math.max(...stats.visitorsByDay.map(d => d.count))) * 100}%`
                           }}
                         ></div>
                       </div>
-                      <span className="text-sm font-medium text-gray-900">{day.count}</span>
+                      <span className="text-[16px] font-medium text-black">{day.count}</span>
                     </div>
                   </div>
                 ))}
@@ -267,16 +267,24 @@ const AdminStatistics = () => {
                 const count = hourData ? hourData.count : 0
                 return (
                   <div key={hour} className="text-center">
-                    <div className="text-xs text-gray-600 mb-1">{formatHour(hour)}</div>
-                    <div className="bg-gray-200 rounded h-16 flex items-end justify-center p-1">
+                    <div className="text-[14px] font-medium text-black mb-1">{formatHour(hour)}</div>
+                    <div className="bg-gray-200 rounded h-16 flex items-end justify-center p-1 relative">
                       <div
-                        className="bg-blue-600 rounded w-full"
+                        className="bg-green-600 rounded w-full"
                         style={{
                           height: count > 0 ? `${Math.max(4, (count / Math.max(...stats.visitorsByHour.map(h => h.count), 1)) * 100)}%` : '0%'
                         }}
-                      ></div>
+                      >
+                        {count > 0 && (
+                          <div className="text-[16px] font-bold text-center flex items-center justify-center h-full text-white">{count}</div>
+                        )}
+                      </div>
+                      {count === 0 && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="text-[16px] font-bold text-black">{count}</div>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-xs text-gray-900 mt-1">{count}</div>
                   </div>
                 )
               })}

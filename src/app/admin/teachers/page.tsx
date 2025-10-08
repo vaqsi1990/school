@@ -120,10 +120,10 @@ function AdminTeachersContent() {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className=" mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 md:text-[20px] text-[18px]">
+          <h1 className="text-[25px] font-bold text-black ">
             მასწავლებლების მართვა
           </h1>
-          <p className="mt-2 text-gray-600 md:text-[18px] text-[16px]">
+          <p className="mt-2 text-black md:text-[18px] text-[16px]">
             მასწავლებლების სიის ნახვა და მართვა
           </p>
         </div>
@@ -157,25 +157,25 @@ function AdminTeachersContent() {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                    <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                       სახელი
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                    <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                       გვარი
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                    <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                       ელ-ფოსტა
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                    <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                       საგანი
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                    <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                       სკოლა
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                    <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                       ვერიფიკაცია
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider md:text-[18px] text-[16px]">
+                    <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                       პასუხების შემოწმება
                     </th>
                    
@@ -191,29 +191,29 @@ function AdminTeachersContent() {
                   ) : (
                     teachers.map((teacher) => (
                       <tr key={teacher.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                        <td className="px-6 py-4 whitespace-nowrap  text-black text-[14px] ">
                           {teacher.name}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                        <td className="px-6 py-4 whitespace-nowrap  text-black text-[14px] ">
                           {teacher.lastname}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                        <td className="px-6 py-4 whitespace-nowrap  text-black text-[14px] ">
                           {teacher.email}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                        <td className="px-6 py-4 whitespace-nowrap  text-black text-[14px] ">
                           {teacher.subject}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                        <td className="px-6 py-4 whitespace-nowrap  text-black text-[14px] ">
                           {teacher.school}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                        <td className="px-6 py-4 whitespace-nowrap  text-black text-[14px] ">
                           <button
                             onClick={() => toggleVerification(teacher.id, teacher.isVerified)}
                             disabled={updatingVerification === teacher.id}
-                            className={`mt-4 w-full cursor-pointer bg-[#feb909] text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold ${
+                            className={`mt-4 w-full cursor-pointer  text-white px-4 py-2 rounded-md  text-[16px] font-bold ${
                               teacher.isVerified 
-                                ? 'bg-black text-white' 
-                                : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                                ? 'bg-green-600 text-white' 
+                                : 'bg-[#f06905] text-white '
                             } ${updatingVerification === teacher.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                           >
                             {updatingVerification === teacher.id ? (
@@ -226,13 +226,13 @@ function AdminTeachersContent() {
                             )}
                           </button>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 md:text-[18px] text-[16px]">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900  text-[16px]">
                           <button
                             onClick={() => toggleReviewPermission(teacher.id, teacher.canReviewAnswers)}
                             disabled={updatingPermissions === teacher.id}
-                            className={`mt-4 w-full cursor-pointer  text-black px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold ${
+                            className={`mt-4 w-full cursor-pointer  text-black px-4 py-2 rounded-md  text-[16px] font-bold ${
                               teacher.canReviewAnswers
-                                ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                ? 'bg-red-600  text-white hover:bg-red-700'
                                 : 'bg-gray-100 text-black hover:bg-gray-200'
                             } ${updatingPermissions === teacher.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                           >

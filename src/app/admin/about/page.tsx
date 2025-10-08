@@ -210,8 +210,8 @@ export default function AdminAboutPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="bg-white rounded-lg shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">
-            About გვერდის რედაქტირება
+          <h1 className="text-[25px] font-bold text-center mb-8 text-gray-800">
+            ჩვენს შესახებ გვერდის რედაქტირება
           </h1>
 
           {message && (
@@ -227,7 +227,7 @@ export default function AdminAboutPage() {
            <div className="space-y-6">
              {/* Title */}
              <div>
-               <label className="block text-[16px] font-medium text-black mb-2">
+               <label className="block text-[17px] font-bold text-black mb-2">
                  სათაური
                </label>
                <input
@@ -244,14 +244,14 @@ export default function AdminAboutPage() {
                <button
                  type="button"
                  onClick={() => addTextSection()}
-                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                 className="px-4 py-2 bg-blue-500 text-white text-[16px] font-bold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
                >
                  ტექსტის დამატება
                </button>
                <button
                  type="button"
                  onClick={() => addListSection()}
-                 className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                 className="px-4 py-2 bg-green-500 text-white text-[16px] font-bold rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
                >
                  სიის დამატება
                </button>
@@ -261,14 +261,14 @@ export default function AdminAboutPage() {
              {aboutData.content.sections.map((section, sectionIndex) => (
                <div key={section.id} className="border border-gray-300 rounded-lg p-4 bg-gray-50">
                  <div className="flex justify-between items-center mb-4">
-                   <h3 className="text-lg font-medium text-black">
+                   <h3 className="text-[17px] font-bold text-black">
                      {section.type === 'text' ? 'ტექსტის სექცია' : 'სიის სექცია'}
                    </h3>
                    <div className="flex gap-2">
                      <button
                        type="button"
                        onClick={() => addTextSection(sectionIndex)}
-                       className="px-2 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
+                       className="px-2 py-1 bg-blue-500 text-white text-[14px] font-bold rounded hover:bg-blue-600"
                        title="ტექსტის დამატება ამ სექციის შემდეგ"
                      >
                        + ტექსტი
@@ -276,7 +276,7 @@ export default function AdminAboutPage() {
                      <button
                        type="button"
                        onClick={() => addListSection(sectionIndex)}
-                       className="px-2 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600"
+                       className="px-2 py-1 bg-green-500 text-white text-[14px] font-bold rounded hover:bg-green-600"
                        title="სიის დამატება ამ სექციის შემდეგ"
                      >
                        + სია
@@ -284,7 +284,7 @@ export default function AdminAboutPage() {
                      <button
                        type="button"
                        onClick={() => removeSection(sectionIndex)}
-                       className="px-2 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+                       className="px-2 py-1 bg-red-500 text-white text-[14px] font-bold rounded hover:bg-red-600"
                        title="სექციის წაშლა"
                      >
                        წაშლა
@@ -294,7 +294,7 @@ export default function AdminAboutPage() {
 
                  {/* Section Title */}
                  <div className="mb-4">
-                   <label className="block text-sm font-medium text-black mb-2">
+                   <label className="block text-[16px] font-bold text-black mb-2">
                      სექციის სათაური (არასავალდებულო)
                    </label>
                    <input
@@ -309,7 +309,7 @@ export default function AdminAboutPage() {
                  {/* Text Section */}
                  {section.type === 'text' && (
                    <div>
-                     <label className="block text-sm font-medium text-black mb-2">
+                     <label className="block text-[16px] font-bold text-black mb-2">
                        ტექსტის შინაარსი
                      </label>
                      <textarea
@@ -325,7 +325,7 @@ export default function AdminAboutPage() {
                  {/* List Section */}
                  {section.type === 'list' && (
                    <div>
-                     <label className="block text-sm font-medium text-black mb-2">
+                     <label className="block text-[16px] font-bold text-black mb-2">
                        სიის ელემენტები
                      </label>
                      {section.items?.map((item, itemIndex) => (
@@ -340,7 +340,7 @@ export default function AdminAboutPage() {
                          <button
                            type="button"
                            onClick={() => removeListItem(sectionIndex, itemIndex)}
-                           className="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+                           className="px-3 py-2 bg-red-500 text-white text-[16px] font-bold rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
                          >
                            წაშლა
                          </button>
@@ -349,7 +349,7 @@ export default function AdminAboutPage() {
                      <button
                        type="button"
                        onClick={() => addListItem(sectionIndex)}
-                       className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+                       className="px-4 py-2 bg-green-500 text-white text-[16px] font-bold rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
                      >
                        ელემენტის დამატება
                      </button>
@@ -363,7 +363,7 @@ export default function AdminAboutPage() {
                <button
                  onClick={handleSave}
                  disabled={saving}
-                 className="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                 className="px-8 py-3 bg-[#034e64] text-[20px] font-bold text-white rounded-lg hover:bg-[#023a4d] cursor-pointer focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
                >
                  {saving ? 'შენახვა...' : 'შენახვა'}
                </button>

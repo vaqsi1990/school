@@ -196,12 +196,12 @@ console.log(appeals);
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">გასაჩივრებების მართვა</h1>
-              <p className="mt-2 text-gray-600">მართეთ მოსწავლეთა გასაჩივრებები</p>
+              <h1 className="text-[25px] font-bold text-black">გასაჩივრებების მართვა</h1>
+              <p className="text-black md:text-[18px] text-[16px]">მართეთ მოსწავლეთა გასაჩივრებები</p>
             </div>
             <button
               onClick={() => router.back()}
-              className="bg-[#034e64] text-white px-4 py-2 rounded-md hover:bg-[#023a4d] transition-colors"
+              className="bg-[#034e64] text-[20px] font-bold cursor-pointer text-white px-4 py-2 rounded-md hover:bg-[#023a4d] transition-colors"
             >
               უკან დაბრუნება
             </button>
@@ -226,44 +226,44 @@ console.log(appeals);
 
         {/* Filter Tabs */}
         <div className="mb-6">
-          <div className="border-b border-gray-200">
+          <div className="">
             <nav className="-mb-px flex space-x-8">
               <button
                 onClick={() => setFilterStatus('all')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`px-4 py-2 rounded-md font-medium ${
                   filterStatus === 'all'
-                    ? 'border-[#034e64] text-[#034e64]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'bg-black  text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
                 ყველა ({appeals.length})
               </button>
               <button
                 onClick={() => setFilterStatus('PENDING')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`px-4 py-2 rounded-md font-medium ${
                   filterStatus === 'PENDING'
-                    ? 'border-[#034e64] text-[#034e64]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'bg-black  text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
                 მოლოდინში ({appeals.filter(a => a.status === 'PENDING').length})
               </button>
               <button
                 onClick={() => setFilterStatus('APPROVED')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`px-4 py-2 rounded-md font-medium ${
                   filterStatus === 'APPROVED'
-                    ? 'border-[#034e64] text-[#034e64]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'bg-black  text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
                 დამტკიცებული ({appeals.filter(a => a.status === 'APPROVED').length})
               </button>
               <button
                 onClick={() => setFilterStatus('REJECTED')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                className={`px-4 py-2 rounded-md font-medium ${
                   filterStatus === 'REJECTED'
-                    ? 'border-[#034e64] text-[#034e64]'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'bg-black  text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                 }`}
               >
                 უარყოფილი ({appeals.filter(a => a.status === 'REJECTED').length})
@@ -275,7 +275,7 @@ console.log(appeals);
         {/* Appeals List */}
         <div className="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            <h2 className="text-[20px] font-bold text-black mb-6">
               გასაჩივრებების სია ({filteredAppeals.length})
             </h2>
             
@@ -284,10 +284,10 @@ console.log(appeals);
                 <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">
+                <h3 className="mt-2 text-[16px] font-medium text-gray-900">
                   გასაჩივრებები არ არის
                 </h3>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 text-[16px] text-gray-500">
                   ამ სტატუსის გასაჩივრებები ჯერ არ არის
                 </p>
               </div>
@@ -340,7 +340,7 @@ console.log(appeals);
                       <div className="pt-3 border-t border-gray-200">
                         <button
                           onClick={() => handleAppealClick(appeal)}
-                          className="bg-[#034e64] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#023a4d] transition-colors"
+                          className="bg-[#034e64] text-white px-4 py-2 rounded-md text-[16px] font-bold hover:bg-[#023a4d] transition-colors"
                         >
                           გადაწყვეტილების მიღება
                         </button>
