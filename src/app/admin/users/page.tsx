@@ -566,7 +566,7 @@ function UserManagementContent() {
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      <span className={`inline-flex px-2 py-1 text-[14px] font-semibold rounded-full ${
                         user.userType === 'STUDENT' ? 'bg-green-100 text-green-800' :
                         user.userType === 'TEACHER' ? 'bg-blue-100 text-blue-800' :
                         'bg-purple-100 text-purple-800'
@@ -580,13 +580,17 @@ function UserManagementContent() {
                       {user.userType === 'STUDENT' && user.student && (
                         <div>
                           <div>კლასი: {user.student.grade}</div>
-                          <div>სკოლა: {user.student.school}</div>
+                          <div>სკოლა: {user.student.school.split(' ').slice(0, 4).join(' ')}</div>
                           <div>კოდი: {user.student.code}</div>
                         </div>
                       )}
                       {user.userType === 'TEACHER' && user.teacher && (
                         <div>
-                          <div>საგანი: {user.teacher.subject}</div>
+                          <div>საგანი: {(() => {
+                            // If subject is an ID, find the corresponding name
+                            const subjectObj = subjects.find(s => s.id === user.teacher?.subject)
+                            return subjectObj ? subjectObj.name : user.teacher.subject
+                          })()}</div>
                           <div>სკოლა: {user.teacher.school}</div>
                         </div>
                       )}
@@ -597,12 +601,12 @@ function UserManagementContent() {
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-[14px] text-gray-500">
                       {formatDate(user.student?.createdAt || user.teacher?.createdAt || user.admin?.createdAt || '')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {user.userType === 'TEACHER' && user.teacher && (
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        <span className={`inline-flex px-2 py-1 text-[14px] font-semibold rounded-full ${
                           user.teacher.isVerified 
                             ? 'bg-green-100 text-green-800' 
                             : 'bg-yellow-100 text-yellow-800'
@@ -616,7 +620,7 @@ function UserManagementContent() {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-[14px] text-gray-900">
                       <div className="flex space-x-2">
                         <button
                           onClick={() => openPasswordResetModal(
@@ -630,7 +634,7 @@ function UserManagementContent() {
                               ? `${user.admin.name} ${user.admin.lastname}`
                               : user.email
                           )}
-                          className="bg-blue-600 cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d] mr-2"
+                          className="bg-blue-600 cursor-pointer text-white px-4 py-2 rounded-md  text-[16px] font-bold transition-colors hover:bg-[#023a4d] mr-2"
                         >
                           პაროლის შეცვლა
                         </button>
@@ -647,7 +651,7 @@ function UserManagementContent() {
                               : user.email,
                             user.userType
                           )}
-                          className="bg-red-600 cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-red-700"
+                          className="bg-red-600 cursor-pointer text-white px-4 py-2 rounded-md  text-[16px] font-bold transition-colors hover:bg-red-700"
                         >
                           წაშლა
                         </button>

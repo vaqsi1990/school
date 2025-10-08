@@ -86,9 +86,9 @@ export default function AboutPage() {
               {section.type === 'list' && section.items && (
                 <ul className="text-black text-[18px] leading-relaxed space-y-2">
                   {section.items.map((item, itemIndex) => (
-                    <li key={itemIndex} className="flex items-start">
-                      <span className="text-blue-600 mr-2">•</span>
-                      <span>{item}</span>
+                    <li key={itemIndex} className="flex  items-center">
+                      <span className="bg-[#034e64] rounded-full w-2 h-2 mr-2 flex-shrink-0" />
+                      <span> {item}</span>
                     </li>
                   ))}
                 </ul>

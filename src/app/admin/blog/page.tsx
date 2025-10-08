@@ -207,7 +207,7 @@ const AdminBlogPage = () => {
                   images: []
                 })
               }}
-              className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
+              className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md  text-[20px] font-bold transition-colors hover:bg-[#023a4d]"
             >
               ახალი ბლოგი
             </button>
@@ -319,7 +319,7 @@ const AdminBlogPage = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, published: e.target.checked }))}
                     className="w-4 h-4 text-black placeholder:text-black border-gray-300 rounded focus:ring-blue-500"
                   />
-                  <label htmlFor="published" className="text-[20px] font-medium text-black">
+                  <label htmlFor="published" className="text-[16px] font-medium text-black">
                     გამოქვეყნება
                   </label>
                 </div>
@@ -327,7 +327,7 @@ const AdminBlogPage = () => {
                 <div className="flex space-x-4">
                   <button
                     type="submit"
-                    className="bg-blue-600 text-white px-6 text-[20px] py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="bg-blue-600 font-bold text-white px-6 text-[20px] py-3 rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     {editingPost ? 'განახლება' : 'შენახვა'}
                   </button>
@@ -337,7 +337,7 @@ const AdminBlogPage = () => {
                       setShowForm(false)
                       setEditingPost(null)
                     }}
-                    className="bg-gray-600 text-white text-[20px] px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                    className="bg-gray-600 font-bold text-white text-[20px] px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
                   >
                     გაუქმება
                   </button>
@@ -350,22 +350,22 @@ const AdminBlogPage = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-[15px] font-medium text-black uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     სათაური
                   </th>
-                  <th className="px-6 py-3 text-left text-[15px] font-medium text-black uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     ავტორი
                   </th>
-                  <th className="px-6 py-3 text-left text-[15px] font-medium text-black uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     სტატუსი
                   </th>
-                  <th className="px-6 py-3 text-left text-[15px] font-medium text-black uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     ნახვები
                   </th>
-                  <th className="px-6 py-3 text-left text-[15px] font-medium text-black uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     შექმნის თარიღი
                   </th>
-                  <th className="px-6 py-3 text-left text-[15px] font-medium text-black uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-[16px] font-bold text-black uppercase tracking-wider">
                     მოქმედებები
                   </th>
                 </tr>
@@ -375,13 +375,13 @@ const AdminBlogPage = () => {
                   <tr key={post.id} className="">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-[16px] font-medium text-black">{post.title}</div>
-                      <div className="text-[16px] text-black">{post.slug}</div>
+                      <div className="text-[14px] text-black">{post.slug}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-[16px] text-black">
+                    <td className="px-6 py-4 whitespace-nowrap text-[14px] text-black">
                       {post.author.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      <span className={`inline-flex px-2 py-1 text-[14px] font-semibold rounded-full ${
                         post.published 
                           ? 'bg-green-100 text-green-800' 
                           : 'bg-yellow-100 text-yellow-800'
@@ -389,23 +389,23 @@ const AdminBlogPage = () => {
                         {post.published ? 'გამოქვეყნებული' : 'დრაფტი'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-[16px] text-black">
+                    <td className="px-6 py-4 whitespace-nowrap text-[14px] text-black">
                       {post.views}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-[16px] text-black">
+                    <td className="px-6 py-4 whitespace-nowrap text-[14px] text-black">
                       {new Date(post.createdAt).toLocaleDateString('ka-GE')}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-[16px] font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-[14px] font-medium">
                       <div className="flex space-x-2">
                         <button
                           onClick={() => editPost(post)}
-                          className="bg-blue-600 text-white px-3 py-1 rounded text-[20px] font-medium hover:bg-blue-700"
+                          className="bg-blue-600 text-white px-3 py-1 rounded text-[16px] font-bold hover:bg-blue-700"
                         >
                           რედაქტირება
                         </button>
                         <button
                           onClick={() => deletePost(post.id)}
-                          className="bg-red-600 text-white px-3 py-1 rounded text-[20px] font-medium hover:bg-red-700"
+                          className="bg-red-600 text-white px-3 py-1 rounded text-[16px] font-bold hover:bg-red-700"
                         >
                           წაშლა
                         </button>
