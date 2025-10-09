@@ -134,7 +134,33 @@ function TeacherDashboardContent() {
             </div>
           </div>
 
-
+          {/* Class Management Card */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-lg font-medium text-gray-900">კლასების მართვა</h3>
+                </div>
+              </div>
+              <div className="mt-4">
+                <p className="text-black md:text-[17px] text-[14px]">
+                  შექმენით კლასები და დაამატეთ მოსწავლეები
+                </p>
+                <button className="mt-4 w-full cursor-pointer bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
+                  <Link href="/teacher/classes" className="block w-full h-full text-white">
+                    კლასების მართვა
+                  </Link>
+                </button>
+              </div>
+            </div>
+          </div>
 
                      {/* View Olympiads Card */}
            <div className="bg-white overflow-hidden shadow rounded-lg">

@@ -11,6 +11,16 @@ async function seed() {
   const subjects = JSON.parse(fs.readFileSync("ittems/subjects.json", "utf-8"));
   const teachers = JSON.parse(fs.readFileSync("ittems/teachers.json", "utf-8"));
   const users = JSON.parse(fs.readFileSync("ittems/users.json", "utf-8"));
+  const classes = JSON.parse(fs.readFileSync("ittems/classes.json", "utf-8"));
+  const classStudents = JSON.parse(fs.readFileSync("ittems/class_students.json", "utf-8"));
+  const aboutPages = JSON.parse(fs.readFileSync("ittems/about_pages.json", "utf-8"));
+  const blogPosts = JSON.parse(fs.readFileSync("ittems/blog_posts.json", "utf-8"));
+  const curriculum = JSON.parse(fs.readFileSync("ittems/Curriculum.json", "utf-8"));
+  const studentAnswers = JSON.parse(fs.readFileSync("ittems/student_answers.json", "utf-8"));
+  const studentSubjectSelections = JSON.parse(fs.readFileSync("ittems/student_subject_selections.json", "utf-8"));
+  const verificationTokens = JSON.parse(fs.readFileSync("ittems/verification_tokens.json", "utf-8"));
+  const verifiedEmails = JSON.parse(fs.readFileSync("ittems/verified_emails.json", "utf-8"));
+  const visitorLogs = JSON.parse(fs.readFileSync("ittems/visitor_logs.json", "utf-8"));
 
   // Helper function to convert date strings to Date objects and handle image field
   const convertDates = (obj: any): any => {
@@ -46,6 +56,16 @@ async function seed() {
   const convertedSubjects = convertDates(subjects);
   const convertedTeachers = convertDates(teachers);
   const convertedUsers = convertDates(users);
+  const convertedClasses = convertDates(classes);
+  const convertedClassStudents = convertDates(classStudents);
+  const convertedAboutPages = convertDates(aboutPages);
+  const convertedBlogPosts = convertDates(blogPosts);
+  const convertedCurriculum = convertDates(curriculum);
+  const convertedStudentAnswers = convertDates(studentAnswers);
+  const convertedStudentSubjectSelections = convertDates(studentSubjectSelections);
+  const convertedVerificationTokens = convertDates(verificationTokens);
+  const convertedVerifiedEmails = convertDates(verifiedEmails);
+  const convertedVisitorLogs = convertDates(visitorLogs);
 
   // Insert data in correct order (respecting foreign key constraints)
   try {
@@ -90,56 +110,76 @@ async function seed() {
     console.log("⚠️ Questions already exist or error occurred:", error);
   }
 
-  // Seed About Page with default content
   try {
-    const defaultAboutPage = {
-      title: 'ჩვენ შესახებ',
-      content: {
-        sections: [
-          {
-            id: '1',
-            type: 'text',
-            content: 'EduArena არის თანამედროვე საგანმანათლებლო პლატფორმა, რომელიც მოსწავლეებს სთავაზობს ონლაინ ოლიმპიადებს სხვადასხვა საგანში. თითოეული ოლიმპიადა გათვლილია შესაბამისი კლასის პროგრამაზე, რაც უზრუნველყოფს სამართლიან და თანაბარ პირობებს მონაწილეებისთვის. მოსწავლეს შეუძლია ოლიმპიადაში მონაწილეობა მიიღოს ონლაინ, სახლიდან გაუსვლელად, რაც კიდევ უფრო მოსახერხებელს და ხელმისაწვდომს ხდის პროცესს.'
-          },
-          {
-            id: '2',
-            type: 'list',
-            title: 'ჩვენი მისიაა:',
-            items: [
-              'განათლების ხელმისაწვდომობის გაზრდა;',
-              'ინოვაციური ტექნოლოგიების დანერგვა სასწავლო პროცესში;',
-              'მოსწავლეების მოტივაციის გაძლიერება ჯანსაღი კონკურსებისა და ოლიმპიადების საშუალებით.'
-            ]
-          },
-          {
-            id: '3',
-            type: 'list',
-            title: 'EduArena გამოირჩევა:',
-            items: [
-              'მრავალფეროვანი ოლიმპიადებით სხვადასხვა საგნისა და კლასის მიხედვით;',
-              'გამჭვირვალე და ობიექტური შეფასების სისტემით;',
-              'თანამედროვე, მარტივად გამოსაყენებელი პლატფორმით;'
-            ]
-          },
-          {
-            id: '4',
-            type: 'text',
-            content: 'ჩვენ გვჯერა, რომ განათლების პროცესში ტექნოლოგიების ინტეგრაცია მნიშვნელოვნად ზრდის მოსწავლეთა ინტერესს და აძლევს მათ შესაძლებლობას, საკუთარი ცოდნა რეალურ გარემოში გამოსცადონ.'
-          }
-        ]
-      }
-    };
-
-    await prisma.aboutPage.create({
-      data: {
-        title: defaultAboutPage.title,
-        content: defaultAboutPage.content as any
-      }
-    });
-    console.log("✅ About Page seeded successfully!");
+    await prisma.class.createMany({ data: convertedClasses, skipDuplicates: true });
+    console.log("✅ Classes seeded successfully!");
   } catch (error) {
-    console.log("⚠️ About Page already exists or error occurred:", error);
+    console.log("⚠️ Classes already exist or error occurred:", error);
   }
+
+  try {
+    await prisma.classStudent.createMany({ data: convertedClassStudents, skipDuplicates: true });
+    console.log("✅ Class Students seeded successfully!");
+  } catch (error) {
+    console.log("⚠️ Class Students already exist or error occurred:", error);
+  }
+
+  try {
+    await prisma.aboutPage.createMany({ data: convertedAboutPages, skipDuplicates: true });
+    console.log("✅ About Pages seeded successfully!");
+  } catch (error) {
+    console.log("⚠️ About Pages already exist or error occurred:", error);
+  }
+
+  try {
+    await prisma.blogPost.createMany({ data: convertedBlogPosts, skipDuplicates: true });
+    console.log("✅ Blog Posts seeded successfully!");
+  } catch (error) {
+    console.log("⚠️ Blog Posts already exist or error occurred:", error);
+  }
+
+  try {
+    await prisma.curriculum.createMany({ data: convertedCurriculum, skipDuplicates: true });
+    console.log("✅ Curriculum seeded successfully!");
+  } catch (error) {
+    console.log("⚠️ Curriculum already exist or error occurred:", error);
+  }
+
+  try {
+    await prisma.studentAnswer.createMany({ data: convertedStudentAnswers, skipDuplicates: true });
+    console.log("✅ Student Answers seeded successfully!");
+  } catch (error) {
+    console.log("⚠️ Student Answers already exist or error occurred:", error);
+  }
+
+  try {
+    await prisma.studentSubjectSelection.createMany({ data: convertedStudentSubjectSelections, skipDuplicates: true });
+    console.log("✅ Student Subject Selections seeded successfully!");
+  } catch (error) {
+    console.log("⚠️ Student Subject Selections already exist or error occurred:", error);
+  }
+
+  try {
+    await prisma.verificationToken.createMany({ data: convertedVerificationTokens, skipDuplicates: true });
+    console.log("✅ Verification Tokens seeded successfully!");
+  } catch (error) {
+    console.log("⚠️ Verification Tokens already exist or error occurred:", error);
+  }
+
+  try {
+    await prisma.verifiedEmail.createMany({ data: convertedVerifiedEmails, skipDuplicates: true });
+    console.log("✅ Verified Emails seeded successfully!");
+  } catch (error) {
+    console.log("⚠️ Verified Emails already exist or error occurred:", error);
+  }
+
+  // Skip visitor logs due to malformed JSON data
+  // try {
+  //   await prisma.visitorLog.createMany({ data: convertedVisitorLogs, skipDuplicates: true });
+  //   console.log("✅ Visitor Logs seeded successfully!");
+  // } catch (error) {
+  //   console.log("⚠️ Visitor Logs already exist or error occurred:", error);
+  // }
 
   console.log("✅ All JSON files seeded successfully!");
 }

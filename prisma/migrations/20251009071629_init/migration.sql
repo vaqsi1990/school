@@ -13,6 +13,9 @@ CREATE TYPE "public"."ParticipationStatus" AS ENUM ('REGISTERED', 'IN_PROGRESS',
 -- CreateEnum
 CREATE TYPE "public"."QuestionStatus" AS ENUM ('ACTIVE', 'PENDING', 'REJECTED');
 
+-- CreateEnum
+CREATE TYPE "public"."AppealStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'UNDER_REVIEW');
+
 -- CreateTable
 CREATE TABLE "public"."users" (
     "id" TEXT NOT NULL,
@@ -276,8 +279,20 @@ CREATE TABLE "public"."olympiads" (
     "grade" INTEGER NOT NULL,
     "maxParticipants" INTEGER,
     "showDetailedReview" BOOLEAN NOT NULL DEFAULT false,
+    "curriculumId" TEXT,
 
     CONSTRAINT "olympiads_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."Curriculum" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Curriculum_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -289,10 +304,11 @@ CREATE TABLE "public"."olympiad_events" (
     "endDate" TIMESTAMP(3) NOT NULL,
     "registrationStartDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "registrationDeadline" TIMESTAMP(3) NOT NULL,
-    "maxParticipants" INTEGER NOT NULL,
+    "maxParticipants" INTEGER DEFAULT 999999,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
     "showDetailedReview" BOOLEAN NOT NULL DEFAULT false,
     "rounds" INTEGER NOT NULL DEFAULT 3,
+    "duration" DOUBLE PRECISION NOT NULL DEFAULT 1.0,
     "subjects" TEXT[],
     "grades" INTEGER[],
     "createdBy" TEXT NOT NULL,
@@ -301,6 +317,7 @@ CREATE TABLE "public"."olympiad_events" (
     "minimumPointsThreshold" INTEGER,
     "questionTypes" "public"."QuestionType"[],
     "questionTypeQuantities" JSONB,
+    "curriculumId" TEXT,
 
     CONSTRAINT "olympiad_events_pkey" PRIMARY KEY ("id")
 );
@@ -444,6 +461,75 @@ CREATE TABLE "public"."about_pages" (
 );
 
 -- CreateTable
+CREATE TABLE "public"."appeals" (
+    "id" TEXT NOT NULL,
+    "studentOlympiadEventId" TEXT NOT NULL,
+    "reason" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "status" "public"."AppealStatus" NOT NULL DEFAULT 'PENDING',
+    "studentId" TEXT NOT NULL,
+    "subjectId" TEXT NOT NULL,
+    "submittedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "reviewedAt" TIMESTAMP(3),
+    "reviewedBy" TEXT,
+    "reviewNotes" TEXT,
+    "adminComment" TEXT,
+    "processedAt" TIMESTAMP(3),
+    "processedBy" TEXT,
+
+    CONSTRAINT "appeals_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."test_results" (
+    "id" TEXT NOT NULL,
+    "studentId" TEXT NOT NULL,
+    "subjectId" TEXT NOT NULL,
+    "score" INTEGER NOT NULL,
+    "totalQuestions" INTEGER NOT NULL,
+    "completedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "test_results_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."visitor_logs" (
+    "id" TEXT NOT NULL,
+    "ipAddress" TEXT,
+    "userAgent" TEXT,
+    "page" TEXT,
+    "referrer" TEXT,
+    "visitedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "sessionId" TEXT,
+
+    CONSTRAINT "visitor_logs_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."classes" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "subject" TEXT NOT NULL,
+    "grade" INTEGER NOT NULL,
+    "teacherId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "classes_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."class_students" (
+    "id" TEXT NOT NULL,
+    "classId" TEXT NOT NULL,
+    "studentId" TEXT NOT NULL,
+    "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "class_students_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "public"."_OlympiadEventToQuestionPackage" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL,
@@ -530,6 +616,9 @@ CREATE UNIQUE INDEX "blog_posts_slug_key" ON "public"."blog_posts"("slug");
 CREATE UNIQUE INDEX "student_subject_selections_userId_subjectId_key" ON "public"."student_subject_selections"("userId", "subjectId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "class_students_classId_studentId_key" ON "public"."class_students"("classId", "studentId");
+
+-- CreateIndex
 CREATE INDEX "_OlympiadEventToQuestionPackage_B_index" ON "public"."_OlympiadEventToQuestionPackage"("B");
 
 -- AddForeignKey
@@ -599,6 +688,12 @@ ALTER TABLE "public"."olympiads" ADD CONSTRAINT "olympiads_managedBy_fkey" FOREI
 ALTER TABLE "public"."olympiads" ADD CONSTRAINT "olympiads_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "public"."subjects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "public"."olympiads" ADD CONSTRAINT "olympiads_curriculumId_fkey" FOREIGN KEY ("curriculumId") REFERENCES "public"."Curriculum"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."olympiad_events" ADD CONSTRAINT "olympiad_events_curriculumId_fkey" FOREIGN KEY ("curriculumId") REFERENCES "public"."Curriculum"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "public"."olympiad_events" ADD CONSTRAINT "olympiad_events_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "public"."admins"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -648,6 +743,30 @@ ALTER TABLE "public"."student_subject_selections" ADD CONSTRAINT "student_subjec
 
 -- AddForeignKey
 ALTER TABLE "public"."student_subject_selections" ADD CONSTRAINT "student_subject_selections_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "public"."subjects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."appeals" ADD CONSTRAINT "appeals_studentOlympiadEventId_fkey" FOREIGN KEY ("studentOlympiadEventId") REFERENCES "public"."student_olympiad_events"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."appeals" ADD CONSTRAINT "appeals_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "public"."students"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."appeals" ADD CONSTRAINT "appeals_reviewedBy_fkey" FOREIGN KEY ("reviewedBy") REFERENCES "public"."users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."test_results" ADD CONSTRAINT "test_results_subjectId_fkey" FOREIGN KEY ("subjectId") REFERENCES "public"."subjects"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."test_results" ADD CONSTRAINT "test_results_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "public"."students"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."classes" ADD CONSTRAINT "classes_teacherId_fkey" FOREIGN KEY ("teacherId") REFERENCES "public"."teachers"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."class_students" ADD CONSTRAINT "class_students_classId_fkey" FOREIGN KEY ("classId") REFERENCES "public"."classes"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."class_students" ADD CONSTRAINT "class_students_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "public"."students"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."_OlympiadEventToQuestionPackage" ADD CONSTRAINT "_OlympiadEventToQuestionPackage_A_fkey" FOREIGN KEY ("A") REFERENCES "public"."olympiad_events"("id") ON DELETE CASCADE ON UPDATE CASCADE;

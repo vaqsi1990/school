@@ -103,6 +103,7 @@ model Student {
   participations              StudentOlympiad[]
   testResults                 TestResult[]
   appeals                     Appeal[]
+  classMemberships            ClassStudent[]
   user                        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("students")
@@ -124,6 +125,7 @@ model Teacher {
   createdQuestionPackages QuestionPackage[] @relation("TeacherQuestionPackages")
   questionSets            QuestionSet[]
   createdQuestions        Question[]        @relation("CreatedByTeacher")
+  classes                 Class[]
   user                    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("teachers")
@@ -605,4 +607,31 @@ model VisitorLog {
   sessionId String?
 
   @@map("visitor_logs")
+}
+
+model Class {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  subject     String
+  grade       Int
+  teacherId   String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  teacher     Teacher        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  students    ClassStudent[]
+
+  @@map("classes")
+}
+
+model ClassStudent {
+  id        String   @id @default(cuid())
+  classId   String
+  studentId String
+  joinedAt  DateTime @default(now())
+  class     Class    @relation(fields: [classId], references: [id], onDelete: Cascade)
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([classId, studentId])
+  @@map("class_students")
 }
