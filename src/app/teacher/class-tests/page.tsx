@@ -12,6 +12,17 @@ interface ClassTest {
     id: string
     name: string
   }
+  class: {
+    id: string
+    name: string
+    students: Array<{
+      student: {
+        id: string
+        name: string
+        lastname: string
+      }
+    }>
+  }
   isActive: boolean
   startDate?: string
   endDate?: string
@@ -165,9 +176,11 @@ export default function ClassTestsPage() {
                     <p className="text-gray-600 mb-2">{test.description}</p>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <span>📚 {test.subject.name}</span>
+                      <span>🏫 {test.class.name}</span>
                       <span>❓ {test.questions.length} კითხვა</span>
                       {test.duration && <span>⏱️ {test.duration} წუთი</span>}
-                      <span>👥 {test.results.length} მოსწავლე</span>
+                      <span>👥 {test.class.students.length} მოსწავლე</span>
+                      <span>📝 {test.results.length} შედეგი</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

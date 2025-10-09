@@ -33,27 +33,15 @@ interface Question {
   grade: number
 }
 
-interface TestQuestionGroup {
+interface Question {
   id: string
-  name: string
-  description?: string
+  text: string
+  type: string
   subject: {
     id: string
     name: string
   }
   grade: number
-  createdAt: string
-  isActive: boolean
-  questions: Array<{
-    id: string
-    order: number
-    points: number
-    question: {
-      id: string
-      text: string
-      type: string
-    }
-  }>
 }
 
 export default function CreateClassTestPage() {
@@ -63,14 +51,24 @@ export default function CreateClassTestPage() {
   const [teacherProfile, setTeacherProfile] = useState<TeacherProfile | null>(null)
   const [classes, setClasses] = useState<Class[]>([])
   const [questions, setQuestions] = useState<Question[]>([])
-  const [groups, setGroups] = useState<TestQuestionGroup[]>([])
   const [selectedQuestions, setSelectedQuestions] = useState<string[]>([])
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'questions' | 'groups'>('questions')
-  const [filters, setFilters] = useState({
+  const [showCreateQuestion, setShowCreateQuestion] = useState(false)
+  const [newQuestion, setNewQuestion] = useState({
+    text: '',
+    type: 'OPEN_ENDED' as 'OPEN_ENDED' | 'CLOSED_ENDED',
+    options: [] as string[],
+    correctAnswer: '',
+    answerTemplate: '',
+    points: 1,
     grade: '',
-    type: ''
+    image: [] as string[],
+    content: '',
+    maxPoints: 1,
+    rubric: '',
+    imageOptions: [] as string[]
   })
+  const [newOption, setNewOption] = useState('')
+
 
   const [formData, setFormData] = useState({
     title: '',
@@ -84,14 +82,8 @@ export default function CreateClassTestPage() {
   useEffect(() => {
     fetchTeacherProfile()
     fetchClasses()
-    fetchGroups()
+    fetchQuestions()
   }, [])
-
-  useEffect(() => {
-    if (filters.grade || filters.type) {
-      fetchQuestions()
-    }
-  }, [filters])
 
   const fetchTeacherProfile = async () => {
     try {
@@ -119,11 +111,7 @@ export default function CreateClassTestPage() {
 
   const fetchQuestions = async () => {
     try {
-      const params = new URLSearchParams()
-      if (filters.grade) params.append('grade', filters.grade)
-      if (filters.type) params.append('type', filters.type)
-
-      const response = await fetch(`/api/teacher/test-questions?${params}`)
+      const response = await fetch('/api/teacher/test-questions')
       if (response.ok) {
         const data = await response.json()
         setQuestions(data.questions)
@@ -133,20 +121,6 @@ export default function CreateClassTestPage() {
     }
   }
 
-  const fetchGroups = async () => {
-    try {
-      const params = new URLSearchParams()
-      if (filters.grade) params.append('grade', filters.grade)
-
-      const response = await fetch(`/api/teacher/test-question-groups?${params}`)
-      if (response.ok) {
-        const data = await response.json()
-        setGroups(data.groups)
-      }
-    } catch (error) {
-      console.error('Error fetching groups:', error)
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -184,30 +158,90 @@ export default function CreateClassTestPage() {
     }
   }
 
-  const handleGroupSelect = (groupId: string) => {
-    const group = groups.find(g => g.id === groupId)
-    if (group) {
-      const questionIds = group.questions.map(gq => gq.question.id)
-      setSelectedQuestions(questionIds)
-      setSelectedGroup(groupId)
-    }
-  }
-
   const handleQuestionToggle = (questionId: string) => {
     if (selectedQuestions.includes(questionId)) {
       setSelectedQuestions(prev => prev.filter(id => id !== questionId))
     } else {
       setSelectedQuestions(prev => [...prev, questionId])
     }
-    setSelectedGroup(null) // Clear group selection when manually selecting questions
   }
 
-  const toggleQuestion = (questionId: string) => {
-    setSelectedQuestions(prev => 
-      prev.includes(questionId) 
-        ? prev.filter(id => id !== questionId)
-        : [...prev, questionId]
-    )
+  const handleCreateQuestion = async () => {
+    if (!newQuestion.text.trim()) {
+      alert('გთხოვთ შეიყვანოთ კითხვის ტექსტი')
+      return
+    }
+
+    if (newQuestion.type === 'CLOSED_ENDED' && newQuestion.options.length < 2) {
+      alert('დახურული კითხვისთვის მინიმუმ 2 ვარიანტი უნდა იყოს')
+      return
+    }
+
+    if (newQuestion.type === 'CLOSED_ENDED' && !newQuestion.correctAnswer) {
+      alert('გთხოვთ აირჩიოთ სწორი ვარიანტი')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await fetch('/api/teacher/test-questions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...newQuestion,
+          grade: 1 // Default grade, can be changed later
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setQuestions(prev => [data.question, ...prev])
+        setSelectedQuestions(prev => [data.question.id, ...prev])
+        setShowCreateQuestion(false)
+        setNewQuestion({
+          text: '',
+          type: 'OPEN_ENDED',
+          options: [],
+          correctAnswer: '',
+          answerTemplate: '',
+          points: 1,
+          grade: '',
+          image: [],
+          content: '',
+          maxPoints: 1,
+          rubric: '',
+          imageOptions: []
+        })
+        alert('კითხვა წარმატებით შეიქმნა და დაემატა ტესტში')
+      } else {
+        const error = await response.json()
+        alert(error.error || 'შეცდომა კითხვის შექმნისას')
+      }
+    } catch (error) {
+      console.error('Error creating question:', error)
+      alert('შეცდომა კითხვის შექმნისას')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const addOption = () => {
+    if (newOption.trim() && !newQuestion.options.includes(newOption.trim())) {
+      setNewQuestion(prev => ({
+        ...prev,
+        options: [...prev.options, newOption.trim()]
+      }))
+      setNewOption('')
+    }
+  }
+
+  const removeOption = (index: number) => {
+    setNewQuestion(prev => ({
+      ...prev,
+      options: prev.options.filter((_, i) => i !== index)
+    }))
   }
 
   return (
@@ -332,65 +366,16 @@ export default function CreateClassTestPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-900">კითხვების არჩევა</h2>
-              <div className="flex bg-gray-100 rounded-lg p-1">
-                <button
-                  onClick={() => setActiveTab('questions')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    activeTab === 'questions'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  ცალკეული კითხვები
-                </button>
-                <button
-                  onClick={() => setActiveTab('groups')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    activeTab === 'groups'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
-                  }`}
-                >
-                  კითხვების ჯგუფები
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowCreateQuestion(!showCreateQuestion)}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm"
+              >
+                {showCreateQuestion ? 'უკან' : '+ ახალი კითხვა'}
+              </button>
             </div>
             
-            {/* Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  კლასი
-                </label>
-                <select
-                  value={filters.grade}
-                  onChange={(e) => setFilters({ ...filters, grade: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">ყველა კლასი</option>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((grade) => (
-                    <option key={grade} value={grade}>
-                      კლასი {grade}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  კითხვის ტიპი
-                </label>
-                <select
-                  value={filters.type}
-                  onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="">ყველა ტიპი</option>
-                  <option value="OPEN_ENDED">ღია კითხვა</option>
-                  <option value="CLOSED_ENDED">დახურული კითხვა</option>
-                </select>
-              </div>
-            </div>
+      
 
             {teacherProfile && (
               <div className="mb-6 p-3 bg-blue-50 rounded-lg">
@@ -400,124 +385,209 @@ export default function CreateClassTestPage() {
               </div>
             )}
 
-            {/* Questions List */}
-            {activeTab === 'questions' && (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {questions.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>კითხვები არ მოიძებნა</p>
-                    <p className="text-sm">გთხოვთ აირჩიოთ ფილტრები</p>
+            {/* Create New Question Form */}
+            {showCreateQuestion && (
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">ახალი კითხვის შექმნა</h3>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      კითხვის ტექსტი *
+                    </label>
+                    <textarea
+                      value={newQuestion.text}
+                      onChange={(e) => setNewQuestion({ ...newQuestion, text: e.target.value })}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="შეიყვანეთ კითხვის ტექსტი..."
+                    />
                   </div>
-                ) : (
-                  questions.map((question) => (
-                    <div
-                      key={question.id}
-                      className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedQuestions.includes(question.id)
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      onClick={() => handleQuestionToggle(question.id)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${
-                              question.type === 'OPEN_ENDED'
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-blue-100 text-blue-800'
-                            }`}>
-                              {question.type === 'OPEN_ENDED' ? 'ღია' : 'დახურული'}
-                            </span>
-                            <span className="text-sm text-gray-500">
-                              {question.subject.name} - კლასი {question.grade}
-                            </span>
-                          </div>
-                          <p className="text-gray-900">{question.text}</p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        კითხვის ტიპი *
+                      </label>
+                      <select
+                        value={newQuestion.type}
+                        onChange={(e) => setNewQuestion({ ...newQuestion, type: e.target.value as 'OPEN_ENDED' | 'CLOSED_ENDED' })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="OPEN_ENDED">ღია კითხვა</option>
+                        <option value="CLOSED_ENDED">დახურული კითხვა</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {newQuestion.type === 'CLOSED_ENDED' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        ვარიანტები *
+                      </label>
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={newOption}
+                            onChange={(e) => setNewOption(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && addOption()}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="შეიყვანეთ ვარიანტი..."
+                          />
+                          <button
+                            type="button"
+                            onClick={addOption}
+                            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                          >
+                            დამატება
+                          </button>
                         </div>
-                        <div className="ml-4">
-                          {selectedQuestions.includes(question.id) ? (
-                            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
+                        <div className="space-y-1">
+                          {newQuestion.options.map((option, index) => (
+                            <div key={index} className="flex items-center gap-2 p-2 bg-white rounded border">
+                              <input
+                                type="radio"
+                                name="correctAnswer"
+                                value={option}
+                                checked={newQuestion.correctAnswer === option}
+                                onChange={(e) => setNewQuestion({ ...newQuestion, correctAnswer: e.target.value })}
+                                className="w-4 h-4 text-blue-600"
+                              />
+                              <span className="flex-1">{option}</span>
+                              <button
+                                type="button"
+                                onClick={() => removeOption(index)}
+                                className="text-red-600 hover:text-red-700"
+                              >
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                </svg>
+                              </button>
                             </div>
-                          ) : (
-                            <div className="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
-                          )}
+                          ))}
                         </div>
+                        {newQuestion.options.length > 0 && !newQuestion.correctAnswer && (
+                          <p className="text-red-600 text-sm">გთხოვთ აირჩიოთ სწორი ვარიანტი</p>
+                        )}
                       </div>
                     </div>
-                  ))
-                )}
+                  )}
+
+                  {newQuestion.type === 'OPEN_ENDED' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        პასუხის შაბლონი
+                      </label>
+                      <textarea
+                        value={newQuestion.answerTemplate}
+                        onChange={(e) => setNewQuestion({ ...newQuestion, answerTemplate: e.target.value })}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="პასუხის შაბლონი (ოფციონალური)..."
+                      />
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        ქულები
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={newQuestion.points}
+                        onChange={(e) => setNewQuestion({ ...newQuestion, points: parseInt(e.target.value) || 1 })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        მაქსიმალური ქულები
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={newQuestion.maxPoints}
+                        onChange={(e) => setNewQuestion({ ...newQuestion, maxPoints: parseInt(e.target.value) || 1 })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateQuestion(false)}
+                      className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                      გაუქმება
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCreateQuestion}
+                      disabled={loading}
+                      className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {loading ? 'შეიქმნება...' : 'კითხვის შექმნა'}
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Groups List */}
-            {activeTab === 'groups' && (
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {groups.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>ჯგუფები არ მოიძებნა</p>
-                    <button
-                      onClick={() => router.push('/teacher/test-question-groups')}
-                      className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      შექმენი ჯგუფი
-                    </button>
-                  </div>
-                ) : (
-                  groups.map((group) => (
-                    <div
-                      key={group.id}
-                      className={`border rounded-lg p-4 cursor-pointer transition-colors ${
-                        selectedGroup === group.id
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                      onClick={() => handleGroupSelect(group.id)}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <h3 className="font-medium text-gray-900">{group.name}</h3>
-                            <span className="px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                              კლასი {group.grade}
-                            </span>
-                            <span className="px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
-                              {group.questions.length} კითხვა
-                            </span>
-                          </div>
-                          <p className="text-gray-600 text-sm mb-2">{group.description}</p>
-                          <div className="text-xs text-gray-500">
-                            {group.questions.slice(0, 2).map((gq, index) => (
-                              <span key={gq.id}>
-                                {index > 0 && ', '}
-                                {gq.question.text.substring(0, 50)}...
-                              </span>
-                            ))}
-                            {group.questions.length > 2 && (
-                              <span> და კიდევ {group.questions.length - 2} კითხვა</span>
-                            )}
-                          </div>
+            {/* Questions List */}
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {questions.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>კითხვები არ მოიძებნა</p>
+                  <p className="text-sm">შექმენით ახალი კითხვა</p>
+                </div>
+              ) : (
+                questions.map((question) => (
+                  <div
+                    key={question.id}
+                    className={`border rounded-lg p-4 cursor-pointer transition-colors ${
+                      selectedQuestions.includes(question.id)
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => handleQuestionToggle(question.id)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${
+                            question.type === 'OPEN_ENDED'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {question.type === 'OPEN_ENDED' ? 'ღია' : 'დახურული'}
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            {question.subject.name} - კლასი {question.grade}
+                          </span>
                         </div>
-                        <div className="ml-4">
-                          {selectedGroup === group.id ? (
-                            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            </div>
-                          ) : (
-                            <div className="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
-                          )}
-                        </div>
+                        <p className="text-gray-900">{question.text}</p>
+                      </div>
+                      <div className="ml-4">
+                        {selectedQuestions.includes(question.id) ? (
+                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                            <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        ) : (
+                          <div className="w-6 h-6 border-2 border-gray-300 rounded-full"></div>
+                        )}
                       </div>
                     </div>
-                  ))
-                )}
-              </div>
-            )}
+                  </div>
+                ))
+              )}
+            </div>
 
             {selectedQuestions.length > 0 && (
               <div className="mt-4 p-3 bg-blue-50 rounded-lg">

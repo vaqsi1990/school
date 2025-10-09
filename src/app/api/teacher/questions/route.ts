@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { QuestionType, Prisma } from '@prisma/client'
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,7 +27,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build where clause
-    const where: any = {
+    const where: Prisma.QuestionWhereInput = {
       status: 'ACTIVE',
       OR: [
         { isPublic: true },
@@ -42,8 +43,8 @@ export async function GET(request: NextRequest) {
       where.grade = parseInt(grade)
     }
 
-    if (type) {
-      where.type = type
+    if (type && Object.values(QuestionType).includes(type as QuestionType)) {
+      where.type = type as QuestionType
     }
 
     const questions = await prisma.question.findMany({
@@ -112,7 +113,7 @@ export async function POST(request: NextRequest) {
     const question = await prisma.question.create({
       data: {
         text,
-        type: type as any,
+        type: type as QuestionType,
         options: options || [],
         correctAnswer,
         answerTemplate,

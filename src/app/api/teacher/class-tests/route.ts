@@ -20,6 +20,15 @@ export async function GET(request: NextRequest) {
             tests: {
               include: {
                 subject: true,
+                class: {
+                  include: {
+                    students: {
+                      include: {
+                        student: true
+                      }
+                    }
+                  }
+                },
                 questions: {
                   include: {
                     question: true

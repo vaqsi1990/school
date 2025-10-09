@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -14,8 +14,10 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
+
     const test = await prisma.classTest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         class: {
           include: {
@@ -66,7 +68,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -75,6 +77,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
     const body = await request.json()
     const { title, description, startDate, endDate, duration, isActive } = body
 
@@ -84,7 +87,7 @@ export async function PUT(
     })
 
     const test = await prisma.classTest.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!teacher || !test || test.teacherId !== teacher.id) {
@@ -92,7 +95,7 @@ export async function PUT(
     }
 
     const updatedTest = await prisma.classTest.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         description,
@@ -120,7 +123,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -129,13 +132,15 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const { id } = await params
+
     // Verify teacher owns this test
     const teacher = await prisma.teacher.findUnique({
       where: { userId: session.user.id }
     })
 
     const test = await prisma.classTest.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!teacher || !test || test.teacherId !== teacher.id) {
@@ -143,7 +148,7 @@ export async function DELETE(
     }
 
     await prisma.classTest.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: 'Test deleted successfully' })
