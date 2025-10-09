@@ -22,6 +22,16 @@ interface AppealNotification {
   reason: string
 }
 
+interface StudentClass {
+  id: string
+  name: string
+  description?: string
+  subject: string
+  grade: number
+  teacherName: string
+  joinedAt: string
+}
+
 // Function to get subject image based on name
 const getSubjectImage = (subjectName: string): string => {
   const imageMap: { [key: string]: string } = {
@@ -45,6 +55,8 @@ function StudentDashboardContent() {
   const [notifications, setNotifications] = useState<AppealNotification[]>([])
   const [loadingNotifications, setLoadingNotifications] = useState(true)
   const [showNotifications, setShowNotifications] = useState(false)
+  const [studentClasses, setStudentClasses] = useState<StudentClass[]>([])
+  const [loadingClasses, setLoadingClasses] = useState(true)
 
   useEffect(() => {
     const fetchSelectedSubjects = async () => {
@@ -81,8 +93,26 @@ function StudentDashboardContent() {
       }
     }
 
+    const fetchStudentClasses = async () => {
+      if (!user?.id) return
+      
+      try {
+        setLoadingClasses(true)
+        const response = await fetch('/api/student/classes')
+        if (response.ok) {
+          const data = await response.json()
+          setStudentClasses(data.classes || [])
+        }
+      } catch (error) {
+        console.error('Error fetching student classes:', error)
+      } finally {
+        setLoadingClasses(false)
+      }
+    }
+
     fetchSelectedSubjects()
     fetchNotifications()
+    fetchStudentClasses()
   }, [user?.id])
 
   const handleDeleteSubject = async (subjectId: string) => {
@@ -423,6 +453,45 @@ function StudentDashboardContent() {
                       </div>
                     </motion.div>
                   ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Classes Section - Only show if student has classes */}
+          {!loadingClasses && studentClasses.length > 0 && (
+            <motion.div 
+              className="overflow-hidden rounded-lg flex flex-col h-auto transition-all duration-300"
+              variants={cardVariants}
+           
+            >
+              <div className="p-4 bg-white flex flex-col">
+                <div className="flex items-center">
+                  <div className="ml-4">
+                    <motion.h3 
+                      className="text-black md:text-[20px] text-[16px]"
+                    >
+                      ჩემი კლასები
+                    </motion.h3>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-col">
+                  <motion.p 
+                    className="text-black md:text-[17px] text-[14px]"
+                  >
+                    კლასები სადაც თქვენ იმყოფებით
+                  </motion.p>
+                  
+                  <motion.button 
+                  className="mt-3 w-[70%] mx-auto cursor-pointer bg-green-600 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+                
+                 
+                >
+                  <Link href="/student/classes" className="block bg-green-600 md:text-[20px] text-[16px] w-full h-auto">
+                კლასების ნახვა
+                  </Link>
+                </motion.button>
+                  
                 </div>
               </div>
             </motion.div>
