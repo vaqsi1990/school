@@ -74,9 +74,9 @@ export async function POST(
               }
             }
           })
-        } catch (error: any) {
+        } catch (error: unknown) {
           // If student is already in the class, just return the existing record
-          if (error.code === 'P2002') {
+          if (error && typeof error === 'object' && 'code' in error && error.code === 'P2002') {
             return await prisma.classStudent.findUniqueOrThrow({
               where: {
                 classId_studentId: {
