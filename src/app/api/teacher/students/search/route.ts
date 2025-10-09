@@ -26,7 +26,18 @@ export async function GET(request: NextRequest) {
     }
 
     // Build search conditions
-    const whereConditions: any = {
+    const whereConditions: {
+      user: {
+        isActive: boolean
+      }
+      OR?: Array<{
+        name?: { contains: string; mode: 'insensitive' }
+        lastname?: { contains: string; mode: 'insensitive' }
+        code?: { contains: string; mode: 'insensitive' }
+        school?: { contains: string; mode: 'insensitive' }
+      }>
+      grade?: number
+    } = {
       user: {
         isActive: true
       }

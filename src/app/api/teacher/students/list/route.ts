@@ -25,7 +25,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Build conditions
-    const whereConditions: any = {
+    const whereConditions: {
+      user: {
+        isActive: boolean
+      }
+      grade?: number
+    } = {
       user: {
         isActive: true
       }
