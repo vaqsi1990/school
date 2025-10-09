@@ -41,7 +41,7 @@ interface ClassTest {
     totalPoints?: number
     status: string
     completedAt?: string
-    answers?: any
+    answers?: Record<string, string | number | boolean>
   } | null
 }
 
