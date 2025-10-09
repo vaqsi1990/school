@@ -355,7 +355,7 @@ function ClassDetailContent() {
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">მოსწავლეების დამატება</h3>
               <p className="text-sm text-gray-600 mb-4">
-                ძებნა მხოლოდ დარეგისტრირებულ მოსწავლეებს შორის
+                ძებნა მხოლოდ დარეგისტრირებულ მოსწავლეებს შორის სახელით, გვარით, კოდით ან სკოლით
               </p>
               
               {/* Search and Load All */}
@@ -365,7 +365,7 @@ function ClassDetailContent() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="ძებნა დარეგისტრირებულ მოსწავლეებს შორის..."
+                    placeholder="ძებნა მოსწავლეების სახელით, გვარით, კოდით ან სკოლით..."
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <button
@@ -376,15 +376,7 @@ function ClassDetailContent() {
                     {searchLoading ? 'ძიება...' : 'ძიება'}
                   </button>
                 </div>
-                <div className="flex justify-center">
-                  <button
-                    onClick={handleLoadAllStudents}
-                    disabled={searchLoading}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:bg-gray-400 text-sm"
-                  >
-                    {searchLoading ? 'იტვირთება...' : 'ყველა მოსწავლის ნახვა'}
-                  </button>
-                </div>
+               
               </div>
 
               {/* Search Results */}
