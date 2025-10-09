@@ -12,9 +12,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const subjectId = searchParams.get('subjectId')
     const grade = searchParams.get('grade')
-    const type = searchParams.get('type')
 
     // Get teacher info
     const teacher = await prisma.teacher.findUnique({
@@ -25,42 +23,47 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
-    // Build where clause
-    const where: any = {
-      status: 'ACTIVE',
-      OR: [
-        { isPublic: true },
-        { createdBy: teacher.id }
-      ]
+    // Find subject by teacher's subject name
+    const subject = await prisma.subject.findFirst({
+      where: { name: teacher.subject }
+    })
+
+    if (!subject) {
+      return NextResponse.json({ error: 'Subject not found' }, { status: 404 })
     }
 
-    if (subjectId) {
-      where.subjectId = subjectId
+    // Build where clause
+    const where: any = {
+      isActive: true,
+      createdBy: teacher.id,
+      subjectId: subject.id
     }
 
     if (grade) {
       where.grade = parseInt(grade)
     }
 
-    if (type) {
-      where.type = type
-    }
-
-    const questions = await prisma.question.findMany({
+    const groups = await prisma.testQuestionGroup.findMany({
       where,
       include: {
         subject: true,
-        chapter: true,
-        paragraph: true
+        questions: {
+          include: {
+            question: true
+          },
+          orderBy: {
+            order: 'asc'
+          }
+        }
       },
       orderBy: {
         createdAt: 'desc'
       }
     })
 
-    return NextResponse.json({ questions })
+    return NextResponse.json({ groups })
   } catch (error) {
-    console.error('Error fetching questions:', error)
+    console.error('Error fetching test question groups:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -75,24 +78,10 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const { 
-      text, 
-      type, 
-      options, 
-      correctAnswer, 
-      answerTemplate, 
-      points, 
-      subjectId, 
-      chapterId, 
-      paragraphId, 
+      name, 
+      description, 
       grade,
-      image,
-      content,
-      maxPoints,
-      rubric,
-      imageOptions,
-      matchingPairs,
-      leftSide,
-      rightSide
+      questionIds
     } = body
 
     // Get teacher info
@@ -104,47 +93,46 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
-    // Only allow OPEN_ENDED and CLOSED_ENDED types for class tests
-    if (!['OPEN_ENDED', 'CLOSED_ENDED'].includes(type)) {
-      return NextResponse.json({ error: 'Only OPEN_ENDED and CLOSED_ENDED question types are allowed' }, { status: 400 })
+    // Find subject by teacher's subject name
+    const subject = await prisma.subject.findFirst({
+      where: { name: teacher.subject }
+    })
+
+    if (!subject) {
+      return NextResponse.json({ error: 'Subject not found' }, { status: 404 })
     }
 
-    const question = await prisma.question.create({
+    const group = await prisma.testQuestionGroup.create({
       data: {
-        text,
-        type: type as any,
-        options: options || [],
-        correctAnswer,
-        answerTemplate,
-        points: points || 1,
-        subjectId,
-        chapterId,
-        paragraphId,
+        name,
+        description,
+        subjectId: subject.id,
         grade,
         createdBy: teacher.id,
-        createdByType: 'TEACHER',
-        image: image || [],
-        content,
-        maxPoints,
-        rubric,
-        imageOptions: imageOptions || [],
-        matchingPairs,
-        leftSide,
-        rightSide,
-        round: 1,
-        isAutoScored: type === 'CLOSED_ENDED',
-        isPublic: false
+        questions: {
+          create: questionIds.map((questionId: string, index: number) => ({
+            questionId,
+            order: index + 1,
+            points: 1 // Default points, can be customized later
+          }))
+        }
       },
       include: {
         subject: true,
-        chapter: true,
-        paragraph: true
+        questions: {
+          include: {
+            question: true
+          },
+          orderBy: {
+            order: 'asc'
+          }
+        }
       }
     })
 
-    return NextResponse.json({ question })
+    return NextResponse.json({ group })
   } catch (error) {
-    console.error('Error creating question:', error)
+    console.error('Error creating test question group:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

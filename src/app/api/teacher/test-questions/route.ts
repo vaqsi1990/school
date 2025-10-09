@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { TestQuestionType, Prisma } from '@prisma/client'
 
 export async function GET(request: NextRequest) {
   try {
@@ -26,12 +27,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Build where clause
-    const where: any = {
-      status: 'ACTIVE',
-      OR: [
-        { isPublic: true },
-        { createdBy: teacher.id }
-      ]
+    const where: Prisma.TestQuestionWhereInput = {
+      isActive: true,
+      createdBy: teacher.id
     }
 
     if (subjectId) {
@@ -42,16 +40,14 @@ export async function GET(request: NextRequest) {
       where.grade = parseInt(grade)
     }
 
-    if (type) {
-      where.type = type
+    if (type && Object.values(TestQuestionType).includes(type as TestQuestionType)) {
+      where.type = type as TestQuestionType
     }
 
-    const questions = await prisma.question.findMany({
+    const questions = await prisma.testQuestion.findMany({
       where,
       include: {
-        subject: true,
-        chapter: true,
-        paragraph: true
+        subject: true
       },
       orderBy: {
         createdAt: 'desc'
@@ -60,7 +56,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ questions })
   } catch (error) {
-    console.error('Error fetching questions:', error)
+    console.error('Error fetching test questions:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -81,18 +77,12 @@ export async function POST(request: NextRequest) {
       correctAnswer, 
       answerTemplate, 
       points, 
-      subjectId, 
-      chapterId, 
-      paragraphId, 
       grade,
       image,
       content,
       maxPoints,
       rubric,
-      imageOptions,
-      matchingPairs,
-      leftSide,
-      rightSide
+      imageOptions
     } = body
 
     // Get teacher info
@@ -104,47 +94,45 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
-    // Only allow OPEN_ENDED and CLOSED_ENDED types for class tests
-    if (!['OPEN_ENDED', 'CLOSED_ENDED'].includes(type)) {
+    // Only allow OPEN_ENDED and CLOSED_ENDED types for test questions
+    if (!Object.values(TestQuestionType).includes(type as TestQuestionType)) {
       return NextResponse.json({ error: 'Only OPEN_ENDED and CLOSED_ENDED question types are allowed' }, { status: 400 })
     }
 
-    const question = await prisma.question.create({
+    // Find subject by teacher's subject name
+    const subject = await prisma.subject.findFirst({
+      where: { name: teacher.subject }
+    })
+
+    if (!subject) {
+      return NextResponse.json({ error: 'Subject not found' }, { status: 404 })
+    }
+
+    const question = await prisma.testQuestion.create({
       data: {
         text,
-        type: type as any,
+        type: type as TestQuestionType,
         options: options || [],
         correctAnswer,
         answerTemplate,
         points: points || 1,
-        subjectId,
-        chapterId,
-        paragraphId,
+        subjectId: subject.id,
         grade,
         createdBy: teacher.id,
-        createdByType: 'TEACHER',
         image: image || [],
         content,
         maxPoints,
         rubric,
-        imageOptions: imageOptions || [],
-        matchingPairs,
-        leftSide,
-        rightSide,
-        round: 1,
-        isAutoScored: type === 'CLOSED_ENDED',
-        isPublic: false
+        imageOptions: imageOptions || []
       },
       include: {
-        subject: true,
-        chapter: true,
-        paragraph: true
+        subject: true
       }
     })
 
     return NextResponse.json({ question })
   } catch (error) {
-    console.error('Error creating question:', error)
+    console.error('Error creating test question:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

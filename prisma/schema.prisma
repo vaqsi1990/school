@@ -104,6 +104,7 @@ model Student {
   testResults                 TestResult[]
   appeals                     Appeal[]
   classMemberships            ClassStudent[]
+  classTestResults            ClassTestResult[]
   user                        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("students")
@@ -127,6 +128,9 @@ model Teacher {
   questionSets            QuestionSet[]
   createdQuestions        Question[]        @relation("CreatedByTeacher")
   classes                 Class[]
+  classTests              ClassTest[]
+  testQuestions           TestQuestion[]
+  testQuestionGroups      TestQuestionGroup[]
   user                    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("teachers")
@@ -161,6 +165,9 @@ model Subject {
   questions    Question[]
   studentSelections StudentSubjectSelection[]
   testResults  TestResult[]
+  classTests   ClassTest[]
+  testQuestions TestQuestion[]
+  testQuestionGroups TestQuestionGroup[]
 
   @@map("subjects")
 }
@@ -621,6 +628,7 @@ model Class {
   updatedAt   DateTime       @updatedAt
   teacher     Teacher        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   students    ClassStudent[]
+  tests       ClassTest[]
 
   @@map("classes")
 }
@@ -635,4 +643,128 @@ model ClassStudent {
 
   @@unique([classId, studentId])
   @@map("class_students")
+}
+
+model ClassTest {
+  id          String              @id @default(cuid())
+  title       String
+  description String?
+  classId     String
+  teacherId   String
+  subjectId   String
+  isActive    Boolean             @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  duration    Int?                // Duration in minutes
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  class       Class               @relation(fields: [classId], references: [id], onDelete: Cascade)
+  teacher     Teacher             @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subject     Subject             @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  questions   ClassTestQuestion[]
+  results     ClassTestResult[]
+
+  @@map("class_tests")
+}
+
+model ClassTestQuestion {
+  id          String        @id @default(cuid())
+  testId      String
+  questionId  String
+  order       Int
+  points      Int           @default(1)
+  createdAt   DateTime      @default(now())
+  test        ClassTest     @relation(fields: [testId], references: [id], onDelete: Cascade)
+  question    TestQuestion  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, questionId])
+  @@map("class_test_questions")
+}
+
+model ClassTestResult {
+  id              String      @id @default(cuid())
+  testId          String
+  studentId       String
+  score           Int?
+  totalPoints     Int?
+  completedAt     DateTime?
+  status          TestStatus  @default(NOT_STARTED)
+  answers         Json?       // Store student answers as JSON
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  test            ClassTest   @relation(fields: [testId], references: [id], onDelete: Cascade)
+  student         Student     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([testId, studentId])
+  @@map("class_test_results")
+}
+
+model TestQuestion {
+  id                String                    @id @default(cuid())
+  text              String
+  type              TestQuestionType
+  options           String[]
+  correctAnswer     String?
+  answerTemplate    String?                   // Template for open-ended questions (visible only to teachers)
+  points            Int                       @default(1)
+  subjectId         String
+  grade             Int
+  createdBy         String
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
+  image             String[]
+  content           String?
+  maxPoints         Int?
+  rubric            String?
+  imageOptions      String[]
+  isActive          Boolean                   @default(true)
+  classTestQuestions ClassTestQuestion[]
+  groupQuestions    TestQuestionGroupQuestion[]
+  subject           Subject                   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  createdByTeacher  Teacher                   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("test_questions")
+}
+
+model TestQuestionGroup {
+  id          String                        @id @default(cuid())
+  name        String
+  description String?
+  subjectId   String
+  grade       Int
+  createdBy   String
+  createdAt   DateTime                      @default(now())
+  updatedAt   DateTime                      @updatedAt
+  isActive    Boolean                       @default(true)
+  questions   TestQuestionGroupQuestion[]
+  subject     Subject                       @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  createdByTeacher Teacher                   @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("test_question_groups")
+}
+
+model TestQuestionGroupQuestion {
+  id          String            @id @default(cuid())
+  groupId     String
+  questionId  String
+  order       Int
+  points      Int               @default(1)
+  createdAt   DateTime          @default(now())
+  group       TestQuestionGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  question    TestQuestion      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, questionId])
+  @@map("test_question_group_questions")
+}
+
+enum TestQuestionType {
+  OPEN_ENDED
+  CLOSED_ENDED
+}
+
+enum TestStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  GRADED
 }
