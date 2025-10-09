@@ -22,13 +22,19 @@ export async function GET(request: NextRequest) {
                 tests: {
                   where: {
                     isActive: true,
-                    OR: [
-                      { startDate: null },
-                      { startDate: { lte: new Date() } }
-                    ],
-                    OR: [
-                      { endDate: null },
-                      { endDate: { gte: new Date() } }
+                    AND: [
+                      {
+                        OR: [
+                          { startDate: null },
+                          { startDate: { lte: new Date() } }
+                        ]
+                      },
+                      {
+                        OR: [
+                          { endDate: null },
+                          { endDate: { gte: new Date() } }
+                        ]
+                      }
                     ]
                   },
                   include: {
