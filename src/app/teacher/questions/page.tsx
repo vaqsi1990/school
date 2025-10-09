@@ -55,6 +55,7 @@ interface TeacherProfile {
   school: string
   phone: string
   isVerified: boolean
+  canCreateQuestions: boolean
   createdAt: string
   updatedAt: string
 }
@@ -675,7 +676,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
         }
       }
 
-      const url = profile?.isVerified ? '/api/teacher/questions' : '/api/teacher/submit-question'
+      const url = profile?.canCreateQuestions ? '/api/teacher/questions' : '/api/teacher/submit-question'
       const method = editingQuestionId ? 'PUT' : 'POST'
 
     
@@ -695,7 +696,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
       if (response.ok) {
         const message = editingQuestionId 
           ? 'კითხვა წარმატებით განახლდა!' 
-          : (profile?.isVerified ? 'კითხვა წარმატებით გაიგზავნა ადმინისტრატორთან განსახილველად!' : 'კითხვა წარმატებით გაიგზავნა ადმინისტრატორთან განსახილველად!')
+          : (profile?.canCreateQuestions ? 'კითხვა წარმატებით შეიქმნა!' : 'კითხვა წარმატებით გაიგზავნა ადმინისტრატორთან განსახილველად!')
         alert(message)
         setShowCreateForm(false)
         setShowSubmitForm(false)
@@ -801,12 +802,12 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                              <h1 className="text-2xl font-bold text-black md:text-[25px] text-[20px]">
                  კითხვების მართვა
                </h1>
-                               <p className="text-black md:text-[18px] text-[16px]">
-                  {profile?.isVerified 
+               <p className="text-black md:text-[18px] text-[16px]">
+                  {profile?.canCreateQuestions 
                     ? 'დაამატეთ და მართეთ კითხვები ადმინისტრატორის დადასტურებისთვის'
                     : 'შემოგვთავაზეთ კითხვები განსახილველად'
                   }
-                </p>
+               </p>
                {profile?.subject && (
                  <div className="mt-2">
                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 md:text-[16px] text-[14px]">
@@ -825,7 +826,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
             >
               უკან დაბრუნება
             </button>
-              {profile?.isVerified ? (
+              {profile?.canCreateQuestions ? (
                 <button
                   onClick={() => setShowCreateForm(!showCreateForm)}
                   className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
@@ -954,25 +955,25 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
 
          {/* Status Information */}
          <div className="mb-8">
-          <div className={`p-4 rounded-lg ${profile?.isVerified ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+          <div className={`p-4 rounded-lg ${profile?.canCreateQuestions ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'}`}>
             <div className="flex items-center">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center ${profile?.isVerified ? 'bg-green-500' : 'bg-yellow-500'}`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center ${profile?.canCreateQuestions ? 'bg-green-500' : 'bg-yellow-500'}`}>
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-3">
-                                 <h3 className={`text-lg font-medium ${profile?.isVerified ? 'text-green-800' : 'text-yellow-800'}`}>
-                   {profile?.isVerified ? 'ვერიფიცირებული მასწავლებელი' : 'ვერიფიკაციის პროცესში'}
+                                 <h3 className={`text-lg font-medium ${profile?.canCreateQuestions ? 'text-green-800' : 'text-yellow-800'}`}>
+                   {profile?.canCreateQuestions ? 'კითხვის დასმის უფლება' : 'ვერიფიკაციის პროცესში'}
                  </h3>
-                                 <p className={`text-sm ${profile?.isVerified ? 'text-green-700' : 'text-yellow-700'}`}>
-                   {profile?.isVerified 
+                                 <p className={`text-sm ${profile?.canCreateQuestions ? 'text-green-700' : 'text-yellow-700'}`}>
+                   {profile?.canCreateQuestions 
                      ? 'თქვენ შეგიძლიათ დაამატოთ კითხვები ადმინისტრატორის დადასტურებისთვის'
                      : 'თქვენი კითხვები გაიგზავნება ადმინისტრატორთან განსახილველად'
                    }
                  </p>
                  {profile?.subject && (
-                   <p className={`text-sm ${profile?.isVerified ? 'text-green-600' : 'text-yellow-600'} font-medium mt-1`}>
+                   <p className={`text-sm ${profile?.canCreateQuestions ? 'text-green-600' : 'text-yellow-600'} font-medium mt-1`}>
                      საგანი: <span className="font-semibold">{profile.subject}</span>
                    </p>
                  )}
@@ -989,7 +990,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
             <h2 className="text-black md:text-[20px] text-[18px] font-semibold mb-4">
               {editingQuestionId 
                 ? 'კითხვის რედაქტირება' 
-                : (profile?.isVerified ? 'ახალი კითხვის დამატება' : 'კითხვის გაგზავნა')}
+                : (profile?.canCreateQuestions ? 'ახალი კითხვის დამატება' : 'კითხვის გაგზავნა')}
             </h2>
                          <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1673,7 +1674,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                 >
                                      {editingQuestionId 
                      ? 'კითხვის განახლება' 
-                     : (profile?.isVerified ? 'კითხვის გაგზავნა' : 'კითხვის გაგზავნა')}
+                     : (profile?.canCreateQuestions ? 'კითხვის შექმნა' : 'კითხვის გაგზავნა')}
                 </button>
                 <button
                   type="button"
@@ -1696,7 +1697,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
                          <h2 className="text-black md:text-[20px] text-[18px] font-semibold">
-               {profile?.isVerified ? 'თქვენი კითხვები' : 'გაგზავნილი კითხვები'} ({filteredQuestions.length})
+               {profile?.canCreateQuestions ? 'თქვენი კითხვები' : 'გაგზავნილი კითხვები'} ({filteredQuestions.length})
              </h2>
           </div>
           
@@ -1713,13 +1714,13 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                   </svg>
                 </div>
                                  <p className="text-black md:text-[20px] text-[18px] mb-4">
-                   {profile?.isVerified ? 'ჯერ არ გაქვთ მიმდინარე კითხვები' : 'ჯერ არ გაქვთ გაგზავნილი კითხვები'}
+                   {profile?.canCreateQuestions ? 'ჯერ არ გაქვთ მიმდინარე კითხვები' : 'ჯერ არ გაქვთ გაგზავნილი კითხვები'}
                  </p>
                 <button
-                  onClick={() => profile?.isVerified ? setShowCreateForm(true) : setShowSubmitForm(true)}
+                  onClick={() => profile?.canCreateQuestions ? setShowCreateForm(true) : setShowSubmitForm(true)}
                   className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]"
                 >
-                  {profile?.isVerified ? 'პირველი კითხვის დამატება' : 'პირველი კითხვის გაგზავნა'}
+                  {profile?.canCreateQuestions ? 'პირველი კითხვის დამატება' : 'პირველი კითხვის გაგზავნა'}
                 </button>
               </div>
             ) : (
@@ -1764,7 +1765,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                     </div>
                     
                     <div className="flex gap-2">
-                      {profile?.isVerified && !question.isReported && (
+                      {profile?.canCreateQuestions && !question.isReported && (
                         <>
                           <button 
                             onClick={() => handleEditQuestion(question.id)}

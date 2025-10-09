@@ -12,7 +12,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { teacherId, isVerified } = await request.json()
+    const { teacherId, isVerified, canCreateQuestions } = await request.json()
 
     if (!teacherId || typeof isVerified !== 'boolean') {
       return NextResponse.json(
@@ -21,9 +21,15 @@ export async function PUT(request: NextRequest) {
       )
     }
 
+    const updateData: { isVerified: boolean; canCreateQuestions?: boolean } = { isVerified }
+    
+    if (typeof canCreateQuestions === 'boolean') {
+      updateData.canCreateQuestions = canCreateQuestions
+    }
+
     const teacher = await prisma.teacher.update({
       where: { id: teacherId },
-      data: { isVerified },
+      data: updateData,
       include: {
         user: {
           select: {
@@ -42,6 +48,7 @@ export async function PUT(request: NextRequest) {
       school: teacher.school,
       phone: teacher.phone,
       isVerified: teacher.isVerified,
+      canCreateQuestions: teacher.canCreateQuestions,
       canReviewAnswers: teacher.canReviewAnswers,
       createdAt: teacher.createdAt,
       updatedAt: teacher.updatedAt

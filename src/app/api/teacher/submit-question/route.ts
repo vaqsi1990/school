@@ -23,9 +23,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher record not found' }, { status: 404 })
     }
 
-    // Only unverified teachers can submit questions for review
-    if (teacher.isVerified) {
-      return NextResponse.json({ error: 'Verified teachers should use the direct question creation endpoint' }, { status: 403 })
+    // Only teachers without question creation permission can submit questions for review
+    if (teacher.canCreateQuestions) {
+      return NextResponse.json({ error: 'Teachers with question creation permission should use the direct question creation endpoint' }, { status: 403 })
     }
 
     const { text, type, grade, round, options, correctAnswer, answerTemplate, matchingPairs, image, imageOptions, useImageOptions, chapterName, paragraphName } = await request.json()

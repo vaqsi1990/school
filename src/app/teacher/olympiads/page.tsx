@@ -13,6 +13,7 @@ interface TeacherProfile {
   school: string
   phone: string
   isVerified: boolean
+  canCreateQuestions: boolean
   createdAt: string
   updatedAt: string
 }
@@ -90,14 +91,14 @@ function TeacherOlympiadsContent() {
                  </div>
                </div>
                <p className="text-black md:text-[20px] text-[18px] mb-4">
-                 {profile?.isVerified 
+                 {profile?.canCreateQuestions 
                    ? 'დაამატეთ და მართეთ კითხვები თქვენი საგნისთვის'
                    : 'შემოგვთავაზეთ კითხვები განსახილველად'
                  }
                </p>
                              <Link href="/teacher/questions">
                  <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
-                   {profile?.isVerified ? 'კითხვების დამატება' : 'კითხვის გაგზავნა'}
+                   {profile?.canCreateQuestions ? 'კითხვების დამატება' : 'კითხვის გაგზავნა'}
                  </button>
                </Link>
             </div>

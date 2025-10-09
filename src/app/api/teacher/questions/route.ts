@@ -69,10 +69,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher record not found' }, { status: 404 })
     }
 
-    // Only verified teachers can create questions directly
-    if (!teacher.isVerified) {
-      console.log('Unverified teacher attempted to create question:', teacher.id)
-      return NextResponse.json({ error: 'Teacher account not verified' }, { status: 403 })
+    // Only teachers with question creation permission can create questions directly
+    if (!teacher.canCreateQuestions) {
+      console.log('Teacher without question creation permission attempted to create question:', teacher.id)
+      return NextResponse.json({ error: 'Teacher does not have permission to create questions' }, { status: 403 })
     }
 
     const { text, type, grade, round, options, correctAnswer, matchingPairs, image, imageOptions, useImageOptions, chapterName, paragraphName } = await request.json()
@@ -211,9 +211,9 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher record not found' }, { status: 404 })
     }
 
-    // Only verified teachers can edit questions
-    if (!teacher.isVerified) {
-      return NextResponse.json({ error: 'Teacher account not verified' }, { status: 403 })
+    // Only teachers with question creation permission can edit questions
+    if (!teacher.canCreateQuestions) {
+      return NextResponse.json({ error: 'Teacher does not have permission to edit questions' }, { status: 403 })
     }
 
     const { questionId, text, type, grade, round, options, correctAnswer, matchingPairs, image, imageOptions, useImageOptions, chapterName, paragraphName } = await request.json()

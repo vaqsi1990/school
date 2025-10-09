@@ -14,6 +14,7 @@ interface TeacherProfile {
   school: string
   phone: string
   isVerified: boolean
+  canCreateQuestions: boolean
   createdAt: string
   updatedAt: string
 }
@@ -121,6 +122,12 @@ function TeacherDashboardContent() {
                   <span className="md:text-[16px] text-[14px] text-black">სტატუსი:</span>
                   <span className={`md:text-[16px] text-[14px] font-medium ${profile?.isVerified || user?.teacher?.isVerified ? 'text-green-600' : 'text-yellow-600'}`}>
                     {loading ? 'იტვირთება...' : ((profile?.isVerified || user?.teacher?.isVerified) ? 'ვერიფიცირებული' : 'ვერიფიკაციის პროცესში')}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="md:text-[16px] text-[14px] text-black">კითხვის დასმა:</span>
+                  <span className={`md:text-[16px] text-[14px] font-medium ${profile?.canCreateQuestions ? 'text-blue-600' : 'text-gray-600'}`}>
+                    {loading ? 'იტვირთება...' : (profile?.canCreateQuestions ? 'ნებადართული' : 'აკრძალული')}
                   </span>
                 </div>
                 <div className="flex justify-between">

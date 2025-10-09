@@ -13,6 +13,7 @@ interface Teacher {
   school: string
   phone: string
   isVerified: boolean
+  canCreateQuestions: boolean
   canReviewAnswers: boolean
   createdAt: string
   updatedAt: string
@@ -24,6 +25,7 @@ function AdminTeachersContent() {
   const [error, setError] = useState<string | null>(null)
   const [updatingPermissions, setUpdatingPermissions] = useState<string | null>(null)
   const [updatingVerification, setUpdatingVerification] = useState<string | null>(null)
+  const [updatingQuestionPermission, setUpdatingQuestionPermission] = useState<string | null>(null)
 
   useEffect(() => {
     fetchTeachers()
@@ -116,6 +118,42 @@ function AdminTeachersContent() {
       setUpdatingVerification(null)
     }
   }
+
+  const toggleQuestionPermission = async (teacherId: string, currentPermission: boolean) => {
+    try {
+      setUpdatingQuestionPermission(teacherId)
+      const response = await fetch('/api/admin/teachers/verify', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          teacherId,
+          isVerified: true, // Keep current verification status
+          canCreateQuestions: !currentPermission
+        })
+      })
+
+      if (response.ok) {
+        // Update the local state
+        setTeachers(prevTeachers => 
+          prevTeachers.map(teacher => 
+            teacher.id === teacherId 
+              ? { ...teacher, canCreateQuestions: !currentPermission }
+              : teacher
+          )
+        )
+      } else {
+        const errorData = await response.json()
+        setError(errorData.error || 'კითხვის დასმის უფლების განახლება ვერ მოხერხდა')
+      }
+    } catch (error) {
+      console.error('Error updating question permission:', error)
+      setError('დაფიქსირდა შეცდომა')
+    } finally {
+      setUpdatingQuestionPermission(null)
+    }
+  }
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className=" mx-auto px-4 sm:px-6 lg:px-8">
@@ -176,6 +214,9 @@ function AdminTeachersContent() {
                       ვერიფიკაცია
                     </th>
                     <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
+                      კითხვის დასმა
+                    </th>
+                    <th className="px-6 py-3 text-left md:text-[16px] text-[14px] text-black uppercase tracking-wider">
                       პასუხების შემოწმება
                     </th>
                    
@@ -184,7 +225,7 @@ function AdminTeachersContent() {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {teachers.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-6 py-4 text-center text-gray-500 md:text-[18px] text-[16px]">
+                      <td colSpan={9} className="px-6 py-4 text-center text-gray-500 md:text-[18px] text-[16px]">
                         მასწავლებლები არ არის
                       </td>
                     </tr>
@@ -223,6 +264,26 @@ function AdminTeachersContent() {
                               </span>
                             ) : (
                               teacher.isVerified ? 'ვერიფიცირებულია' : 'არ არის ვერიფ'
+                            )}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap  text-black text-[14px] ">
+                          <button
+                            onClick={() => toggleQuestionPermission(teacher.id, teacher.canCreateQuestions)}
+                            disabled={updatingQuestionPermission === teacher.id}
+                            className={`mt-4 w-full cursor-pointer  text-white px-4 py-2 rounded-md  text-[16px] font-bold ${
+                              teacher.canCreateQuestions 
+                                ? 'bg-blue-600 text-white' 
+                                : 'bg-gray-400 text-white'
+                            } ${updatingQuestionPermission === teacher.id ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                          >
+                            {updatingQuestionPermission === teacher.id ? (
+                              <span className="flex items-center">
+                                <div className="animate-spin rounded-full h-3 w-3 border-b border-current mr-1"></div>
+                                მიმდინარეობს...
+                              </span>
+                            ) : (
+                              teacher.canCreateQuestions ? 'აქ უფლებაა' : 'არ აქ'
                             )}
                           </button>
                         </td>

@@ -118,6 +118,7 @@ model Teacher {
   school                  String
   phone                   String            @unique
   isVerified              Boolean           @default(false)
+  canCreateQuestions      Boolean           @default(false)
   createdAt               DateTime          @default(now())
   updatedAt               DateTime          @updatedAt
   canReviewAnswers        Boolean           @default(false)
