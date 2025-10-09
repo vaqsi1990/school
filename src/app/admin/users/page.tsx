@@ -72,6 +72,55 @@ interface TeacherDetails {
   classes: TeacherClass[]
 }
 
+interface SelectedSubject {
+  id: string
+  name: string
+  selectedAt: string
+}
+
+interface StudentClass {
+  id: string
+  name: string
+  description: string | null
+  subject: string
+  grade: number
+  createdAt: string
+  teacher: {
+    name: string
+    lastname: string
+    subject: string
+  }
+  joinedAt: string
+}
+
+interface StudentAnswer {
+  id: string
+  olympiadTitle: string
+  olympiadSubject: string
+  score: number
+  totalQuestions: number
+  submittedAt: string
+}
+
+interface StudentDetails {
+  id: string
+  name: string
+  lastname: string
+  grade: number
+  school: string
+  phone: string
+  code: string
+  createdAt: string
+  user: {
+    id: string
+    email: string
+    createdAt: string
+  }
+  selectedSubjects: SelectedSubject[]
+  classes: StudentClass[]
+  recentAnswers: StudentAnswer[]
+}
+
 function UserManagementContent() {
   const { user } = useAuth()
   const [users, setUsers] = useState<User[]>([])
@@ -127,6 +176,18 @@ function UserManagementContent() {
     teacherData: null
   })
   const [loadingTeacherDetails, setLoadingTeacherDetails] = useState(false)
+  const [studentDetailsModal, setStudentDetailsModal] = useState<{
+    isOpen: boolean
+    studentId: string
+    studentName: string
+    studentData: StudentDetails | null
+  }>({
+    isOpen: false,
+    studentId: '',
+    studentName: '',
+    studentData: null
+  })
+  const [loadingStudentDetails, setLoadingStudentDetails] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -385,6 +446,48 @@ function UserManagementContent() {
       teacherId: '',
       teacherName: '',
       teacherData: null
+    })
+  }
+
+  const openStudentDetailsModal = async (studentId: string, studentName: string) => {
+    if (!user || user.userType !== 'ADMIN') {
+      setError('მხოლოდ ადმინისტრატორებს შეუძლიათ მოსწავლის დეტალების ნახვა')
+      return
+    }
+    
+    setStudentDetailsModal({
+      isOpen: true,
+      studentId,
+      studentName,
+      studentData: null
+    })
+    setLoadingStudentDetails(true)
+
+    try {
+      const response = await fetch(`/api/admin/student-details?studentId=${studentId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setStudentDetailsModal(prev => ({
+          ...prev,
+          studentData: data.student
+        }))
+      } else {
+        setError('მოსწავლის ინფორმაციის ჩატვირთვა ვერ მოხერხდა')
+      }
+    } catch (error) {
+      console.error('Error fetching student details:', error)
+      setError('სისტემური შეცდომა მოხდა')
+    } finally {
+      setLoadingStudentDetails(false)
+    }
+  }
+
+  const closeStudentDetailsModal = () => {
+    setStudentDetailsModal({
+      isOpen: false,
+      studentId: '',
+      studentName: '',
+      studentData: null
     })
   }
 
@@ -668,7 +771,7 @@ function UserManagementContent() {
                         <div>
                           <div>კლასი: {user.student.grade}</div>
                           <div>სკოლა: {user.student.school.split(' ').slice(0, 4).join(' ')}</div>
-                          <div>კოდი: {user.student.code}</div>
+                       
                         </div>
                       )}
                       {user.userType === 'TEACHER' && user.teacher && (
@@ -709,6 +812,17 @@ function UserManagementContent() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-[14px] text-gray-900">
                       <div className="flex space-x-2">
+                        {user.userType === 'STUDENT' && user.student && (
+                          <button
+                            onClick={() => openStudentDetailsModal(
+                              user.student!.id,
+                              `${user.student!.name} ${user.student!.lastname}`
+                            )}
+                            className="bg-green-600 cursor-pointer text-white px-4 py-2 rounded-md text-[16px] font-bold transition-colors hover:bg-green-700 mr-2"
+                          >
+                            დეტალების ნახვა
+                          </button>
+                        )}
                         {user.userType === 'TEACHER' && user.teacher && (
                           <button
                             onClick={() => openTeacherDetailsModal(
@@ -1218,6 +1332,193 @@ function UserManagementContent() {
                             )}
                           </div>
                         ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">ინფორმაციის ჩატვირთვა ვერ მოხერხდა</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Student Details Modal */}
+      {studentDetailsModal.isOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-medium text-gray-900">
+                  მოსწავლის დეტალები: {studentDetailsModal.studentName}
+                </h3>
+                <button
+                  onClick={closeStudentDetailsModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              {loadingStudentDetails ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">ინფორმაცია იტვირთება...</p>
+                </div>
+              ) : studentDetailsModal.studentData ? (
+                <div className="space-y-6">
+                  {/* Student Basic Info */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3">ძირითადი ინფორმაცია</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <span className="font-medium text-gray-700">კლასი:</span>
+                        <span className="ml-2 text-gray-900">{studentDetailsModal.studentData.grade}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">სკოლა:</span>
+                        <span className="ml-2 text-gray-900">{studentDetailsModal.studentData.school}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">ტელეფონი:</span>
+                        <span className="ml-2 text-gray-900">{studentDetailsModal.studentData.phone}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">ელ-ფოსტა:</span>
+                        <span className="ml-2 text-gray-900">{studentDetailsModal.studentData.user.email}</span>
+                      </div>
+                      <div className="md:col-span-2">
+                        <span className="font-medium text-gray-700">კოდი:</span>
+                        <span className="ml-2 text-gray-900 font-mono text-lg bg-blue-100 px-2 py-1 rounded">
+                          {studentDetailsModal.studentData.code}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Selected Subjects */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                      არჩეული საგნები ({studentDetailsModal.studentData.selectedSubjects.length})
+                    </h4>
+                    
+                    {studentDetailsModal.studentData.selectedSubjects.length === 0 ? (
+                      <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <p className="text-gray-500">მოსწავლემ არ აირჩია საგნები</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {studentDetailsModal.studentData.selectedSubjects.map((subject) => (
+                          <div key={subject.id} className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                            <div className="font-medium text-gray-900">{subject.name}</div>
+                            <div className="text-sm text-gray-500 mt-1">
+                              არჩეული: {formatDate(subject.selectedAt)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Classes */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                      კლასები ({studentDetailsModal.studentData.classes.length})
+                    </h4>
+                    
+                    {studentDetailsModal.studentData.classes.length === 0 ? (
+                      <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <p className="text-gray-500">მოსწავლე არ არის რომელიმე კლასში</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {studentDetailsModal.studentData.classes.map((cls) => (
+                          <div key={cls.id} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h5 className="text-lg font-medium text-gray-900">{cls.name}</h5>
+                                {cls.description && (
+                                  <p className="text-gray-600 mt-1">{cls.description}</p>
+                                )}
+                              </div>
+                              <div className="text-right">
+                                <div className="text-sm text-gray-500">
+                                  შეუერთდა: {formatDate(cls.joinedAt)}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div>
+                                <span className="font-medium text-gray-700">საგანი:</span>
+                                <span className="ml-2 text-gray-900">{cls.subject}</span>
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-700">კლასი:</span>
+                                <span className="ml-2 text-gray-900">{cls.grade}</span>
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-700">მასწავლებელი:</span>
+                                <span className="ml-2 text-gray-900">{cls.teacher.name} {cls.teacher.lastname}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Recent Answers */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                      ბოლო პასუხები ({studentDetailsModal.studentData.recentAnswers.length})
+                    </h4>
+                    
+                    {studentDetailsModal.studentData.recentAnswers.length === 0 ? (
+                      <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <p className="text-gray-500">მოსწავლეს არ მიცემულა პასუხები</p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ოლიმპიადა
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                საგანი
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ქულა
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                მიცემის თარიღი
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {studentDetailsModal.studentData.recentAnswers.map((answer) => (
+                              <tr key={answer.id} className="hover:bg-gray-50">
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                                  {answer.olympiadTitle}
+                                </td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                  {answer.olympiadSubject}
+                                </td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                  {answer.score}/{answer.totalQuestions}
+                                </td>
+                                <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                  {formatDate(answer.submittedAt)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
                       </div>
                     )}
                   </div>

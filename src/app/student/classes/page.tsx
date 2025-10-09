@@ -212,7 +212,7 @@ const StudentClassesPage = () => {
 
                    <div className="flex space-x-3">
                      <Link href={`/student/classes/${classItem.id}`} className="flex-1">
-                       <button className="w-full bg-[#034e64] text-white px-4 py-2 rounded-md text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
+                       <button className="w-full bg-[#034e64] text-white px-4 py-2 rounded-md text-[20px] cursor-pointer font-bold transition-colors hover:bg-[#023a4d]">
                          კლასის დეტალები
                        </button>
                      </Link>
