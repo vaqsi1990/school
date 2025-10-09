@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -13,6 +13,8 @@ export async function GET(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const { id } = await params
 
     // Get student info
     const student = await prisma.student.findUnique({
@@ -24,7 +26,7 @@ export async function GET(
     }
 
     const test = await prisma.classTest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         class: {
           include: {
@@ -89,7 +91,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -97,6 +99,8 @@ export async function POST(
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const { id } = await params
 
     const body = await request.json()
     const { answers } = body
@@ -111,7 +115,7 @@ export async function POST(
     }
 
     const test = await prisma.classTest.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         class: {
           include: {
@@ -156,7 +160,7 @@ export async function POST(
     const existingResult = await prisma.classTestResult.findUnique({
       where: {
         testId_studentId: {
-          testId: params.id,
+          testId: id,
           studentId: student.id
         }
       }
@@ -185,7 +189,7 @@ export async function POST(
     const result = await prisma.classTestResult.upsert({
       where: {
         testId_studentId: {
-          testId: params.id,
+          testId: id,
           studentId: student.id
         }
       },
@@ -197,7 +201,7 @@ export async function POST(
         completedAt: new Date()
       },
       create: {
-        testId: params.id,
+        testId: id,
         studentId: student.id,
         answers,
         score,
