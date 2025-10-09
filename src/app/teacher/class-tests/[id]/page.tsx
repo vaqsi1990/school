@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 
 interface ClassTest {
   id: string
@@ -61,15 +61,16 @@ interface ClassTest {
   }>
 }
 
-export default function ClassTestDetailPage({ params }: { params: { id: string } }) {
+export default function ClassTestDetailPage() {
   const { data: session } = useSession()
   const router = useRouter()
+  const params = useParams()
   const [test, setTest] = useState<ClassTest | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'questions' | 'results'>('questions')
 
   useEffect(() => {
-    if (session?.user) {
+    if (session?.user && params.id) {
       fetchTest()
     }
   }, [session, params.id])
