@@ -31,11 +31,10 @@ interface Class {
 }
 
 function TeacherClassesContent() {
-  const { user } = useAuth()
   const [classes, setClasses] = useState<Class[]>([])
   const [loading, setLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
-  const [teacherProfile, setTeacherProfile] = useState<any>(null)
+  const [teacherProfile, setTeacherProfile] = useState<{subject: string} | null>(null)
   const [newClass, setNewClass] = useState({
     name: '',
     description: '',
