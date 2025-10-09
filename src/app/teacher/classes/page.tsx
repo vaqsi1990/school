@@ -147,12 +147,12 @@ function TeacherClassesContent() {
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">კლასების მართვა</h1>
-              <p className="mt-2 text-gray-600">შექმენით კლასები და დაამატეთ მოსწავლეები</p>
+              <h1 className="text-[25px] font-bold text-bl">კლასების მართვა</h1>
+              <p className="mt-2 text-black text-[18px">შექმენით კლასები და დაამატეთ მოსწავლეები</p>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium"
+              className="bg-blue-600 hover:bg-blue-700 cursor-pointer text-white px-4 py-2 rounded-md text-[20px] font-bold"
             >
               ახალი კლასი
             </button>
@@ -201,13 +201,13 @@ function TeacherClassesContent() {
                     <div className="mt-4 space-y-2">
                       <Link
                         href={`/teacher/classes/${classItem.id}`}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium text-center block"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-[20px] font-bold text-center block"
                       >
                         კლასის დეტალები
                       </Link>
                       <button
                         onClick={() => handleDeleteClass(classItem.id, classItem.name)}
-                        className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                        className="w-full bg-red-600 cursor-pointer hover:bg-red-700 text-white px-4 py-2 rounded-md text-[20px] font-bold"
                       >
                         კლასის წაშლა
                       </button>
@@ -225,10 +225,10 @@ function TeacherClassesContent() {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">ახალი კლასის შექმნა</h3>
+              <h3 className="text-[16px] font-bold text-black mb-4">ახალი კლასის შექმნა</h3>
               <form onSubmit={handleCreateClass}>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-[16px] font-medium text-black mb-2">
                     კლასის სახელი
                   </label>
                   <input
@@ -241,7 +241,7 @@ function TeacherClassesContent() {
                   />
                 </div>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-[16px] font-medium text-black mb-2">
                     საგანი
                   </label>
                   <input
@@ -256,7 +256,7 @@ function TeacherClassesContent() {
                   </p>
                 </div>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-[16px] font-medium text-black mb-2">
                     კლასი
                   </label>
                   <select
@@ -279,7 +279,7 @@ function TeacherClassesContent() {
                   </select>
                 </div>
                 <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-[16px] font-medium text-black mb-2">
                     აღწერა (არასავალდებულო)
                   </label>
                   <textarea
@@ -294,13 +294,13 @@ function TeacherClassesContent() {
                   <button
                     type="button"
                     onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md"
+                    className="px-4 py-2 text-[20px] font-bold cursor-pointer text-black bg-gray-200 hover:bg-gray-300 rounded-md"
                   >
                     გაუქმება
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+                    className="px-4 py-2 text-[20px] font-bold cursor-pointer text-white bg-blue-600 hover:bg-blue-700 rounded-md"
                   >
                     შექმნა
                   </button>

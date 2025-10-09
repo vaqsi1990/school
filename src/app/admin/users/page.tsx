@@ -39,6 +39,39 @@ interface User {
   }
 }
 
+interface TeacherStudent {
+  id: string
+  name: string
+  lastname: string
+  grade: number
+  school: string
+  phone: string
+  joinedAt: string
+}
+
+interface TeacherClass {
+  id: string
+  name: string
+  description: string | null
+  subject: string
+  grade: number
+  createdAt: string
+  studentCount: number
+  students: TeacherStudent[]
+}
+
+interface TeacherDetails {
+  id: string
+  name: string
+  lastname: string
+  subject: string
+  school: string
+  phone: string
+  isVerified: boolean
+  createdAt: string
+  classes: TeacherClass[]
+}
+
 function UserManagementContent() {
   const { user } = useAuth()
   const [users, setUsers] = useState<User[]>([])
@@ -82,6 +115,18 @@ function UserManagementContent() {
   const [addTeacherMessage, setAddTeacherMessage] = useState('')
   const [subjects, setSubjects] = useState<{id: string, name: string}[]>([])
   const [loadingSubjects, setLoadingSubjects] = useState(false)
+  const [teacherDetailsModal, setTeacherDetailsModal] = useState<{
+    isOpen: boolean
+    teacherId: string
+    teacherName: string
+    teacherData: TeacherDetails | null
+  }>({
+    isOpen: false,
+    teacherId: '',
+    teacherName: '',
+    teacherData: null
+  })
+  const [loadingTeacherDetails, setLoadingTeacherDetails] = useState(false)
 
   useEffect(() => {
     if (user) {
@@ -299,6 +344,48 @@ function UserManagementContent() {
       isVerified: true
     })
     setAddTeacherMessage('')
+  }
+
+  const openTeacherDetailsModal = async (teacherId: string, teacherName: string) => {
+    if (!user || user.userType !== 'ADMIN') {
+      setError('მხოლოდ ადმინისტრატორებს შეუძლიათ მასწავლებლის დეტალების ნახვა')
+      return
+    }
+    
+    setTeacherDetailsModal({
+      isOpen: true,
+      teacherId,
+      teacherName,
+      teacherData: null
+    })
+    setLoadingTeacherDetails(true)
+
+    try {
+      const response = await fetch(`/api/admin/teacher-classes?teacherId=${teacherId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setTeacherDetailsModal(prev => ({
+          ...prev,
+          teacherData: data.teacher
+        }))
+      } else {
+        setError('მასწავლებლის ინფორმაციის ჩატვირთვა ვერ მოხერხდა')
+      }
+    } catch (error) {
+      console.error('Error fetching teacher details:', error)
+      setError('სისტემური შეცდომა მოხდა')
+    } finally {
+      setLoadingTeacherDetails(false)
+    }
+  }
+
+  const closeTeacherDetailsModal = () => {
+    setTeacherDetailsModal({
+      isOpen: false,
+      teacherId: '',
+      teacherName: '',
+      teacherData: null
+    })
   }
 
   const handleAddTeacher = async (e: React.FormEvent) => {
@@ -622,6 +709,17 @@ function UserManagementContent() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-[14px] text-gray-900">
                       <div className="flex space-x-2">
+                        {user.userType === 'TEACHER' && user.teacher && (
+                          <button
+                            onClick={() => openTeacherDetailsModal(
+                              user.teacher!.id,
+                              `${user.teacher!.name} ${user.teacher!.lastname}`
+                            )}
+                            className="bg-green-600 cursor-pointer text-white px-4 py-2 rounded-md text-[16px] font-bold transition-colors hover:bg-green-700 mr-2"
+                          >
+                            დეტალების ნახვა
+                          </button>
+                        )}
                         <button
                           onClick={() => openPasswordResetModal(
                             user.id,
@@ -973,6 +1071,162 @@ function UserManagementContent() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Teacher Details Modal */}
+      {teacherDetailsModal.isOpen && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-5 border w-full max-w-6xl shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-medium text-gray-900">
+                  მასწავლებლის დეტალები: {teacherDetailsModal.teacherName}
+                </h3>
+                <button
+                  onClick={closeTeacherDetailsModal}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  ✕
+                </button>
+              </div>
+              
+              {loadingTeacherDetails ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="mt-4 text-gray-600">ინფორმაცია იტვირთება...</p>
+                </div>
+              ) : teacherDetailsModal.teacherData ? (
+                <div className="space-y-6">
+                  {/* Teacher Basic Info */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3">ძირითადი ინფორმაცია</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <span className="font-medium text-gray-700">საგანი:</span>
+                        <span className="ml-2 text-gray-900">{teacherDetailsModal.teacherData.subject}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">სკოლა:</span>
+                        <span className="ml-2 text-gray-900">{teacherDetailsModal.teacherData.school}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">ტელეფონი:</span>
+                        <span className="ml-2 text-gray-900">{teacherDetailsModal.teacherData.phone}</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-700">სტატუსი:</span>
+                        <span className={`ml-2 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          teacherDetailsModal.teacherData.isVerified 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {teacherDetailsModal.teacherData.isVerified ? 'ვერიფიცირებული' : 'ვერიფიკაციის პროცესში'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Classes Information */}
+                  <div>
+                    <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                      კლასები ({teacherDetailsModal.teacherData.classes.length})
+                    </h4>
+                    
+                    {teacherDetailsModal.teacherData.classes.length === 0 ? (
+                      <div className="text-center py-8 bg-gray-50 rounded-lg">
+                        <p className="text-gray-500">მასწავლებელს არ აქვს შექმნილი კლასები</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {teacherDetailsModal.teacherData.classes.map((cls) => (
+                          <div key={cls.id} className="border border-gray-200 rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h5 className="text-lg font-medium text-gray-900">{cls.name}</h5>
+                                {cls.description && (
+                                  <p className="text-gray-600 mt-1">{cls.description}</p>
+                                )}
+                              </div>
+                              <div className="text-right">
+                                <div className="text-sm text-gray-500">
+                                  შექმნის თარიღი: {formatDate(cls.createdAt)}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                              <div>
+                                <span className="font-medium text-gray-700">საგანი:</span>
+                                <span className="ml-2 text-gray-900">{cls.subject}</span>
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-700">კლასი:</span>
+                                <span className="ml-2 text-gray-900">{cls.grade}</span>
+                              </div>
+                              <div>
+                                <span className="font-medium text-gray-700">მოსწავლეების რაოდენობა:</span>
+                                <span className="ml-2 text-gray-900">{cls.studentCount}</span>
+                              </div>
+                            </div>
+
+                            {/* Students List */}
+                            {cls.students.length > 0 && (
+                              <div>
+                                <h6 className="font-medium text-gray-700 mb-2">მოსწავლეები:</h6>
+                                <div className="overflow-x-auto">
+                                  <table className="min-w-full divide-y divide-gray-200">
+                                    <thead className="bg-gray-50">
+                                      <tr>
+                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                          სახელი
+                                        </th>
+                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                          კლასი
+                                        </th>
+                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                          სკოლა
+                                        </th>
+                                        <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                          შეუერთების თარიღი
+                                        </th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="bg-white divide-y divide-gray-200">
+                                      {cls.students.map((student) => (
+                                        <tr key={student.id} className="hover:bg-gray-50">
+                                          <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                                            {student.name} {student.lastname}
+                                          </td>
+                                          <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                            {student.grade}
+                                          </td>
+                                          <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                            {student.school.split(' ').slice(0, 3).join(' ')}...
+                                          </td>
+                                          <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
+                                            {formatDate(student.joinedAt)}
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">ინფორმაციის ჩატვირთვა ვერ მოხერხდა</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -253,13 +253,13 @@ function ClassDetailContent() {
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowAddStudentsModal(true)}
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium"
+                className="bg-green-600 hover:bg-green-700 cursor-pointer text-white px-4 py-2 rounded-md font-bold text-[20px"
               >
                 მოსწავლის დამატება
               </button>
               <button
                 onClick={handleDeleteClass}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium"
+                className="bg-red-600 hover:bg-red-700 cursor-pointer text-white px-4 py-2 rounded-md font-bold text-[20px"
               >
                 კლასის წაშლა
               </button>
