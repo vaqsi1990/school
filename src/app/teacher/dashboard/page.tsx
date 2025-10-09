@@ -198,60 +198,9 @@ function TeacherDashboardContent() {
           </div>
 
         {/* Test Questions Card */}
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">ტესტის კითხვები</h3>
-              </div>
-            </div>
-            <div className="mt-4">
-              <p className="text-black md:text-[17px] text-[14px]">
-                შექმენით და მართეთ ტესტის კითხვები
-              </p>
-              <button className="mt-4 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
-                <Link href="/teacher/test-questions" className="block w-full h-full text-white">
-                  კითხვების მართვა
-                </Link>
-              </button>
-            </div>
-          </div>
-        </div>
+  
 
-        {/* Test Question Groups Card */}
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 bg-indigo-500 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">კითხვების ჯგუფები</h3>
-              </div>
-            </div>
-            <div className="mt-4">
-              <p className="text-black md:text-[17px] text-[14px]">
-                შექმენით და მართეთ კითხვების ჯგუფები
-              </p>
-              <button className="mt-4 w-full cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
-                <Link href="/teacher/test-question-groups" className="block w-full h-full text-white">
-                  ჯგუფების მართვა
-                </Link>
-              </button>
-            </div>
-          </div>
-        </div>
+       
 
                      {/* View Questions Card - Only for verified teachers */}
            {(profile?.isVerified || user?.teacher?.isVerified) && (profile?.canCreateQuestions || user?.teacher?.canCreateQuestions) && (

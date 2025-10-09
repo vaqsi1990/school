@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -23,8 +23,9 @@ export async function GET(
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
+    const resolvedParams = await params
     const group = await prisma.testQuestionGroup.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: {
         subject: true,
         questions: {
@@ -56,7 +57,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -77,9 +78,10 @@ export async function PUT(
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
+    const resolvedParams = await params
     // Verify teacher owns this group
     const group = await prisma.testQuestionGroup.findUnique({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     if (!group || group.createdBy !== teacher.id) {
@@ -88,7 +90,7 @@ export async function PUT(
 
     // Update group with new questions
     const updatedGroup = await prisma.testQuestionGroup.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: {
         name,
         description,
@@ -124,7 +126,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -142,9 +144,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
+    const resolvedParams = await params
     // Verify teacher owns this group
     const group = await prisma.testQuestionGroup.findUnique({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     if (!group || group.createdBy !== teacher.id) {
@@ -152,7 +155,7 @@ export async function DELETE(
     }
 
     await prisma.testQuestionGroup.delete({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     return NextResponse.json({ message: 'Group deleted successfully' })
