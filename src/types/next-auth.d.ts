@@ -23,6 +23,7 @@ declare module "next-auth" {
         school: string
         phone: string
         isVerified: boolean
+        canCreateQuestions: boolean
       }
       admin?: {
         id: string
@@ -55,6 +56,7 @@ declare module "next-auth" {
       school: string
       phone: string
       isVerified: boolean
+      canCreateQuestions: boolean
     }
     admin?: {
       id: string
@@ -86,6 +88,7 @@ declare module "next-auth/jwt" {
       school: string
       phone: string
       isVerified: boolean
+      canCreateQuestions: boolean
     }
     admin?: {
       id: string

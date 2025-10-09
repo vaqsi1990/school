@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { TeacherOnly } from '@/components/auth/ProtectedRoute'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import ImageUpload from '@/component/CloudinaryUploader'
 import ImageModal from '@/components/ImageModal'
 import { numberToGeorgianLetter, numberToGeorgianQuestionNumber, numberToGeorgianOptionLabel } from '@/utils/georgianLetters'
@@ -65,6 +66,7 @@ function TeacherQuestionsContent() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [profile, setProfile] = useState<TeacherProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [accessDenied, setAccessDenied] = useState(false)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showSubmitForm, setShowSubmitForm] = useState(false)
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null)
@@ -136,6 +138,12 @@ function TeacherQuestionsContent() {
       if (response.ok) {
         const data = await response.json()
         setProfile(data.profile)
+        
+        // Check if teacher is verified
+        if (!data.profile.isVerified) {
+          setAccessDenied(true)
+          return
+        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
@@ -793,6 +801,28 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
     return matchesSearch && matchesType && matchesGrade && matchesRound
   })
 
+  // Show access denied message for unverified teachers
+  if (accessDenied) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="mx-auto h-16 w-16 text-red-400 mb-4">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">წვდომა შეზღუდულია</h1>
+          <p className="text-gray-600 mb-4">
+            კითხვების გვერდზე წვდომისთვის საჭიროა მასწავლებლის ვერიფიკაცია
+          </p>
+          <Link href="/teacher/dashboard" className="text-blue-600 hover:text-blue-800 font-medium">
+            დაბრუნება დაშბორდზე
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow">
@@ -955,25 +985,27 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
 
          {/* Status Information */}
          <div className="mb-8">
-          <div className={`p-4 rounded-lg ${profile?.canCreateQuestions ? 'bg-green-50 border border-green-200' : 'bg-yellow-50 border border-yellow-200'}`}>
+          <div className={`p-4 rounded-lg ${profile?.canCreateQuestions ? 'bg-green-50 border border-green-200' : profile?.isVerified ? 'bg-blue-50 border border-blue-200' : 'bg-yellow-50 border border-yellow-200'}`}>
             <div className="flex items-center">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center ${profile?.canCreateQuestions ? 'bg-green-500' : 'bg-yellow-500'}`}>
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center ${profile?.canCreateQuestions ? 'bg-green-500' : profile?.isVerified ? 'bg-blue-500' : 'bg-yellow-500'}`}>
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-3">
-                                 <h3 className={`text-lg font-medium ${profile?.canCreateQuestions ? 'text-green-800' : 'text-yellow-800'}`}>
-                   {profile?.canCreateQuestions ? 'კითხვის დასმის უფლება' : 'ვერიფიკაციის პროცესში'}
+                                 <h3 className={`text-lg font-medium ${profile?.canCreateQuestions ? 'text-green-800' : profile?.isVerified ? 'text-blue-800' : 'text-yellow-800'}`}>
+                   {profile?.canCreateQuestions ? 'კითხვის დასმის უფლება' : profile?.isVerified ? 'ვერიფიცირებული მასწავლებელი' : 'ვერიფიკაციის პროცესში'}
                  </h3>
-                                 <p className={`text-sm ${profile?.canCreateQuestions ? 'text-green-700' : 'text-yellow-700'}`}>
+                                 <p className={`text-sm ${profile?.canCreateQuestions ? 'text-green-700' : profile?.isVerified ? 'text-blue-700' : 'text-yellow-700'}`}>
                    {profile?.canCreateQuestions 
                      ? 'თქვენ შეგიძლიათ დაამატოთ კითხვები ადმინისტრატორის დადასტურებისთვის'
-                     : 'თქვენი კითხვები გაიგზავნება ადმინისტრატორთან განსახილველად'
+                     : profile?.isVerified 
+                       ? 'თქვენ ვერიფიცირებული ხართ, მაგრამ კითხვის დასმის უფლება არ გაქვთ'
+                       : 'თქვენი კითხვები გაიგზავნება ადმინისტრატორთან განსახილველად'
                    }
                  </p>
                  {profile?.subject && (
-                   <p className={`text-sm ${profile?.canCreateQuestions ? 'text-green-600' : 'text-yellow-600'} font-medium mt-1`}>
+                   <p className={`text-sm ${profile?.canCreateQuestions ? 'text-green-600' : profile?.isVerified ? 'text-blue-600' : 'text-yellow-600'} font-medium mt-1`}>
                      საგანი: <span className="font-semibold">{profile.subject}</span>
                    </p>
                  )}

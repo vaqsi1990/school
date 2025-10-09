@@ -69,7 +69,10 @@ function TeacherOlympiadsContent() {
             ხელმისაწვდომი ფუნქციები
           </h2>
           <p className="text-black md:text-[20px] text-[18px] mb-6">
-            მასწავლებლებს შეუძლიათ მხოლოდ კითხვების ნახვა
+            {profile?.isVerified 
+              ? 'მასწავლებლებს შეუძლიათ კითხვების დამატება და ნახვა'
+              : 'მასწავლებლებს შეუძლიათ მხოლოდ კითხვების ნახვა'
+            }
           </p>
         </div>
 
@@ -96,11 +99,13 @@ function TeacherOlympiadsContent() {
                    : 'შემოგვთავაზეთ კითხვები განსახილველად'
                  }
                </p>
-                             <Link href="/teacher/questions">
-                 <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
-                   {profile?.canCreateQuestions ? 'კითხვების დამატება' : 'კითხვის გაგზავნა'}
-                 </button>
-               </Link>
+               {profile?.isVerified && (
+                 <Link href="/teacher/questions">
+                   <button className="bg-[#034e64] cursor-pointer text-white px-4 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d]">
+                     {profile?.canCreateQuestions ? 'კითხვების დამატება' : 'კითხვის გაგზავნა'}
+                   </button>
+                 </Link>
+               )}
             </div>
           </div>
 
@@ -124,7 +129,10 @@ function TeacherOlympiadsContent() {
               </p>
               <div className="bg-blue-50 p-3 rounded-md">
                 <p className="text-blue-800 md:text-[16px] text-[14px]">
-                  მასწავლებლებს შეუძლიათ მხოლოდ კითხვების ნახვა
+                  {profile?.isVerified 
+                    ? 'მასწავლებლებს შეუძლიათ კითხვების დამატება და ნახვა'
+                    : 'მასწავლებლებს შეუძლიათ მხოლოდ კითხვების ნახვა'
+                  }
                 </p>
               </div>
             </div>

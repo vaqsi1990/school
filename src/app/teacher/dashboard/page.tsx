@@ -169,34 +169,36 @@ function TeacherDashboardContent() {
             </div>
           </div>
 
-                     {/* View Olympiads Card */}
-           <div className="bg-white overflow-hidden shadow rounded-lg">
-             <div className="p-6">
-               <div className="flex items-center">
-                 <div className="flex-shrink-0">
-                   <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
-                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                     </svg>
+                     {/* View Questions Card - Only for verified teachers */}
+           {(profile?.isVerified || user?.teacher?.isVerified) && (profile?.canCreateQuestions || user?.teacher?.canCreateQuestions) && (
+             <div className="bg-white overflow-hidden shadow rounded-lg">
+               <div className="p-6">
+                 <div className="flex items-center">
+                   <div className="flex-shrink-0">
+                     <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                       <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                       </svg>
+                     </div>
+                   </div>
+                   <div className="ml-4">
+                     <h3 className="text-lg font-medium text-gray-900">კითხვების ნახვა</h3>
                    </div>
                  </div>
-                 <div className="ml-4">
-                   <h3 className="text-lg font-medium text-gray-900">კითხვების ნახვა</h3>
+                 <div className="mt-4">
+                     <p className="text-black md:text-[17px] text-[14px]">
+                       ნახეთ არსებული კითხვები
+                     </p>
+                     <button className="mt-4 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold text-black">
+                       <Link href="/teacher/questions" className="block w-full h-full text-white">
+                         კითხვების ნახვა
+                       </Link>
+                     </button>
+                   </div>
                  </div>
                </div>
-               <div className="mt-4">
-                   <p className="text-black md:text-[17px] text-[14px]">
-                   ნახეთ არსებული კითხვები
-                 </p>
-                 <button className="mt-4 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold text-black">
-                   <Link href="/teacher/questions" className="block w-full h-full text-white">
-                    კითხვების ნახვა
-                   </Link>
-                 </button>
-               </div>
-             </div>
-           </div>
+             )}
 
            {/* Blog Management Card */}
            <div className="bg-white overflow-hidden shadow rounded-lg">

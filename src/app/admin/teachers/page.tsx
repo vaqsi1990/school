@@ -94,7 +94,8 @@ function AdminTeachersContent() {
         },
         body: JSON.stringify({
           teacherId,
-          isVerified: !currentVerification
+          isVerified: !currentVerification,
+          canCreateQuestions: teachers.find(t => t.id === teacherId)?.canCreateQuestions
         })
       })
 

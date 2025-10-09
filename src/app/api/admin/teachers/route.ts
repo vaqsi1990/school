@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
         school: teacher.school,
         phone: teacher.phone,
         isVerified: teacher.isVerified,
+        canCreateQuestions: teacher.canCreateQuestions,
         canReviewAnswers: teacher.canReviewAnswers,
         createdAt: teacher.createdAt,
         updatedAt: teacher.updatedAt
