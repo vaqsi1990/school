@@ -260,32 +260,6 @@ const ClassDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
           </div>
         </motion.div>
 
-        {/* Contact Teacher */}
-        <motion.div 
-          className="mt-8 bg-white rounded-lg shadow-lg p-6"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">მასწავლებელთან კონტაქტი</h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-700 mb-1">
-                <span className="font-medium">მასწავლებელი:</span> {classDetails.teacher.name}
-              </p>
-              <p className="text-gray-700">
-                <span className="font-medium">ელ-ფოსტა:</span> {classDetails.teacher.email}
-              </p>
-            </div>
-            <a 
-              href={`mailto:${classDetails.teacher.email}`}
-              className="bg-[#034e64] text-white px-6 py-2 rounded-md text-[16px] font-bold hover:bg-[#023a4d] transition-colors"
-            >
-              ელ-ფოსტის გაგზავნა
-            </a>
-          </div>
-        </motion.div>
       </div>
     </div>
   )
