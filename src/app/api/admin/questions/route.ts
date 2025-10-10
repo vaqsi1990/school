@@ -404,12 +404,20 @@ export async function POST(request: NextRequest) {
     // Calculate correctAnswer for matching questions
     let finalCorrectAnswer = correctAnswer || null;
     if (type === 'MATCHING') {
-      if (leftSide && rightSide) {
-        finalCorrectAnswer = generateCorrectAnswerFromSides(leftSide, rightSide);
-      } else if (matchingPairs) {
-        finalCorrectAnswer = generateCorrectAnswerFromPairs(matchingPairs);
+      // For matching questions, use the correctAnswer from the form if provided
+      // This contains the user-selected pairs from the dropdown interface
+      if (correctAnswer && correctAnswer.trim()) {
+        finalCorrectAnswer = correctAnswer.trim();
+        console.log('Using user-provided correctAnswer for matching question:', finalCorrectAnswer);
+      } else {
+        // Fallback to automatic generation if no correctAnswer provided
+        if (leftSide && rightSide) {
+          finalCorrectAnswer = generateCorrectAnswerFromSides(leftSide, rightSide);
+        } else if (matchingPairs) {
+          finalCorrectAnswer = generateCorrectAnswerFromPairs(matchingPairs);
+        }
+        console.log('Generated correctAnswer for matching question:', finalCorrectAnswer);
       }
-      console.log('Generated correctAnswer for matching question:', finalCorrectAnswer);
     }
 
     try {
