@@ -2043,7 +2043,7 @@ function AdminQuestionsContent() {
                            {formData.rightSide.map((pair, index) => (
                              <div key={index} className="flex items-center space-x-3">
                                <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                                 {index + 1}:
+                                 {String.fromCharCode(4304 + index)}:
                                </span>
                                <div className="flex-1">
                                  {pair.rightImage ? (
@@ -2207,7 +2207,8 @@ function AdminQuestionsContent() {
                 )}
 
                 {/* Correct Answer - Only for Auto-scored Questions (other types) */}
-                {formData.isAutoScored && formData.type !== 'CLOSED_ENDED' && (
+                {/* Debug: isAutoScored={formData.isAutoScored}, type={formData.type} */}
+                {(formData.isAutoScored || formData.type === 'MATCHING') && formData.type !== 'CLOSED_ENDED' && (
                   <div>
                     <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
                       სწორი პასუხი *
@@ -2229,10 +2230,10 @@ function AdminQuestionsContent() {
                             {formData.leftSide.map((leftItem, index) => (
                               <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
                                 <span className="text-sm font-medium text-gray-600 min-w-[30px]">
-                                  {index + 1}:
+                                  {String.fromCharCode(4304 + index)}:
                                 </span>
                                 <span className="text-gray-900 flex-1">
-                                  {leftItem.left || `მარცხენა ${index + 1}`}
+                                  {leftItem.left || `მარცხენა ${String.fromCharCode(4304 + index)}`}
                                 </span>
                                 <span className="text-gray-500">→</span>
                                 <select
@@ -2279,7 +2280,7 @@ function AdminQuestionsContent() {
                               სწორი პასუხი (ავტომატური):
                             </label>
                             <div className="text-black placeholder:text-black md:text-[16px] text-[14px] font-mono bg-gray-50 p-2 rounded border">
-                              {formData.correctAnswer ? formData.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ') : 'ჯერ არ არის არჩეული'}
+                              {formData.correctAnswer ? formData.correctAnswer.replace(/^matching,\s*/, '').replace(/:/g, ' → ').replace(/,/g, ', ') : 'ჯერ არ არის არჩეული'}
                             </div>
                           </div>
                         </div>
