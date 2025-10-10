@@ -27,6 +27,14 @@ function AdminTeachersContent() {
   const [updatingVerification, setUpdatingVerification] = useState<string | null>(null)
   const [updatingQuestionPermission, setUpdatingQuestionPermission] = useState<string | null>(null)
 
+  // Helper function to display subject name with abbreviation
+  const getDisplaySubjectName = (subjectName: string) => {
+    if (subjectName === 'ერთიანი ეროვნული გამოცდები') {
+      return 'ე.ე.გ'
+    }
+    return subjectName
+  }
+
   useEffect(() => {
     fetchTeachers()
   }, [])
@@ -243,7 +251,7 @@ function AdminTeachersContent() {
                           {teacher.email}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap  text-black text-[14px] ">
-                          {teacher.subject}
+                          {getDisplaySubjectName(teacher.subject)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap  text-black text-[14px] ">
                           {teacher.school}

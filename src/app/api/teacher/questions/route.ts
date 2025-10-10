@@ -157,3 +157,143 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = await request.json()
+    const { 
+      questionId,
+      text, 
+      type, 
+      options, 
+      correctAnswer, 
+      answerTemplate, 
+      points, 
+      chapterId, 
+      paragraphId, 
+      grade,
+      image,
+      content,
+      maxPoints,
+      rubric,
+      imageOptions,
+      matchingPairs,
+      leftSide,
+      rightSide
+    } = body
+
+    // Get teacher info
+    const teacher = await prisma.teacher.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!teacher) {
+      return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
+    }
+
+    // Check if question exists and belongs to this teacher
+    const existingQuestion = await prisma.question.findFirst({
+      where: {
+        id: questionId,
+        createdBy: teacher.id
+      }
+    })
+
+    if (!existingQuestion) {
+      return NextResponse.json({ error: 'Question not found or access denied' }, { status: 404 })
+    }
+
+    // Validate question type
+    if (!['OPEN_ENDED', 'CLOSED_ENDED', 'MATCHING', 'TEXT_ANALYSIS', 'MAP_ANALYSIS'].includes(type)) {
+      return NextResponse.json({ error: 'Invalid question type' }, { status: 400 })
+    }
+
+    const question = await prisma.question.update({
+      where: { id: questionId },
+      data: {
+        text,
+        type: type as QuestionType,
+        options: options || [],
+        correctAnswer,
+        answerTemplate,
+        points: points || 1,
+        chapterId,
+        paragraphId,
+        grade,
+        image: image || [],
+        content,
+        maxPoints,
+        rubric,
+        imageOptions: imageOptions || [],
+        matchingPairs,
+        leftSide,
+        rightSide,
+        isAutoScored: type === 'CLOSED_ENDED',
+        updatedAt: new Date()
+      },
+      include: {
+        subject: true,
+        chapter: true,
+        paragraph: true
+      }
+    })
+
+    return NextResponse.json({ question })
+  } catch (error) {
+    console.error('Error updating question:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const questionId = searchParams.get('id')
+
+    if (!questionId) {
+      return NextResponse.json({ error: 'Question ID is required' }, { status: 400 })
+    }
+
+    // Get teacher info
+    const teacher = await prisma.teacher.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!teacher) {
+      return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
+    }
+
+    // Check if question exists and belongs to this teacher
+    const existingQuestion = await prisma.question.findFirst({
+      where: {
+        id: questionId,
+        createdBy: teacher.id
+      }
+    })
+
+    if (!existingQuestion) {
+      return NextResponse.json({ error: 'Question not found or access denied' }, { status: 404 })
+    }
+
+    await prisma.question.delete({
+      where: { id: questionId }
+    })
+
+    return NextResponse.json({ message: 'Question deleted successfully' })
+  } catch (error) {
+    console.error('Error deleting question:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

@@ -313,8 +313,8 @@ function TeacherQuestionsContent() {
       points: questionToEdit.points || 1,
       maxPoints: questionToEdit.maxPoints || 1,
       image: questionToEdit.image || [],
-      leftSide: questionToEdit.leftSide|| [{ left: '', leftImage: undefined}],
-      rightSide: questionToEdit.rightSide|| [{ right: '', rightImage: undefined}],
+      leftSide: questionToEdit.leftSide && Array.isArray(questionToEdit.leftSide) && questionToEdit.leftSide.length > 0 ? questionToEdit.leftSide : [{ left: '', leftImage: undefined}],
+      rightSide: questionToEdit.rightSide && Array.isArray(questionToEdit.rightSide) && questionToEdit.rightSide.length > 0 ? questionToEdit.rightSide : [{ right: '', rightImage: undefined}],
       grade: questionToEdit.grade,
       round: questionToEdit.round,
       isAutoScored: questionToEdit.isAutoScored || false,
@@ -460,6 +460,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
 }
 
 
+
   
 
 
@@ -563,13 +564,13 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
   }
 
   const handleQuestionTypeChange = (type: string) => {
-    const isAutoScored = ['MATCHING', 'CLOSED_ENDED'].includes(type)
+    const isAutoScored = type === 'CLOSED_ENDED'
     setFormData(prev => ({
       ...prev,
       type: type as 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED',
       isAutoScored,
       maxPoints: isAutoScored ? prev.points : prev.maxPoints,
-      correctAnswer: type === 'MATCHING' ? 'matching' : prev.correctAnswer,
+      correctAnswer: type === 'MATCHING' ? '' : prev.correctAnswer,
       subQuestions: (type === 'TEXT_ANALYSIS' || type === 'MAP_ANALYSIS') ? prev.subQuestions : []
     }))
   }
@@ -595,6 +596,18 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
       if (formData.type === 'MATCHING') {
         if (!formData.leftSide || formData.leftSide.length === 0 || !formData.rightSide || formData.rightSide.length === 0) {
           alert('შესაბამისობის კითხვებს უნდა ჰქონდეთ მინიმუმ ერთი მარცხენა და ერთი მარჯვენა მნიშვნელობა')
+          return
+        }
+        
+        // Validate that at least one matching pair is selected
+        if (!formData.correctAnswer || formData.correctAnswer.trim() === '') {
+          alert('შესაბამისობის კითხვებს უნდა ჰქონდეთ მინიმუმ ერთი არჩეული წყვილი')
+          return
+        }
+        
+        const pairs = formData.correctAnswer.split(',').filter(pair => pair.trim() !== '')
+        if (pairs.length === 0) {
+          alert('სწორი პასუხი უნდა შეიცავდეს მინიმუმ ერთ წყვილს. გთხოვთ აირჩიოთ პასუხები dropdown-ებიდან')
           return
         }
         
@@ -1494,11 +1507,110 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                      <p className="text-green-700">მარცხენა და მარჯვენა მხარეები შეიძლება იყოს სხვადასხვა რაოდენობა. ყოველი ელემენტი უნდა იყოს უნიკალური (არ უნდა იყოს ერთნაირი სხვა ელემენტებთან).</p>
                    </div>
 
-                   {/* Correct Answer Display for MATCHING */}
-                   <div className="mt-4 p-3 bg-blue-100 rounded text-sm border-l-4 border-blue-400">
-                     <p className="font-medium text-blue-800">✅ სწორი პასუხი:</p>
-                     <p className="text-blue-700">შესაბამისობის წყვილები ავტომატურად გაითვლება სწორად</p>
-                     <p className="text-blue-600 text-xs mt-1">სისტემა ავტომატურად ადგენს სწორ პასუხს თქვენი შეყვანილი წყვილების მიხედვით</p>
+                   {/* Correct Answer Selection for MATCHING */}
+                   <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                     <h4 className="text-lg font-bold text-blue-800 mb-4">სწორი პასუხის მითითება შესაბამისობისთვის</h4>
+                     <p className="text-sm text-blue-700 mb-4">
+                       აირჩიეთ თითოეული მარცხენა მხარისთვის შესაბამისი მარჯვენა პასუხი
+                       <br />
+                       <span className="text-xs text-blue-600">
+                         💡 შეიძლება გამეორებული პასუხები (მაგ: "ა" და "ბ" ორივე შეიძლება ჰქონდეს პასუხი "1")
+                         <br />
+                         💡 შეიძლება ნებისმიერი წყვილი
+                       </span>
+                     </p>
+                     
+                     <div className="space-y-3">
+                       {formData.leftSide.map((leftItem, index) => (
+                         <div key={index} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
+                           <span className="text-sm font-medium text-gray-600 min-w-[30px]">
+                             {String.fromCharCode(4304 + index)}:
+                           </span>
+                           <span className="text-gray-900 flex-1">
+                             {leftItem.leftImage ? (
+                               <div className="flex items-center space-x-2">
+                                 <img 
+                                   src={leftItem.leftImage} 
+                                   alt="Left side" 
+                                   className="w-8 h-8 rounded border"
+                                 />
+                                 <span>სურათი</span>
+                               </div>
+                             ) : (
+                               leftItem.left || `მარცხენა ${String.fromCharCode(4304 + index)}`
+                             )}
+                           </span>
+                           <span className="text-gray-500">→</span>
+                           <select
+                             value={(() => {
+                               const leftText = formData.leftSide[index]?.left
+                               if (!leftText || !formData.correctAnswer) return ''
+                               
+                               // Parse correctAnswer to find the matching pair
+                               const pairs = formData.correctAnswer.split(',').map(p => p.trim()).filter(p => p)
+                               
+                               for (const pair of pairs) {
+                                 if (pair.includes(':')) {
+                                   const [leftPart, rightPart] = pair.split(':').map(p => p.trim())
+                                   if (leftPart === leftText) {
+                                     // Find the right side index
+                                     const rightIndex = formData.rightSide.findIndex(right => right.right === rightPart)
+                                     return rightIndex >= 0 ? (rightIndex + 1).toString() : ''
+                                   }
+                                 }
+                               }
+                               return ''
+                             })()}
+                             onChange={(e) => {
+                               const currentAnswer = formData.correctAnswer || ''
+                               const leftText = formData.leftSide[index]?.left
+                               
+                               // Parse existing pairs
+                               const pairs = currentAnswer.split(',').map(p => p.trim()).filter(p => p)
+                               
+                               // Remove existing pair for this left side
+                               const filteredPairs = pairs.filter(pair => {
+                                 if (pair.includes(':')) {
+                                   const [leftPart] = pair.split(':').map(p => p.trim())
+                                   return leftPart !== leftText
+                                 }
+                                 return true
+                               })
+                               
+                               // Add new pair if selected
+                               if (e.target.value) {
+                                 const rightText = formData.rightSide[parseInt(e.target.value) - 1]?.right
+                                 if (leftText && rightText) {
+                                   filteredPairs.push(`${leftText}:${rightText}`)
+                                 }
+                               }
+                               
+                               setFormData(prev => ({
+                                 ...prev,
+                                 correctAnswer: filteredPairs.join(',')
+                               }))
+                             }}
+                             className="px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded text-sm min-w-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                           >
+                             <option className="text-black" value="">აირჩიეთ პასუხი</option>
+                             {formData.rightSide.map((rightItem, rightIndex) => (
+                               <option className="text-black" key={rightIndex} value={rightIndex + 1}>
+                                 {rightIndex + 1}
+                               </option>
+                             ))}
+                           </select>
+                         </div>
+                       ))}
+                     </div>
+                     
+                     <div className="mt-4 p-3 bg-white rounded border">
+                       <label className="block font-medium text-black md:text-[16px] text-[14px] text-gray-600 mb-2">
+                         სწორი პასუხი (ავტომატური):
+                       </label>
+                       <div className="text-black placeholder:text-black md:text-[16px] text-[14px] font-mono bg-gray-50 p-2 rounded border">
+                         {formData.correctAnswer ? formData.correctAnswer.replace(/^matching,\s*/, '').replace(/:/g, ' → ').replace(/,/g, ', ') : 'ჯერ არ არის არჩეული'}
+                       </div>
+                     </div>
                    </div>
                  </div>
                )}
@@ -1793,6 +1905,79 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                         <p className="text-black md:text-[16px] text-[14px] text-gray-500">
                           {new Date(question.createdAt).toLocaleDateString('ka-GE')}
                         </p>
+                        
+                        {/* Display matching question data */}
+                        {question.type === 'MATCHING' && question.leftSide && question.rightSide && (
+                          <div className="mt-3 p-3 bg-green-50 rounded border border-green-200">
+                            <h4 className="text-sm font-semibold text-green-800 mb-2">შესაბამისობის მონაცემები:</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                <h5 className="text-xs font-medium text-green-700 mb-1">მარცხენა მხარე:</h5>
+                                <div className="space-y-1">
+                                  {Array.isArray(question.leftSide) && question.leftSide.map((item: any, index: number) => (
+                                    <div key={index} className="text-xs text-green-600">
+                                      {String.fromCharCode(4304 + index)}: {item.left || (item.leftImage ? 'სურათი' : '')}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                              <div>
+                                <h5 className="text-xs font-medium text-green-700 mb-1">მარჯვენა მხარე:</h5>
+                                <div className="space-y-1">
+                                  {Array.isArray(question.rightSide) && question.rightSide.map((item: any, index: number) => (
+                                    <div key={index} className="text-xs text-green-600">
+                                      {index + 1}: {item.right || (item.rightImage ? 'სურათი' : '')}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Display selected pairs */}
+                            {question.correctAnswer && question.correctAnswer.trim() !== '' && (
+                              <div className="mt-3 pt-3 border-t border-green-300">
+                                <h5 className="text-xs font-medium text-green-700 mb-2">სწორი წყვილები:</h5>
+                                <div className="text-xs text-green-600 font-mono">
+                                  {question.correctAnswer.replace(/:/g, ' → ').replace(/,/g, ', ')}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Display options for CLOSED_ENDED questions */}
+                        {question.type === 'CLOSED_ENDED' && question.options && question.options.length > 0 && (
+                          <div className="mt-3 p-3 bg-blue-50 rounded border border-blue-200">
+                            <h4 className="text-sm font-semibold text-blue-800 mb-2">პასუხის ვარიანტები:</h4>
+                            <div className="space-y-1">
+                              {question.options.map((option: string, index: number) => (
+                                <div key={index} className="text-xs text-blue-600">
+                                  {String.fromCharCode(4304 + index)}: {option}
+                                </div>
+                              ))}
+                            </div>
+                            {question.correctAnswer && (
+                              <div className="mt-2 text-xs font-medium text-blue-800">
+                                სწორი პასუხი: {question.correctAnswer}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Display sub-questions for TEXT_ANALYSIS and MAP_ANALYSIS */}
+                        {(question.type === 'TEXT_ANALYSIS' || question.type === 'MAP_ANALYSIS') && question.subQuestions && question.subQuestions.length > 0 && (
+                          <div className="mt-3 p-3 bg-purple-50 rounded border border-purple-200">
+                            <h4 className="text-sm font-semibold text-purple-800 mb-2">ქვეკითხვები:</h4>
+                            <div className="space-y-2">
+                              {question.subQuestions.map((subQ: any, index: number) => (
+                                <div key={index} className="text-xs text-purple-600">
+                                  <div className="font-medium">{numberToGeorgianLetter(index)}: {subQ.text}</div>
+                                  <div className="text-xs text-purple-500">ქულა: {subQ.points}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                     

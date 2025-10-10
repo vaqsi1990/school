@@ -39,12 +39,26 @@ export async function PUT(request: NextRequest) {
       }
     })
 
+    // Fetch all subjects to map IDs to names
+    const subjects = await prisma.subject.findMany({
+      select: {
+        id: true,
+        name: true
+      }
+    })
+
+    // Create a map of subject ID to name
+    const subjectMap = new Map(subjects.map(subject => [subject.id, subject.name]))
+
+    // Check if teacher.subject is an ID or a name
+    const subjectName = subjectMap.get(teacher.subject) || teacher.subject
+
     const formattedTeacher = {
       id: teacher.id,
       name: teacher.name,
       lastname: teacher.lastname,
       email: teacher.user.email,
-      subject: teacher.subject, // Subject is already stored as a name
+      subject: subjectName, // Resolve subject ID to name
       school: teacher.school,
       phone: teacher.phone,
       isVerified: teacher.isVerified,
