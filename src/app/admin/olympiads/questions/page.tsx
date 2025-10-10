@@ -3,7 +3,7 @@
 import { useAuth } from '@/hooks/useAuth'
 import { AdminOnly } from '@/components/auth/ProtectedRoute'
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import ImageUpload from '@/component/CloudinaryUploader'
 import ImageModal from '@/components/ImageModal'
 import { numberToGeorgianLetter, numberToGeorgianQuestionNumber, numberToGeorgianOptionLabel } from '@/utils/georgianLetters'
@@ -71,12 +71,12 @@ function AdminQuestionsContent() {
   const [isLoading, setIsLoading] = useState(true)
 
   // Helper function to display subject name with abbreviation
-  const getDisplaySubjectName = (subjectName: string) => {
+  const getDisplaySubjectName = useCallback((subjectName: string) => {
     if (subjectName === 'ერთიანი ეროვნული გამოცდები') {
       return 'ე.ე.გ'
     }
     return subjectName
-  }
+  }, [])
   const [showAddForm, setShowAddForm] = useState(false)
   const [activeTab, setActiveTab] = useState<'all' | 'matching' | 'text-analysis' | 'map-analysis' | 'open-ended' | 'closed-ended'>('all')
   const [searchTerm, setSearchTerm] = useState('')
@@ -145,16 +145,7 @@ function AdminQuestionsContent() {
   })
 
  
-  useEffect(() => {
-    if (user) {
-      fetchSubjects()
-      fetchQuestions()
-    }
-  }, [user])
-
-  // Remove the useEffect hooks for chapters and paragraphs since we're using text inputs now
-
-  const fetchSubjects = async () => {
+  const fetchSubjects = useCallback(async () => {
     try {
       const response = await fetch('/api/admin/subjects')
       if (response.ok) {
@@ -164,9 +155,9 @@ function AdminQuestionsContent() {
     } catch (error) {
       console.error('Error fetching subjects:', error)
     }
-  }
+  }, [])
 
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     try {
       setIsLoading(true)
       const response = await fetch('/api/admin/questions')
@@ -179,7 +170,14 @@ function AdminQuestionsContent() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (user) {
+      fetchSubjects()
+      fetchQuestions()
+    }
+  }, [user, fetchSubjects, fetchQuestions])
 
   
 
@@ -503,7 +501,7 @@ function AdminQuestionsContent() {
     }))
   }
 
-  const getQuestionTypeLabel = (type: string) => {
+  const getQuestionTypeLabel = useCallback((type: string) => {
     const labels = {
       'CLOSED_ENDED': 'დახურული კითხვა',
       'MATCHING': 'შესაბამისობა',
@@ -512,7 +510,7 @@ function AdminQuestionsContent() {
       'OPEN_ENDED': 'ღია კითხვა',
     }
     return labels[type as keyof typeof labels] || type
-  }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -845,7 +843,7 @@ function AdminQuestionsContent() {
     }
   }
 
-  const filteredQuestions = questions.filter(question => {
+  const filteredQuestions = useMemo(() => questions.filter(question => {
     // Search filtering
     let matchesSearch = true
     if (searchTerm.trim()) {
@@ -945,13 +943,19 @@ function AdminQuestionsContent() {
     }
     
     return finalResult
-  })
+  }), [questions, searchTerm, selectedSubject, selectedGrade, selectedRound, activeTab])
 
   // Pagination logic
-  const totalPages = showAllQuestions ? 1 : Math.ceil(filteredQuestions.length / itemsPerPage)
-  const startIndex = showAllQuestions ? 0 : (currentPage - 1) * itemsPerPage
-  const endIndex = showAllQuestions ? filteredQuestions.length : startIndex + itemsPerPage
-  const currentQuestions = filteredQuestions.slice(startIndex, endIndex)
+  const paginationData = useMemo(() => {
+    const totalPages = showAllQuestions ? 1 : Math.ceil(filteredQuestions.length / itemsPerPage)
+    const startIndex = showAllQuestions ? 0 : (currentPage - 1) * itemsPerPage
+    const endIndex = showAllQuestions ? filteredQuestions.length : startIndex + itemsPerPage
+    const currentQuestions = filteredQuestions.slice(startIndex, endIndex)
+    
+    return { totalPages, startIndex, endIndex, currentQuestions }
+  }, [filteredQuestions, showAllQuestions, currentPage, itemsPerPage])
+  
+  const { totalPages, startIndex, endIndex, currentQuestions } = paginationData
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -2240,27 +2244,49 @@ function AdminQuestionsContent() {
                                   value={(() => {
                                     const leftText = formData.leftSide[index]?.left
                                     if (!leftText || !formData.correctAnswer) return ''
-                                    const pair = formData.correctAnswer.split(',').find(p => p.startsWith(leftText + ':'))
-                                    if (pair) {
-                                      const rightText = pair.split(':')[1]
-                                      const rightIndex = formData.rightSide.findIndex(right => right.right === rightText)
-                                      return rightIndex >= 0 ? (rightIndex + 1).toString() : ''
+                                    
+                                    // Parse correctAnswer to find the matching pair
+                                    const pairs = formData.correctAnswer.split(',').map(p => p.trim()).filter(p => p)
+                                    
+                                    for (const pair of pairs) {
+                                      if (pair.includes(':')) {
+                                        const [leftPart, rightPart] = pair.split(':').map(p => p.trim())
+                                        if (leftPart === leftText) {
+                                          // Find the right side index
+                                          const rightIndex = formData.rightSide.findIndex(right => right.right === rightPart)
+                                          return rightIndex >= 0 ? (rightIndex + 1).toString() : ''
+                                        }
+                                      }
                                     }
                                     return ''
                                   })()}
                                   onChange={(e) => {
                                     const currentAnswer = formData.correctAnswer || ''
                                     const leftText = formData.leftSide[index]?.left
-                                    const pairs = currentAnswer ? currentAnswer.split(',').filter(pair => !pair.startsWith(leftText + ':')) : []
+                                    
+                                    // Parse existing pairs
+                                    const pairs = currentAnswer.split(',').map(p => p.trim()).filter(p => p)
+                                    
+                                    // Remove existing pair for this left side
+                                    const filteredPairs = pairs.filter(pair => {
+                                      if (pair.includes(':')) {
+                                        const [leftPart] = pair.split(':').map(p => p.trim())
+                                        return leftPart !== leftText
+                                      }
+                                      return true
+                                    })
+                                    
+                                    // Add new pair if selected
                                     if (e.target.value) {
                                       const rightText = formData.rightSide[parseInt(e.target.value) - 1]?.right
                                       if (leftText && rightText) {
-                                        pairs.push(`${leftText}:${rightText}`)
+                                        filteredPairs.push(`${leftText}:${rightText}`)
                                       }
                                     }
+                                    
                                     setFormData(prev => ({
                                       ...prev,
-                                      correctAnswer: pairs.join(',')
+                                      correctAnswer: filteredPairs.join(',')
                                     }))
                                   }}
                                   className="px-3 py-2 text-black placeholder:text-black border border-gray-300 rounded text-sm min-w-[120px]"
