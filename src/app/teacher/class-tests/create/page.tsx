@@ -75,9 +75,33 @@ export default function CreateClassTestPage() {
     description: '',
     classId: '',
     startDate: '',
+    startTime: '09:00',
     endDate: '',
+    endTime: '17:00',
     duration: ''
   })
+
+  const formatDate = (dateString: string) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString('ka-GE', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'Asia/Tbilisi'
+    })
+  }
+
+  const formatDateTime = (dateString: string) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleString('ka-GE', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Asia/Tbilisi'
+    })
+  }
 
   useEffect(() => {
     fetchTeacherProfile()
@@ -132,6 +156,10 @@ export default function CreateClassTestPage() {
 
     setLoading(true)
     try {
+      // Combine date and time for start and end
+      const startDateTime = formData.startDate ? new Date(`${formData.startDate}T${formData.startTime}`).toISOString() : ''
+      const endDateTime = formData.endDate ? new Date(`${formData.endDate}T${formData.endTime}`).toISOString() : ''
+      
       const response = await fetch('/api/teacher/class-tests', {
         method: 'POST',
         headers: {
@@ -139,6 +167,8 @@ export default function CreateClassTestPage() {
         },
         body: JSON.stringify({
           ...formData,
+          startDate: startDateTime,
+          endDate: endDateTime,
           questionIds: selectedQuestions,
           subjectId: teacherProfile?.subject
         })
@@ -321,30 +351,104 @@ export default function CreateClassTestPage() {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">დროის პარამეტრები</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  დაწყების თარიღი
+                  დაწყების თარიღი და დრო
                 </label>
-                <input
-                  type="datetime-local"
-                  value={formData.startDate}
-                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+                <div className="grid grid-cols-3 gap-2">
+                  <input
+                    type="date"
+                    value={formData.startDate}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <select
+                    value={formData.startTime.split(':')[0]}
+                    onChange={(e) => {
+                      const minutes = formData.startTime.split(':')[1] || '00'
+                      setFormData(prev => ({ ...prev, startTime: `${e.target.value}:${minutes}` }))
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i.toString().padStart(2, '0')}>
+                        {i.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={formData.startTime.split(':')[1] || '00'}
+                    onChange={(e) => {
+                      const hours = formData.startTime.split(':')[0]
+                      setFormData(prev => ({ ...prev, startTime: `${hours}:${e.target.value}` }))
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {Array.from({ length: 60 }, (_, i) => (
+                      <option key={i} value={i.toString().padStart(2, '0')}>
+                        {i.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {formData.startDate && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    <strong>დაწყება:</strong> {formatDateTime(`${formData.startDate}T${formData.startTime}`)}
+                  </p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  დასრულების თარიღი
+                  დასრულების თარიღი და დრო
                 </label>
-                <input
-                  type="datetime-local"
-                  value={formData.endDate}
-                  onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
+                <div className="grid grid-cols-3 gap-2">
+                  <input
+                    type="date"
+                    min={formData.startDate || new Date().toISOString().split('T')[0]}
+                    value={formData.endDate}
+                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                  <select
+                    value={formData.endTime.split(':')[0]}
+                    onChange={(e) => {
+                      const minutes = formData.endTime.split(':')[1] || '00'
+                      setFormData(prev => ({ ...prev, endTime: `${e.target.value}:${minutes}` }))
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i.toString().padStart(2, '0')}>
+                        {i.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={formData.endTime.split(':')[1] || '00'}
+                    onChange={(e) => {
+                      const hours = formData.endTime.split(':')[0]
+                      setFormData(prev => ({ ...prev, endTime: `${hours}:${e.target.value}` }))
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    {Array.from({ length: 60 }, (_, i) => (
+                      <option key={i} value={i.toString().padStart(2, '0')}>
+                        {i.toString().padStart(2, '0')}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {formData.endDate && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    <strong>დასრულება:</strong> {formatDateTime(`${formData.endDate}T${formData.endTime}`)}
+                  </p>
+                )}
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
