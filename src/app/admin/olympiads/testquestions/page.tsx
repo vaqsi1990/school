@@ -868,7 +868,7 @@ function TestQuestionsContent() {
                               {(selectedQuestions[currentQuestionIndex].leftSide || selectedQuestions[currentQuestionIndex].matchingPairs)?.map((item, index) => (
                                 <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                                   <span className="text-[16px] font-medium text-black min-w-[30px]">
-                                  {currentQuestionIndex + 1}
+                                    {numberToGeorgianQuestionNumber(index)}
                                   </span>
                                   <span className="text-black">
                                     {selectedQuestions[currentQuestionIndex].leftSide ? item.left : item.left}
