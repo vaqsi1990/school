@@ -7,12 +7,36 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ImageUpload from '@/component/CloudinaryUploader'
 import ImageModal from '@/components/ImageModal'
+import Image from 'next/image'
 import { numberToGeorgianLetter, numberToGeorgianQuestionNumber, numberToGeorgianOptionLabel } from '@/utils/georgianLetters'
+
+interface LeftSideItem {
+  left: string
+  leftImage?: string
+}
+
+interface RightSideItem {
+  right: string
+  rightImage?: string
+}
+
+interface SubQuestion {
+  id: string
+  text: string
+  type: 'CLOSED_ENDED' | 'OPEN_ENDED'
+  options?: string[]
+  correctAnswer?: string
+  answerTemplate?: string
+  points: number
+  maxPoints?: number
+  isAutoScored: boolean
+  image?: string[]
+}
 
 interface Question {
   id: string
   text: string
-  type: string
+  type: string 
   subject: {
     name: string
   }
@@ -30,21 +54,10 @@ interface Question {
   maxPoints?: number
   image?: string[]
   
-  leftSide?: Array<{ left: string, leftImage?: string }>
-  rightSide?: Array<{ right: string, rightImage?: string }>
+  leftSide?: LeftSideItem[]
+  rightSide?: RightSideItem[]
   isAutoScored?: boolean
-  subQuestions?: Array<{
-    id: string
-    text: string
-    type: 'CLOSED_ENDED' | 'OPEN_ENDED'
-    options?: string[]
-    correctAnswer?: string
-    answerTemplate?: string
-    points: number
-    maxPoints?: number
-    isAutoScored: boolean
-    image?: string[]
-  }>
+  subQuestions?: SubQuestion[]
 }
 
 interface TeacherProfile {
@@ -1514,7 +1527,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                        აირჩიეთ თითოეული მარცხენა მხარისთვის შესაბამისი მარჯვენა პასუხი
                        <br />
                        <span className="text-xs text-blue-600">
-                         💡 შეიძლება გამეორებული პასუხები (მაგ: "ა" და "ბ" ორივე შეიძლება ჰქონდეს პასუხი "1")
+                         💡 შეიძლება გამეორებული პასუხები (მაგ: &quot;ა&quot; და &quot;ბ&quot; ორივე შეიძლება ჰქონდეს პასუხი &quot;1&quot;)
                          <br />
                          💡 შეიძლება ნებისმიერი წყვილი
                        </span>
@@ -1529,9 +1542,11 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                            <span className="text-gray-900 flex-1">
                              {leftItem.leftImage ? (
                                <div className="flex items-center space-x-2">
-                                 <img 
+                                 <Image 
                                    src={leftItem.leftImage} 
                                    alt="Left side" 
+                                   width={32}
+                                   height={32}
                                    className="w-8 h-8 rounded border"
                                  />
                                  <span>სურათი</span>
@@ -1914,7 +1929,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                               <div>
                                 <h5 className="text-xs font-medium text-green-700 mb-1">მარცხენა მხარე:</h5>
                                 <div className="space-y-1">
-                                  {Array.isArray(question.leftSide) && question.leftSide.map((item: any, index: number) => (
+                                  {Array.isArray(question.leftSide) && question.leftSide.map((item: LeftSideItem, index: number) => (
                                     <div key={index} className="text-xs text-green-600">
                                       {String.fromCharCode(4304 + index)}: {item.left || (item.leftImage ? 'სურათი' : '')}
                                     </div>
@@ -1924,7 +1939,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                               <div>
                                 <h5 className="text-xs font-medium text-green-700 mb-1">მარჯვენა მხარე:</h5>
                                 <div className="space-y-1">
-                                  {Array.isArray(question.rightSide) && question.rightSide.map((item: any, index: number) => (
+                                  {Array.isArray(question.rightSide) && question.rightSide.map((item: RightSideItem, index: number) => (
                                     <div key={index} className="text-xs text-green-600">
                                       {index + 1}: {item.right || (item.rightImage ? 'სურათი' : '')}
                                     </div>
@@ -1969,7 +1984,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                           <div className="mt-3 p-3 bg-purple-50 rounded border border-purple-200">
                             <h4 className="text-sm font-semibold text-purple-800 mb-2">ქვეკითხვები:</h4>
                             <div className="space-y-2">
-                              {question.subQuestions.map((subQ: any, index: number) => (
+                              {question.subQuestions.map((subQ: SubQuestion, index: number) => (
                                 <div key={index} className="text-xs text-purple-600">
                                   <div className="font-medium">{numberToGeorgianLetter(index)}: {subQ.text}</div>
                                   <div className="text-xs text-purple-500">ქულა: {subQ.points}</div>
