@@ -30,15 +30,7 @@ export async function GET(request: NextRequest) {
         status: status as 'PENDING' | 'ACTIVE' | 'REJECTED'
       },
       include: {
-        subject: true,
-        createdByTeacher: {
-          select: {
-            name: true,
-            lastname: true,
-            subject: true,
-            school: true
-          }
-        }
+        subject: true
       },
       orderBy: [
         { createdAt: 'desc' }
@@ -77,11 +69,35 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Fetch teacher information for each question
+    const questionsWithTeachers = await Promise.all(
+      questions.map(async (question) => {
+        let teacherInfo = null
+        if (question.createdBy) {
+          const teacher = await prisma.teacher.findUnique({
+            where: { id: question.createdBy },
+            select: {
+              name: true,
+              lastname: true,
+              subject: true,
+              school: true
+            }
+          })
+          teacherInfo = teacher
+        }
+        
+        return {
+          ...question,
+          createdByTeacher: teacherInfo
+        }
+      })
+    )
+
     console.log(`Found ${questions.length} teacher questions with status: ${status}`)
     console.log('=== GET /api/admin/teacher-questions SUCCESS ===')
     
     return NextResponse.json({ 
-      questions,
+      questions: questionsWithTeachers,
       pagination: {
         page,
         limit,
@@ -147,24 +163,36 @@ export async function PATCH(request: NextRequest) {
       where: { id: questionId },
       data: { status: newStatus },
       include: {
-        subject: true,
-        createdByTeacher: {
-          select: {
-            name: true,
-            lastname: true,
-            subject: true,
-            school: true
-          }
-        }
+        subject: true
       }
     })
+
+    // Fetch teacher information
+    let teacherInfo = null
+    if (updatedQuestion.createdBy) {
+      const teacher = await prisma.teacher.findUnique({
+        where: { id: updatedQuestion.createdBy },
+        select: {
+          name: true,
+          lastname: true,
+          subject: true,
+          school: true
+        }
+      })
+      teacherInfo = teacher
+    }
+
+    const questionWithTeacher = {
+      ...updatedQuestion,
+      createdByTeacher: teacherInfo
+    }
 
     console.log(`Question ${questionId} ${action}d successfully`)
     console.log('=== PATCH /api/admin/teacher-questions SUCCESS ===')
     
     return NextResponse.json({ 
       message: `Question ${action}d successfully`,
-      question: updatedQuestion
+      question: questionWithTeacher
     })
   } catch (error) {
     console.error('=== PATCH /api/admin/teacher-questions ERROR ===')

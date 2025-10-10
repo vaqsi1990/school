@@ -15,7 +15,10 @@ function AdminOlympiadsContent() {
         const response = await fetch('/api/admin/teacher-questions?status=PENDING&limit=1')
         if (response.ok) {
           const data = await response.json()
-          setPendingCount(data.counts.pending)
+          console.log('Pending count data:', data)
+          setPendingCount(data.counts?.pending || 0)
+        } else {
+          console.error('Failed to fetch pending count:', response.status, response.statusText)
         }
       } catch (error) {
         console.error('Error fetching pending count:', error)

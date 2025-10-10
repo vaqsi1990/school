@@ -26,13 +26,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
-    // Build where clause
+    // Build where clause - show teacher's own questions (both pending and active)
     const where: Prisma.QuestionWhereInput = {
-      status: 'ACTIVE',
-      OR: [
-        { isPublic: true },
-        { createdBy: teacher.id }
-      ]
+      status: {
+        in: ['PENDING', 'ACTIVE']
+      },
+      createdBy: teacher.id
     }
 
     if (subjectId) {
@@ -82,7 +81,6 @@ export async function POST(request: NextRequest) {
       correctAnswer, 
       answerTemplate, 
       points, 
-      subjectId, 
       chapterId, 
       paragraphId, 
       grade,
@@ -105,9 +103,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
-    // Only allow OPEN_ENDED and CLOSED_ENDED types for class tests
-    if (!['OPEN_ENDED', 'CLOSED_ENDED'].includes(type)) {
-      return NextResponse.json({ error: 'Only OPEN_ENDED and CLOSED_ENDED question types are allowed' }, { status: 400 })
+    // Find subject by teacher's subject name
+    const subject = await prisma.subject.findFirst({
+      where: { name: teacher.subject }
+    })
+
+    if (!subject) {
+      return NextResponse.json({ error: 'Subject not found' }, { status: 404 })
+    }
+
+    // Validate question type
+    if (!['OPEN_ENDED', 'CLOSED_ENDED', 'MATCHING', 'TEXT_ANALYSIS', 'MAP_ANALYSIS'].includes(type)) {
+      return NextResponse.json({ error: 'Invalid question type' }, { status: 400 })
     }
 
     const question = await prisma.question.create({
@@ -118,12 +125,13 @@ export async function POST(request: NextRequest) {
         correctAnswer,
         answerTemplate,
         points: points || 1,
-        subjectId,
+        subjectId: subject.id,
         chapterId,
         paragraphId,
         grade,
         createdBy: teacher.id,
         createdByType: 'TEACHER',
+        status: 'PENDING', // Questions need admin approval
         image: image || [],
         content,
         maxPoints,
