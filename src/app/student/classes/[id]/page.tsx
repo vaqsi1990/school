@@ -15,6 +15,40 @@ interface ClassStudent {
   joinedAt: string
 }
 
+interface ClassTest {
+  id: string
+  title: string
+  description?: string
+  subject: {
+    id: string
+    name: string
+  }
+  teacher: {
+    id: string
+    name: string
+    lastname: string
+  }
+  isActive: boolean
+  startDate?: string
+  endDate?: string
+  duration?: number
+  createdAt: string
+  questions: Array<{
+    id: string
+    question: {
+      id: string
+      text: string
+      type: string
+    }
+  }>
+  studentResult?: {
+    id: string
+    score?: number
+    status: string
+    completedAt?: string
+  } | null
+}
+
 interface ClassDetails {
   id: string
   name: string
@@ -52,7 +86,9 @@ const ClassDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const router = useRouter()
   const { data: session } = useSession()
   const [classDetails, setClassDetails] = useState<ClassDetails | null>(null)
+  const [tests, setTests] = useState<ClassTest[]>([])
   const [loading, setLoading] = useState(true)
+  const [testsLoading, setTestsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   
   const resolvedParams = use(params)
@@ -79,7 +115,27 @@ const ClassDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
       }
     }
 
+    const fetchTests = async () => {
+      if (!session?.user?.id) return
+      
+      try {
+        setTestsLoading(true)
+        const response = await fetch(`/api/student/classes/${resolvedParams.id}/tests`)
+        if (response.ok) {
+          const data = await response.json()
+          setTests(data.tests)
+        } else {
+          console.error('Failed to fetch tests')
+        }
+      } catch (err) {
+        console.error('Error fetching tests:', err)
+      } finally {
+        setTestsLoading(false)
+      }
+    }
+
     fetchClassDetails()
+    fetchTests()
   }, [session, resolvedParams.id])
 
   const formatDate = (dateString: string) => {
@@ -94,6 +150,44 @@ const ClassDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
     const year = date.getFullYear()
     
     return `${day} ${month}, ${year}`
+  }
+
+  const formatDateTime = (dateString: string) => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    const georgianMonths = [
+      'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
+      'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
+    ]
+    
+    const day = date.getDate()
+    const month = georgianMonths[date.getMonth()]
+    const year = date.getFullYear()
+    const hours = date.getHours().toString().padStart(2, '0')
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    
+    return `${day} ${month}, ${year} - ${hours}:${minutes}`
+  }
+
+  const isTestAvailable = (test: ClassTest) => {
+    if (!test.isActive) return false
+    if (test.startDate && new Date() < new Date(test.startDate)) return false
+    if (test.endDate && new Date() > new Date(test.endDate)) return false
+    return true
+  }
+
+  const getTestStatus = (test: ClassTest) => {
+    if (!test.isActive) return { status: 'inactive', text: 'არააქტიური', color: 'gray' }
+    if (test.startDate && new Date() < new Date(test.startDate)) {
+      return { status: 'not-started', text: 'ჯერ არ დაწყებულა', color: 'yellow' }
+    }
+    if (test.endDate && new Date() > new Date(test.endDate)) {
+      return { status: 'ended', text: 'დასრულებული', color: 'red' }
+    }
+    if (test.studentResult?.status === 'COMPLETED') {
+      return { status: 'completed', text: 'დასრულებული', color: 'green' }
+    }
+    return { status: 'available', text: 'ხელმისაწვდომი', color: 'blue' }
   }
 
   if (loading) {
@@ -211,6 +305,120 @@ const ClassDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
               </div>
             )}
           </div>
+        </motion.div>
+
+        {/* Class Tests */}
+        <motion.div 
+          className="bg-white rounded-lg shadow-lg p-6 mb-8"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          viewport={{ once: true }}
+        >
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">კლასის ტესტები</h2>
+            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm font-medium">
+              {tests.length} ტესტი
+            </span>
+          </div>
+          
+          {testsLoading ? (
+            <div className="text-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#034e64] mx-auto mb-4"></div>
+              <p className="text-gray-600">ტესტების ჩატვირთვა...</p>
+            </div>
+          ) : tests.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p className="text-lg font-medium mb-2">ტესტები არ არის</p>
+              <p className="text-sm">ამ კლასისთვის ჯერ არ არის შექმნილი ტესტები</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {tests.map((test, index) => {
+                const testStatus = getTestStatus(test)
+                const available = isTestAvailable(test)
+                
+                return (
+                  <motion.div
+                    key={test.id}
+                    className={`border rounded-lg p-4 transition-colors ${
+                      available ? 'border-blue-200 bg-blue-50 hover:bg-blue-100' : 'border-gray-200 bg-gray-50'
+                    }`}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    viewport={{ once: true }}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900">{test.title}</h3>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            testStatus.color === 'green' ? 'bg-green-100 text-green-800' :
+                            testStatus.color === 'blue' ? 'bg-blue-100 text-blue-800' :
+                            testStatus.color === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
+                            testStatus.color === 'red' ? 'bg-red-100 text-red-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {testStatus.text}
+                          </span>
+                        </div>
+                        
+                        {test.description && (
+                          <p className="text-gray-600 mb-3">{test.description}</p>
+                        )}
+                        
+                        <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
+                          <span>📚 {test.subject.name}</span>
+                          <span>👨‍🏫 {test.teacher.name} {test.teacher.lastname}</span>
+                          <span>❓ {test.questions.length} კითხვა</span>
+                          {test.duration && <span>⏱️ {test.duration} წუთი</span>}
+                        </div>
+                        
+                        <div className="text-sm text-gray-500">
+                          {test.startDate && (
+                            <p><strong>დაწყება:</strong> {formatDateTime(test.startDate)}</p>
+                          )}
+                          {test.endDate && (
+                            <p><strong>დასრულება:</strong> {formatDateTime(test.endDate)}</p>
+                          )}
+                          {test.studentResult?.status === 'COMPLETED' && (
+                            <p className="text-green-600 font-medium">
+                              ✅ ტესტი დასრულებულია
+                              {test.studentResult.score && ` - ${test.studentResult.score} ქულა`}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="ml-4">
+                        {available && test.studentResult?.status !== 'COMPLETED' ? (
+                          <button
+                            onClick={() => router.push(`/student/class-tests/${test.id}`)}
+                            className="bg-[#034e64] text-white px-4 py-2 rounded-lg hover:bg-[#023a4d] transition-colors text-sm font-medium"
+                          >
+                            ტესტის დაწყება
+                          </button>
+                        ) : test.studentResult?.status === 'COMPLETED' ? (
+                          <button
+                            onClick={() => router.push(`/student/class-tests/${test.id}`)}
+                            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                          >
+                            შედეგების ნახვა
+                          </button>
+                        ) : (
+                          <span className="text-gray-400 text-sm">მიუწვდომელი</span>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          )}
         </motion.div>
 
         {/* Students List */}
