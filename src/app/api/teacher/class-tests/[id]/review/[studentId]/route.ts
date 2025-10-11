@@ -153,7 +153,7 @@ export async function PUT(
     }
 
     const { id: testId, studentId } = await params
-    const { answers } = await request.json()
+    const { answers, studentScores } = await request.json()
 
     // Get teacher info
     const teacher = await prisma.teacher.findUnique({
@@ -177,7 +177,44 @@ export async function PUT(
       return NextResponse.json({ error: 'Test not found or access denied' }, { status: 404 })
     }
 
-    // Update the student's answers
+    // Prepare update data
+    const updateData: any = {
+      updatedAt: new Date()
+    }
+
+    // Update answers if provided
+    if (answers) {
+      updateData.answers = answers
+    }
+
+    // Update student scores if provided
+    if (studentScores) {
+      // Calculate total score from student scores
+      const totalScore = Object.values(studentScores).reduce((sum: number, score: any) => sum + (score || 0), 0)
+      updateData.score = totalScore
+      
+      // Store individual question scores in answers field or create a separate field
+      // For now, we'll store it in answers field as a JSON object
+      const currentAnswers = await prisma.classTestResult.findUnique({
+        where: {
+          testId_studentId: {
+            testId: testId,
+            studentId: studentId
+          }
+        },
+        select: { answers: true }
+      })
+
+      const existingAnswers = (currentAnswers?.answers as any) || {}
+      const updatedAnswers = {
+        ...existingAnswers,
+        scores: studentScores
+      }
+      
+      updateData.answers = updatedAnswers
+    }
+
+    // Update the student's result
     const updatedResult = await prisma.classTestResult.update({
       where: {
         testId_studentId: {
@@ -185,10 +222,7 @@ export async function PUT(
           studentId: studentId
         }
       },
-      data: {
-        answers: answers,
-        updatedAt: new Date()
-      }
+      data: updateData
     })
 
     return NextResponse.json({ success: true, result: updatedResult })

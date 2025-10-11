@@ -72,6 +72,8 @@ function TestReviewContent() {
   const [loading, setLoading] = useState(true)
   const [editingAnswers, setEditingAnswers] = useState<Record<string, string>>({})
   const [isEditing, setIsEditing] = useState(false)
+  const [studentScores, setStudentScores] = useState<Record<string, number>>({})
+  const [isScoring, setIsScoring] = useState(false)
 
   const fetchTestReview = useCallback(async () => {
     try {
@@ -177,6 +179,60 @@ function TestReviewContent() {
     }))
   }
 
+  const startScoring = () => {
+    if (!test) return
+    
+    const initialScores: Record<string, number> = {}
+    test.questions.forEach(question => {
+      // Check if student already has scores for this question
+      const answers = test.result.answers as any
+      const existingScores = answers?.scores || {}
+      initialScores[question.question.id] = existingScores[question.question.id] || 0
+    })
+    
+    setStudentScores(initialScores)
+    setIsScoring(true)
+  }
+
+  const cancelScoring = () => {
+    setStudentScores({})
+    setIsScoring(false)
+  }
+
+  const saveScores = async () => {
+    if (!test) return
+    
+    try {
+      const response = await fetch(`/api/teacher/class-tests/${test.id}/review/${test.student.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          studentScores: studentScores
+        })
+      })
+      
+      if (response.ok) {
+        // Refresh the test data
+        await fetchTestReview()
+        setIsScoring(false)
+        setStudentScores({})
+      } else {
+        console.error('Failed to save student scores')
+      }
+    } catch (error) {
+      console.error('Error saving student scores:', error)
+    }
+  }
+
+  const updateStudentScore = (questionId: string, newScore: number) => {
+    setStudentScores(prev => ({
+      ...prev,
+      [questionId]: newScore
+    }))
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -220,15 +276,23 @@ function TestReviewContent() {
             <div className="text-right">
               <div className="text-2xl font-bold text-blue-600">{test.result.score || calculateScore()}%</div>
               <div className="text-sm text-gray-500">ქულა</div>
-              <div className="mt-4">
-                {!isEditing ? (
-                  <button
-                    onClick={startEditing}
-                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                  >
-                    რედაქტირება
-                  </button>
-                ) : (
+              <div className="mt-4 space-y-2">
+                {!isEditing && !isScoring ? (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={startEditing}
+                      className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      რედაქტირება
+                    </button>
+                    <button
+                      onClick={startScoring}
+                      className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      შეფასება
+                    </button>
+                  </div>
+                ) : isEditing ? (
                   <div className="flex gap-2">
                     <button
                       onClick={saveAnswers}
@@ -238,6 +302,21 @@ function TestReviewContent() {
                     </button>
                     <button
                       onClick={cancelEditing}
+                      className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      გაუქმება
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={saveScores}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      შენახვა
+                    </button>
+                    <button
+                      onClick={cancelScoring}
                       className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                     >
                       გაუქმება
@@ -298,6 +377,13 @@ function TestReviewContent() {
                     </p>
                   </div>
                 )}
+                {isScoring && (
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
+                    <p className="text-orange-800 text-sm font-medium">
+                      📊 შეფასების რეჟიმი - შეგიძლიათ შევაფასოთ მოსწავლის პასუხები
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
             <div className="px-6 py-4">
@@ -313,15 +399,36 @@ function TestReviewContent() {
                           <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm font-medium">
                             კითხვა {index + 1}
                           </span>
-                          <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-medium">
-                            {question.points} ქულა
-                          </span>
+                          {isScoring ? (
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-gray-700">მოსწავლის ქულა:</span>
+                              <input
+                                type="number"
+                                min="0"
+                                max={question.points}
+                                value={studentScores[question.question.id] !== undefined ? studentScores[question.question.id] : 0}
+                                onChange={(e) => updateStudentScore(question.question.id, parseInt(e.target.value) || 0)}
+                                className="w-16 px-2 py-1 border border-orange-300 rounded text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+                              />
+                              <span className="text-xs text-gray-500">/ {question.points}</span>
+                            </div>
+                          ) : (
+                            <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm font-medium">
+                              {question.points} ქულა
+                            </span>
+                          )}
                           <span className={`px-2 py-1 rounded text-sm font-medium ${
-                            isCorrect 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
+                            question.question.type === 'OPEN_ENDED'
+                              ? 'bg-blue-100 text-blue-800'
+                              : isCorrect 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
                           }`}>
-                            {isCorrect ? 'სწორი' : 'არასწორი'}
+                            {question.question.type === 'OPEN_ENDED'
+                              ? 'ხელით შეფასება'
+                              : isCorrect 
+                                ? 'სწორი' 
+                                : 'არასწორი'}
                           </span>
                         </div>
                         <h3 className="text-lg font-medium text-gray-900 mb-3">
