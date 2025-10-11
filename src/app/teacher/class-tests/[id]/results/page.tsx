@@ -21,7 +21,11 @@ interface TestResult {
   score?: number
   status: string
   completedAt?: string
-  answers: any[]
+  answers: Array<{
+    questionId: string
+    text?: string
+    selectedOption?: string
+  }>
 }
 
 interface Test {
