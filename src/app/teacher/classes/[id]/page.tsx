@@ -43,6 +43,51 @@ interface SearchStudent {
   }
 }
 
+interface ClassTest {
+  id: string
+  title: string
+  description?: string
+  subject: {
+    id: string
+    name: string
+  }
+  class: {
+    id: string
+    name: string
+    students: Array<{
+      student: {
+        id: string
+        name: string
+        lastname: string
+      }
+    }>
+  }
+  isActive: boolean
+  startDate?: string
+  endDate?: string
+  duration?: number
+  createdAt: string
+  questions: Array<{
+    id: string
+    question: {
+      id: string
+      text: string
+      type: string
+    }
+  }>
+  results: Array<{
+    id: string
+    student: {
+      id: string
+      name: string
+      lastname: string
+    }
+    score?: number
+    status: string
+    completedAt?: string
+  }>
+}
+
 function ClassDetailContent() {
   const { user } = useAuth()
   const params = useParams()
@@ -56,10 +101,13 @@ function ClassDetailContent() {
   const [selectedStudents, setSelectedStudents] = useState<string[]>([])
   const [searchLoading, setSearchLoading] = useState(false)
   const [showAllStudents, setShowAllStudents] = useState(false)
+  const [tests, setTests] = useState<ClassTest[]>([])
+  const [testsLoading, setTestsLoading] = useState(false)
 
   useEffect(() => {
     if (params.id) {
       fetchClassData()
+      fetchTests()
     }
   }, [params.id])
 
@@ -84,6 +132,24 @@ function ClassDetailContent() {
       router.push('/teacher/classes')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchTests = async () => {
+    try {
+      setTestsLoading(true)
+      const response = await fetch(`/api/teacher/classes/${params.id}/tests`)
+      
+      if (response.ok) {
+        const data = await response.json()
+        setTests(data.tests || [])
+      } else {
+        console.error('Failed to fetch tests')
+      }
+    } catch (error) {
+      console.error('Error fetching tests:', error)
+    } finally {
+      setTestsLoading(false)
     }
   }
 
@@ -341,6 +407,93 @@ function ClassDetailContent() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Tests List */}
+          <div className="bg-white shadow rounded-lg mt-6">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-medium text-gray-900">
+                  ტესტები ({tests.length})
+                </h2>
+                <Link
+                  href="/teacher/class-tests"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium text-sm"
+                >
+                  ახალი ტესტი
+                </Link>
+              </div>
+            </div>
+            <div className="px-6 py-4">
+              {testsLoading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                  <p className="mt-2 text-gray-600">ტესტების ჩატვირთვა...</p>
+                </div>
+              ) : tests.length === 0 ? (
+                <div className="text-center py-8">
+                  <div className="mx-auto h-16 w-16 text-gray-400">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <h3 className="mt-2 text-sm font-medium text-gray-900">ტესტები არ არის</h3>
+                  <p className="mt-1 text-sm text-gray-500">შექმენით ახალი ტესტი</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {tests.map((test) => (
+                    <div key={test.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900">{test.title}</h3>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              test.isActive 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-gray-100 text-gray-800'
+                            }`}>
+                              {test.isActive ? 'აქტიური' : 'არააქტიური'}
+                            </span>
+                          </div>
+                          {test.description && (
+                            <p className="text-gray-600 mb-2">{test.description}</p>
+                          )}
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <span>{test.subject.name}</span>
+                            <span>{test.questions.length} კითხვა</span>
+                            {test.duration && <span>⏱ {test.duration} წუთი</span>}
+                            <span>{test.class.students?.length || 0} მოსწავლე</span>
+                            <span>{test.results.length} შედეგი</span>
+                            {test.startDate && (
+                              <span>დაწყება: {new Date(test.startDate).toLocaleDateString('ka-GE')}</span>
+                            )}
+                            {test.endDate && (
+                              <span>დასრულება: {new Date(test.endDate).toLocaleDateString('ka-GE')}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/teacher/class-tests/${test.id}`}
+                            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          >
+                            ნახვა
+                          </Link>
+                          <span className="text-gray-300">|</span>
+                          <Link
+                            href={`/teacher/class-tests`}
+                            className="text-green-600 hover:text-green-800 text-sm font-medium"
+                          >
+                            რედაქტირება
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

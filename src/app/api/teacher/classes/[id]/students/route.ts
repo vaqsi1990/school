@@ -3,10 +3,10 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-// POST /api/teacher/classes/[classId]/students - Add students to a class
+// POST /api/teacher/classes/[id]/students - Add students to a class
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ classId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -16,7 +16,7 @@ export async function POST(
     }
 
     const { studentIds } = await request.json()
-    const { classId } = await params
+    const { id: classId } = await params
 
     if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
       return NextResponse.json({ error: 'Student IDs are required' }, { status: 400 })
@@ -110,10 +110,10 @@ export async function POST(
   }
 }
 
-// DELETE /api/teacher/classes/[classId]/students - Remove students from a class
+// DELETE /api/teacher/classes/[id]/students - Remove students from a class
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ classId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -123,7 +123,7 @@ export async function DELETE(
     }
 
     const { studentIds } = await request.json()
-    const { classId } = await params
+    const { id: classId } = await params
 
     if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
       return NextResponse.json({ error: 'Student IDs are required' }, { status: 400 })

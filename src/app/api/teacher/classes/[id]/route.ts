@@ -3,10 +3,10 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-// DELETE /api/teacher/classes/[classId] - Delete a class
+// DELETE /api/teacher/classes/[id] - Delete a class
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ classId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -15,7 +15,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { classId } = await params
+    const { id: classId } = await params
 
     // Get teacher info
     const teacher = await prisma.teacher.findUnique({
