@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth'
 import { TeacherOnly } from '@/components/auth/ProtectedRoute'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -23,8 +23,8 @@ interface Question {
     id: string
     text: string
     type: string
-    options?: any
-    correctAnswer?: any
+    options?: string[]
+    correctAnswer?: string
     answerTemplate?: string
     content?: string
     rubric?: string
@@ -36,7 +36,11 @@ interface TestResult {
   score?: number
   status: string
   completedAt?: string
-  answers: any[]
+  answers: Array<{
+    questionId: string
+    text?: string
+    selectedOption?: string
+  }>
 }
 
 interface Test {
@@ -62,19 +66,12 @@ interface Test {
 }
 
 function TestReviewContent() {
-  const { user } = useAuth()
   const params = useParams()
   const router = useRouter()
   const [test, setTest] = useState<Test | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (params.id && params.studentId) {
-      fetchTestReview()
-    }
-  }, [params.id, params.studentId])
-
-  const fetchTestReview = async () => {
+  const fetchTestReview = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/teacher/class-tests/${params.id}/review/${params.studentId}`)
@@ -92,14 +89,20 @@ function TestReviewContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id, params.studentId, router])
 
-  const getAnswerForQuestion = (questionId: string) => {
+  useEffect(() => {
+    if (params.id && params.studentId) {
+      fetchTestReview()
+    }
+  }, [params.id, params.studentId, fetchTestReview])
+
+  const getAnswerForQuestion = (questionId: string): TestResult['answers'][0] | null => {
     if (!test?.result.answers) return null
-    return test.result.answers.find(answer => answer.questionId === questionId)
+    return test.result.answers.find(answer => answer.questionId === questionId) || null
   }
 
-  const isAnswerCorrect = (question: Question, answer: any) => {
+  const isAnswerCorrect = (question: Question, answer: TestResult['answers'][0] | null) => {
     if (!answer) return false
     if (question.question.type === 'multiple_choice') {
       return answer.selectedOption === question.question.correctAnswer
