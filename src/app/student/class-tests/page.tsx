@@ -135,9 +135,9 @@ export default function StudentClassTestsPage() {
                       </div>
                       <p className="text-gray-600 mb-2">{test.description}</p>
                       <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <span>📚 {test.subject.name}</span>
-                        <span>👨‍🏫 {test.teacher.name} {test.teacher.lastname}</span>
-                        <span>❓ {test.questions.length} კითხვა</span>
+                        <span> {test.subject.name}</span>
+                        <span> {test.teacher.name} {test.teacher.lastname}</span>
+                        <span> {test.questions.length} კითხვა</span>
                         {test.duration && <span>⏱️ {test.duration} წუთი</span>}
                       </div>
                     </div>
@@ -159,7 +159,7 @@ export default function StudentClassTestsPage() {
                             onClick={() => router.push(`/student/class-tests/${test.id}`)}
                             className="text-blue-600 hover:text-blue-700 text-sm mt-2"
                           >
-                            შედეგების ნახვა
+                            შედეგების ნახვაას
                           </button>
                         </div>
                       ) : (

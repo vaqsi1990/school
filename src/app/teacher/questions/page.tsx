@@ -1111,21 +1111,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                      className="w-full px-3 py-2 border border-gray-300 rounded-md md:text-[20px] text-[18px] focus:outline-none focus:ring-2 focus:ring-[#034e64]"
                    />
                  </div>
-                 <div>
-                   <label className="block text-black md:text-[20px] text-[18px] font-medium mb-2">
-                     რაუნდი
-                   </label>
-                   <select
-                     value={formData.round}
-                     onChange={(e) => setFormData(prev => ({ ...prev, round: parseInt(e.target.value) || 1 }))}
-                     className="w-full px-3 py-2 border border-gray-300 rounded-md md:text-[20px] text-[18px] focus:outline-none focus:ring-2 focus:ring-[#034e64]"
-                     required
-                   >
-                     {[1, 2, 3].map(round => (
-                       <option key={round} value={round}>{round} რაუნდი</option>
-                     ))}
-                   </select>
-                                  </div>
+                
 
                  {/* Chapter */}
                  <div>

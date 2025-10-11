@@ -44,6 +44,7 @@ interface ClassTest {
   studentResult?: {
     id: string
     score?: number
+    totalPoints?: number
     status: string
     completedAt?: string
   } | null
@@ -341,6 +342,9 @@ const ClassDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
                 const testStatus = getTestStatus(test)
                 const available = isTestAvailable(test)
                 
+                // Debug logging
+                console.log('Test:', test.title, 'Status:', test.studentResult?.status, 'Score:', test.studentResult?.score, 'TotalPoints:', test.studentResult?.totalPoints)
+                
                 return (
                   <motion.div
                     key={test.id}
@@ -372,10 +376,10 @@ const ClassDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
                         )}
                         
                         <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-                          <span>📚 {test.subject.name}</span>
-                          <span>👨‍🏫 {test.teacher.name} {test.teacher.lastname}</span>
-                          <span>❓ {test.questions.length} კითხვა</span>
-                          {test.duration && <span>⏱️ {test.duration} წუთი</span>}
+                          <span> {test.subject.name}</span>
+                          <span> {test.teacher.name} {test.teacher.lastname}</span>
+                          <span> {test.questions.length} კითხვა</span>
+                          {test.duration && <span> {test.duration} წუთი</span>}
                         </div>
                         
                         <div className="text-sm text-gray-500">
@@ -385,12 +389,11 @@ const ClassDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           {test.endDate && (
                             <p><strong>დასრულება:</strong> {formatDateTime(test.endDate)}</p>
                           )}
-                          {test.studentResult?.status === 'COMPLETED' && (
-                            <p className="text-green-600 font-medium">
-                              ✅ ტესტი დასრულებულია
-                              {test.studentResult.score && ` - ${test.studentResult.score} ქულა`}
-                            </p>
-                          )}
+                          {test.studentResult?.status === 'COMPLETED' && (test.studentResult?.score === undefined || test.studentResult?.score === null) ? (
+                            <p><strong>ქულა:</strong> მასწავლებელი შეამოწმებს</p>
+                          ) : test.studentResult?.status === 'COMPLETED' && test.studentResult?.score !== undefined && test.studentResult?.score !== null ? (
+                            <p><strong>ქულა:</strong> მასწავლებელი შეამოწმებს</p>
+                          ) : null}
                         </div>
                       </div>
                       
@@ -402,16 +405,13 @@ const ClassDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           >
                             ტესტის დაწყება
                           </button>
-                        ) : test.studentResult?.status === 'COMPLETED' ? (
-                          <button
-                            onClick={() => router.push(`/student/class-tests/${test.id}`)}
-                            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
-                          >
-                            შედეგების ნახვა
-                          </button>
-                        ) : (
-                          <span className="text-gray-400 text-sm">მიუწვდომელი</span>
-                        )}
+                        ) : !available ? (
+                          <div className="text-right">
+                            <div className="text-sm text-gray-500">
+                              {testStatus.text}
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
                     </div>
                   </motion.div>

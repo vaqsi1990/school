@@ -91,7 +91,8 @@ export async function POST(request: NextRequest) {
       imageOptions,
       matchingPairs,
       leftSide,
-      rightSide
+      rightSide,
+      round
     } = body
 
     // Get teacher info
@@ -140,7 +141,7 @@ export async function POST(request: NextRequest) {
         matchingPairs,
         leftSide,
         rightSide,
-        round: 1,
+        round: round || 1,
         isAutoScored: type === 'CLOSED_ENDED',
         isPublic: false
       },

@@ -141,7 +141,11 @@ export default function StudentClassTestPage() {
           ...prev,
           studentResult: data.result
         } : null)
-        alert('ტესტი წარმატებით დასრულდა!')
+        alert('ტესტი წარმატებით დასრულდა! მასწავლებელი გაასწორებს პასუხებს და გაიგებთ ქულას.')
+        // Redirect to class page after 2 seconds
+        setTimeout(() => {
+          router.push('/student/class-tests')
+        }, 2000)
       } else {
         const error = await response.json()
         alert(error.error || 'შეცდომა ტესტის გაგზავნისას')
@@ -244,12 +248,22 @@ export default function StudentClassTestPage() {
             )}
 
             {/* Results */}
-            {isCompleted && test.studentResult && (
+            {isCompleted && test.studentResult && test.studentResult.score !== undefined && (
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <div className="text-green-800 font-medium text-lg">
                   {test.studentResult.score}/{test.studentResult.totalPoints}
                 </div>
                 <div className="text-green-600 text-sm">ქულა</div>
+              </div>
+            )}
+            
+            {/* Pending grading message */}
+            {isCompleted && test.studentResult && test.studentResult.score === undefined && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="text-yellow-800 font-medium text-lg">
+                  მოლოდინში
+                </div>
+                <div className="text-yellow-600 text-sm">მასწავლებელი გაასწორებს პასუხებს</div>
               </div>
             )}
           </div>

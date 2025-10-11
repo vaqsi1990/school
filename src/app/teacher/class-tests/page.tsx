@@ -147,7 +147,7 @@ export default function ClassTestsPage() {
 
         {tests.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-400 text-6xl mb-4">📝</div>
+            <div className="text-gray-400 text-6xl mb-4"></div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">ტესტები არ არის</h3>
             <p className="text-gray-600 mb-6">ჯერ არ შექმნილია არცერთი ტესტი</p>
             <button
@@ -175,12 +175,12 @@ export default function ClassTestsPage() {
                     </div>
                     <p className="text-gray-600 mb-2">{test.description}</p>
                     <div className="flex items-center gap-4 text-sm text-gray-500">
-                      <span>📚 {test.subject.name}</span>
-                      <span>🏫 {test.class.name}</span>
-                      <span>❓ {test.questions.length} კითხვა</span>
-                      {test.duration && <span>⏱️ {test.duration} წუთი</span>}
-                      <span>👥 {test.class.students.length} მოსწავლე</span>
-                      <span>📝 {test.results.length} შედეგი</span>
+                      <span> {test.subject.name}</span>
+                      <span> {test.class.name}</span>
+                      <span> {test.questions.length} კითხვა</span>
+                      {test.duration && <span>⏱ {test.duration} წუთი</span>}
+                      <span> {test.class.students.length} მოსწავლე</span>
+                      <span> {test.results.length} შედეგი</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
