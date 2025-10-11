@@ -478,18 +478,14 @@ function ClassDetailContent() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Link
-                            href={`/teacher/class-tests/${test.id}`}
+                            href={`/teacher/class-tests/${test.id}/results`}
                             className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                           >
-                            ნახვა
+                            შედეგები
                           </Link>
-                          <span className="text-gray-300">|</span>
-                          <Link
-                            href={`/teacher/class-tests`}
-                            className="text-green-600 hover:text-green-800 text-sm font-medium"
-                          >
-                            რედაქტირება
-                          </Link>
+                      
+                       
+                        
                         </div>
                       </div>
                     </div>
@@ -670,3 +666,4 @@ export default function ClassDetailPage() {
     </TeacherOnly>
   )
 }
+
