@@ -1,6 +1,5 @@
 'use client'
 
-import { useAuth } from '@/hooks/useAuth'
 import { TeacherOnly } from '@/components/auth/ProtectedRoute'
 import { useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
@@ -185,8 +184,8 @@ function TestReviewContent() {
     const initialScores: Record<string, number> = {}
     test.questions.forEach(question => {
       // Check if student already has scores for this question
-      const answers = test.result.answers as any
-      const existingScores = answers?.scores || {}
+      const answers = test.result.answers as unknown as Record<string, unknown>
+      const existingScores = (answers?.scores as Record<string, number>) || {}
       initialScores[question.question.id] = existingScores[question.question.id] || 0
     })
     
