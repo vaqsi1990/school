@@ -70,6 +70,8 @@ function TestReviewContent() {
   const router = useRouter()
   const [test, setTest] = useState<Test | null>(null)
   const [loading, setLoading] = useState(true)
+  const [editingAnswers, setEditingAnswers] = useState<Record<string, string>>({})
+  const [isEditing, setIsEditing] = useState(false)
 
   const fetchTestReview = useCallback(async () => {
     try {
@@ -98,7 +100,7 @@ function TestReviewContent() {
   }, [params.id, params.studentId, fetchTestReview])
 
   const getAnswerForQuestion = (questionId: string): TestResult['answers'][0] | null => {
-    if (!test?.result.answers) return null
+    if (!test?.result.answers || !Array.isArray(test.result.answers)) return null
     return test.result.answers.find(answer => answer.questionId === questionId) || null
   }
 
@@ -121,6 +123,58 @@ function TestReviewContent() {
       }
     })
     return Math.round((correctAnswers / test.questions.length) * 100)
+  }
+
+  const startEditing = () => {
+    if (!test) return
+    
+    const initialAnswers: Record<string, string> = {}
+    test.questions.forEach(question => {
+      const answer = getAnswerForQuestion(question.question.id)
+      initialAnswers[question.question.id] = answer?.selectedOption || answer?.text || ''
+    })
+    
+    setEditingAnswers(initialAnswers)
+    setIsEditing(true)
+  }
+
+  const cancelEditing = () => {
+    setEditingAnswers({})
+    setIsEditing(false)
+  }
+
+  const saveAnswers = async () => {
+    if (!test) return
+    
+    try {
+      const response = await fetch(`/api/teacher/class-tests/${test.id}/review/${test.student.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          answers: editingAnswers
+        })
+      })
+      
+      if (response.ok) {
+        // Refresh the test data
+        await fetchTestReview()
+        setIsEditing(false)
+        setEditingAnswers({})
+      } else {
+        console.error('Failed to save answers')
+      }
+    } catch (error) {
+      console.error('Error saving answers:', error)
+    }
+  }
+
+  const updateAnswer = (questionId: string, newAnswer: string) => {
+    setEditingAnswers(prev => ({
+      ...prev,
+      [questionId]: newAnswer
+    }))
   }
 
   if (loading) {
@@ -166,6 +220,31 @@ function TestReviewContent() {
             <div className="text-right">
               <div className="text-2xl font-bold text-blue-600">{test.result.score || calculateScore()}%</div>
               <div className="text-sm text-gray-500">ქულა</div>
+              <div className="mt-4">
+                {!isEditing ? (
+                  <button
+                    onClick={startEditing}
+                    className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    რედაქტირება
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={saveAnswers}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      შენახვა
+                    </button>
+                    <button
+                      onClick={cancelEditing}
+                      className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      გაუქმება
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -208,9 +287,18 @@ function TestReviewContent() {
           {/* Questions and Answers */}
           <div className="bg-white shadow rounded-lg">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-medium text-gray-900">
-                კითხვები და პასუხები ({test.questions.length})
-              </h2>
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-medium text-gray-900">
+                  კითხვები და პასუხები ({test.questions.length})
+                </h2>
+                {isEditing && (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+                    <p className="text-yellow-800 text-sm font-medium">
+                      ✏️ რედაქტირების რეჟიმი - შეგიძლიათ შეცვალოთ მოსწავლის პასუხები
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="px-6 py-4">
               {test.questions.map((question, index) => {
@@ -242,75 +330,176 @@ function TestReviewContent() {
                       </div>
                     </div>
 
+
                     {/* Question Options (for multiple choice) */}
-                    {question.question.type === 'multiple_choice' && question.question.options && (
+                    {question.question.type === 'CLOSED_ENDED' && question.question.options && (
                       <div className="mb-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">ვარიანტები:</h4>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">ყველა ვარიანტი:</h4>
                         <div className="space-y-2">
-                          {Object.entries(question.question.options).map(([key, value]) => (
-                            <div key={key} className={`p-2 rounded border ${
-                              answer?.selectedOption === key
-                                ? isCorrect
-                                  ? 'bg-green-50 border-green-200'
-                                  : 'bg-red-50 border-red-200'
-                                : question.question.correctAnswer === key
-                                  ? 'bg-blue-50 border-blue-200'
-                                  : 'bg-gray-50 border-gray-200'
-                            }`}>
-                              <span className={`font-medium ${
-                                answer?.selectedOption === key
-                                  ? isCorrect
-                                    ? 'text-green-800'
-                                    : 'text-red-800'
-                                  : question.question.correctAnswer === key
-                                    ? 'text-blue-800'
-                                    : 'text-gray-800'
+                          {question.question.options.map((option, index) => {
+                            const optionKey = String.fromCharCode(65 + index) // A, B, C, D
+                            const isStudentAnswer = answer?.selectedOption === optionKey
+                            const isCorrectAnswer = question.question.correctAnswer === optionKey
+                            
+                            return (
+                              <div key={optionKey} className={`p-3 rounded-lg border-2 ${
+                                isStudentAnswer && isCorrectAnswer
+                                  ? 'bg-green-200 border-green-500'
+                                  : isStudentAnswer && !isCorrectAnswer
+                                    ? 'bg-red-100 border-red-400'
+                                    : isCorrectAnswer
+                                      ? 'bg-green-200 border-green-500'
+                                      : 'bg-gray-50 border-gray-300'
                               }`}>
-                                {key}:
-                              </span>
-                              <span className={`ml-2 ${
-                                answer?.selectedOption === key
-                                  ? isCorrect
-                                    ? 'text-green-700'
-                                    : 'text-red-700'
-                                  : question.question.correctAnswer === key
-                                    ? 'text-blue-700'
-                                    : 'text-gray-700'
-                              }`}>
-                                {value as string}
-                              </span>
-                              {answer?.selectedOption === key && (
-                                <span className="ml-2 text-sm font-medium">
-                                  {isCorrect ? '✓ სწორი პასუხი' : '✗ მოსწავლის პასუხი'}
-                                </span>
-                              )}
-                              {question.question.correctAnswer === key && answer?.selectedOption !== key && (
-                                <span className="ml-2 text-sm font-medium text-blue-600">
-                                  ✓ სწორი პასუხი
-                                </span>
-                              )}
-                            </div>
-                          ))}
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center">
+                                    <span className={`font-bold text-lg mr-3 ${
+                                      isStudentAnswer && isCorrectAnswer
+                                        ? 'text-green-800'
+                                        : isStudentAnswer && !isCorrectAnswer
+                                          ? 'text-red-800'
+                                          : isCorrectAnswer
+                                            ? 'text-green-800'
+                                            : 'text-gray-600'
+                                    }`}>
+                                      {optionKey}
+                                    </span>
+                                    <span className={`text-base ${
+                                      isStudentAnswer && isCorrectAnswer
+                                        ? 'text-green-800'
+                                        : isStudentAnswer && !isCorrectAnswer
+                                          ? 'text-red-800'
+                                          : isCorrectAnswer
+                                            ? 'text-green-800'
+                                            : 'text-gray-700'
+                                    }`}>
+                                      {option}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    {isStudentAnswer && (
+                                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                        isCorrectAnswer
+                                          ? 'bg-green-200 text-green-800'
+                                          : 'bg-red-200 text-red-800'
+                                      }`}>
+                                        {isCorrectAnswer ? '✓ მოსწავლის სწორი პასუხი' : '✗ მოსწავლის არასწორი პასუხი'}
+                                      </span>
+                                    )}
+                                    {isCorrectAnswer && !isStudentAnswer && (
+                                      <span className="px-2 py-1 rounded text-xs font-medium bg-green-200 text-green-800">
+                                        ✓ სწორი პასუხი
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          })}
                         </div>
                       </div>
                     )}
 
                     {/* Student's Answer */}
                     <div className="mb-4">
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">მოსწავლის პასუხი:</h4>
-                      <div className="p-3 bg-gray-50 rounded border">
-                        {answer ? (
-                          <p className="text-gray-900">{answer.text || answer.selectedOption || 'პასუხი არ არის'}</p>
-                        ) : (
-                          <p className="text-gray-500 italic">პასუხი არ არის</p>
-                        )}
-                      </div>
+                      <h4 className="text-[20px] font-bold text-black mb-2">
+                        {isEditing ? 'რედაქტირება - მოსწავლის პასუხი:' : 'მოსწავლის პასუხი:'}
+                      </h4>
+                      {isEditing ? (
+                        <div className="space-y-3">
+                          {question.question.type === 'CLOSED_ENDED' && question.question.options ? (
+                            <div className="space-y-2">
+                              <p className="text-sm text-gray-600 mb-2">აირჩიეთ სწორი პასუხი:</p>
+                              {question.question.options.map((option, index) => {
+                                const optionKey = String.fromCharCode(65 + index)
+                                return (
+                                  <label key={optionKey} className={`flex items-center p-3 border-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors ${
+                                    editingAnswers[question.question.id] === optionKey 
+                                      ? 'border-purple-400 bg-purple-50' 
+                                      : 'border-gray-300'
+                                  }`}>
+                                    <input
+                                      type="radio"
+                                      name={`answer-${question.question.id}`}
+                                      value={optionKey}
+                                      checked={editingAnswers[question.question.id] === optionKey}
+                                      onChange={(e) => updateAnswer(question.question.id, e.target.value)}
+                                      className="mr-3 text-purple-600"
+                                    />
+                                    <span className="font-bold text-lg mr-3 text-purple-700">{optionKey}:</span>
+                                    <span className="text-gray-800">{option}</span>
+                                  </label>
+                                )
+                              })}
+                            </div>
+                          ) : (
+                            <div>
+                              <p className="text-sm text-gray-600 mb-2">შეიყვანეთ პასუხი:</p>
+                              <textarea
+                                value={editingAnswers[question.question.id] || ''}
+                                onChange={(e) => updateAnswer(question.question.id, e.target.value)}
+                                className="w-full p-3 border-2 border-purple-300 rounded-md resize-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+                                rows={4}
+                                placeholder="შეიყვანეთ პასუხი..."
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="p-3 bg-gray-50 rounded border">
+                            {answer ? (
+                              <p className="text-gray-900">
+                                {answer.selectedOption || answer.text || 'პასუხი არ არის'}
+                              </p>
+                            ) : (
+                              <p className="text-gray-500 italic">პასუხი არ არის</p>
+                            )}
+                          </div>
+                          
+                          {/* Show correct answer */}
+                          {question.question.type === 'CLOSED_ENDED' && question.question.options && question.question.correctAnswer && (
+                            <div className="p-3 bg-green-50 rounded border border-green-200">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                  <span className="font-bold text-lg mr-3 text-green-800">
+                                    სწორი პასუხი:
+                                  </span>
+                                  <span className="text-base text-green-800">
+                                    {(() => {
+                                      const correctAnswer = question.question.correctAnswer
+                                      console.log('Correct answer:', correctAnswer, 'Options:', question.question.options)
+                                      
+                                      // If correctAnswer is a letter (A, B, C, D)
+                                      if (correctAnswer && correctAnswer.length === 1) {
+                                        const index = correctAnswer.charCodeAt(0) - 65
+                                        return question.question.options[index] || correctAnswer
+                                      }
+                                      
+                                      // If correctAnswer is the actual text
+                                      if (correctAnswer && question.question.options.includes(correctAnswer)) {
+                                        return correctAnswer
+                                      }
+                                      
+                                      // Fallback
+                                      return correctAnswer || 'სწორი პასუხი არ არის მითითებული'
+                                    })()}
+                                  </span>
+                                </div>
+                                <span className="px-2 py-1 rounded text-xs font-medium bg-green-200 text-green-800">
+                                  ✓ სწორი
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Explanation */}
                     {(question.question.content || question.question.rubric) && (
                       <div className="mb-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">განმარტება:</h4>
+                        <h4 className="text-[20px] font-bold text-black mb-2">განმარტება:</h4>
                         <div className="p-3 bg-blue-50 rounded border border-blue-200">
                           {question.question.content && (
                             <p className="text-blue-900 mb-2">{question.question.content}</p>

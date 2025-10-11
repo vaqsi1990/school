@@ -124,13 +124,76 @@ export async function GET(
         score: studentResult.score,
         status: studentResult.status,
         completedAt: studentResult.completedAt,
-        answers: studentResult.answers || []
+        answers: studentResult.answers ? 
+          Object.entries(studentResult.answers as Record<string, any>).map(([questionId, answer]) => ({
+            questionId,
+            text: typeof answer === 'string' ? answer : answer?.text || '',
+            selectedOption: typeof answer === 'string' ? answer : answer?.selectedOption || answer
+          }))
+          : []
       }
     }
 
     return NextResponse.json({ test: testData })
   } catch (error) {
     console.error('Error fetching student test review:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string; studentId: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { id: testId, studentId } = await params
+    const { answers } = await request.json()
+
+    // Get teacher info
+    const teacher = await prisma.teacher.findUnique({
+      where: { userId: session.user.id },
+      select: { id: true }
+    })
+
+    if (!teacher) {
+      return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
+    }
+
+    // Verify teacher owns this test
+    const test = await prisma.classTest.findFirst({
+      where: {
+        id: testId,
+        teacherId: teacher.id
+      }
+    })
+
+    if (!test) {
+      return NextResponse.json({ error: 'Test not found or access denied' }, { status: 404 })
+    }
+
+    // Update the student's answers
+    const updatedResult = await prisma.classTestResult.update({
+      where: {
+        testId_studentId: {
+          testId: testId,
+          studentId: studentId
+        }
+      },
+      data: {
+        answers: answers,
+        updatedAt: new Date()
+      }
+    })
+
+    return NextResponse.json({ success: true, result: updatedResult })
+  } catch (error) {
+    console.error('Error updating student answers:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
