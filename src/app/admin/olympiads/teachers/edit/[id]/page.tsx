@@ -139,7 +139,7 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
         matchingPairs: questionData.matchingPairs ? 
           (Array.isArray(questionData.matchingPairs) ? questionData.matchingPairs : 
            questionData.leftSide && questionData.rightSide ? 
-           questionData.leftSide.map((left: any, index: number) => ({
+           questionData.leftSide.map((left: { left: string; leftImage?: string }, index: number) => ({
              left: left.left || '',
              leftImage: left.leftImage || undefined,
              right: questionData.rightSide[index]?.right || '',
