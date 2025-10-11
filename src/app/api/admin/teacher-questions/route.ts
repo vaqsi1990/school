@@ -24,7 +24,11 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit
 
     // Build where clause based on status
-    let whereClause: any = {
+    let whereClause: {
+      createdByType: 'TEACHER'
+      isReported?: boolean
+      status?: 'PENDING' | 'ACTIVE' | 'REJECTED'
+    } = {
       createdByType: 'TEACHER'
     }
 
