@@ -392,7 +392,7 @@ const ClassDetailPage = ({ params }: { params: Promise<{ id: string }> }) => {
                           {test.studentResult?.status === 'COMPLETED' && (test.studentResult?.score === undefined || test.studentResult?.score === null) ? (
                             <p><strong>ქულა:</strong> მასწავლებელი შეამოწმებს</p>
                           ) : test.studentResult?.status === 'COMPLETED' && test.studentResult?.score !== undefined && test.studentResult?.score !== null ? (
-                            <p><strong>ქულა:</strong> მასწავლებელი შეამოწმებს</p>
+                            <p><strong>ქულა:</strong> {test.studentResult.score}</p>
                           ) : null}
                         </div>
                       </div>
