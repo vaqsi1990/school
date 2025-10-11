@@ -23,12 +23,22 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10')
     const skip = (page - 1) * limit
 
+    // Build where clause based on status
+    let whereClause: any = {
+      createdByType: 'TEACHER'
+    }
+
+    if (status === 'REPORTED') {
+      // For reported questions, filter by isReported = true
+      whereClause.isReported = true
+    } else {
+      // For other statuses, filter by status field
+      whereClause.status = status as 'PENDING' | 'ACTIVE' | 'REJECTED'
+    }
+
     // Fetch teacher questions with related data
     const questions = await prisma.question.findMany({
-      where: {
-        createdByType: 'TEACHER',
-        status: status as 'PENDING' | 'ACTIVE' | 'REJECTED'
-      },
+      where: whereClause,
       include: {
         subject: true
       },
@@ -41,10 +51,7 @@ export async function GET(request: NextRequest) {
 
     // Get total count for pagination
     const totalCount = await prisma.question.count({
-      where: {
-        createdByType: 'TEACHER',
-        status: status as 'PENDING' | 'ACTIVE' | 'REJECTED'
-      }
+      where: whereClause
     })
 
     // Get counts for different statuses
@@ -66,6 +73,13 @@ export async function GET(request: NextRequest) {
       where: {
         createdByType: 'TEACHER',
         status: 'REJECTED'
+      }
+    })
+
+    const reportedCount = await prisma.question.count({
+      where: {
+        createdByType: 'TEACHER',
+        isReported: true
       }
     })
 
@@ -107,7 +121,8 @@ export async function GET(request: NextRequest) {
       counts: {
         pending: pendingCount,
         active: activeCount,
-        rejected: rejectedCount
+        rejected: rejectedCount,
+        reported: reportedCount
       }
     })
   } catch (error) {

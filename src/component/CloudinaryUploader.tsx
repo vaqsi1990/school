@@ -51,11 +51,11 @@ const ImageUpload = ({ onChange, value }: ImageUploadProps): React.JSX.Element =
         }}
       />
 
-             {imageUrls.filter(url => url && url.trim() !== '').length > 0 ? (
+             {imageUrls.filter(url => url && typeof url === 'string' && url.trim() !== '').length > 0 ? (
          <div className="mt-2 space-y-1">
-           <h2 className="text-sm font-semibold">ატვირთული სურათები ({imageUrls.filter(url => url && url.trim() !== '').length})</h2>
+           <h2 className="text-sm font-semibold">ატვირთული სურათები ({imageUrls.filter(url => url && typeof url === 'string' && url.trim() !== '').length})</h2>
            <div className="grid grid-cols-3 gap-2">
-             {imageUrls.filter(url => url && url.trim() !== '').map((url, index) => (
+             {imageUrls.filter(url => url && typeof url === 'string' && url.trim() !== '').map((url, index) => (
                <ImageModal  
                  key={index}
                  src={url}

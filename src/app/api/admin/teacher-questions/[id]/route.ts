@@ -153,3 +153,54 @@ export async function PUT(
     )
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    console.log('=== DELETE /api/admin/teacher-questions/[id] START ===')
+    
+    // Check if user is authenticated and is admin
+    const session = await getServerSession(authOptions)
+    if (!session?.user || session.user.userType !== 'ADMIN') {
+      console.log('Authentication failed:', { user: session?.user, userType: session?.user?.userType })
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    console.log('Authentication successful for user:', session.user.email)
+
+    const { id: questionId } = await params
+
+    // Check if question exists and is a teacher question
+    const existingQuestion = await prisma.question.findFirst({
+      where: {
+        id: questionId,
+        createdByType: 'TEACHER'
+      }
+    })
+
+    if (!existingQuestion) {
+      return NextResponse.json({ error: 'კითხვა ვერ მოიძებნა' }, { status: 404 })
+    }
+
+    // Delete the question
+    await prisma.question.delete({
+      where: { id: questionId }
+    })
+
+    console.log(`Question ${questionId} deleted successfully`)
+    console.log('=== DELETE /api/admin/teacher-questions/[id] SUCCESS ===')
+    
+    return NextResponse.json({ 
+      message: 'კითხვა წარმატებით წაიშალა'
+    })
+  } catch (error) {
+    console.error('=== DELETE /api/admin/teacher-questions/[id] ERROR ===')
+    console.error('Error deleting question:', error)
+    return NextResponse.json(
+      { error: `სისტემური შეცდომა: ${error instanceof Error ? error.message : 'უცნობი შეცდომა'}` },
+      { status: 500 }
+    )
+  }
+}

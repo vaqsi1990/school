@@ -118,30 +118,54 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
       const data = await response.json()
       const questionData = data.question
 
+      console.log('Question data received:', questionData)
+      console.log('Options:', questionData.options)
+      console.log('Image:', questionData.image)
+      console.log('LeftSide:', questionData.leftSide)
+      console.log('RightSide:', questionData.rightSide)
+      console.log('MatchingPairs:', questionData.matchingPairs)
+
       setQuestion(questionData)
       setFormData({
-        text: questionData.text,
+        text: questionData.text || '',
         type: questionData.type as 'CLOSED_ENDED' | 'MATCHING' | 'TEXT_ANALYSIS' | 'MAP_ANALYSIS' | 'OPEN_ENDED',
-        options: questionData.options || ['', '', '', ''],
-        imageOptions: questionData.imageOptions || ['', '', '', ''],
-        useImageOptions: !!(questionData.imageOptions && questionData.imageOptions.length > 0 && questionData.imageOptions.some((img: string) => img !== '')),
+        options: Array.isArray(questionData.options) ? questionData.options : ['', '', '', ''],
+        imageOptions: Array.isArray(questionData.imageOptions) ? questionData.imageOptions : ['', '', '', ''],
+        useImageOptions: !!(questionData.imageOptions && Array.isArray(questionData.imageOptions) && questionData.imageOptions.length > 0 && questionData.imageOptions.some((img: string) => img && img.trim() !== '')),
         correctAnswer: questionData.correctAnswer || '',
-        points: questionData.points,
-        maxPoints: questionData.maxPoints || questionData.points,
-        image: questionData.image || '',
-                 matchingPairs: questionData.matchingPairs?.map((pair: { left: string; leftImage?: string; right: string; rightImage?: string }) => ({
-           left: pair.left,
-           leftImage: pair.leftImage,
-           right: pair.right,
-           rightImage: pair.rightImage
-         })) || [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
-        subjectId: questionData.subjectId,
+        points: questionData.points || 1,
+        maxPoints: questionData.maxPoints || questionData.points || 1,
+        image: Array.isArray(questionData.image) ? questionData.image.join(',') : (questionData.image || ''),
+        matchingPairs: questionData.matchingPairs ? 
+          (Array.isArray(questionData.matchingPairs) ? questionData.matchingPairs : 
+           questionData.leftSide && questionData.rightSide ? 
+           questionData.leftSide.map((left: any, index: number) => ({
+             left: left.left || '',
+             leftImage: left.leftImage || undefined,
+             right: questionData.rightSide[index]?.right || '',
+             rightImage: questionData.rightSide[index]?.rightImage || undefined
+           })) : 
+           [{ left: '', leftImage: undefined, right: '', rightImage: undefined }]) :
+          [{ left: '', leftImage: undefined, right: '', rightImage: undefined }],
+        subjectId: questionData.subjectId || '',
         chapterName: questionData.chapterName || '',
         paragraphName: questionData.paragraphName || '',
-        grade: questionData.grade,
-        round: questionData.round,
-        isAutoScored: questionData.isAutoScored,
-        subQuestions: questionData.subQuestions || []
+        grade: questionData.grade || 7,
+        round: questionData.round || 1,
+        isAutoScored: questionData.isAutoScored !== undefined ? questionData.isAutoScored : true,
+        subQuestions: Array.isArray(questionData.subQuestions) ? questionData.subQuestions : []
+      })
+      
+      console.log('Form data set:', {
+        text: questionData.text || '',
+        options: Array.isArray(questionData.options) ? questionData.options : ['', '', '', ''],
+        imageOptions: Array.isArray(questionData.imageOptions) ? questionData.imageOptions : ['', '', '', ''],
+        correctAnswer: questionData.correctAnswer || '',
+        points: questionData.points || 1,
+        image: Array.isArray(questionData.image) ? questionData.image.join(',') : (questionData.image || ''),
+        subjectId: questionData.subjectId || '',
+        grade: questionData.grade || 7,
+        round: questionData.round || 1
       })
     } catch (error) {
       console.error('Error fetching question:', error)

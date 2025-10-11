@@ -1997,22 +1997,7 @@ const handleRightSideChange = (index: number, field: 'right' | 'rightImage', val
                     </div>
                     
                     <div className="flex gap-2">
-                      {profile?.canCreateQuestions && !question.isReported && (
-                        <>
-                          <button 
-                            onClick={() => handleEditQuestion(question.id)}
-                            className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded-md md:text-[16px] text-[14px] font-bold"
-                          >
-                            რედაქტირება
-                          </button>
-                          <button 
-                            onClick={() => handleDeleteQuestion(question.id)}
-                            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md md:text-[16px] text-[14px] font-bold"
-                          >
-                            წაშლა
-                          </button>
-                        </>
-                      )}
+                  
                       {!question.isReported && (
                         <button 
                           onClick={() => {

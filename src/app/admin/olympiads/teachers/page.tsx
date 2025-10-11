@@ -14,6 +14,9 @@ interface TeacherQuestion {
   round: number
   status: 'PENDING' | 'ACTIVE' | 'REJECTED'
   createdAt: string
+  isReported?: boolean
+  reportReason?: string
+  reportedAt?: string
   subject: {
     name: string
   }
@@ -37,6 +40,7 @@ interface TeacherQuestionsResponse {
     pending: number
     active: number
     rejected: number
+    reported: number
   }
 }
 
@@ -44,7 +48,7 @@ function AdminTeacherQuestionsContent() {
   const { user } = useAuth()
   const [questions, setQuestions] = useState<TeacherQuestion[]>([])
   const [loading, setLoading] = useState(true)
-  const [currentStatus, setCurrentStatus] = useState<'PENDING' | 'ACTIVE' | 'REJECTED'>('PENDING')
+  const [currentStatus, setCurrentStatus] = useState<'PENDING' | 'ACTIVE' | 'REJECTED' | 'REPORTED'>('PENDING')
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -54,7 +58,8 @@ function AdminTeacherQuestionsContent() {
   const [counts, setCounts] = useState({
     pending: 0,
     active: 0,
-    rejected: 0
+    rejected: 0,
+    reported: 0
   })
 
   const fetchQuestions = async (status: string = 'PENDING', page: number = 1) => {
@@ -82,7 +87,7 @@ function AdminTeacherQuestionsContent() {
     fetchQuestions(currentStatus, 1)
   }, [currentStatus])
 
-  const handleStatusChange = (status: 'PENDING' | 'ACTIVE' | 'REJECTED') => {
+  const handleStatusChange = (status: 'PENDING' | 'ACTIVE' | 'REJECTED' | 'REPORTED') => {
     setCurrentStatus(status)
     setPagination(prev => ({ ...prev, page: 1 }))
   }
@@ -122,7 +127,42 @@ function AdminTeacherQuestionsContent() {
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const handleDeleteQuestion = async (questionId: string) => {
+    if (!confirm('ნამდვილად გსურთ ამ კითხვის წაშლა? ეს მოქმედება შეუქცევადია.')) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/admin/teacher-questions/${questionId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete question')
+      }
+
+      toast.success('კითხვა წარმატებით წაიშალა')
+      
+      // Refresh the current list
+      fetchQuestions(currentStatus, pagination.page)
+    } catch (error) {
+      console.error('Error deleting question:', error)
+      toast.error('კითხვის წაშლისას შეცდომა მოხდა')
+    }
+  }
+
+  const getStatusBadge = (status: string, isReported?: boolean) => {
+    if (isReported) {
+      return (
+        <span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800">
+          დარეპორტებული
+        </span>
+      )
+    }
+    
     const statusConfig = {
       PENDING: { text: 'მიმდინარე', className: 'bg-yellow-100 text-yellow-800' },
       ACTIVE: { text: 'დადასტურებული', className: 'bg-green-100 text-green-800' },
@@ -175,7 +215,7 @@ function AdminTeacherQuestionsContent() {
 
       <div className=" mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -241,6 +281,28 @@ function AdminTeacherQuestionsContent() {
               </div>
             </div>
           </div>
+
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold">{counts.reported}</span>
+                  </div>
+                </div>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">
+                      დარეპორტებული კითხვები
+                    </dt>
+                    <dd className="text-lg font-medium text-gray-900">
+                      {counts.reported}
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Status Tabs */}
@@ -276,6 +338,16 @@ function AdminTeacherQuestionsContent() {
                 }`}
               >
                 უარყოფილი ({counts.rejected})
+              </button>
+              <button
+                onClick={() => handleStatusChange('REPORTED')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  currentStatus === 'REPORTED'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                დარეპორტებული ({counts.reported})
               </button>
             </nav>
           </div>
@@ -355,7 +427,17 @@ function AdminTeacherQuestionsContent() {
                         {new Date(question.createdAt).toLocaleDateString('ka-GE')}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusBadge(question.status)}
+                        {getStatusBadge(question.status, question.isReported)}
+                        {question.isReported && question.reportReason && (
+                          <div className="mt-1 text-xs text-gray-600">
+                            <strong>მიზეზი:</strong> {question.reportReason}
+                          </div>
+                        )}
+                        {question.isReported && question.reportedAt && (
+                          <div className="mt-1 text-xs text-gray-500">
+                            <strong>თარიღი:</strong> {new Date(question.reportedAt).toLocaleDateString('ka-GE')}
+                          </div>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
@@ -365,22 +447,32 @@ function AdminTeacherQuestionsContent() {
                           >
                             რედაქტირება
                           </Link>
+                          
+                          {/* დადასტურება - ყველა სტატუსისთვის */}
+                          <button
+                            onClick={() => handleAction(question.id, 'approve')}
+                            className="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md text-sm"
+                          >
+                            დადასტურება
+                          </button>
+                          
+                          {/* უარყოფა - მხოლოდ PENDING-ისთვის */}
                           {currentStatus === 'PENDING' && (
-                            <>
-                              <button
-                                onClick={() => handleAction(question.id, 'approve')}
-                                className="text-green-600 hover:text-green-900 bg-green-100 hover:bg-green-200 px-3 py-1 rounded-md text-sm"
-                              >
-                                დადასტურება
-                              </button>
-                              <button
-                                onClick={() => handleAction(question.id, 'reject')}
-                                className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md text-sm"
-                              >
-                                უარყოფა
-                              </button>
-                            </>
+                            <button
+                              onClick={() => handleAction(question.id, 'reject')}
+                              className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md text-sm"
+                            >
+                              უარყოფა
+                            </button>
                           )}
+                          
+                          {/* წაშლა - ყველა სტატუსისთვის */}
+                          <button
+                            onClick={() => handleDeleteQuestion(question.id)}
+                            className="text-red-600 hover:text-red-900 bg-red-100 hover:bg-red-200 px-3 py-1 rounded-md text-sm"
+                          >
+                            წაშლა
+                          </button>
                         </div>
                       </td>
                     </tr>
