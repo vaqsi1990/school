@@ -147,7 +147,7 @@ export async function GET(
           }))
           : [],
         scores: studentResult.answers && typeof studentResult.answers === 'object' && 'scores' in studentResult.answers 
-          ? (studentResult.answers as any).scores 
+          ? (studentResult.answers as StudentAnswers & { scores: Record<string, number> }).scores 
           : {}
       }
     }
