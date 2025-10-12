@@ -105,6 +105,7 @@ model Student {
   appeals                     Appeal[]
   classMemberships            ClassStudent[]
   classTestResults            ClassTestResult[]
+  recommendationResponses     RecommendationResponse[]
   user                        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("students")
@@ -131,6 +132,7 @@ model Teacher {
   classTests              ClassTest[]
   testQuestions           TestQuestion[]
   testQuestionGroups      TestQuestionGroup[]
+  recommendations         Recommendation[]
   user                    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("teachers")
@@ -626,9 +628,9 @@ model Class {
   teacherId   String
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
-  teacher     Teacher        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
-  students    ClassStudent[]
-  tests       ClassTest[]
+  teacher         Teacher        @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  students        ClassStudent[]
+  tests           ClassTest[]
 
   @@map("classes")
 }
@@ -767,4 +769,32 @@ enum TestStatus {
   IN_PROGRESS
   COMPLETED
   GRADED
+}
+
+model Recommendation {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  teacherId   String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  teacher     Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  responses   RecommendationResponse[]
+
+  @@map("recommendations")
+}
+
+model RecommendationResponse {
+  id              String         @id @default(cuid())
+  recommendationId String
+  studentId       String
+  response        String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  recommendation  Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+  student         Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([recommendationId, studentId])
+  @@map("recommendation_responses")
 }

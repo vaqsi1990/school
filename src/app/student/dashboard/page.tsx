@@ -540,6 +540,39 @@ function StudentDashboardContent() {
             </div>
           </motion.div>
 
+          {/* Recommendations Card */}
+          <motion.div 
+            className=" overflow-hidden rounded-lg flex flex-col h-auto  transition-all duration-300"
+            variants={cardVariants}
+          >
+            <div className="p-4 bg-white flex flex-col">
+              <div className="flex items-center">
+                <div className="ml-4">
+                  <motion.h3 
+                    className="text-black md:text-[20px] text-[16px]"
+                  >
+                    რეკომენდაციები
+                  </motion.h3>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-col">
+                <motion.p 
+                  className="text-black md:text-[17px] text-[14px]"
+                >
+                  მასწავლებლების რეკომენდაციები და პასუხები
+                </motion.p>
+                
+                <motion.button 
+                  className="mt-3 w-[70%] mx-auto cursor-pointer bg-purple-600 text-white px-4 py-2 rounded-md md:text-[18px] text-[16px] font-bold"
+                >
+                  <Link href="/student/recommendations" className="block bg-purple-600 md:text-[20px] text-[16px] w-full h-auto">
+                    რეკომენდაციები
+                  </Link>
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+
           {/* Selected Subjects Section */}
           {selectedSubjects.length > 0 && (
             <motion.div 
