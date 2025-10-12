@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all recommendations with teacher and admin response info
-    const recommendations = await (prisma as any).recommendation.findMany({
+    const recommendations = await prisma.recommendation.findMany({
       include: {
         teacher: {
           select: {
@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create or update admin response
-    const adminResponse = await (prisma as any).recommendationAdminResponse.upsert({
+    const adminResponse = await prisma.recommendationAdminResponse.upsert({
       where: {
         recommendationId: recommendationId
       },
