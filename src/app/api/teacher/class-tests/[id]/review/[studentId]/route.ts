@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
+
+// Type definitions for student answers and scores
+interface StudentAnswer {
+  text?: string
+  selectedOption?: string | number
+}
+
+interface StudentAnswers {
+  [questionId: string]: StudentAnswer | string
+}
+
+interface StudentScores {
+  [questionId: string]: number
+}
 
 export async function GET(
   request: NextRequest,
@@ -125,7 +140,7 @@ export async function GET(
         status: studentResult.status,
         completedAt: studentResult.completedAt,
         answers: studentResult.answers ? 
-          Object.entries(studentResult.answers as Record<string, any>).map(([questionId, answer]) => ({
+          Object.entries(studentResult.answers as StudentAnswers).map(([questionId, answer]) => ({
             questionId,
             text: typeof answer === 'string' ? answer : answer?.text || '',
             selectedOption: typeof answer === 'string' ? answer : answer?.selectedOption || answer
@@ -153,7 +168,7 @@ export async function PUT(
     }
 
     const { id: testId, studentId } = await params
-    const { answers, studentScores } = await request.json()
+    const { answers, studentScores }: { answers?: StudentAnswers; studentScores?: StudentScores } = await request.json()
 
     // Get teacher info
     const teacher = await prisma.teacher.findUnique({
@@ -178,19 +193,19 @@ export async function PUT(
     }
 
     // Prepare update data
-    const updateData: any = {
+    const updateData: Prisma.ClassTestResultUpdateInput = {
       updatedAt: new Date()
     }
 
     // Update answers if provided
     if (answers) {
-      updateData.answers = answers
+      updateData.answers = answers as unknown as Prisma.InputJsonValue
     }
 
     // Update student scores if provided
     if (studentScores) {
       // Calculate total score from student scores
-      const totalScore = Object.values(studentScores).reduce((sum: number, score: any) => sum + (score || 0), 0)
+      const totalScore = Object.values(studentScores).reduce((sum: number, score: number) => sum + (score || 0), 0)
       updateData.score = totalScore
       
       // Store individual question scores in answers field or create a separate field
@@ -205,8 +220,8 @@ export async function PUT(
         select: { answers: true }
       })
 
-      const existingAnswers = (currentAnswers?.answers as any) || {}
-      const updatedAnswers = {
+      const existingAnswers = (currentAnswers?.answers as StudentAnswers) || {}
+      const updatedAnswers: Prisma.InputJsonValue = {
         ...existingAnswers,
         scores: studentScores
       }
