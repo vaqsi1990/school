@@ -466,8 +466,7 @@ function ClassDetailContent() {
                             <span>{test.subject.name}</span>
                             <span>{test.questions.length} კითხვა</span>
                             {test.duration && <span>⏱ {test.duration} წუთი</span>}
-                            <span>{test.class.students?.length || 0} მოსწავლე</span>
-                            <span>{test.results.length} შედეგი</span>
+                            <span>{test.results.length} მოსწავლე დაწერა</span>
                             {test.startDate && (
                               <span>დაწყება: {new Date(test.startDate).toLocaleDateString('ka-GE')}</span>
                             )}

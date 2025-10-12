@@ -137,7 +137,7 @@ export default function StudentClassTestsPage() {
                       <div className="flex items-center gap-4 text-sm text-gray-500">
                         <span> {test.subject.name}</span>
                         <span> {test.teacher.name} {test.teacher.lastname}</span>
-                        <span> {test.questions.length} კითხვა</span>
+                        <span> {test.questions?.length || 0} კითხვა</span>
                         {test.duration && <span>⏱️ {test.duration} წუთი</span>}
                       </div>
                     </div>

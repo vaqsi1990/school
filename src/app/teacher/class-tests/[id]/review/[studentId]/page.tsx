@@ -40,6 +40,7 @@ interface TestResult {
     text?: string
     selectedOption?: string
   }>
+  scores?: Record<string, number>
 }
 
 interface Test {
@@ -184,8 +185,7 @@ function TestReviewContent() {
     const initialScores: Record<string, number> = {}
     test.questions.forEach(question => {
       // Check if student already has scores for this question
-      const answers = test.result.answers as unknown as Record<string, unknown>
-      const existingScores = (answers?.scores as Record<string, number>) || {}
+      const existingScores = test.result.scores || {}
       initialScores[question.question.id] = existingScores[question.question.id] || 0
     })
     

@@ -40,6 +40,11 @@ export async function GET(request: NextRequest) {
                   include: {
                     subject: true,
                     teacher: true,
+                    questions: {
+                      include: {
+                        question: true
+                      }
+                    },
                     results: {
                       where: {
                         studentId: session.user.id

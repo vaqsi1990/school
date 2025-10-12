@@ -145,7 +145,10 @@ export async function GET(
             text: typeof answer === 'string' ? answer : answer?.text || '',
             selectedOption: typeof answer === 'string' ? answer : answer?.selectedOption || answer
           }))
-          : []
+          : [],
+        scores: studentResult.answers && typeof studentResult.answers === 'object' && 'scores' in studentResult.answers 
+          ? (studentResult.answers as any).scores 
+          : {}
       }
     }
 
