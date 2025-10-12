@@ -284,7 +284,7 @@ function AdminRecommendationsContent() {
                 {/* Admin Response */}
                 {respondingTo === recommendation.id && (
                   <div className="border-t pt-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">ადმინის პასუხი მასწავლებელს:</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">პასუხი მასწავლებელს:</h4>
                     <div className="space-y-3">
                       <textarea
                         value={responseText}
@@ -315,13 +315,11 @@ function AdminRecommendationsContent() {
                 {/* Existing Admin Response */}
                 {recommendation.adminResponse && (
                   <div className="border-t pt-4">
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">ადმინის პასუხი:</h4>
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">ადმიისტრატორის პასუხი:</h4>
                     <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                       <div className="flex justify-between items-start mb-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">
-                            {recommendation.adminResponse.admin.name} {recommendation.adminResponse.admin.lastname}
-                          </span>
+                          
                           <span className="text-xs text-gray-500">ადმინი</span>
                         </div>
                         <span className="text-xs text-gray-500">

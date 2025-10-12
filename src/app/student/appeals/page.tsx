@@ -221,7 +221,7 @@ const StudentAppealsPage = () => {
                         {appeal.adminComment && (
                           <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
                             <p className="text-sm font-medium text-blue-800 mb-1">
-                              ადმინის პასუხი:
+                              ადმინისტრატორის პასუხი:
                             </p>
                             <p className="text-sm text-blue-700">
                               {appeal.adminComment}
