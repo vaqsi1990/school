@@ -37,6 +37,17 @@ export async function GET(request: NextRequest) {
               }
             }
           }
+        },
+        adminResponse: {
+          include: {
+            admin: {
+              select: {
+                id: true,
+                name: true,
+                lastname: true
+              }
+            }
+          }
         }
       },
       orderBy: {

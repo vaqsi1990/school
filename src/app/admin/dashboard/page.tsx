@@ -354,7 +354,7 @@ function AdminDashboardContent() {
                 </p>
                 <button className="mt-4 w-full cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
                   <Link href="/admin/student-answers" className="block w-full h-full text-white">
-                    პასუხების ნახვა
+                    პასუხების გაცემა
                   </Link>
                 </button>
               </div>
@@ -421,6 +421,34 @@ function AdminDashboardContent() {
                 <button className="mt-4 w-full cursor-pointer bg-[#dc2626] text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold hover:bg-[#b91c1c] transition-colors">
                   <Link href="/admin/appeals" className="block w-full h-full text-white">
                     გასაჩივრებების ნახვა
+                  </Link>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Recommendations Card */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-black md:text-[20px] text-[18px]">რეკომენდაციები</h3>
+                </div>
+              </div>
+              <div className="mt-4">
+                <p className="text-black md:text-[17px] text-[14px]">
+                  ნახეთ ყველა მასწავლებლის რეკომენდაციები და მოსწავლეების პასუხები
+                </p>
+                <button className="mt-4 w-full cursor-pointer bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
+                  <Link href="/admin/recommendations" className="block w-full h-full text-white">
+                    რეკომენდაციების ნახვა
                   </Link>
                 </button>
               </div>

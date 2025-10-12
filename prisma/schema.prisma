@@ -151,6 +151,7 @@ model Admin {
   createdOlympiadEvents   OlympiadEvent[]   @relation("CreatedOlympiadEvents")
   managedOlympiads        Olympiad[]        @relation("ManagedOlympiads")
   createdQuestionPackages QuestionPackage[] @relation("AdminQuestionPackages")
+  recommendationResponses RecommendationAdminResponse[]
 
   @@map("admins")
 }
@@ -781,6 +782,7 @@ model Recommendation {
   updatedAt   DateTime @updatedAt
   teacher     Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
   responses   RecommendationResponse[]
+  adminResponse RecommendationAdminResponse?
 
   @@map("recommendations")
 }
@@ -797,4 +799,17 @@ model RecommendationResponse {
 
   @@unique([recommendationId, studentId])
   @@map("recommendation_responses")
+}
+
+model RecommendationAdminResponse {
+  id              String         @id @default(cuid())
+  recommendationId String        @unique
+  adminId         String
+  response        String
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  recommendation  Recommendation @relation(fields: [recommendationId], references: [id], onDelete: Cascade)
+  admin           Admin          @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@map("recommendation_admin_responses")
 }

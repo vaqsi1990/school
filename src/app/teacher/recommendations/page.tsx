@@ -15,6 +15,18 @@ interface RecommendationResponse {
   }
 }
 
+interface AdminResponse {
+  id: string
+  response: string
+  createdAt: string
+  updatedAt: string
+  admin: {
+    id: string
+    name: string
+    lastname: string
+  }
+}
+
 interface Recommendation {
   id: string
   title: string
@@ -23,6 +35,7 @@ interface Recommendation {
   createdAt: string
   updatedAt: string
   responses: RecommendationResponse[]
+  adminResponse?: AdminResponse
 }
 
 function TeacherRecommendationsContent() {
@@ -229,6 +242,9 @@ function TeacherRecommendationsContent() {
                     <div className="flex items-center gap-4 text-sm text-gray-500">
                       <span>შექმნა: {new Date(recommendation.createdAt).toLocaleDateString('ka-GE')}</span>
                       <span>პასუხები: {recommendation.responses.length}</span>
+                      <span className={recommendation.adminResponse ? 'text-green-600 font-medium' : 'text-orange-600 font-medium'}>
+                        {recommendation.adminResponse ? 'ადმინის პასუხი მოცემულია' : 'ადმინის პასუხი არ არის'}
+                      </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -275,6 +291,27 @@ function TeacherRecommendationsContent() {
                           <p className="text-sm text-gray-700">{response.response}</p>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Admin Response */}
+                {recommendation.adminResponse && (
+                  <div className="border-t pt-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-3">ადმინის პასუხი:</h4>
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-gray-900">
+                            {recommendation.adminResponse.admin.name} {recommendation.adminResponse.admin.lastname}
+                          </span>
+                          <span className="text-xs text-gray-500">ადმინი</span>
+                        </div>
+                        <span className="text-xs text-gray-500">
+                          {new Date(recommendation.adminResponse.createdAt).toLocaleDateString('ka-GE')}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-700">{recommendation.adminResponse.response}</p>
                     </div>
                   </div>
                 )}
