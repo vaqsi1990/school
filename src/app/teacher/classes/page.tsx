@@ -100,7 +100,9 @@ function TeacherClassesContent() {
         setNewClass({ name: '', description: '', subject: teacherProfile?.subject || '', grade: '' })
         setShowCreateModal(false)
       } else {
-        console.error('Failed to create class')
+        const errorData = await response.json()
+        console.error('Failed to create class:', errorData.error)
+        alert(`კლასის შექმნა ვერ მოხერხდა: ${errorData.error || 'უცნობი შეცდომა'}`)
       }
     } catch (error) {
       console.error('Error creating class:', error)
