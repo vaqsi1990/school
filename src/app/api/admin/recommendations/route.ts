@@ -51,7 +51,7 @@ export async function GET() {
     // Get statistics
     const totalRecommendations = recommendations.length
     const activeRecommendations = recommendations.filter((r: { isActive: boolean }) => r.isActive).length
-    const totalResponses = recommendations.filter((r: { adminResponse?: { id: string } }) => r.adminResponse).length
+    const totalResponses = recommendations.filter(r => r.adminResponse !== null).length
 
     return NextResponse.json({ 
       recommendations,
