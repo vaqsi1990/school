@@ -427,6 +427,34 @@ function AdminDashboardContent() {
             </div>
           </div>
 
+          {/* FAQ Management Card */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-black md:text-[20px] text-[18px]">FAQ მართვა</h3>
+                </div>
+              </div>
+              <div className="mt-4">
+                <p className="text-black md:text-[17px] text-[14px]">
+                  მართეთ ხშირად დასმული კითხვები და პასუხები
+                </p>
+                <button className="mt-4 w-full cursor-pointer bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
+                  <Link href="/admin/faqs" className="block w-full h-full text-white">
+                    FAQ მართვა
+                  </Link>
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Recommendations Card */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-6">

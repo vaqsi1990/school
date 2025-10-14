@@ -39,7 +39,12 @@ const Header: React.FC = () => {
               >
                 სიახლეები
               </Link>
-           
+              <Link
+                href="/faq"
+                className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
+              >
+                ინფორმაცია და წესები
+              </Link>
             </nav>
           </div>
 
@@ -118,7 +123,12 @@ const Header: React.FC = () => {
                 >
                  სიახლეები
                 </Link>
-             
+                <Link
+                href="/faq"
+                className="text-black px-3 py-2 rounded-md md:text-[20px] text-[16px] font-bold transition-colors "
+              >
+                ინფორმაცია და წესები
+              </Link>
               </div>
 
               {/* Mobile Action Buttons */}
