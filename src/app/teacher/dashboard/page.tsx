@@ -231,34 +231,7 @@ function TeacherDashboardContent() {
                </div>
              )}
 
-           {/* Blog Management Card */}
-           <div className="bg-white overflow-hidden shadow rounded-lg">
-             <div className="p-6">
-               <div className="flex items-center">
-                 <div className="flex-shrink-0">
-                   <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-                     <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                     </svg>
-                   </div>
-                 </div>
-                 <div className="ml-4">
-                   <h3 className="text-lg font-medium text-gray-900">ბლოგის მართვა</h3>
-                 </div>
-               </div>
-               <div className="mt-4">
-                 <p className="text-black md:text-[17px] text-[14px]">
-                   შექმენით და მართეთ ბლოს სტატიები
-                 </p>
-                 <button className="mt-4 w-full cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
-                   <Link href="/teacher/blog" className="block w-full h-full text-white">
-                     ბლოგის მართვა
-                   </Link>
-                 </button>
-               </div>
-             </div>
-           </div>
-
+       
            {/* Recommendations Card */}
            <div className="bg-white overflow-hidden shadow rounded-lg">
              <div className="p-6">
