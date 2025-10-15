@@ -521,7 +521,7 @@ export default function SignUpPage() {
                 >
                   <option value="">აირჩიეთ საგანი</option>
                   {subjects.map(subject => (
-                    <option key={subject.id} value={subject.id}>{getDisplaySubjectName(subject.name)}</option>
+                    <option key={subject.id} value={subject.name}>{getDisplaySubjectName(subject.name)}</option>
                   ))}
                 </select>
               </div>
