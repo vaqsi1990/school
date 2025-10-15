@@ -133,7 +133,7 @@ export default function AdminRulesPage() {
     });
   };
 
-  const updateSection = (index: number, field: keyof ContentSection, value: any) => {
+  const updateSection = (index: number, field: keyof ContentSection, value: string | string[]) => {
     setRulesData(prev => {
       const newSections = [...prev.content.sections];
       newSections[index] = { ...newSections[index], [field]: value };
