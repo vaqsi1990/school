@@ -516,12 +516,8 @@ function AdminQuestionsContent() {
     e.preventDefault()
 
     try {
-      // Validate that TEXT_ANALYSIS and MAP_ANALYSIS questions have sub-questions
-      if ((formData.type === 'TEXT_ANALYSIS' || formData.type === 'MAP_ANALYSIS') && 
-          (!formData.subQuestions || formData.subQuestions.length === 0)) {
-        alert('ტექსტის ანალიზის და რუკის ანალიზის კითხვებს უნდა ჰქონდეთ მინიმუმ ერთი ქვეკითხვა')
-        return
-      }
+      // Sub-questions are optional for all question types
+      // No mandatory validation for TEXT_ANALYSIS and MAP_ANALYSIS questions
 
       // Validate OPEN_ENDED questions - sub-questions are optional
       // No validation needed for OPEN_ENDED questions - they can exist without sub-questions

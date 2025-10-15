@@ -11,7 +11,7 @@ const adminCreateTeacherSchema = z.object({
   password: z.string().min(6, "პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს"),
   name: z.string().min(2, "სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს"),
   lastname: z.string().min(2, "გვარი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს"),
-  subject: z.string().min(2, "საგნის სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს"),
+  subject: z.string().min(2, "საგნის სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").transform(val => val.trim()),
   school: z.string().min(2, "სკოლის სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს"),
   phone: z.string().min(9, "ტელეფონის ნომერი უნდა შეიცავდეს მინიმუმ 9 ციფრს"),
   isVerified: z.boolean().default(true) // Admin can set verification status

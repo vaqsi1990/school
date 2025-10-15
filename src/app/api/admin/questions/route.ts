@@ -367,12 +367,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Validate sub-questions for analysis questions
-    if ((type === 'TEXT_ANALYSIS' || type === 'MAP_ANALYSIS') && (!subQuestions || subQuestions.length === 0)) {
-      const errorMsg = 'Text analysis and map analysis questions must have at least one sub-question'
-      console.log('Validation failed:', errorMsg)
-      return NextResponse.json({ error: errorMsg }, { status: 400 })
-    }
+    // Sub-questions are optional for all question types
+    // No mandatory validation for TEXT_ANALYSIS and MAP_ANALYSIS questions
 
     // Validate sub-questions if they exist
     if (subQuestions && subQuestions.length > 0) {

@@ -99,9 +99,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Only OPEN_ENDED and CLOSED_ENDED question types are allowed' }, { status: 400 })
     }
 
-    // Find subject by teacher's subject name
+    // Find subject by teacher's subject name (trim whitespace)
     const subject = await prisma.subject.findFirst({
-      where: { name: teacher.subject }
+      where: { 
+        name: {
+          equals: teacher.subject.trim()
+        }
+      }
     })
 
     if (!subject) {

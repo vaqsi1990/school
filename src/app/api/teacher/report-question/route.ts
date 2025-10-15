@@ -45,7 +45,11 @@ export async function POST(request: NextRequest) {
     // For verified teachers, check if the question belongs to their subject
     if (teacher.isVerified) {
       const teacherSubject = await prisma.subject.findFirst({
-        where: { name: teacher.subject }
+        where: { 
+          name: {
+            equals: teacher.subject.trim()
+          }
+        }
       })
 
       if (!teacherSubject || question.subjectId !== teacherSubject.id) {

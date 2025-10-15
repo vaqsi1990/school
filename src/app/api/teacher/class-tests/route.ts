@@ -82,9 +82,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Class not found or access denied' }, { status: 404 })
     }
 
-    // Find subject by teacher's subject name
+    // Find subject by teacher's subject name (trim whitespace)
     const subject = await prisma.subject.findFirst({
-      where: { name: teacher.subject }
+      where: { 
+        name: {
+          equals: teacher.subject.trim()
+        }
+      }
     })
 
     if (!subject) {

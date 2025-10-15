@@ -382,12 +382,8 @@ function EditTeacherQuestionContent({ questionId }: { questionId: string }) {
     e.preventDefault()
 
     try {
-      // Validate that TEXT_ANALYSIS and MAP_ANALYSIS questions have sub-questions
-      if ((formData.type === 'TEXT_ANALYSIS' || formData.type === 'MAP_ANALYSIS') && 
-          (!formData.subQuestions || formData.subQuestions.length === 0)) {
-        toast.error('ტექსტის ანალიზის და რუკის ანალიზის კითხვებს უნდა ჰქონდეთ მინიმუმ ერთი ქვეკითხვა')
-        return
-      }
+      // Sub-questions are optional for all question types
+      // No mandatory validation for TEXT_ANALYSIS and MAP_ANALYSIS questions
 
       // Validate MATCHING questions
       if (formData.type === 'MATCHING') {

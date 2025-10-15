@@ -27,7 +27,7 @@ export const registrationSchema = z.object({
   // Teacher specific fields
   teacherName: z.string().min(2, "სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
   teacherLastname: z.string().min(2, "გვარი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
-  subject: z.string().min(2, "საგნის სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
+  subject: z.string().min(2, "საგნის სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").transform(val => val.trim()).optional(),
   teacherSchool: z.string().min(2, "სკოლის სახელი უნდა შეიცავდეს მინიმუმ 2 სიმბოლოს").optional(),
   teacherPhone: z.string().min(9, "ტელეფონის ნომერი უნდა შეიცავდეს მინიმუმ 9 ციფრს").optional(),
   

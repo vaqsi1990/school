@@ -24,9 +24,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
-    // Find subject by teacher's subject name
+    // Find subject by teacher's subject name (trim whitespace)
     const subject = await prisma.subject.findFirst({
-      where: { name: teacher.subject }
+      where: { 
+        name: {
+          equals: teacher.subject.trim()
+        }
+      }
     })
 
     if (!subject) {
@@ -94,9 +98,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
-    // Find subject by teacher's subject name
+    // Find subject by teacher's subject name (trim whitespace)
     const subject = await prisma.subject.findFirst({
-      where: { name: teacher.subject }
+      where: { 
+        name: {
+          equals: teacher.subject.trim()
+        }
+      }
     })
 
     if (!subject) {
