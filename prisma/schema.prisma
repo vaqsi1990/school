@@ -566,6 +566,16 @@ model AboutPage {
   @@map("about_pages")
 }
 
+model RulesPage {
+  id          String   @id @default(cuid())
+  title       String
+  content     Json     // Dynamic content sections
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("rules_pages")
+}
+
 model Appeal {
   id                    String              @id @default(cuid())
   studentOlympiadEventId String
