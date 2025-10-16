@@ -25,7 +25,7 @@ interface TeacherQuestion {
     lastname: string
     subject: string
     school: string
-  }
+  } | null
 }
 
 interface TeacherQuestionsResponse {
@@ -408,10 +408,16 @@ function AdminTeacherQuestionsContent() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-900">
-                          {question.createdByTeacher.name} {question.createdByTeacher.lastname}
+                          {question.createdByTeacher ? (
+                            `${question.createdByTeacher.name} ${question.createdByTeacher.lastname}`
+                          ) : (
+                            <span className="text-red-500 italic">მასწავლებელი არ არსებობს</span>
+                          )}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {question.createdByTeacher.school}
+                          {question.createdByTeacher?.school || (
+                            <span className="text-red-500 italic">სკოლა არ არის მითითებული</span>
+                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
