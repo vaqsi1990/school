@@ -943,12 +943,22 @@ const StudentSubjectPage = ({ params }: { params: Promise<{ subjectId: string }>
 
                           {/* View Details Button */}
                           <div className="mt-4 pt-4 border-t mx-auto border-gray-200">
-                            <button
-                              onClick={() => router.push(`/student/olympiads/${result.olympiadId}/results`)}
-                              className="bg-[#034e64] mx-auto block text-white px-8 py-3 rounded-md md:text-[20px] text-[16px] font-bold transition-colors hover:bg-[#023a4d] disabled:opacity-50"
-                            >
-                              დეტალური შედეგები
-                            </button>
+                            <div className="flex gap-2 justify-center">
+                              <button
+                                onClick={() => router.push(`/student/olympiads/${result.olympiadId}/results`)}
+                                className="bg-[#034e64] text-white px-6 py-2 rounded-md md:text-[16px] text-[14px] font-bold transition-colors hover:bg-[#023a4d] disabled:opacity-50"
+                              >
+                                დეტალური შედეგები
+                              </button>
+                              {result.status === 'COMPLETED' && (
+                                <button
+                                  onClick={() => handleAppealClick(result)}
+                                  className="bg-orange-600 text-white px-6 py-2 rounded-md md:text-[16px] text-[14px] font-bold transition-colors hover:bg-orange-700"
+                                >
+                                  გასაჩივრება
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </motion.div>
                       )

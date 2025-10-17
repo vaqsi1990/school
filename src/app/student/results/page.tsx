@@ -38,11 +38,6 @@ const StudentResultsPage = () => {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [filterStatus, setFilterStatus] = useState<'all' | 'completed' | 'disqualified'>('all')
-  const [showAppealForm, setShowAppealForm] = useState(false)
-  const [selectedResultForAppeal, setSelectedResultForAppeal] = useState<OlympiadResult | null>(null)
-  const [appealReason, setAppealReason] = useState('')
-  const [appealDescription, setAppealDescription] = useState('')
-  const [submittingAppeal, setSubmittingAppeal] = useState(false)
 
   useEffect(() => {
     if (isAuthenticated && user?.userType === 'STUDENT') {
@@ -194,62 +189,6 @@ const StudentResultsPage = () => {
     return `${day} ${month}, ${year}`
   }
 
-  const handleAppealClick = (result: OlympiadResult) => {
-    setSelectedResultForAppeal(result)
-    setShowAppealForm(true)
-    setAppealReason('')
-    setAppealDescription('')
-  }
-
-  const handleAppealSubmit = async () => {
-    if (!selectedResultForAppeal || !appealReason || !appealDescription.trim()) {
-      setError('გთხოვთ, შეავსოთ ყველა ველი')
-      return
-    }
-
-    try {
-      setSubmittingAppeal(true)
-      setError('')
-      setSuccessMessage('')
-
-      const response = await fetch('/api/student/appeal', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          resultId: selectedResultForAppeal.id,
-          reason: appealReason,
-          description: appealDescription,
-          subjectId: selectedResultForAppeal.subjects[0] // Use first subject
-        }),
-      })
-
-      const result = await response.json()
-
-      if (response.ok) {
-        setSuccessMessage('გასაჩივრება წარმატებით გაიგზავნა!')
-        setShowAppealForm(false)
-        setSelectedResultForAppeal(null)
-        setAppealReason('')
-        setAppealDescription('')
-      } else {
-        setError(result.error || 'გასაჩივრების გაგზავნა ვერ მოხერხდა')
-      }
-    } catch (err) {
-      console.error('Error submitting appeal:', err)
-      setError('გასაჩივრების გაგზავნა ვერ მოხერხდა')
-    } finally {
-      setSubmittingAppeal(false)
-    }
-  }
-
-  const handleAppealCancel = () => {
-    setShowAppealForm(false)
-    setSelectedResultForAppeal(null)
-    setAppealReason('')
-    setAppealDescription('')
-  }
 
   const filteredResults = results.filter(result => {
     if (filterStatus === 'all') return true
@@ -621,12 +560,6 @@ const StudentResultsPage = () => {
                         >
                           დეტალური შედეგები
                         </button>
-                        <button
-                          onClick={() => handleAppealClick(result)}
-                          className="bg-orange-600   cursor-pointer text-white px-6 py-2 rounded-md md:text-[16px] text-[14px] font-bold transition-colors hover:bg-orange-700"
-                        >
-                          გასაჩივრება
-                        </button>
                       </div>
                     )}
                   </motion.div>
@@ -636,76 +569,6 @@ const StudentResultsPage = () => {
           </div>
         </div>
 
-        {/* Appeal Form Modal */}
-        {showAppealForm && selectedResultForAppeal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  ქულის გასაჩივრება
-                </h3>
-                
-                <div className="mb-4 p-3 bg-gray-50 rounded-md">
-                  <p className="text-[16px] text-black">
-                    <strong>ოლიმპიადა:</strong> {selectedResultForAppeal.olympiadTitle}
-                  </p>
-                  <p className="text-[16px] text-black">
-                    <strong>ქულა:</strong> {selectedResultForAppeal.score}/{selectedResultForAppeal.totalQuestions}
-                  </p>
-                  <p className="text-[16px] text-black">
-                    <strong>თარიღი:</strong> {formatDate(selectedResultForAppeal.completedAt)}
-                  </p>
-                </div>
-
-                <div className="mb-4">
-                  <label className="block text-[16px] font-medium text-black mb-2">
-                    გასაჩივრების მიზეზი *
-                  </label>
-                  <select
-                    value={appealReason}
-                    onChange={(e) => setAppealReason(e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#034e64] focus:border-transparent"
-                  >
-                    <option value="">აირჩიეთ მიზეზი</option>
-                    <option value="WRONG_ANSWER">პასუხი არასწორად არის შეფასებული</option>
-                    <option value="TECHNICAL_ISSUE">ტექნიკური პრობლემა</option>
-                    <option value="QUESTION_ERROR">კითხვაში შეცდომა</option>
-                    <option value="OTHER">სხვა</option>
-                  </select>
-                </div>
-
-                <div className="mb-6">
-                  <label className="block text-[16px] font-medium text-black mb-2">
-                    აღწერა *
-                  </label>
-                  <textarea
-                    value={appealDescription}
-                    onChange={(e) => setAppealDescription(e.target.value)}
-                    rows={4}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-[#034e64] focus:border-transparent"
-                    placeholder="დეტალურად აღწერეთ თქვენი გასაჩივრება..."
-                  />
-                </div>
-
-                <div className="flex space-x-3">
-                  <button
-                    onClick={handleAppealCancel}
-                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md text-[16px] font-medium transition-colors"
-                  >
-                    გაუქმება
-                  </button>
-                  <button
-                    onClick={handleAppealSubmit}
-                    disabled={submittingAppeal || !appealReason || !appealDescription.trim()}
-                    className="flex-1 bg-[#034e64] hover:bg-[#023a4d] text-white px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {submittingAppeal ? 'იგზავნება...' : 'გაგზავნა'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

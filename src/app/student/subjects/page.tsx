@@ -187,6 +187,7 @@ const StudentSubjectsPage = () => {
     })
   }
 
+
   // Filter out already selected subjects
   const availableSubjects = subjects.filter(subject => !selectedSubjects.includes(subject.id))
 
@@ -319,12 +320,14 @@ const StudentSubjectsPage = () => {
                             <div className="text-gray-500">
                               {formatDate(result.completedAt)}
                             </div>
-                            <button
-                              onClick={() => router.push(`/student/olympiads/${result.olympiadId}/results`)}
-                              className="text-[#034e64] hover:text-[#023a4d] text-xs font-medium mt-1"
-                            >
-                              დეტალური შედეგები →
-                            </button>
+                            <div className="flex gap-2 mt-1">
+                              <button
+                                onClick={() => router.push(`/student/olympiads/${result.olympiadId}/results`)}
+                                className="text-[#034e64] hover:text-[#023a4d] text-xs font-medium"
+                              >
+                                დეტალური შედეგები →
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -347,6 +350,7 @@ const StudentSubjectsPage = () => {
             ))}
           </div>
         )}
+
       </div>
     </div>
   )

@@ -48,6 +48,12 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
   const [olympiad, setOlympiad] = useState<OlympiadResult | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showAppealForm, setShowAppealForm] = useState(false)
+  const [appealReason, setAppealReason] = useState('')
+  const [appealDescription, setAppealDescription] = useState('')
+  const [submittingAppeal, setSubmittingAppeal] = useState(false)
+  const [appealError, setAppealError] = useState('')
+  const [appealSuccess, setAppealSuccess] = useState('')
 
   const score = searchParams.get('score')
   const isManualGrading = searchParams.get('manual') === 'true'
@@ -85,6 +91,64 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
     if (percentage >= 80) return 'კარგი შედეგი! '
     if (percentage >= 60) return 'საშუალო შედეგი '
     return 'სცადეთ კიდევ ერთხელ '
+  }
+
+  const handleAppealClick = () => {
+    setShowAppealForm(true)
+    setAppealReason('')
+    setAppealDescription('')
+    setAppealError('')
+    setAppealSuccess('')
+  }
+
+  const handleAppealSubmit = async () => {
+    if (!appealReason || !appealDescription.trim()) {
+      setAppealError('გთხოვთ, შეავსოთ ყველა ველი')
+      return
+    }
+
+    try {
+      setSubmittingAppeal(true)
+      setAppealError('')
+      setAppealSuccess('')
+
+      const response = await fetch('/api/student/appeal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          resultId: resolvedParams.id,
+          reason: appealReason,
+          description: appealDescription,
+          subjectId: olympiad?.title || 'Unknown' // Use olympiad title as subject
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setAppealSuccess('გასაჩივრება წარმატებით გაიგზავნა!')
+        setShowAppealForm(false)
+        setAppealReason('')
+        setAppealDescription('')
+      } else {
+        setAppealError(result.error || 'გასაჩივრების გაგზავნა ვერ მოხერხდა')
+      }
+    } catch (err) {
+      console.error('Error submitting appeal:', err)
+      setAppealError('გასაჩივრების გაგზავნა ვერ მოხერხდა')
+    } finally {
+      setSubmittingAppeal(false)
+    }
+  }
+
+  const handleAppealCancel = () => {
+    setShowAppealForm(false)
+    setAppealReason('')
+    setAppealDescription('')
+    setAppealError('')
+    setAppealSuccess('')
   }
 
   if (loading) {
@@ -445,7 +509,84 @@ export default function ResultsPage({ params }: { params: Promise<{ id: string }
           >
             პროფილზე დაბრუნება 
           </Link>
+          {!isManualGrading && !isDisqualified && (
+            <button
+              onClick={handleAppealClick}
+              className="bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition-colors text-center"
+            >
+              შედეგების გასაჩივრება
+            </button>
+          )}
         </div>
+
+        {/* Appeal Form Modal */}
+        {showAppealForm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                შედეგების გასაჩივრება
+              </h3>
+              
+              {appealError && (
+                <div className="mb-4 bg-red-50 border border-red-200 rounded-md p-3">
+                  <p className="text-red-800 text-sm">{appealError}</p>
+                </div>
+              )}
+              
+              {appealSuccess && (
+                <div className="mb-4 bg-green-50 border border-green-200 rounded-md p-3">
+                  <p className="text-green-800 text-sm">{appealSuccess}</p>
+                </div>
+              )}
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  გასაჩივრების მიზეზი *
+                </label>
+                <select
+                  value={appealReason}
+                  onChange={(e) => setAppealReason(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                >
+                  <option value="">აირჩიეთ მიზეზი</option>
+                  <option value="WRONG_ANSWER">ჩემი პასუხი სწორია</option>
+                  <option value="TECHNICAL_ISSUE">ტექნიკური პრობლემა</option>
+                  <option value="UNFAIR_GRADING">არაკეთილსინდისიერი შეფასება</option>
+                  <option value="OTHER">სხვა</option>
+                </select>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  აღწერა *
+                </label>
+                <textarea
+                  value={appealDescription}
+                  onChange={(e) => setAppealDescription(e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
+                  placeholder="დეტალურად აღწერეთ თქვენი პრეტენზია..."
+                />
+              </div>
+
+              <div className="flex space-x-3">
+                <button
+                  onClick={handleAppealCancel}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md font-medium transition-colors"
+                >
+                  გაუქმება
+                </button>
+                <button
+                  onClick={handleAppealSubmit}
+                  disabled={submittingAppeal}
+                  className="flex-1 bg-[#034e64] hover:bg-[#023a4d] text-white px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50"
+                >
+                  {submittingAppeal ? 'გაგზავნა...' : 'გაგზავნა'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
