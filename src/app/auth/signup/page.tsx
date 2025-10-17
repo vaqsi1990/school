@@ -42,7 +42,11 @@ export default function SignUpPage() {
       const response = await fetch('/api/subjects')
       if (response.ok) {
         const data = await response.json()
-        setSubjects(data.subjects)
+        // Filter only the 4 allowed subjects for students
+        const allowedSubjects = data.subjects.filter((subject: Subject) => 
+          ['გეოგრაფია', 'ინგლისური ენა', 'ისტორია', 'ქართული ენა'].includes(subject.name)
+        )
+        setSubjects(allowedSubjects)
       }
     } catch (error) {
       console.error('Error fetching subjects:', error)
