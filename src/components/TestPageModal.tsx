@@ -45,28 +45,47 @@ const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectI
   const [showTestModal, setShowTestModal] = useState(false)
   const [shuffledOptions, setShuffledOptions] = useState<Record<string, string[]>>({})
   const [subjectName, setSubjectName] = useState('')
+  const [availableGrades, setAvailableGrades] = useState<number[]>([])
 
   const grades = [7, 8, 9, 10, 11, 12]
 
-  // Fetch subject name when component mounts
+  // Fetch subject name and available grades when component mounts
   useEffect(() => {
-    const fetchSubjectName = async () => {
+    const fetchSubjectData = async () => {
       try {
-        const response = await fetch('/api/subjects')
-        if (response.ok) {
-          const data = await response.json()
-          const subject = data.subjects.find((s: Subject) => s.id === subjectId)
+        // Fetch subject name
+        const subjectResponse = await fetch('/api/subjects')
+        if (subjectResponse.ok) {
+          const subjectData = await subjectResponse.json()
+          const subject = subjectData.subjects.find((s: Subject) => s.id === subjectId)
           if (subject) {
             setSubjectName(subject.name)
           }
         }
+
+        // Fetch available grades for this subject
+        const availableGradesList: number[] = []
+        for (const grade of grades) {
+          try {
+            const gradeResponse = await fetch(`/api/test/public-questions-by-id?subjectId=${subjectId}&grade=${grade}`)
+            if (gradeResponse.ok) {
+              const gradeData = await gradeResponse.json()
+              if (gradeData.questions && gradeData.questions.length > 0) {
+                availableGradesList.push(grade)
+              }
+            }
+          } catch (error) {
+            console.error(`Error checking grade ${grade}:`, error)
+          }
+        }
+        setAvailableGrades(availableGradesList)
       } catch (error) {
-        console.error('Error fetching subject name:', error)
+        console.error('Error fetching subject data:', error)
       }
     }
 
     if (subjectId) {
-      fetchSubjectName()
+      fetchSubjectData()
     }
   }, [subjectId])
 
@@ -225,30 +244,39 @@ const TestPageModal: React.FC<TestPageModalProps> = ({ isOpen, onClose, subjectI
           </div>
 
           {/* Grade Selection */}
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-black mb-4">კლასის არჩევა:</h2>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-              {grades.map((grade) => (
-                <button
-                  key={grade}
-                  onClick={() => setSelectedGrade(grade.toString())}
-                  className={`p-4 rounded-lg border-2 transition-colors ${
-                    selectedGrade === grade.toString()
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
-                      : 'border-gray-300 hover:border-gray-400 text-gray-700'
-                  }`}
-                >
-                  მე-{grade}
-                </button>
-              ))}
+          {availableGrades.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold text-black mb-4">კლასის არჩევა:</h2>
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
+                {availableGrades.map((grade) => (
+                  <button
+                    key={grade}
+                    onClick={() => setSelectedGrade(grade.toString())}
+                    className={`p-4 rounded-lg border-2 transition-colors ${
+                      selectedGrade === grade.toString()
+                        ? 'border-blue-500 bg-blue-50 text-blue-700'
+                        : 'border-gray-300 hover:border-gray-400 text-gray-700'
+                    }`}
+                  >
+                    მე-{grade}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* No Questions Available Message */}
+          {availableGrades.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-500 text-lg">ამ საგნისთვის კითხვები ჯერ არ არის დამატებული</p>
+            </div>
+          )}
 
           {/* Start Test Button */}
           <div className="text-center">
             <button
               onClick={startTest}
-              disabled={!selectedGrade || isLoading}
+              disabled={!selectedGrade || isLoading || availableGrades.length === 0}
               className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-medium disabled:bg-gray-400 disabled:cursor-not-allowed hover:bg-blue-700 transition-colors"
             >
               {isLoading ? 'ტესტის ჩატვირთვა...' : 'ტესტის დაწყება'}
