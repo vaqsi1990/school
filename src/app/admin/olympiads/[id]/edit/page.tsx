@@ -47,7 +47,7 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
     maxParticipants: '',
     isActive: true,
     rounds: 3,
-    duration: 1,
+    duration: 60,
     subjects: [] as string[],
     grades: [] as number[],
     packages: [] as string[],
@@ -381,16 +381,16 @@ export default function EditOlympiadPage({ params }: { params: Promise<{ id: str
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                ხანგრძლივობა (საათები) *
+                ხანგრძლივობა (წუთები) *
               </label>
               <input
                 type="number"
-                value={formData.duration || 1}
-                onChange={(e) => handleInputChange('duration', parseFloat(e.target.value) || 1)}
+                value={formData.duration || 60}
+                onChange={(e) => handleInputChange('duration', parseInt(e.target.value) || 60)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64]"
-                min="0.5"
-                max="24"
-                step="0.5"
+                min="15"
+                max="1440"
+                step="15"
                 required
               />
             </div>

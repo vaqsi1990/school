@@ -42,6 +42,7 @@ interface OlympiadEvent {
   maxParticipants: number
   isActive: boolean
   rounds: number
+  duration?: number
   subjects: string[]
   grades: number[]
   questionTypes: string[]
@@ -597,6 +598,9 @@ export default function OlympiadPage({ params }: { params: Promise<{ id: string 
                   <p className="text-black md:text-[18px] text-[16px]"><strong>საგანი:</strong> {olympiad.subjects.join(', ')}</p>
                   <p className="text-black md:text-[18px] text-[16px]"><strong>კლასი:</strong> {olympiad.grades.join(', ')}</p>
                   <p className="text-black md:text-[18px] text-[16px]"><strong>რაუნდი:</strong> {olympiad.rounds}</p>
+                  {olympiad.duration && (
+                    <p className="text-black md:text-[18px] text-[16px]"><strong>ხანგრძლივობა:</strong> {olympiad.duration} წუთი</p>
+                  )}
                 
                 </div>
               </div>

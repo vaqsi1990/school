@@ -89,7 +89,7 @@ export async function POST(
       const now = new Date()
       const startTime = new Date(participation.startTime)
       const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000)
-      const totalTime = olympiad.duration * 60 * 60 // Convert hours to seconds
+      const totalTime = olympiad.duration * 60 // Convert minutes to seconds
       
       if (elapsed >= totalTime) {
         // Time expired, mark as disqualified
@@ -128,7 +128,7 @@ export async function POST(
         message: 'Olympiad resumed successfully',
         questions: allQuestions,
         resumed: true,
-        duration: olympiad.duration * 60, // Return duration in minutes for frontend timer
+        duration: olympiad.duration, // Return duration in minutes for frontend timer
         startTime: participation.startTime.toISOString() // Return the actual start time from database
       })
     }
@@ -191,7 +191,7 @@ export async function POST(
     return NextResponse.json({
       message: 'Olympiad started successfully',
       questions: shuffledQuestions,
-      duration: olympiad.duration * 60 // Return duration in minutes for frontend timer
+      duration: olympiad.duration // Return duration in minutes for frontend timer
     })
   } catch (error) {
     console.error('Error starting olympiad:', error)

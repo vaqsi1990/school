@@ -27,6 +27,7 @@ interface OlympiadEvent {
   maxParticipants: number
   isActive: boolean
   rounds: number
+  duration?: number
   subjects: string[]
   grades: number[]
   questionTypes: string[]
@@ -360,6 +361,9 @@ export default function ManageOlympiadsPage() {
                                 <div><strong>კითხვების რაოდენობა:</strong> {Object.entries(olympiad.questionTypeQuantities).map(([type, qty]) => `${getQuestionTypeLabel(type)}: ${qty}`).join(', ')}</div>
                               )}
                             <div><strong>რაუნდები:</strong> {olympiad.rounds}</div>
+                            {olympiad.duration && (
+                              <div><strong>ხანგრძლივობა:</strong> {olympiad.duration} წუთი</div>
+                            )}
                             <div><strong>პაკეტები:</strong> {olympiad.packages.length}</div>
                             <div><strong>მონაწილეები:</strong> {olympiad._count.participations} (შეზღუდვა არ არის)</div>
                             {olympiad.minimumPointsThreshold && (

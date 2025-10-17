@@ -128,9 +128,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (duration < 0.25 || duration > 8) {
+    if (duration < 15 || duration > 480) {
       return NextResponse.json(
-        { error: 'ტესტირების ხანგრძლივობა უნდა იყოს 0.25-დან 8 საათამდე' },
+        { error: 'ტესტირების ხანგრძლივობა უნდა იყოს 15-დან 480 წუთამდე (8 საათი)' },
         { status: 400 }
       )
     }
@@ -220,7 +220,7 @@ export async function POST(request: NextRequest) {
         isActive,
         showDetailedReview: showDetailedReview || false,
         rounds: parseInt(rounds),
-        duration: parseFloat(duration),
+        duration: parseInt(duration),
         subjects: subjects,
         grades: grades.map((grade: string | number) => parseInt(grade.toString())),
         questionTypes: questionTypeOrder && questionTypeOrder.length > 0 ? questionTypeOrder : questionTypes,

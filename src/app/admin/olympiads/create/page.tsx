@@ -43,7 +43,7 @@ interface OlympiadFormData {
   subjects: string[]
   grades: number[]
   rounds: number
-  duration: number // Duration in hours
+  duration: number // Duration in minutes
   packages: string[] // Array of package IDs
   questionTypes: string[]
   questionTypeQuantities: Record<string, number>
@@ -73,7 +73,7 @@ function CreateOlympiadContent() {
     subjects: [],
     grades: [7, 8, 9, 10, 11, 12],
     rounds: 3,
-    duration: 1, // Default 1 hour
+    duration: 60, // Default 60 minutes
     packages: [],
     questionTypes: [],
     questionTypeQuantities: {},
@@ -347,7 +347,7 @@ function CreateOlympiadContent() {
       subjects: [],
       grades: [7, 8, 9, 10, 11, 12],
       rounds: 3,
-      duration: 1, // Default 1 hour
+      duration: 60, // Default 60 minutes
       packages: [],
       questionTypes: [],
       questionTypeQuantities: {},
@@ -589,22 +589,22 @@ function CreateOlympiadContent() {
 
               <div className="flex flex-col h-full">
                 <label className="block text-sm font-medium text-black md:text-[18px] text-[16px] mb-2">
-                  ტესტირების ხანგრძლივობა (საათებში) *
+                  ტესტირების ხანგრძლივობა (წუთებში) *
                 </label>
                 <input
                   type="number"
                   name="duration"
                   required
-                  min="0.25"
-                  max="10"
-                  step="0.25"
+                  min="15"
+                  max="480"
+                  step="15"
                   value={formData.duration}
                   onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#034e64] text-black md:text-[18px] text-[16px] h-[42px]"
-                  placeholder="1"
+                  placeholder="60"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  მინიმუმ 0.25 საათი (15 წუთი), მაქსიმუმ 10 საათი
+                  მინიმუმ 15 წუთი, მაქსიმუმ 480 წუთი (8 საათი)
                 </p>
               </div>
 
