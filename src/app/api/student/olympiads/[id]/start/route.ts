@@ -89,7 +89,7 @@ export async function POST(
       const now = new Date()
       const startTime = new Date(participation.startTime)
       const elapsed = Math.floor((now.getTime() - startTime.getTime()) / 1000)
-      const totalTime = olympiad.duration * 60 // Convert minutes to seconds
+      const totalTime = (olympiad.duration || 60) * 60 // Convert minutes to seconds, default 60 minutes
       
       if (elapsed >= totalTime) {
         // Time expired, mark as disqualified
