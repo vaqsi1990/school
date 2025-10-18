@@ -47,8 +47,28 @@ export async function GET(request: NextRequest) {
       }
     })
 
+    // Group olympiads by subject
+    const groupedOlympiads = olympiads.reduce((acc, olympiad) => {
+      olympiad.subjects.forEach(subject => {
+        if (!acc[subject]) {
+          acc[subject] = []
+        }
+        acc[subject].push(olympiad)
+      })
+      return acc
+    }, {} as Record<string, typeof olympiads>)
+
+    // Convert grouped olympiads to array format
+    const groupedOlympiadArray = Object.entries(groupedOlympiads).map(([subject, subjectOlympiads]) => ({
+      subject,
+      olympiads: subjectOlympiads.sort((a, b) => a.startDate.getTime() - b.startDate.getTime()),
+      totalOlympiads: subjectOlympiads.length,
+      earliestStartDate: Math.min(...subjectOlympiads.map(o => o.startDate.getTime())),
+      latestEndDate: Math.max(...subjectOlympiads.map(o => o.endDate.getTime()))
+    }))
+
     return NextResponse.json({ 
-      olympiads,
+      olympiads: groupedOlympiadArray,
       success: true 
     })
 

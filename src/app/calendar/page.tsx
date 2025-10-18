@@ -29,6 +29,14 @@ interface OlympiadEvent {
   } | null
 }
 
+interface GroupedOlympiad {
+  subject: string
+  olympiads: OlympiadEvent[]
+  totalOlympiads: number
+  earliestStartDate: number
+  latestEndDate: number
+}
+
 interface CalendarEvent {
   id: string
   title: string
@@ -53,7 +61,7 @@ interface CalendarEvent {
 
 const CalendarPage = () => {
   const router = useRouter()
-  const [olympiads, setOlympiads] = useState<CalendarEvent[]>([])
+  const [groupedOlympiads, setGroupedOlympiads] = useState<GroupedOlympiad[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([
@@ -64,8 +72,11 @@ const CalendarPage = () => {
   ])
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [selectedOlympiad, setSelectedOlympiad] = useState<CalendarEvent | null>(null)
+  const [selectedOlympiad, setSelectedOlympiad] = useState<GroupedOlympiad | null>(null)
   const [expandedOlympiad, setExpandedOlympiad] = useState<string | null>(null)
+  const [showCurriculumModal, setShowCurriculumModal] = useState(false)
+  const [selectedCurriculumGroup, setSelectedCurriculumGroup] = useState<GroupedOlympiad | null>(null)
+  const [selectedGrade, setSelectedGrade] = useState<number | null>(null)
 
   // Georgian month names
   const georgianMonths = [
@@ -91,37 +102,16 @@ const CalendarPage = () => {
       
       if (response.ok) {
         const data = await response.json()
-        const olympiadEvents: OlympiadEvent[] = data.olympiads || []
+        const groupedOlympiadData: GroupedOlympiad[] = data.olympiads || []
         
         // If no real olympiads exist, show message
-        if (olympiadEvents.length === 0) {
-          setOlympiads([])
+        if (groupedOlympiadData.length === 0) {
+          setGroupedOlympiads([])
           setError('ამ საგნებზე ოლიმპიადები ჯერ არ არის შექმნილი')
           return
         }
         
-        // Transform olympiads
-        const transformedOlympiads: CalendarEvent[] = olympiadEvents
-          .map(olympiad => ({
-            id: olympiad.id,
-            title: olympiad.name,
-            description: olympiad.description || '',
-            startDate: new Date(olympiad.startDate),
-            endDate: new Date(olympiad.endDate),
-            registrationStartDate: new Date(olympiad.registrationStartDate),
-            registrationDeadline: new Date(olympiad.registrationDeadline),
-            subjects: olympiad.subjects,
-            grades: olympiad.grades,
-            isActive: olympiad.isActive,
-            maxParticipants: olympiad.maxParticipants || 999999,
-            duration: olympiad.duration || 60,
-            rounds: olympiad.rounds || 3,
-            createdBy: `${olympiad.createdByUser.name} ${olympiad.createdByUser.lastname}`,
-            curriculum: olympiad.curriculum
-          }))
-          .sort((a, b) => a.startDate.getTime() - b.startDate.getTime())
-        
-        setOlympiads(transformedOlympiads)
+        setGroupedOlympiads(groupedOlympiadData)
       } else {
         const errorData = await response.json()
         setError(errorData.error || 'ოლიმპიადების ჩატვირთვა ვერ მოხერხდა')
@@ -140,6 +130,21 @@ const CalendarPage = () => {
       month: 'long',
       day: 'numeric'
     })
+  }
+
+  // Georgian date formatting function
+  const formatGeorgianDate = (date: Date) => {
+    const georgianMonths = [
+      'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი',
+      'მაისი', 'ივნისი', 'ივლისი', 'აგვისტო',
+      'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
+    ]
+    
+    const day = date.getDate()
+    const month = georgianMonths[date.getMonth()]
+    const year = date.getFullYear()
+    
+    return `${day} ${month}, ${year}`
   }
 
 // Function to get subject image based on name
@@ -190,9 +195,11 @@ const getSubjectImage = (subjectName: string): string => {
   }
 
   const getOlympiadsForDate = (date: Date) => {
-    return olympiads.filter(olympiad => {
-      const olympiadDate = new Date(olympiad.startDate)
-      return olympiadDate.toDateString() === date.toDateString()
+    return groupedOlympiads.filter(groupedOlympiad => {
+      return groupedOlympiad.olympiads.some(olympiad => {
+        const olympiadDate = new Date(olympiad.startDate)
+        return olympiadDate.toDateString() === date.toDateString()
+      })
     })
   }
 
@@ -278,98 +285,20 @@ const getSubjectImage = (subjectName: string): string => {
 
     
 
-        {/* Calendar Section */}
-        <div className="mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">კალენდარი</h2>
-            
-            {/* Calendar Header */}
-            <div className="flex items-center justify-between mb-6">
-              <button
-                onClick={() => navigateMonth('prev')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              
-              <h3 className="text-lg font-semibold text-gray-900">
-                {georgianMonths[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-              </h3>
-              
-              <button
-                onClick={() => navigateMonth('next')}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Calendar Grid */}
-            <div className="grid grid-cols-7 gap-1 mb-4">
-              {georgianDays.map(day => (
-                <div key={day} className="p-2 text-center text-sm font-medium text-gray-500">
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-7 gap-1">
-              {days.map((day, index) => {
-                if (!day) {
-                  return <div key={index} className="h-32"></div>
-                }
-                
-                const olympiadsForDay = getOlympiadsForDate(day)
-                const isToday = day.toDateString() === new Date().toDateString()
-                const isSelected = selectedDate?.toDateString() === day.toDateString()
-                
-                return (
-                  <button
-                    key={index}
-                    onClick={() => handleDateClick(day)}
-                    className={`h-20 p-2 text-left border border-gray-200 hover:bg-gray-50 transition-colors ${
-                      isToday ? 'bg-blue-50 border-blue-200' : ''
-                    } ${isSelected ? 'bg-blue-100 border-blue-300' : ''}`}
-                  >
-                    <div className={`text-base font-medium ${
-                      isToday ? 'text-blue-600' : 'text-gray-900'
-                    }`}>
-                      {day.getDate()}
-                    </div>
-                    {olympiadsForDay.length > 0 && (
-                      <div className="mt-1">
-                        <div className="text-sm text-blue-600 font-medium truncate leading-tight px-1 text-center">
-                          {olympiadsForDay[0].subjects[0].length > 8 
-                            ? olympiadsForDay[0].subjects[0].substring(0, 8) + '...'
-                            : olympiadsForDay[0].subjects[0]
-                          }
-                        </div>
-                      </div>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </div>
 
         {/* Olympiads Cards */}
-        {olympiads.length > 0 && (
+        {groupedOlympiads.length > 0 && (
           <div className="mt-8">
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-semibold text-gray-900 mb-6">ოლიმპიადები</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {olympiads.map(olympiad => (
-                  <div key={olympiad.id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 w-[300px] mx-auto">
+                {groupedOlympiads.map(groupedOlympiad => (
+                  <div key={groupedOlympiad.subject} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 w-[300px] mx-auto">
                     {/* Card Header with Image */}
                     <div className="relative">
                       <Image
-                        src={getSubjectImage(olympiad.subjects[0])}
-                        alt={olympiad.subjects[0]}
+                        src={getSubjectImage(groupedOlympiad.subject)}
+                        alt={groupedOlympiad.subject}
                         width={300}
                         height={120}
                         className="w-full h-56 object-cover rounded-t-lg"
@@ -377,11 +306,10 @@ const getSubjectImage = (subjectName: string): string => {
                       <div className="absolute inset-0 bg-black/50 rounded-t-lg"></div>
                       <div className="absolute bottom-2 left-2 right-2">
                         <h3 className="text-lg font-bold text-white text-center mb-1">
-                          {olympiad.subjects[0]}
+                          {groupedOlympiad.subject}
                         </h3>
-                        <p className="text-sm text-white text-center opacity-90">
-                          {olympiad.title}
-                        </p>
+                       
+                       
                       </div>
                     </div>
                     
@@ -390,47 +318,33 @@ const getSubjectImage = (subjectName: string): string => {
                       {/* Olympiad Info */}
                       <div className="space-y-3">
                         <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
-                          </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-gray-900">
-                              დაწყება: {formatDate(olympiad.startDate)}
+                              ოლიმპიადების რაოდენობა: {groupedOlympiad.totalOlympiads}
                             </p>
                           </div>
                         </div>
                         
                         <div className="border-b border-dotted border-gray-300"></div>
                         
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                            </svg>
+                        {/* Show all olympiad dates */}
+                        {groupedOlympiad.olympiads.map((olympiad, index) => (
+                          <div key={olympiad.id}>
+                            <div className="flex items-center space-x-3">
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-gray-900">
+                                  {index + 1}. {olympiad.name}
+                                </p>
+                                <p className="text-xs text-gray-600">
+                                  {formatGeorgianDate(new Date(olympiad.startDate))} - {formatGeorgianDate(new Date(olympiad.endDate))}
+                                </p>
+                              </div>
+                            </div>
+                            {index < groupedOlympiad.olympiads.length - 1 && (
+                              <div className="border-b border-dotted border-gray-300 mt-2"></div>
+                            )}
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">
-                              დასრულება: {formatDate(olympiad.endDate)}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        <div className="border-b border-dotted border-gray-300"></div>
-                        
-                        <div className="flex items-center space-x-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <svg className="w-4 h-4 text-orange-500" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" />
-                            </svg>
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">
-                              ხანგრძლივობა: {olympiad.duration} წუთი
-                            </p>
-                          </div>
-                        </div>
+                        ))}
                       </div>
                     </div>
                     
@@ -438,41 +352,125 @@ const getSubjectImage = (subjectName: string): string => {
                     <div className="px-4 pb-4">
                       <button 
                         onClick={() => {
-                          setExpandedOlympiad(expandedOlympiad === olympiad.id ? null : olympiad.id)
+                          setSelectedCurriculumGroup(groupedOlympiad)
+                          setShowCurriculumModal(true)
+                          setSelectedGrade(null)
                         }}
                         className="w-full bg-blue-600 text-white py-2 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors duration-200 text-center text-sm"
                       >
-                        {expandedOlympiad === olympiad.id ? 'სასწავლო პროგრამის დამალვა' : 'სასწავლო პროგრამა'}
+                        სასწავლო პროგრამა
                       </button>
-                      
-                      {/* Curriculum Content */}
-                      {expandedOlympiad === olympiad.id && (
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                          <h4 className="font-semibold text-gray-900 mb-2">სასწავლო პროგრამა</h4>
-                          <div className="text-sm text-gray-700">
-                            {olympiad.curriculum ? (
-                              <div>
-                                <p className="mb-2">
-                                  <strong>სათაური:</strong> {olympiad.curriculum.title}
-                                </p>
-                                <div className="mt-3">
-                                  <strong>შინაარსი:</strong>
-                                  <div className="mt-2 p-3 bg-white rounded border text-gray-600">
-                                    {olympiad.curriculum.content}
-                                  </div>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="text-gray-500 italic">
-                                სასწავლო პროგრამა ჯერ არ არის დამატებული
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Curriculum Modal */}
+        {showCurriculumModal && selectedCurriculumGroup && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            {/* Transparent background overlay */}
+            <div 
+              className="absolute inset-0 bg-black/50"
+              onClick={() => setShowCurriculumModal(false)}
+            />
+            
+            {/* Modal content */}
+            <div className="relative bg-white rounded-lg shadow-xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+              {/* Close button */}
+              <button
+                onClick={() => setShowCurriculumModal(false)}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl font-bold z-10"
+              >
+                ×
+              </button>
+              
+              {/* Modal content */}
+              <div className="pr-8">
+                {/* Header */}
+                <div className="text-center mb-8">
+                  <h1 className="text-3xl font-bold text-black mb-4">
+                    {selectedCurriculumGroup.subject}
+                  </h1>
+                  <p className="text-black text-[16px]">
+                    აირჩიე კლასი და ნახე სასწავლო პროგრამა
+                  </p>
+                </div>
+
+                {/* Grade Selection */}
+                {!selectedGrade && (
+                  <div className="mb-8">
+                    <h2 className="text-xl font-bold text-black mb-4 text-center">კლასის არჩევა:</h2>
+                    <div className="flex flex-wrap gap-4 justify-center">
+                      {Array.from(new Set(selectedCurriculumGroup.olympiads.flatMap(o => o.grades))).map((grade) => (
+                        <button
+                          key={grade}
+                          onClick={() => setSelectedGrade(grade)}
+                          className="px-6 py-3 cursor-pointer rounded-lg border-2 font-medium transition-colors duration-200 bg-white text-gray-700 border-gray-300 hover:border-blue-500"
+                        >
+                          მე-{grade}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Curriculum Content for selected grade */}
+                {selectedGrade && (
+                  <div className="space-y-6">
+                    <div className="text-center mb-6">
+                      <h2 className="text-2xl font-bold text-black mb-2">
+                        მე-{selectedGrade} კლასის სასწავლო პროგრამები
+                      </h2>
+                      <button
+                        onClick={() => setSelectedGrade(null)}
+                        className="bg-blue-600 cursor-pointer text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        სხვა კლასის არჩევა
+                      </button>
+                    </div>
+
+                    {selectedCurriculumGroup.olympiads
+                      .filter(olympiad => olympiad.grades.includes(selectedGrade))
+                      .map((olympiad, index) => (
+                        <div key={olympiad.id} className="p-6 bg-gray-50 rounded-lg">
+                          <h3 className="text-xl font-bold text-black mb-4">
+                            {index + 1}. {olympiad.name}
+                          </h3>
+                          <div className="mb-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
+                              <p>
+                                <strong>თარიღი:</strong> {formatGeorgianDate(new Date(olympiad.startDate))} - {formatGeorgianDate(new Date(olympiad.endDate))}
+                              </p>
+                             
+                            
+                              
+                             
+                            </div>
+                          </div>
+                          
+                          {olympiad.curriculum ? (
+                            <div className="bg-white p-4 rounded-lg border">
+                              <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                                {olympiad.curriculum.title}
+                              </h4>
+                              <div className="text-gray-700 leading-relaxed">
+                                {olympiad.curriculum.content}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="bg-white p-4 rounded-lg border text-center">
+                              <p className="text-gray-500 italic">
+                                სასწავლო პროგრამა ჯერ არ არის დამატებული
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
