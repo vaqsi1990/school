@@ -511,6 +511,34 @@ function AdminDashboardContent() {
             </div>
           </div>
 
+          {/* Calendar Management Card */}
+          <div className="bg-white overflow-hidden shadow rounded-lg">
+            <div className="p-6">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="ml-4">
+                  <h3 className="text-black md:text-[20px] text-[18px]">კალენდრის მართვა</h3>
+                </div>
+              </div>
+              <div className="mt-4">
+                <p className="text-black md:text-[17px] text-[14px]">
+                  მართეთ კალენდრის ღონისძიებები და მოვლენები
+                </p>
+                <button className="mt-4 w-full cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md md:text-[20px] text-[18px] font-bold">
+                  <Link href="/admin/calendar" className="block w-full h-full text-white">
+                    კალენდრის მართვა
+                  </Link>
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* System Statistics Card */}
           <div className="bg-white overflow-hidden shadow rounded-lg">
             <div className="p-6">

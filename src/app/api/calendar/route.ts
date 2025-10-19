@@ -5,22 +5,33 @@ export async function GET(request: NextRequest) {
   try {
     // Get query parameters for filtering
     const { searchParams } = new URL(request.url)
-    const subjects = searchParams.get('subjects')?.split(',') || []
+    const eventType = searchParams.get('eventType')
+    const month = searchParams.get('month')
+    const year = searchParams.get('year')
     
     // Build where clause
     const where: Record<string, unknown> = {
       isActive: true
     }
     
-    // Filter by subjects if provided
-    if (subjects.length > 0) {
-      where.subjects = {
-        hasSome: subjects
+    // Filter by event type if provided
+    if (eventType) {
+      where.eventType = eventType
+    }
+
+    // Filter by month and year if provided
+    if (month && year) {
+      const startDate = new Date(parseInt(year), parseInt(month) - 1, 1)
+      const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59)
+      
+      where.startDate = {
+        gte: startDate,
+        lte: endDate
       }
     }
 
-    // Get olympiad events
-    const olympiads = await prisma.olympiadEvent.findMany({
+    // Get calendar events
+    const events = await prisma.calendarEvent.findMany({
       where,
       include: {
         createdByUser: {
@@ -29,16 +40,17 @@ export async function GET(request: NextRequest) {
             lastname: true
           }
         },
+        subject: {
+          select: {
+            id: true,
+            name: true
+          }
+        },
         curriculum: {
           select: {
             id: true,
             title: true,
             content: true
-          }
-        },
-        _count: {
-          select: {
-            participations: true
           }
         }
       },
@@ -47,33 +59,60 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Group olympiads by subject
-    const groupedOlympiads = olympiads.reduce((acc, olympiad) => {
-      olympiad.subjects.forEach(subject => {
-        if (!acc[subject]) {
-          acc[subject] = []
+    // Process events to include grade curriculum details
+    const processedEvents = await Promise.all(events.map(async (event) => {
+      const processedEvent = { ...event }
+      
+      // If gradeCurriculums exists, fetch curriculum details for each grade
+      if (event.gradeCurriculums && typeof event.gradeCurriculums === 'object') {
+        const gradeCurriculumsWithDetails: Record<string, {
+          id: string
+          title: string
+          content: string | null
+        } | null> = {}
+        
+        for (const [grade, curriculumId] of Object.entries(event.gradeCurriculums)) {
+          if (curriculumId && typeof curriculumId === 'string') {
+            try {
+              const curriculum = await prisma.curriculum.findUnique({
+                where: { id: curriculumId },
+                select: {
+                  id: true,
+                  title: true,
+                  content: true
+                }
+              })
+              gradeCurriculumsWithDetails[grade] = curriculum
+            } catch (error) {
+              console.error(`Error fetching curriculum ${curriculumId}:`, error)
+              gradeCurriculumsWithDetails[grade] = null
+            }
+          }
         }
-        acc[subject].push(olympiad)
-      })
-      return acc
-    }, {} as Record<string, typeof olympiads>)
-
-    // Convert grouped olympiads to array format
-    const groupedOlympiadArray = Object.entries(groupedOlympiads).map(([subject, subjectOlympiads]) => ({
-      subject,
-      olympiads: subjectOlympiads.sort((a, b) => a.startDate.getTime() - b.startDate.getTime()),
-      totalOlympiads: subjectOlympiads.length,
-      earliestStartDate: Math.min(...subjectOlympiads.map(o => o.startDate.getTime())),
-      latestEndDate: Math.max(...subjectOlympiads.map(o => o.endDate.getTime()))
+        
+        processedEvent.gradeCurriculums = gradeCurriculumsWithDetails
+      }
+      
+      return processedEvent
     }))
 
-    return NextResponse.json({ 
-      olympiads: groupedOlympiadArray,
-      success: true 
+    // Group events by date
+    const groupedEvents = processedEvents.reduce((acc, event) => {
+      const dateKey = event.startDate.toISOString().split('T')[0]
+      if (!acc[dateKey]) {
+        acc[dateKey] = []
+      }
+      acc[dateKey].push(event)
+      return acc
+    }, {} as Record<string, typeof processedEvents>)
+
+    return NextResponse.json({
+      events: groupedEvents,
+      success: true
     })
 
   } catch (error) {
-    console.error('Error fetching calendar olympiads:', error)
+    console.error('Error fetching calendar events:', error)
     return NextResponse.json(
       { 
         error: 'სისტემური შეცდომა მოხდა კალენდრის ჩატვირთვისას',

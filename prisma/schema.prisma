@@ -152,6 +152,7 @@ model Admin {
   managedOlympiads        Olympiad[]        @relation("ManagedOlympiads")
   createdQuestionPackages QuestionPackage[] @relation("AdminQuestionPackages")
   recommendationResponses RecommendationAdminResponse[]
+  createdCalendarEvents   CalendarEvent[]   @relation("CreatedCalendarEvents")
 
   @@map("admins")
 }
@@ -171,6 +172,7 @@ model Subject {
   classTests   ClassTest[]
   testQuestions TestQuestion[]
   testQuestionGroups TestQuestionGroup[]
+  calendarEvents CalendarEvent[]
 
   @@map("subjects")
 }
@@ -348,6 +350,7 @@ model Curriculum {
 
   olympiads       Olympiad[]
   olympiadEvents  OlympiadEvent[]
+  calendarEvents  CalendarEvent[]
 }
 
 model OlympiadEvent {
@@ -833,4 +836,26 @@ model FAQ {
   published   Boolean  @default(true)
 
   @@map("faqs")
+}
+
+model CalendarEvent {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  eventType   String   @default("olympiad") // olympiad only
+  isActive    Boolean  @default(true)
+  subjectId   String?
+  curriculumId String?
+  grades      Int[]    @default([]) // 7-12 grades
+  gradeCurriculums Json? // { "7": "curriculumId", "8": "curriculumId", ... }
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdByUser Admin  @relation("CreatedCalendarEvents", fields: [createdBy], references: [id], onDelete: Cascade)
+  subject     Subject? @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  curriculum  Curriculum? @relation(fields: [curriculumId], references: [id], onDelete: SetNull)
+
+  @@map("calendar_events")
 }
