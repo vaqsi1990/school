@@ -200,57 +200,11 @@ const CalendarPage = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">კალენდარი</h1>
-          <p className="text-gray-600">ნახეთ ყველა ღონისძიება და მოვლენა</p>
-          <p className="text-sm text-blue-600 mt-2">
-            ღონისძიებების რაოდენობა ამ თვეში: {totalEvents}
-          </p>
+          
         </div>
 
-        {/* Event Type Filter */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2">
-            {eventTypes.map((type) => (
-              <button
-                key={type.value}
-                onClick={() => setSelectedEventType(type.value)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  selectedEventType === type.value
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                {type.label}
-              </button>
-            ))}
-          </div>
-        </div>
+   
 
-        {/* Month Navigation */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">
-              {georgianMonths[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-            </h2>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => navigateMonth('prev')}
-                className="p-2 hover:bg-gray-100 rounded-lg"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                onClick={() => navigateMonth('next')}
-                className="p-2 hover:bg-gray-100 rounded-lg"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Events Cards */}
         {totalEvents === 0 ? (
