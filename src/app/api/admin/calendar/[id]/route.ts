@@ -28,7 +28,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { id, title, description, startDate, endDate, eventType, isActive, subjectId, curriculumId, grades, gradeCurriculums } = body
+    const { id, title, description, startDate, endDate, eventType, isActive, subjectId, curriculumId, grades, gradeCurriculums, rounds } = body
 
     if (!id) {
       return NextResponse.json(
@@ -92,7 +92,8 @@ export async function PUT(request: NextRequest) {
         ...(subjectId !== undefined && { subjectId }),
         ...(curriculumId !== undefined && { curriculumId }),
         ...(grades !== undefined && { grades }),
-        ...(gradeCurriculums !== undefined && { gradeCurriculums })
+        ...(gradeCurriculums !== undefined && { gradeCurriculums }),
+        ...(rounds !== undefined && { rounds })
       },
       include: {
         createdByUser: {

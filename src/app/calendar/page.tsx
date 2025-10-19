@@ -16,6 +16,7 @@ interface CalendarEvent {
   curriculumId?: string
   grades: number[]
   gradeCurriculums?: Record<string, string> // { "7": "curriculumId", "8": "curriculumId", ... }
+  rounds: number // Number of rounds for the event
   createdByUser: {
     name: string
     lastname: string
@@ -41,7 +42,7 @@ const CalendarPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedEventType, setSelectedEventType] = useState<string>('')
-  const [currentMonth, setCurrentMonth] = useState(new Date())
+  // Removed currentMonth state since we're showing all events regardless of date
   const [showCurriculumModal, setShowCurriculumModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [selectedGrade, setSelectedGrade] = useState<number | null>(null)
@@ -51,16 +52,11 @@ const CalendarPage = () => {
     { value: 'olympiad', label: 'ოლიმპიადა' }
   ]
 
-  // Georgian month names
-  const georgianMonths = [
-    'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი',
-    'მაისი', 'ივნისი', 'ივლისი', 'აგვისტო',
-    'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი'
-  ]
+  // Removed georgianMonths array since we're no longer using month navigation
 
   useEffect(() => {
     fetchEvents()
-  }, [selectedEventType, currentMonth])
+  }, [selectedEventType])
 
   const fetchEvents = async () => {
     try {
@@ -71,8 +67,7 @@ const CalendarPage = () => {
         params.append('eventType', selectedEventType)
       }
       
-      params.append('month', (currentMonth.getMonth() + 1).toString())
-      params.append('year', currentMonth.getFullYear().toString())
+      // Removed month/year parameters since we're showing all events
 
       const response = await fetch(`/api/calendar?${params}`)
       const data = await response.json()
@@ -140,17 +135,7 @@ const CalendarPage = () => {
     return imageMap[subjectName] || '/test/bgimage.jpg'
   }
 
-  const navigateMonth = (direction: 'prev' | 'next') => {
-    setCurrentMonth(prev => {
-      const newMonth = new Date(prev)
-      if (direction === 'prev') {
-        newMonth.setMonth(prev.getMonth() - 1)
-      } else {
-        newMonth.setMonth(prev.getMonth() + 1)
-      }
-      return newMonth
-    })
-  }
+  // Removed navigateMonth function since we're showing all events regardless of date
 
   const getEventTypeColor = (type: string) => {
     const colors: Record<string, string> = {
@@ -162,6 +147,16 @@ const CalendarPage = () => {
   const getEventTypeLabel = (type: string) => {
     const eventType = eventTypes.find(et => et.value === type)
     return eventType ? eventType.label : type
+  }
+
+  // Function to convert Arabic numerals to Roman numerals
+  const toRomanNumeral = (num: number): string => {
+    const romanNumerals: { [key: number]: string } = {
+      1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V',
+      6: 'VI', 7: 'VII', 8: 'VIII', 9: 'IX', 10: 'X',
+      11: 'XI', 12: 'XII'
+    }
+    return romanNumerals[num] || num.toString()
   }
 
   if (loading) {
@@ -209,12 +204,12 @@ const CalendarPage = () => {
         {/* Events Cards */}
         {totalEvents === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-6 text-center">
-            <p className="text-gray-500">ამ თვეში ღონისძიებები არ არის</p>
+            <p className="text-gray-500">ღონისძიებები არ არის</p>
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-6">ღონისძიებები</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+       
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-14">
               {Object.entries(groupedEvents).map(([date, events]) => 
                 events.map((event) => (
                   <div key={event.id} className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 w-[300px] mx-auto">
@@ -229,11 +224,11 @@ const CalendarPage = () => {
                       />
                       <div className="absolute inset-0 bg-black/50 rounded-t-lg"></div>
                       <div className="absolute bottom-2 left-2 right-2">
-                        <h3 className="text-lg font-bold text-white text-center mb-1">
+                        <h3 className="text-[20px] md:text-[24px] font-bold text-white text-center mb-1">
                           {event.title}
                         </h3>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getEventTypeColor(event.eventType)} text-white`}>
-                          {getEventTypeLabel(event.eventType)}
+                        <span className={`px-3 py-2 rounded-full text-[16px] font-medium ${getEventTypeColor(event.eventType)} text-white`}>
+                        {event.rounds} ტური
                         </span>
                       </div>
                     </div>
@@ -244,51 +239,39 @@ const CalendarPage = () => {
                       <div className="space-y-3">
                         <div className="flex items-center space-x-3">
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-gray-900">
+                            <p className="text-[16px] font-medium text-black">
                               თარიღი: {formatGeorgianDate(event.startDate)}
                             </p>
                             {event.endDate && (
-                              <p className="text-xs text-gray-600">
-                                დასრულება: {formatGeorgianDate(event.endDate)}
+                              <p className="text-[16px] text-black">
+                                დაწყების დრო: {formatTime(event.startDate)}
                               </p>
                             )}
-                            <p className="text-xs text-gray-600">
-                              დრო: {formatTime(event.startDate)}
-                            </p>
+                            {event.endDate && (
+                              <p className="text-[16px] text-black">
+                                დასრულების დრო: {formatTime(event.endDate)}
+                              </p>
+                            )}
                           </div>
                         </div>
                         
                         <div className="border-b border-dotted border-gray-300"></div>
                         
-                        {event.subject && (
-                          <div className="flex items-center space-x-3">
-                            <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900">
-                                საგანი: {event.subject.name}
-                              </p>
-                            </div>
-                          </div>
-                        )}
+                     
                         
                         {event.grades && event.grades.length > 0 && (
                           <div className="flex items-center space-x-3">
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900">
-                                კლასები: {event.grades.sort().join(', ')} კლასი
+                              <p className="text-[16px] font-medium text-black">
+                                კლასები: {event.grades.sort().map(grade => toRomanNumeral(grade)).join(', ')} კლასი
                               </p>
                             </div>
                           </div>
                         )}
                         
-                        {event.description && (
-                          <div className="flex items-center space-x-3">
-                            <div className="flex-1">
-                              <p className="text-xs text-gray-600">
-                                {event.description}
-                              </p>
-                            </div>
-                          </div>
-                        )}
+                      
+                        
+                       
                       </div>
                     </div>
                     
@@ -354,7 +337,7 @@ const CalendarPage = () => {
                           onClick={() => setSelectedGrade(grade)}
                           className="px-6 py-3 cursor-pointer rounded-lg border-2 font-medium transition-colors duration-200 bg-white text-gray-700 border-gray-300 hover:border-blue-500"
                         >
-                          მე-{grade}
+                          მე-{toRomanNumeral(grade)}
                         </button>
                       ))}
                     </div>
@@ -366,7 +349,7 @@ const CalendarPage = () => {
                   <div className="space-y-6">
                     <div className="text-center mb-6">
                       <h2 className="text-2xl font-bold text-black mb-2">
-                        მე-{selectedGrade} კლასის სასწავლო პროგრამა
+                        მე-{toRomanNumeral(selectedGrade)} კლასის სასწავლო პროგრამა
                       </h2>
                       <button
                         onClick={() => setSelectedGrade(null)}
@@ -392,6 +375,11 @@ const CalendarPage = () => {
                           {selectedEvent.subject && (
                             <p>
                               <strong>საგანი:</strong> {selectedEvent.subject.name}
+                            </p>
+                          )}
+                          {selectedEvent.rounds && selectedEvent.rounds > 0 && (
+                            <p>
+                              <strong>ტურები:</strong> {selectedEvent.rounds} ტური
                             </p>
                           )}
                         </div>

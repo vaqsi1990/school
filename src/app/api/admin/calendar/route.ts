@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, description, startDate, endDate, eventType, isActive, subjectId, curriculumId, grades, gradeCurriculums } = body
+    const { title, description, startDate, endDate, eventType, isActive, subjectId, curriculumId, grades, gradeCurriculums, rounds } = body
 
     // Validate required fields
     if (!title || !startDate) {
@@ -155,6 +155,7 @@ export async function POST(request: NextRequest) {
         curriculumId: curriculumId || null,
         grades: grades || [],
         gradeCurriculums: gradeCurriculums || null,
+        rounds: rounds || 1,
         createdBy: admin.id
       },
       include: {

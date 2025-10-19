@@ -850,6 +850,7 @@ model CalendarEvent {
   curriculumId String?
   grades      Int[]    @default([]) // 7-12 grades
   gradeCurriculums Json? // { "7": "curriculumId", "8": "curriculumId", ... }
+  rounds      Int      @default(1) // Number of rounds for the event
   createdBy   String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

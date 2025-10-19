@@ -17,6 +17,7 @@ interface CalendarEvent {
   curriculumId?: string
   grades: number[]
   gradeCurriculums?: Record<string, string> // { "7": "curriculumId", "8": "curriculumId", ... }
+  rounds: number // Number of rounds for the event
   createdByUser: {
     name: string
     lastname: string
@@ -54,7 +55,8 @@ const CalendarManagement = () => {
     subjectId: '',
     curriculumId: '',
     grades: [] as number[],
-    gradeCurriculums: {} as Record<string, string>
+    gradeCurriculums: {} as Record<string, string>,
+    rounds: 1
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -63,6 +65,12 @@ const CalendarManagement = () => {
   ]
 
   const availableGrades = [7, 8, 9, 10, 11, 12]
+  
+  const roundsOptions = [
+    { value: 1, label: 'I ტური' },
+    { value: 2, label: 'II ტური' },
+    { value: 3, label: 'III ტური' }
+  ]
 
   useEffect(() => {
     fetchEvents()
@@ -140,7 +148,8 @@ const CalendarManagement = () => {
           subjectId: formData.subjectId || null,
           curriculumId: formData.curriculumId || null,
           grades: formData.grades,
-        gradeCurriculums: formData.gradeCurriculums,
+          gradeCurriculums: formData.gradeCurriculums,
+          rounds: formData.rounds,
           ...(editingEvent && { id: editingEvent.id })
         }),
       })
@@ -163,7 +172,8 @@ const CalendarManagement = () => {
           subjectId: '',
           curriculumId: '',
           grades: [],
-      gradeCurriculums: {}
+          gradeCurriculums: {},
+          rounds: 1
         })
         fetchEvents()
       } else {
@@ -193,7 +203,8 @@ const CalendarManagement = () => {
       subjectId: event.subjectId || '',
       curriculumId: event.curriculumId || '',
       grades: event.grades,
-      gradeCurriculums: event.gradeCurriculums || {} || []
+      gradeCurriculums: event.gradeCurriculums || {},
+      rounds: event.rounds || 1
     })
     setIsModalOpen(true)
   }
@@ -299,7 +310,8 @@ const CalendarManagement = () => {
                     subjectId: '',
                     curriculumId: '',
                     grades: [],
-      gradeCurriculums: {}
+                    gradeCurriculums: {},
+                    rounds: 1
                   })
                   setIsModalOpen(true)
                 }}
@@ -527,6 +539,23 @@ const CalendarManagement = () => {
                   {eventTypes.map((type) => (
                     <option key={type.value} value={type.value}>
                       {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ტურები
+                </label>
+                <select
+                  value={formData.rounds}
+                  onChange={(e) => setFormData({ ...formData, rounds: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {roundsOptions.map((round) => (
+                    <option key={round.value} value={round.value}>
+                      {round.label}
                     </option>
                   ))}
                 </select>

@@ -19,16 +19,8 @@ export async function GET(request: NextRequest) {
       where.eventType = eventType
     }
 
-    // Filter by month and year if provided
-    if (month && year) {
-      const startDate = new Date(parseInt(year), parseInt(month) - 1, 1)
-      const endDate = new Date(parseInt(year), parseInt(month), 0, 23, 59, 59)
-      
-      where.startDate = {
-        gte: startDate,
-        lte: endDate
-      }
-    }
+    // Note: Removed month/year filtering to show events from any period
+    // Events will be displayed regardless of their date
 
     // Get calendar events
     const events = await prisma.calendarEvent.findMany({
