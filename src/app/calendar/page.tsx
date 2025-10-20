@@ -338,7 +338,7 @@ const CalendarPage = () => {
                           onClick={() => setSelectedGrade(grade)}
                           className="px-6 py-3 cursor-pointer rounded-lg border-2 font-medium transition-colors duration-200 bg-white text-gray-700 border-gray-300 hover:border-blue-500"
                         >
-                          მე-{toRomanNumeral(grade)}
+                          {toRomanNumeral(grade)}
                         </button>
                       ))}
                     </div>
