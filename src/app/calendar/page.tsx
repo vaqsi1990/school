@@ -89,7 +89,8 @@ const CalendarPage = () => {
     const date = new Date(dateString)
     return date.toLocaleTimeString('ka-GE', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: false
     })
   }
 
@@ -228,7 +229,7 @@ const CalendarPage = () => {
                           {event.title}
                         </h3>
                         <span className={`px-3 py-2 rounded-full text-[16px] font-medium ${getEventTypeColor(event.eventType)} text-white`}>
-                        {event.rounds} ტური
+                        {toRomanNumeral(event.rounds)} ტური
                         </span>
                       </div>
                     </div>
@@ -244,12 +245,12 @@ const CalendarPage = () => {
                             </p>
                             {event.endDate && (
                               <p className="text-[16px] text-black">
-                                დაწყების დრო: {formatTime(event.startDate)}
+                                დაწყების დრო: {formatTime(event.startDate)} სთ
                               </p>
                             )}
                             {event.endDate && (
                               <p className="text-[16px] text-black">
-                                დასრულების დრო: {formatTime(event.endDate)}
+                                დასრულების დრო: {formatTime(event.endDate)} სთ
                               </p>
                             )}
                           </div>
