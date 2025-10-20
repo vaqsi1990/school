@@ -4,6 +4,7 @@ import Why from '@/component/Why'
 import TestQuestionsForAll from '@/component/TestQuestionsForAll'
 import News from '@/component/News'
 
+console.log();
 
 export default function Home() {
   return (
