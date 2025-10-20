@@ -283,7 +283,7 @@ const CalendarPage = () => {
                           setShowCurriculumModal(true)
                           setSelectedGrade(null)
                         }}
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors duration-200 text-center text-sm"
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors duration-200 text-center text-[18px] cursor-pointer"
                       >
                         სასწავლო პროგრამა
                       </button>
@@ -353,7 +353,7 @@ const CalendarPage = () => {
                       </h2>
                       <button
                         onClick={() => setSelectedGrade(null)}
-                        className="bg-blue-600 cursor-pointer text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                        className="bg-blue-600 text-[16px] cursor-pointer text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
                       >
                         სხვა კლასის არჩევა
                       </button>
