@@ -360,30 +360,7 @@ const CalendarPage = () => {
                     </div>
 
                     <div className="p-6 bg-gray-50 rounded-lg">
-                      <h3 className="text-xl font-bold text-black mb-4">
-                        {selectedEvent.title}
-                      </h3>
-                      <div className="mb-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600">
-                          <p>
-                            <strong>თარიღი:</strong> {formatGeorgianDate(selectedEvent.startDate)}
-                            {selectedEvent.endDate && ` - ${formatGeorgianDate(selectedEvent.endDate)}`}
-                          </p>
-                          <p>
-                            <strong>დრო:</strong> {formatTime(selectedEvent.startDate)}
-                          </p>
-                          {selectedEvent.subject && (
-                            <p>
-                              <strong>საგანი:</strong> {selectedEvent.subject.name}
-                            </p>
-                          )}
-                          {selectedEvent.rounds && selectedEvent.rounds > 0 && (
-                            <p>
-                              <strong>ტურები:</strong> {selectedEvent.rounds} ტური
-                            </p>
-                          )}
-                        </div>
-                      </div>
+                    
                       
                       {/* Check if there's a specific curriculum for this grade */}
                       {selectedEvent.gradeCurriculums && selectedEvent.gradeCurriculums[selectedGrade.toString()] ? (
