@@ -350,7 +350,7 @@ const CalendarPage = () => {
                   <div className="space-y-6">
                     <div className="text-center mb-6">
                       <h2 className="text-2xl font-bold text-black mb-2">
-                        მე-{toRomanNumeral(selectedGrade)} კლასის სასწავლო პროგრამა
+                        {toRomanNumeral(selectedGrade)} კლასის სასწავლო პროგრამა
                       </h2>
                       <button
                         onClick={() => setSelectedGrade(null)}
